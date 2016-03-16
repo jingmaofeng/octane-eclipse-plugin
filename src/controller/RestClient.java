@@ -24,10 +24,10 @@ public final class RestClient {
 	private boolean auth = false;
 	private String token = null;
 	private String response = null;
-	public int responseCode = 0;
+	private int responseCode = 0;
 	
-	public CookieManager manager;
-	public CookieStore cookieStore;
+	private CookieManager manager;
+	private CookieStore cookieStore;
 
 	private RestClient() {
 	}
@@ -108,15 +108,15 @@ public final class RestClient {
 				lastConnection.setRequestProperty(entry.getKey(), entry.getValue());
 			}
 			responseCode = lastConnection.getResponseCode();
-			if (this.auth)
-				this.response = setResponse();
-		} catch (Exception e) {/*
+			if (auth)
+				response = setResponse();
+		} catch (Exception e) {
 			String msg = "HttpClient sendRequest exception: ";
 			System.out.println("Method: " + method);
 			System.out.println("URL: " + clientInfo.serverUrl);
 			System.out.println("Headers: " + headers);
-			System.out.println(msg + e.getMessage());*/
-			throw new IllegalArgumentException(e);
+			System.out.println(msg + e.getMessage());
+			throw new IllegalArgumentException("sendRequest exception");
 		}
 	}
 
@@ -137,5 +137,9 @@ public final class RestClient {
 		} catch (UnsupportedEncodingException e) {
 			return "";
 		}
+	}
+
+	public int getResponseCode() {
+		return responseCode;
 	}
 }

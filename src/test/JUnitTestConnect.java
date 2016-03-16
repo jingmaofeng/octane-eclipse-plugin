@@ -23,7 +23,7 @@ public class JUnitTestConnect extends Assert {
 	
 	@Test
 	public void TestConnect(){
-		assertEquals(ht.responseCode, 200);
+		assertEquals(ht.getResponseCode(), 200);
 		assertEquals(ht.is_auth(), true);
 	}
 	
@@ -37,7 +37,6 @@ public class JUnitTestConnect extends Assert {
 	/// ????
 	@Test
 	public void TestGetDefects(){
-		assertEquals(ht.responseCode, 200);
 		String json = ht.getEntity("defects");
 		System.out.println(json);
 		assertTrue(json.contains("defect"));
