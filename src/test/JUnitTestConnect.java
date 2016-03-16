@@ -7,7 +7,7 @@ import controller.RestClient;
 import junit.framework.Assert;
 
 public class JUnitTestConnect extends Assert {
-	public String login = "edi@hpe.com";
+	public String username = "edi@hpe.com";
 	public String pass = "";
 	public String url = "http://myd-vm21085.hpswlabs.adapps.hp.com:8081";
 	public int sharespace = 1021;	
@@ -17,9 +17,14 @@ public class JUnitTestConnect extends Assert {
 	@Before
 	  public void setUp() {
 		ht = RestClient.getInstance();
-		ht.Authenticate(url, login, pass, sharespace, workspace);
+		ht.Authenticate(url, username, pass, sharespace, workspace);
 		ht.Authorization();
 	  }
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void TestWithEmptyURL(){
+		
+	}
 	
 	@Test
 	public void TestConnect(){

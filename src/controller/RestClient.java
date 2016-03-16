@@ -4,10 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.CookieStore;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -19,15 +15,12 @@ import model.ConnectionClientInfo;
 public final class RestClient {
 	private static RestClient INSTANCE = null;
 	private ConnectionClientInfo clientInfo;
-
 	private HttpURLConnection lastConnection;
 	private boolean auth = false;
 	private String token = null;
 	private String response = null;
 	private int responseCode = 0;
-	
-	private CookieManager manager;
-	private CookieStore cookieStore;
+	private CookiesManager cookies = CookiesManager.getInstance();
 
 	private RestClient() {
 	}
@@ -39,23 +32,19 @@ public final class RestClient {
 		return INSTANCE;
 	}
 
+	// set all values and check it
 	public void Authenticate(String serverUrl, String username, String password, int sharedSpaceId, int workSpaceId) {
 		CheckArgumentOnNullAndEmpty(serverUrl, "url");
 		CheckArgumentOnNullAndEmpty(username, "user name");
 		clientInfo = new ConnectionClientInfo(serverUrl, username, password, sharedSpaceId, workSpaceId);
-
-		manager = new CookieManager();
-		manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-		CookieHandler.setDefault(manager);
-		cookieStore = manager.getCookieStore();
 	}
 
 	public int Authorization() {
-		String url =clientInfo.urlAuth;
+		String url = clientInfo.urlAuth;
 		sendRequest(url, "POST", headersForAuthorization());
 		if (responseCode == 200) {
 			this.auth = true;
-			token = cookieStore.toString();
+			token = cookies.getToken();
 		}
 		return responseCode;
 	}
@@ -67,7 +56,7 @@ public final class RestClient {
 			return this.response;
 		else
 			return null;
-	}	
+	}
 
 	public String getResponse() {
 		return response;
@@ -83,7 +72,7 @@ public final class RestClient {
 		if (arg.isEmpty())
 			throw new IllegalArgumentException(name + " is empty");
 	}
-	
+
 	private Map<String, String> headersForGetRequest() {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Accept", "application/json");
@@ -91,7 +80,7 @@ public final class RestClient {
 		headers.put("HPSSO_HEADER_CSRF", token);
 		return headers;
 	}
-	
+
 	private Map<String, String> headersForAuthorization() {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Accept", "text/plain");
