@@ -9,7 +9,7 @@ public final class ConstRequestProperty {
 	public static final String HP_CLIENT_TYPE = "HPECLIENTTYPE";
 	public static final String HP_CLIENT_TYPE_VALUE = "HPE_MQM_UI";		
 	public static final String CONTENT_TYPE_JSON_VALUE = "application/json";
-	public static final String HP_HEADER_CSRF = "HPSSO_HEADER_CSRF";	
+	public static final String HP_HEADER_CSRF = "HPSSO_HEADER_CSRF";	/// oop!
 	
 	public static final String URL_AUTH = "authentication/sign_in";
 	public static final String URL_SHARED_SPACE = "api/shared_spaces/";
