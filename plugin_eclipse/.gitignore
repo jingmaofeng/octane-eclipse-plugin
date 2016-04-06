@@ -1,0 +1,9 @@
+/.project
+/.classpath
+/build.properties
+/bin/
+<<<<<<< HEAD
+/.metadata
+=======
+
+>>>>>>> branch 'master' of https://github.com/idanush/nga-eclipse-plugin.git
