@@ -77,12 +77,12 @@ public class SamplePreferencePage extends PreferencePage implements IWorkbenchPr
 		btnTest.setText("Test");
 		btnTest.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
-				if (!itWasAtest) {
+			//	if (!itWasAtest) {
 					secureStorage.setLocation(serverUrl.getText());
 					secureStorage.setUserName(userName.getText());
 					secureStorage.setPassword(password.getText());
 					itWasAtest = true;
-				}		
+			//	}		
 				switch (event.type) {
 				case SWT.Selection:
 					String[] responseFromRest = ApplRestClientTest.getRestClient(serverUrl.getText());
