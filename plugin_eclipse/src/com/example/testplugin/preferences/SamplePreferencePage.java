@@ -21,6 +21,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 public class SamplePreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+	
 	private Text serverUrl;
 	private Text userName;
 	private Text password;
@@ -36,7 +37,7 @@ public class SamplePreferencePage extends PreferencePage implements IWorkbenchPr
 	public SamplePreferencePage() throws StorageException {
 		super();
 		noDefaultButton();
-		// setPreferenceStore(Activator.getDefault().getPreferenceStore());
+		//setPreferenceStore(Activator.getDefault().getPreferenceStore());
 		this.secureStorage = SecureStorage.getInstance();
 	}
 

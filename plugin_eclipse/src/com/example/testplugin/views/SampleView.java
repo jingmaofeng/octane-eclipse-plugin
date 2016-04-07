@@ -61,15 +61,16 @@ public class SampleView extends ViewPart {
 	}
 
 	public void createPartControl(Composite parent) {
-		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setSorter(new NameSorter());
 		// viewer.setInput(getViewSite());
 		table = viewer.getTable();
 		table.setLinesVisible(true);
-		table.setVisible(true);
+		// table.setVisible(true);
 		table.setHeaderVisible(true);
+
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "com.example.testPlugin.viewer");
 		getSite().setSelectionProvider(viewer);
 		makeActions();
@@ -91,6 +92,7 @@ public class SampleView extends ViewPart {
 				headers.addAll(entities.get(0).fields.keySet());
 				for (String header : headers) {
 					TableColumn column = new TableColumn(table, SWT.NONE);
+					column.setMoveable(true);
 					column.setText(header);
 				}
 
@@ -106,12 +108,16 @@ public class SampleView extends ViewPart {
 
 				for (int a = 0; a < defects.length; a++) {
 					TableItem item = new TableItem(table, SWT.NONE);
+
 					item.setText(defects[a]);
 				}
 
+				table.setVisible(false);
 				for (int b = 0; b < headers.size(); b++) {
 					table.getColumn(b).pack();
 				}
+				table.setVisible(true);
+
 			} else {
 				showMessage("Number of defects = " + entities.size());
 			}
@@ -185,7 +191,7 @@ public class SampleView extends ViewPart {
 			public void run() {
 				int i = 0;
 				String[] res = { "" };
-				int selection = table.getSelectionIndex();
+				int selection = table.getSelectionIndex();			
 				for (String[] defect : defects) {
 					if (i == selection) {
 						res = defect;
