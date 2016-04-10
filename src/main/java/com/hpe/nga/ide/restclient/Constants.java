@@ -16,4 +16,5 @@ public class Constants {
 	public static final String EXCEPTION_ERROR_URL = Constants.EXCEPTION_PREFIX + "URL not found %s.";
 	public static final String EXCEPTION_AUTH_FAILED = Constants.EXCEPTION_PREFIX + "authorization failed for username %s at %s";
 	public static final String EXCEPTION_ERROR_NO_CONNECTION = "You are not connected to the server. You must first use connect().";
+	public static final String EXCEPTION_ERROR_WORKSPACE = "Sharedspace ID or workspace ID is not exist's";
 }

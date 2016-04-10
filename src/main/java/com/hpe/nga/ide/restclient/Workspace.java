@@ -14,6 +14,7 @@ public class Workspace {
 	private int workspaceId;
 	private String sharedSpaceName;
 	private String workspaceName;
+	private int totalCount;
 
 	public Workspace(RestClient restClient, int sharedSpaceId, int workspaceId) throws RestClientException {
 		this.restClient = restClient;
@@ -21,25 +22,28 @@ public class Workspace {
 		this.workspaceId = workspaceId;
 	}
 
-	private String getWorkspaceDisplayName() {
+	private String getWorkspaceDisplayName() throws RestClientException {
 		if (sharedSpaceName == null || workspaceName == null) {
 			String urlShareSpace = restClient.getServerUrl() + String.format(Constants.URL_SHARED_SPACE, sharedSpaceId);
 			String urlWorkspace = restClient.getServerUrl()
 					+ String.format(Constants.URL_SHARED_SPACE_AND_WORKSPACE, sharedSpaceId, workspaceId);
 			HttpURLConnection response = null;
 			try {
-			response = restClient.get(urlShareSpace);
-			String resultResponse = getResultFromResponse(response);
-			sharedSpaceName = ((Map<String, Object>) JSONparseResult.parseJSON(resultResponse)).get("name").toString();
-			response = restClient.get(urlWorkspace);
-			resultResponse = getResultFromResponse(response);
-			workspaceName = ((Map<String, Object>) JSONparseResult.parseJSON(resultResponse)).get("name").toString();
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
+				response = restClient.get(urlShareSpace);
+				String resultResponse = getResultFromResponse(response);
+				sharedSpaceName = ((Map<String, Object>) JSONparseResult.parseJSON(resultResponse)).get("name")
+						.toString();
+			} catch (RestClientException e) {}
+			try {
+				response = restClient.get(urlWorkspace);
+				String resultResponse = getResultFromResponse(response);
+				workspaceName = ((Map<String, Object>) JSONparseResult.parseJSON(resultResponse)).get("name")
+						.toString();
+			} catch (RestClientException e) {}
 		}
 		return sharedSpaceName + "\\" + workspaceName;
 	}
+
 
 	@SuppressWarnings("unchecked")
 	public List<Entity> getEntities(FetchOptions options) throws RestClientException {
@@ -47,7 +51,9 @@ public class Workspace {
 				+ String.format(Constants.URL_SHARED_SPACE_AND_WORKSPACE, sharedSpaceId, workspaceId);
 		HttpURLConnection response = restClient.get(url + options.toString());
 		String jsonResult = getResultFromResponse(response);
+		System.out.println(jsonResult);
 		Map<String, Object> mapResult = JSONparseResult.parseJSON(jsonResult);
+		totalCount = (Integer) mapResult.get("total_count");
 		return (ArrayList<Entity>) mapResult.get("data");
 	}
 
@@ -80,7 +86,19 @@ public class Workspace {
 
 	@Override
 	public String toString() {
-		return getWorkspaceDisplayName();
+		try {
+			return getWorkspaceDisplayName();
+		} catch (RestClientException e) {
+			return "";
+		}
+	}
+	
+	public String getMetadataJson(String entityType) throws RestClientException {
+		String url = restClient.getServerUrl()
+				+ String.format(Constants.URL_SHARED_SPACE_AND_WORKSPACE, sharedSpaceId, workspaceId)
+				+ Constants.URL_METADATA;
+		HttpURLConnection response = restClient.get(String.format(url, entityType));
+		return getResultFromResponse(response);
 	}
 
 	// parse the response and create list of metadata
@@ -103,5 +121,9 @@ public class Workspace {
 				result.add(metadata);
 		}
 		return result;
+	}
+	
+	public int getTotalCount() {
+		return totalCount;
 	}
 }
