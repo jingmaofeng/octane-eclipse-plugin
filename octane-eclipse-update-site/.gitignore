@@ -4,3 +4,5 @@
 /content.jar
 /target
 /Archive.zip
+.settings
+*.project
