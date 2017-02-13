@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.hpe.adm.octane</groupId>
-		<artifactId>parent</artifactId>
+		<artifactId>octane-eclipse-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<groupId>com.hpe.adm.octane</groupId>
