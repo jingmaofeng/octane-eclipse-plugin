@@ -4,5 +4,7 @@
 /content.jar
 /target
 /Archive.zip
+/web
+index.html
 .settings
 *.project
