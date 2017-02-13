@@ -1,18 +1,37 @@
 package com.hpe.octane.ideplugins.eclipse.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.*;
-import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.*;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.SWT;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.DrillDownAdapter;
+import org.eclipse.ui.part.ViewPart;
 
+import com.hpe.adm.nga.sdk.Octane;
+import com.hpe.adm.nga.sdk.authorisation.UserAuthorisation;
+import com.hpe.adm.nga.sdk.model.EntityModel;
 
 /**
  * This sample class demonstrates how to plug-in a new
@@ -44,11 +63,11 @@ public class MyWork extends ViewPart {
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
-	 
+
 	class TreeObject implements IAdaptable {
 		private String name;
 		private TreeParent parent;
-		
+
 		public TreeObject(String name) {
 			this.name = name;
 		}
@@ -68,7 +87,7 @@ public class MyWork extends ViewPart {
 			return null;
 		}
 	}
-	
+
 	class TreeParent extends TreeObject {
 		private ArrayList children;
 		public TreeParent(String name) {
@@ -118,28 +137,24 @@ public class MyWork extends ViewPart {
 				return ((TreeParent)parent).hasChildren();
 			return false;
 		}
-/*
- * We will set up a dummy model to initialize tree heararchy.
- * In a real code, you will connect to a real model and
- * expose its hierarchy.
- */
+		/*
+		 * We will set up a dummy model to initialize tree heararchy.
+		 * In a real code, you will connect to a real model and
+		 * expose its hierarchy.
+		 */
 		private void initialize() {
-			TreeObject to1 = new TreeObject("Leaf 1");
-			TreeObject to2 = new TreeObject("Leaf 2");
-			TreeObject to3 = new TreeObject("Leaf 3");
-			TreeParent p1 = new TreeParent("Parent 1");
-			p1.addChild(to1);
-			p1.addChild(to2);
-			p1.addChild(to3);
-			
-			TreeObject to4 = new TreeObject("Leaf 4");
-			TreeParent p2 = new TreeParent("Parent 2");
-			p2.addChild(to4);
-			
 			TreeParent root = new TreeParent("Root");
-			root.addChild(p1);
-			root.addChild(p2);
-			
+
+			//POC add some stuff from octane using sdk
+			Octane octane = new Octane.Builder(new UserAuthorisation("sa@nga", "Welcome1")).Server("http://myd-vm24085.hpeswlab.net:8080").sharedSpace(1001L).workSpace(1002L).build();
+
+			Collection<EntityModel> entityModelList = octane.entityList("work_items").get().execute();
+
+			entityModelList
+						.stream()
+						.map(entityModel -> entityModel.getValue("name").getValue().toString())
+						.forEach(name -> root.addChild(new TreeObject(name)));
+
 			invisibleRoot = new TreeParent("");
 			invisibleRoot.addChild(root);
 		}
@@ -153,12 +168,12 @@ public class MyWork extends ViewPart {
 		public Image getImage(Object obj) {
 			String imageKey = ISharedImages.IMG_OBJ_ELEMENT;
 			if (obj instanceof TreeParent)
-			   imageKey = ISharedImages.IMG_OBJ_FOLDER;
+				imageKey = ISharedImages.IMG_OBJ_FOLDER;
 			return PlatformUI.getWorkbench().getSharedImages().getImage(imageKey);
 		}
 	}
 
-/**
+	/**
 	 * The constructor.
 	 */
 	public MyWork() {
@@ -171,10 +186,10 @@ public class MyWork extends ViewPart {
 	public void createPartControl(Composite parent) {
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		drillDownAdapter = new DrillDownAdapter(viewer);
-		
-	viewer.setContentProvider(new ViewContentProvider());
-	viewer.setInput(getViewSite());
-	viewer.setLabelProvider(new ViewLabelProvider());
+
+		viewer.setContentProvider(new ViewContentProvider());
+		viewer.setInput(getViewSite());
+		viewer.setLabelProvider(new ViewLabelProvider());
 
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "octane-eclipse-plugin.viewer");
@@ -218,7 +233,7 @@ public class MyWork extends ViewPart {
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-	
+
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(action1);
 		manager.add(action2);
@@ -235,8 +250,8 @@ public class MyWork extends ViewPart {
 		action1.setText("Action 1");
 		action1.setToolTipText("Action 1 tooltip");
 		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		
+				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+
 		action2 = new Action() {
 			public void run() {
 				showMessage("Action 2 executed");
@@ -264,9 +279,9 @@ public class MyWork extends ViewPart {
 	}
 	private void showMessage(String message) {
 		MessageDialog.openInformation(
-			viewer.getControl().getShell(),
-			"MyWork",
-			message);
+				viewer.getControl().getShell(),
+				"MyWork",
+				message);
 	}
 
 	/**

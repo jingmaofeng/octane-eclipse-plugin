@@ -47,6 +47,36 @@
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.0.0</version>
+				<inherited>false</inherited>
+				<configuration>
+					<artifactItems>
+						<artifactItem>
+							<groupId>com.hpe.adm.nga.sdk</groupId>
+							<artifactId>sdk-src</artifactId>
+							<version>1.2.1-SNAPSHOT</version>
+							<overWrite>true</overWrite>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</artifactItem>
+					</artifactItems>
+					<outputDirectory>${project.basedir}/octane-eclipse-plugin/lib</outputDirectory>
+					<stripVersion>true</stripVersion>
+				</configuration>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
