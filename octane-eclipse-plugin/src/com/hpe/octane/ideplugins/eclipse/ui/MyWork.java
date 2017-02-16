@@ -50,6 +50,7 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
  * presented in the same way everywhere.
  * <p>
  */
+
 public class MyWork extends ViewPart {
 
 	/**
