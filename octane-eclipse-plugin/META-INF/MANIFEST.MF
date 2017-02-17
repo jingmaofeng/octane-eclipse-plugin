@@ -4,6 +4,7 @@ Bundle-Name: Octane-eclipse-plugin
 Bundle-SymbolicName: octane-eclipse-plugin;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: HPE
+Bundle-Activator: com.hpe.octane.ideplugins.eclipse.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -27,3 +28,4 @@ Bundle-ClassPath: .,
  lib/log4j-api.jar,
  lib/log4j-core.jar,
  lib/sdk-src.jar
+Bundle-ActivationPolicy: lazy
