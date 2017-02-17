@@ -1,4 +1,4 @@
-package octaneeclipseplugin.preferences;
+package com.hpe.octane.ideplugins.eclipse.preferences;
 
 /**
  * Constant definitions for plug-in preferences

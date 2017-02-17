@@ -1,4 +1,4 @@
-package octaneeclipseplugin.preferences;
+package com.hpe.octane.ideplugins.eclipse.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;

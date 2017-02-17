@@ -37,15 +37,15 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="octaneeclipseplugin.preferences.SamplePreferencePage"
+            class="com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage"
             id="octaneeclipseplugin.preferences.SamplePreferencePage"
-            name="Sample Preferences">
+            name="Octane Plugin Settings">
       </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="octaneeclipseplugin.preferences.PreferenceInitializer">
+            class="com.hpe.octane.ideplugins.eclipse.preferences.PreferenceInitializer">
       </initializer>
    </extension>
 
