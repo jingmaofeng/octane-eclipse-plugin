@@ -15,16 +15,29 @@
             class="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
             id="com.hpe.octane.ideplugins.eclipse.ui.MyWork">
       </view>
+      <view
+            category="octane-eclipse-plugin"
+            class="octaneeclipseplugin.views.SampleView"
+            icon="icons/sample.gif"
+            id="octaneeclipseplugin.views.SampleView"
+            name="Sample View">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
+               id="octaneeclipseplugin.views.SampleView"
                ratio="0.5"
-               relative="org.eclipse.ui.views.ProblemView"
                relationship="right"
-               id="com.hpe.octane.ideplugins.eclipse.ui.MyWork">
+               relative="org.eclipse.ui.views.ProblemView">
+         </view>
+         <view
+               id="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.ProblemView">
          </view>
       </perspectiveExtension>
    </extension>
@@ -33,6 +46,15 @@
       <contexts
             file="contexts.xml">
       </contexts>
+      <contexts
+            file="contexts.xml">
+      </contexts>
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
    </extension>
 
 </plugin>

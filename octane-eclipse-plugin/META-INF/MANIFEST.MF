@@ -5,7 +5,10 @@ Bundle-SymbolicName: octane-eclipse-plugin;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: HPE
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui
+ org.eclipse.ui,
+ org.eclipse.core.resources,
+ org.eclipse.ui.navigator,
+ org.eclipse.ui.navigator.resources
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,
  lib/commons-codec.jar,
