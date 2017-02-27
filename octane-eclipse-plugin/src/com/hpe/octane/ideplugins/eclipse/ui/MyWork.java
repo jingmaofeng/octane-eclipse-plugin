@@ -29,9 +29,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.ViewPart;
 
-import com.hpe.adm.nga.sdk.Octane;
-import com.hpe.adm.nga.sdk.authorisation.UserAuthorisation;
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.octane.services.filtering.Entity;
+import com.hpe.octane.ideplugins.eclipse.TemporaryDataProvider;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view
@@ -162,11 +162,7 @@ public class MyWork extends ViewPart {
         private void initialize() {
             TreeParent root = new TreeParent("Root");
 
-            // POC add some stuff from octane using sdk
-            Octane octane = new Octane.Builder(new UserAuthorisation("sa@nga", "Welcome1")).Server("http://myd-vm24085.hpeswlab.net:8080")
-                    .sharedSpace(1001L).workSpace(1002L).build();
-
-            Collection<EntityModel> entityModelList = octane.entityList("work_items").get().execute();
+            Collection<EntityModel> entityModelList = TemporaryDataProvider.findEntities(Entity.USER_STORY);
 
             entityModelList
                     .stream()
