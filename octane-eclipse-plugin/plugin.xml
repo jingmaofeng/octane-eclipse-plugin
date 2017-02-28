@@ -12,7 +12,7 @@
             name="MyWork"
             icon="icons/sample.gif"
             category="octane-eclipse-plugin"
-            class="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
+            class="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
             id="com.hpe.octane.ideplugins.eclipse.ui.MyWork">
       </view>
       <view
@@ -42,19 +42,23 @@
       </perspectiveExtension>
    </extension>
    <extension
-         point="org.eclipse.help.contexts">
-      <contexts
-            file="contexts.xml">
-      </contexts>
-      <contexts
-            file="contexts.xml">
-      </contexts>
-      <contexts
-            file="contexts.xml">
-      </contexts>
+         point="org.eclipse.core.contenttype.contentTypes">
    </extension>
    <extension
-         point="org.eclipse.core.contenttype.contentTypes">
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor"
+            id="com.hpe.octane.ideplugins.eclipse.ui.EntityModelEditor"
+            name="EntityModelEditor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.hpe.octane.ideplugins.eclipse.ui.editor.CallEditor"
+            id="com.hpe.octane.ideplugins.eclipse.ui.editor.openEditor"
+            name="Open Entity Editor">
+      </command>
    </extension>
 
 </plugin>
