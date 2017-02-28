@@ -42,3 +42,5 @@ Bundle-ClassPath: .,
  lib/octane-plugin-common.jar,
  lib/sdk-src.jar,
  lib/velocity.jar
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: com.hpe.octane.ideplugins.eclipse.Activator
