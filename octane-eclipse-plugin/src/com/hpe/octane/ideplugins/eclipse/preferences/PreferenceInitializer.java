@@ -1,6 +1,11 @@
 package com.hpe.octane.ideplugins.eclipse.preferences;
 
+import java.io.IOException;
+
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.equinox.security.storage.ISecurePreferences;
+import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
+import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -16,11 +21,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
 	 */
 	public void initializeDefaultPreferences() {
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		store.setDefault(PreferenceConstants.P_BOOLEAN, true);
-		store.setDefault(PreferenceConstants.P_CHOICE, "choice2");
-		store.setDefault(PreferenceConstants.P_STRING,
-				"Default value");
 	}
 
 }

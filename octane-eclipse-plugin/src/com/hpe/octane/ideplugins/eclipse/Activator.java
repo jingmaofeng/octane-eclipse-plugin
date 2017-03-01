@@ -4,6 +4,9 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.hpe.adm.octane.services.connection.BasicConnectionSettingProvider;
+import com.hpe.adm.octane.services.di.ServiceModule;
+
 /**
  * The activator class controls the plug-in life cycle
  */
@@ -15,12 +18,30 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 	
+	private static ServiceModule serviceModuleInstance;
+	
+	private static BasicConnectionSettingProvider settingsProviderInstance;
+	
 	/**
 	 * The constructor
 	 */
 	public Activator() {
 	}
-
+	
+	public static BasicConnectionSettingProvider getSettingsProviderInstance() {
+		if (settingsProviderInstance == null) {
+			settingsProviderInstance = new BasicConnectionSettingProvider();
+		}
+		return settingsProviderInstance;
+	}
+	
+	public static ServiceModule getServiceModuleInstance() {
+		if (serviceModuleInstance == null) {
+			serviceModuleInstance = new ServiceModule(settingsProviderInstance);
+		}
+		return serviceModuleInstance;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
