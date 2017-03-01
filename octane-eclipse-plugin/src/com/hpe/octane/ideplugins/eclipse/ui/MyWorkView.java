@@ -40,7 +40,7 @@ public class MyWorkView extends ViewPart {
             public void doubleClick(DoubleClickEvent event) {
                 IHandlerService handlerService = getSite().getService(IHandlerService.class);
                 try {
-                    handlerService.executeCommand("com.hpe.octane.ideplugins.eclipse.ui.editor.openEditor", null);
+                    handlerService.executeCommand("octane-eclipse-plugin.openEntityEditor", null);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex.getMessage());
                 }

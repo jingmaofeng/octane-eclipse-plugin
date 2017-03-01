@@ -9,11 +9,12 @@
             id="octane-eclipse-plugin">
       </category>
       <view
-            name="MyWork"
-            icon="icons/sample.gif"
+            allowMultiple="false"
             category="octane-eclipse-plugin"
             class="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
-            id="com.hpe.octane.ideplugins.eclipse.ui.MyWork">
+            icon="icons/sample.gif"
+            id="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
+            name="My Work">
       </view>
    </extension>
    <extension
@@ -21,21 +22,12 @@
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
-               id="octaneeclipseplugin.views.SampleView"
-               ratio="0.5"
-               relationship="right"
-               relative="org.eclipse.ui.views.ProblemView">
-         </view>
-         <view
                id="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
                ratio="0.5"
                relationship="right"
                relative="org.eclipse.ui.views.ProblemView">
          </view>
       </perspectiveExtension>
-   </extension>
-   <extension
-         point="org.eclipse.core.contenttype.contentTypes">
    </extension>
    <extension
          point="org.eclipse.ui.editors">
@@ -48,10 +40,28 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="com.hpe.octane.ideplugins.eclipse.ui.editor.CallEditor"
-            id="com.hpe.octane.ideplugins.eclipse.ui.editor.openEditor"
+            defaultHandler="com.hpe.octane.ideplugins.eclipse.commands.CallEditor"
+            id="octane-eclipse-plugin.openEntityEditor"
             name="Open Entity Editor">
       </command>
+      <command
+            defaultHandler="com.hpe.octane.ideplugins.eclipse.commands.OpenActiveItem"
+            id="octane-eclipse-plugin.openActiveItem"
+            name="Open Active Item">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="octane-eclipse-plugin.menuContribution3">
+         <command
+               commandId="octane-eclipse-plugin.openActiveItem"
+               icon="icons/mywork.png"
+               label="CMD"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
 
 </plugin>
