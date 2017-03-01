@@ -14,6 +14,7 @@ import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.TemporaryDataProvider;
 
 public class MyWorkView extends ViewPart {
+	
     public static final String ID = "com.vogella.rcp.editor.example.taskoverview";
 
     private ListViewer         viewer;
@@ -40,6 +41,12 @@ public class MyWorkView extends ViewPart {
             public void doubleClick(DoubleClickEvent event) {
                 IHandlerService handlerService = getSite().getService(IHandlerService.class);
                 try {
+                	
+                    Object obj = viewer.getStructuredSelection().getFirstElement();
+                    if(obj instanceof EntityModel){
+                    	//ContributionItem1.setLblText(((EntityModel) obj).getValue("name").getValue().toString());
+                    }                
+                	
                     handlerService.executeCommand("octane-eclipse-plugin.openEntityEditor", null);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex.getMessage());

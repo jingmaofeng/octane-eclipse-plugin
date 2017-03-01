@@ -54,13 +54,27 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="octane-eclipse-plugin.menuContribution3">
-         <command
-               commandId="octane-eclipse-plugin.openActiveItem"
-               icon="icons/mywork.png"
-               label="CMD"
-               style="push">
-         </command>
+            class="com.hpe.octane.ideplugins.eclipse.DefineCommands"
+            locationURI="menu:org.eclipse.ui.main.menu">
+      </menuContribution>
+      <menuContribution
+            allPopups="true"
+            class="com.hpe.octane.ideplugins.eclipse.DefineCommands"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            class="com.hpe.octane.ideplugins.eclipse.DefineCommands"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            class="com.hpe.octane.ideplugins.eclipse.DefineCommands"
+            locationURI="menu:org.eclipse.ui.main.menu">
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.main.menu">
       </menuContribution>
    </extension>
 
