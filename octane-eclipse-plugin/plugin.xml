@@ -13,7 +13,7 @@
             category="octane-eclipse-plugin"
             class="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
             icon="icons/mywork.png"
-            id="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
+            id="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
             name="My Work">
       </view>
    </extension>
@@ -22,9 +22,9 @@
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
-               id="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
+               id="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
                ratio="0.5"
-               relationship="right"
+               relationship="stack"
                relative="org.eclipse.ui.views.ProblemView">
          </view>
       </perspectiveExtension>

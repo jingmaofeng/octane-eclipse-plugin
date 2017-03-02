@@ -1,11 +1,18 @@
 package com.hpe.octane.ideplugins.eclipse.ui;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
@@ -15,12 +22,17 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class MyWorkView extends ViewPart {
 
-    public static final String ID = "com.vogella.rcp.editor.example.taskoverview";
+    public static final String  ID              = "com.hpe.octane.ideplugins.eclipse.ui.MyWorkView";
 
-    private ListViewer         viewer;
+    private static final String LOADING_MESSAGE = "Loading \"My Work\"";
+
+    private ListViewer          viewer;
+
+    private MyWorkService       myWorkService   = Activator.getServiceModuleInstance().getInstance(MyWorkService.class);
 
     @Override
     public void createPartControl(Composite parent) {
+        // Init view
         viewer = new ListViewer(parent);
         viewer.setContentProvider(ArrayContentProvider.getInstance());
         viewer.setLabelProvider(new LabelProvider() {
@@ -30,10 +42,39 @@ public class MyWorkView extends ViewPart {
                 return p.getValue("name").getValue().toString();
             };
         });
-
-        viewer.setInput(Activator.getServiceModuleInstance().getInstance(MyWorkService.class).getMyWork());
         getSite().setSelectionProvider(viewer);
         hookDoubleClickCommand();
+
+        // Initial fill
+        Job refreshJob = createRefreshJob();
+        refreshJob.schedule();
+
+        // Add refresh
+        IActionBars viewToolbar = getViewSite().getActionBars();
+        Action refreshAction = new Action() {
+            @Override
+            public void run() {
+                refreshJob.schedule();
+            }
+        };
+        refreshAction.setText("Refresh");
+        refreshAction.setToolTipText("Refresh \"My Work\"");
+        refreshAction.setImageDescriptor(Activator.getImageDescriptor("icons/refresh-16x16.png"));
+        viewToolbar.getToolBarManager().add(refreshAction);
+    }
+
+    private Job createRefreshJob() {
+        return new Job(LOADING_MESSAGE) {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                monitor.beginTask(LOADING_MESSAGE, IProgressMonitor.UNKNOWN);
+                Display.getDefault().asyncExec(() -> {
+                    viewer.setInput(myWorkService.getMyWork());
+                });
+                monitor.done();
+                return Status.OK_STATUS;
+            }
+        };
     }
 
     private void hookDoubleClickCommand() {
