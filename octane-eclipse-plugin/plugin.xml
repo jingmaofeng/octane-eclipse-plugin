@@ -45,32 +45,5 @@
             name="Open Entity Editor">
       </command>
    </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            class="com.hpe.octane.ideplugins.eclipse.DefineCommands"
-            locationURI="menu:org.eclipse.ui.main.menu">
-      </menuContribution>
-      <menuContribution
-            allPopups="true"
-            class="com.hpe.octane.ideplugins.eclipse.DefineCommands"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            class="com.hpe.octane.ideplugins.eclipse.DefineCommands"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            class="com.hpe.octane.ideplugins.eclipse.DefineCommands"
-            locationURI="menu:org.eclipse.ui.main.menu">
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:org.eclipse.ui.main.menu">
-      </menuContribution>
-   </extension>
 
 </plugin>
