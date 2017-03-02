@@ -236,7 +236,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 	private void apply() {
 		cacheValues();
 		if (isConnectionSettingsEmpty()) {
-			Activator.getSettingsProviderInstance().setConnectionSettings(new ConnectionSettings());
+			Activator.setConnectionSettings(new ConnectionSettings());
 			saveValues();
 			return;
 		}
@@ -252,7 +252,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 						}
 						saveValues();
 					});
-					Activator.getSettingsProviderInstance().setConnectionSettings(connectionSettings);
+					Activator.setConnectionSettings(connectionSettings);
 				}
 				monitor.done();
 				return Status.OK_STATUS;
