@@ -5,14 +5,14 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Octane"
+            name="Octane Eclipse Plugin"
             id="octane-eclipse-plugin">
       </category>
       <view
             allowMultiple="false"
             category="octane-eclipse-plugin"
             class="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
-            icon="icons/sample.gif"
+            icon="icons/mywork.png"
             id="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
             name="My Work">
       </view>
@@ -43,11 +43,6 @@
             defaultHandler="com.hpe.octane.ideplugins.eclipse.commands.CallEditor"
             id="octane-eclipse-plugin.openEntityEditor"
             name="Open Entity Editor">
-      </command>
-      <command
-            defaultHandler="com.hpe.octane.ideplugins.eclipse.commands.OpenActiveItem"
-            id="octane-eclipse-plugin.openActiveItem"
-            name="Open Active Item">
       </command>
    </extension>
    <extension
