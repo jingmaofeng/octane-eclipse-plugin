@@ -30,7 +30,7 @@ import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.ViewPart;
 
 import com.hpe.adm.nga.sdk.Octane;
-import com.hpe.adm.nga.sdk.authorisation.UserAuthorisation;
+import com.hpe.adm.nga.sdk.authentication.SimpleUserAuthentication;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 
 /**
@@ -146,7 +146,7 @@ public class MyWork extends ViewPart {
 			TreeParent root = new TreeParent("Root");
 
 			//POC add some stuff from octane using sdk
-			Octane octane = new Octane.Builder(new UserAuthorisation("sa@nga", "Welcome1")).Server("http://myd-vm24085.hpeswlab.net:8080").sharedSpace(1001L).workSpace(1002L).build();
+			Octane octane = new Octane.Builder(new SimpleUserAuthentication("sa@nga", "Welcome1")).Server("http://myd-vm24085.hpeswlab.net:8080").sharedSpace(1001L).workSpace(1002L).build();
 
 			Collection<EntityModel> entityModelList = octane.entityList("work_items").get().execute();
 
