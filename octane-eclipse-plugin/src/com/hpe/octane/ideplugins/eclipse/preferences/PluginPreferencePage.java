@@ -59,6 +59,8 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 	private ISecurePreferences securePrefs = SecurePreferencesFactory.getDefault().node(Activator.PLUGIN_ID);
 	private TestService testService = Activator.getServiceModuleInstance().getInstance(TestService.class);
 
+	private String serverUrl, username, password;
+
 	@Override
 	public void init(IWorkbench workbench) {
 
@@ -132,10 +134,8 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				super.widgetSelected(e);
-				setConnectionStatusLoading();
-				String serverUrl = textServerUrl.getText();
-				String username = textUsername.getText();
-				String password = textPassword.getText();
+				setConnectionStatus(null, null);
+				cacheValues();
 				new Job("Testing connection...") {
 
 					@Override
@@ -179,24 +179,22 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 		textPassword.setText("");
 		textServerUrl.setText("");
 		setFieldsFromServerUrl(false);
-		setConnectionStatusError("");
+		setConnectionStatus(false, "");
 	}
 
-	private void setConnectionStatusSuccess() {
-		labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN));
-		labelConnectionStatus.setText("Connection successful.");
-		labelConnectionStatus.getParent().requestLayout();
-	}
-
-	private void setConnectionStatusLoading() {
-		labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
-		labelConnectionStatus.setText("Testing connection, please wait.");
-		labelConnectionStatus.getParent().requestLayout();
-	}
-
-	private void setConnectionStatusError(String errorMessage) {
-		labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED));
-		labelConnectionStatus.setText(errorMessage);
+	private void setConnectionStatus(Boolean success, String errorMessage) {
+		if (labelConnectionStatus.isDisposed())
+			return;
+		if (success == null) {
+			labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+			labelConnectionStatus.setText("Testing connection, please wait.");
+		} else if (success) {
+			labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN));
+			labelConnectionStatus.setText("Connection successful.");
+		} else {
+			labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED));
+			labelConnectionStatus.setText(errorMessage);
+		}
 		labelConnectionStatus.getParent().requestLayout();
 	}
 
@@ -210,11 +208,17 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 		}
 	}
 
+	private void cacheValues() {
+		serverUrl = textServerUrl.getText();
+		username = textUsername.getText();
+		password = textPassword.getText();
+	}
+
 	private void saveValues() {
-		prefs.putValue(PreferenceConstants.P_OCTANE_SERVER_URL, textServerUrl.getText());
-		prefs.putValue(PreferenceConstants.P_USERNAME, textUsername.getText());
+		prefs.putValue(PreferenceConstants.P_OCTANE_SERVER_URL, serverUrl);
+		prefs.putValue(PreferenceConstants.P_USERNAME, username);
 		try {
-			securePrefs.put(PreferenceConstants.P_PASSWORD, textPassword.getText(), true);
+			securePrefs.put(PreferenceConstants.P_PASSWORD, password, true);
 			securePrefs.flush();
 		} catch (StorageException | IOException e) {
 			e.printStackTrace();
@@ -230,14 +234,12 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 	}
 
 	private void apply() {
+		cacheValues();
 		if (isConnectionSettingsEmpty()) {
 			Activator.getSettingsProviderInstance().setConnectionSettings(new ConnectionSettings());
 			saveValues();
 			return;
 		}
-		String serverUrl = textServerUrl.getText();
-		String username = textUsername.getText();
-		String password = textPassword.getText();
 		Job testConnectionJob = new Job("Applying connection settings...") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -245,7 +247,9 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 				ConnectionSettings connectionSettings = testConnection(serverUrl, username, password);
 				if (connectionSettings != null) {
 					Display.getDefault().asyncExec(() -> {
-						textServerUrl.setText(UrlParser.createUrlFromConnectionSettings(connectionSettings));
+						if (!textServerUrl.isDisposed()) {
+							textServerUrl.setText(UrlParser.createUrlFromConnectionSettings(connectionSettings));
+						}
 						saveValues();
 					});
 					Activator.getSettingsProviderInstance().setConnectionSettings(connectionSettings);
@@ -269,22 +273,22 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 			newConnectionSettings = UrlParser.resolveConnectionSettings(serverUrl, username, password);
 		} catch (ServiceException e) {
 			Display.getDefault().asyncExec(
-					() -> setConnectionStatusError(e.getMessage() + "\n" + Constants.CORRECT_URL_FORMAT_MESSAGE));
+					() -> setConnectionStatus(false, e.getMessage() + "\n" + Constants.CORRECT_URL_FORMAT_MESSAGE));
 			return null;
 		}
 
 		try {
 			validateUsernameAndPassword(username, password);
 		} catch (ServiceException e) {
-			Display.getDefault().asyncExec(() -> setConnectionStatusError(e.getMessage()));
+			Display.getDefault().asyncExec(() -> setConnectionStatus(false, e.getMessage()));
 			return null;
 		}
 
 		try {
 			testService.testConnection(newConnectionSettings);
-			Display.getDefault().asyncExec(() -> setConnectionStatusSuccess());
+			Display.getDefault().asyncExec(() -> setConnectionStatus(true, null));
 		} catch (ServiceException e) {
-			Display.getDefault().asyncExec(() -> setConnectionStatusError(e.getMessage()));
+			Display.getDefault().asyncExec(() -> setConnectionStatus(false, e.getMessage()));
 			return null;
 		}
 
@@ -315,11 +319,11 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 					textPassword.getText());
 			textSharedSpace.setText(connectionSettings.getSharedSpaceId() + "");
 			textWorkspace.setText(connectionSettings.getWorkspaceId() + "");
-			setConnectionStatusError("");
+			setConnectionStatus(false, "");
 		} catch (ServiceException e) {
 			setHints(false);
 			if (setStatus) {
-				setConnectionStatusError(
+				setConnectionStatus(false,
 						e.getMessage() + "\n" + com.hpe.adm.octane.services.util.Constants.CORRECT_URL_FORMAT_MESSAGE);
 			}
 		}
