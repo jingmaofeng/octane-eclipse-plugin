@@ -5,15 +5,16 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Octane"
+            name="Octane Eclipse Plugin"
             id="octane-eclipse-plugin">
       </category>
       <view
-            name="MyWork"
-            icon="icons/sample.gif"
+            allowMultiple="false"
             category="octane-eclipse-plugin"
-            class="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
-            id="com.hpe.octane.ideplugins.eclipse.ui.MyWork">
+            class="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
+            icon="icons/mywork.png"
+            id="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
+            name="My Work">
       </view>
    </extension>
    <extension
@@ -21,18 +22,28 @@
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
+               id="com.hpe.octane.ideplugins.eclipse.ui.MyWork"
                ratio="0.5"
-               relative="org.eclipse.ui.views.ProblemView"
                relationship="right"
-               id="com.hpe.octane.ideplugins.eclipse.ui.MyWork">
+               relative="org.eclipse.ui.views.ProblemView">
          </view>
       </perspectiveExtension>
    </extension>
    <extension
-         point="org.eclipse.help.contexts">
-      <contexts
-            file="contexts.xml">
-      </contexts>
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor"
+            id="com.hpe.octane.ideplugins.eclipse.ui.EntityModelEditor"
+            name="EntityModelEditor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.hpe.octane.ideplugins.eclipse.commands.CallEditor"
+            id="octane-eclipse-plugin.openEntityEditor"
+            name="Open Entity Editor">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
