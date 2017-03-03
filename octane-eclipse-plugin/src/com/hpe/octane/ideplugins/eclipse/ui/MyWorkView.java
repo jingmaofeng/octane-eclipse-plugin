@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -28,7 +29,7 @@ public class MyWorkView extends ViewPart {
 
     private ListViewer          viewer;
 
-    private MyWorkService       myWorkService   = Activator.getServiceModuleInstance().getInstance(MyWorkService.class);
+    private MyWorkService       myWorkService   = Activator.getInstance(MyWorkService.class);
 
     @Override
     public void createPartControl(Composite parent) {
@@ -61,6 +62,10 @@ public class MyWorkView extends ViewPart {
         refreshAction.setToolTipText("Refresh \"My Work\"");
         refreshAction.setImageDescriptor(Activator.getImageDescriptor("icons/refresh-16x16.png"));
         viewToolbar.getToolBarManager().add(refreshAction);
+
+        Activator.addConnectionSettingsChangeHandler(() -> {
+            refreshJob.schedule();
+        });
     }
 
     private Job createRefreshJob() {
@@ -69,7 +74,12 @@ public class MyWorkView extends ViewPart {
             protected IStatus run(IProgressMonitor monitor) {
                 monitor.beginTask(LOADING_MESSAGE, IProgressMonitor.UNKNOWN);
                 Display.getDefault().asyncExec(() -> {
-                    viewer.setInput(myWorkService.getMyWork());
+                    try {
+                        viewer.setInput(myWorkService.getMyWork());
+                    } catch (Exception e) {
+                        MessageDialog.openError(getSite().getShell(), "Error while loading \"My Work\"", e.toString());
+                        viewer.setInput(null);
+                    }
                 });
                 monitor.done();
                 return Status.OK_STATUS;

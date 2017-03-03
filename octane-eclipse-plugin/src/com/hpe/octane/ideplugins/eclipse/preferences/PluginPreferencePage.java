@@ -48,284 +48,284 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class PluginPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
-	private Text textServerUrl;
-	private Text textSharedSpace;
-	private Text textWorkspace;
-	private Text textUsername;
-	private Text textPassword;
-	private Label labelConnectionStatus;
+    private Text               textServerUrl;
+    private Text               textSharedSpace;
+    private Text               textWorkspace;
+    private Text               textUsername;
+    private Text               textPassword;
+    private Label              labelConnectionStatus;
 
-	private IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
-	private ISecurePreferences securePrefs = SecurePreferencesFactory.getDefault().node(Activator.PLUGIN_ID);
-	private TestService testService = Activator.getServiceModuleInstance().getInstance(TestService.class);
+    private IPreferenceStore   prefs       = Activator.getDefault().getPreferenceStore();
+    private ISecurePreferences securePrefs = SecurePreferencesFactory.getDefault().node(Activator.PLUGIN_ID);
+    private TestService        testService = Activator.getInstance(TestService.class);
 
-	private String serverUrl, username, password;
+    private String             serverUrl, username, password;
 
-	@Override
-	public void init(IWorkbench workbench) {
+    @Override
+    public void init(IWorkbench workbench) {
 
-	}
+    }
 
-	@Override
-	protected Control createContents(Composite parent) {
+    @Override
+    protected Control createContents(Composite parent) {
 
-		GridLayout gridLayout = new GridLayout();
-		parent.setLayout(gridLayout);
+        GridLayout gridLayout = new GridLayout();
+        parent.setLayout(gridLayout);
 
-		Label labelServerUrl = new Label(parent, SWT.NONE);
-		labelServerUrl.setText("Server URL:");
+        Label labelServerUrl = new Label(parent, SWT.NONE);
+        labelServerUrl.setText("Server URL:");
 
-		textServerUrl = new Text(parent, SWT.BORDER);
-		textServerUrl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        textServerUrl = new Text(parent, SWT.BORDER);
+        textServerUrl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		Label labelSharedSpace = new Label(parent, SWT.NONE);
-		labelSharedSpace.setText("Shared space:");
+        Label labelSharedSpace = new Label(parent, SWT.NONE);
+        labelSharedSpace.setText("Shared space:");
 
-		textSharedSpace = new Text(parent, SWT.BORDER);
-		textSharedSpace.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		textSharedSpace.setEnabled(false);
+        textSharedSpace = new Text(parent, SWT.BORDER);
+        textSharedSpace.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        textSharedSpace.setEnabled(false);
 
-		Label labelWorkspace = new Label(parent, SWT.NONE);
-		labelWorkspace.setText("Workspace:");
+        Label labelWorkspace = new Label(parent, SWT.NONE);
+        labelWorkspace.setText("Workspace:");
 
-		textWorkspace = new Text(parent, SWT.BORDER);
-		textWorkspace.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		textWorkspace.setEnabled(false);
+        textWorkspace = new Text(parent, SWT.BORDER);
+        textWorkspace.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        textWorkspace.setEnabled(false);
 
-		Label separator1 = new Label(parent, SWT.HORIZONTAL | SWT.SEPARATOR);
-		separator1.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label separator1 = new Label(parent, SWT.HORIZONTAL | SWT.SEPARATOR);
+        separator1.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label labelUsername = new Label(parent, SWT.NONE);
-		labelUsername.setText("Username:");
+        Label labelUsername = new Label(parent, SWT.NONE);
+        labelUsername.setText("Username:");
 
-		textUsername = new Text(parent, SWT.BORDER);
-		textUsername.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        textUsername = new Text(parent, SWT.BORDER);
+        textUsername.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		Label labelPassword = new Label(parent, SWT.NONE);
-		labelPassword.setText("Password:");
+        Label labelPassword = new Label(parent, SWT.NONE);
+        labelPassword.setText("Password:");
 
-		textPassword = new Text(parent, SWT.BORDER | SWT.PASSWORD);
-		textPassword.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        textPassword = new Text(parent, SWT.BORDER | SWT.PASSWORD);
+        textPassword.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		Label separator2 = new Label(parent, SWT.HORIZONTAL | SWT.SEPARATOR);
-		separator2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        Label separator2 = new Label(parent, SWT.HORIZONTAL | SWT.SEPARATOR);
+        separator2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Composite testConnectionContainer = new Composite(parent, SWT.NONE);
-		testConnectionContainer.setLayout(new GridLayout(2, false));
-		GridData gridData = new GridData();
-		gridData.horizontalAlignment = SWT.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		testConnectionContainer.setLayoutData(gridData);
+        Composite testConnectionContainer = new Composite(parent, SWT.NONE);
+        testConnectionContainer.setLayout(new GridLayout(2, false));
+        GridData gridData = new GridData();
+        gridData.horizontalAlignment = SWT.FILL;
+        gridData.grabExcessHorizontalSpace = true;
+        testConnectionContainer.setLayoutData(gridData);
 
-		Button buttonTestConnection = new Button(testConnectionContainer, SWT.PUSH);
-		buttonTestConnection.setText("Test connection");
+        Button buttonTestConnection = new Button(testConnectionContainer, SWT.PUSH);
+        buttonTestConnection.setText("Test connection");
 
-		labelConnectionStatus = new Label(testConnectionContainer, SWT.NONE);
-		labelConnectionStatus.setLayoutData(gridData);
+        labelConnectionStatus = new Label(testConnectionContainer, SWT.NONE);
+        labelConnectionStatus.setLayoutData(gridData);
 
-		setHints(true);
+        setHints(true);
 
-		loadSavedValues();
+        loadSavedValues();
 
-		setFieldsFromServerUrl(false);
+        setFieldsFromServerUrl(false);
 
-		buttonTestConnection.addSelectionListener(new SelectionAdapter() {
+        buttonTestConnection.addSelectionListener(new SelectionAdapter() {
 
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				super.widgetSelected(e);
-				setConnectionStatus(null, null);
-				cacheValues();
-				new Job("Testing connection...") {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                super.widgetSelected(e);
+                setConnectionStatus(null, null);
+                cacheValues();
+                new Job("Testing connection...") {
 
-					@Override
-					protected IStatus run(IProgressMonitor monitor) {
-						monitor.beginTask("Testing connection...", IProgressMonitor.UNKNOWN);
-						testConnection(serverUrl, username, password);
-						monitor.done();
-						return Status.OK_STATUS;
-					}
-				}.schedule();
-			}
+                    @Override
+                    protected IStatus run(IProgressMonitor monitor) {
+                        monitor.beginTask("Testing connection...", IProgressMonitor.UNKNOWN);
+                        testConnection(serverUrl, username, password);
+                        monitor.done();
+                        return Status.OK_STATUS;
+                    }
+                }.schedule();
+            }
 
-		});
+        });
 
-		textServerUrl.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				super.keyReleased(e);
-				setFieldsFromServerUrl(true);
-			}
-		});
+        textServerUrl.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                setFieldsFromServerUrl(true);
+            }
+        });
 
-		return parent;
-	}
+        return parent;
+    }
 
-	@Override
-	protected void performApply() {
-		apply();
-	}
+    @Override
+    protected void performApply() {
+        apply();
+    }
 
-	@Override
-	public boolean performOk() {
-		apply();
-		return true;
-	}
+    @Override
+    public boolean performOk() {
+        apply();
+        return true;
+    }
 
-	@Override
-	protected void performDefaults() {
-		super.performDefaults();
-		textUsername.setText("");
-		textPassword.setText("");
-		textServerUrl.setText("");
-		setFieldsFromServerUrl(false);
-		setConnectionStatus(false, "");
-	}
+    @Override
+    protected void performDefaults() {
+        super.performDefaults();
+        textUsername.setText("");
+        textPassword.setText("");
+        textServerUrl.setText("");
+        setFieldsFromServerUrl(false);
+        setConnectionStatus(false, "");
+    }
 
-	private void setConnectionStatus(Boolean success, String errorMessage) {
-		if (labelConnectionStatus.isDisposed())
-			return;
-		if (success == null) {
-			labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
-			labelConnectionStatus.setText("Testing connection, please wait.");
-		} else if (success) {
-			labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN));
-			labelConnectionStatus.setText("Connection successful.");
-		} else {
-			labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED));
-			labelConnectionStatus.setText(errorMessage);
-		}
-		labelConnectionStatus.getParent().requestLayout();
-	}
+    private void setConnectionStatus(Boolean success, String errorMessage) {
+        if (labelConnectionStatus.isDisposed())
+            return;
+        if (success == null) {
+            labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+            labelConnectionStatus.setText("Testing connection, please wait.");
+        } else if (success) {
+            labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN));
+            labelConnectionStatus.setText("Connection successful.");
+        } else {
+            labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED));
+            labelConnectionStatus.setText(errorMessage);
+        }
+        labelConnectionStatus.getParent().requestLayout();
+    }
 
-	private void loadSavedValues() {
-		textServerUrl.setText(prefs.getString(PreferenceConstants.P_OCTANE_SERVER_URL));
-		textUsername.setText(prefs.getString(PreferenceConstants.P_USERNAME));
-		try {
-			textPassword.setText(securePrefs.get(PreferenceConstants.P_PASSWORD, ""));
-		} catch (StorageException e) {
-			e.printStackTrace();
-		}
-	}
+    private void loadSavedValues() {
+        textServerUrl.setText(prefs.getString(PreferenceConstants.P_OCTANE_SERVER_URL));
+        textUsername.setText(prefs.getString(PreferenceConstants.P_USERNAME));
+        try {
+            textPassword.setText(securePrefs.get(PreferenceConstants.P_PASSWORD, ""));
+        } catch (StorageException e) {
+            e.printStackTrace();
+        }
+    }
 
-	private void cacheValues() {
-		serverUrl = textServerUrl.getText();
-		username = textUsername.getText();
-		password = textPassword.getText();
-	}
+    private void cacheValues() {
+        serverUrl = textServerUrl.getText();
+        username = textUsername.getText();
+        password = textPassword.getText();
+    }
 
-	private void saveValues() {
-		prefs.putValue(PreferenceConstants.P_OCTANE_SERVER_URL, serverUrl);
-		prefs.putValue(PreferenceConstants.P_USERNAME, username);
-		try {
-			securePrefs.put(PreferenceConstants.P_PASSWORD, password, true);
-			securePrefs.flush();
-		} catch (StorageException | IOException e) {
-			e.printStackTrace();
-		}
-	}
+    private void saveValues() {
+        prefs.putValue(PreferenceConstants.P_OCTANE_SERVER_URL, serverUrl);
+        prefs.putValue(PreferenceConstants.P_USERNAME, username);
+        try {
+            securePrefs.put(PreferenceConstants.P_PASSWORD, password, true);
+            securePrefs.flush();
+        } catch (StorageException | IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	private void setHints(boolean forServerUrlField) {
-		if (forServerUrlField) {
-			textServerUrl.setMessage("Copy paste your Octane URL from the browser here...");
-		}
-		textSharedSpace.setText("Retrieved from server URL");
-		textWorkspace.setText(textSharedSpace.getText());
-	}
+    private void setHints(boolean forServerUrlField) {
+        if (forServerUrlField) {
+            textServerUrl.setMessage("Copy paste your Octane URL from the browser here...");
+        }
+        textSharedSpace.setText("Retrieved from server URL");
+        textWorkspace.setText(textSharedSpace.getText());
+    }
 
-	private void apply() {
-		cacheValues();
-		if (isConnectionSettingsEmpty()) {
-			Activator.setConnectionSettings(new ConnectionSettings());
-			saveValues();
-			return;
-		}
-		Job testConnectionJob = new Job("Applying connection settings...") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				monitor.beginTask("Applying connection settings...", IProgressMonitor.UNKNOWN);
-				ConnectionSettings connectionSettings = testConnection(serverUrl, username, password);
-				if (connectionSettings != null) {
-					Display.getDefault().asyncExec(() -> {
-						if (!textServerUrl.isDisposed()) {
-							textServerUrl.setText(UrlParser.createUrlFromConnectionSettings(connectionSettings));
-						}
-						saveValues();
-					});
-					Activator.setConnectionSettings(connectionSettings);
-				}
-				monitor.done();
-				return Status.OK_STATUS;
-			}
-		};
-		testConnectionJob.schedule();
-	}
+    private void apply() {
+        cacheValues();
+        if (isConnectionSettingsEmpty()) {
+            Activator.setConnectionSettings(new ConnectionSettings());
+            saveValues();
+            return;
+        }
+        Job testConnectionJob = new Job("Applying connection settings...") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                monitor.beginTask("Applying connection settings...", IProgressMonitor.UNKNOWN);
+                ConnectionSettings connectionSettings = testConnection(serverUrl, username, password);
+                if (connectionSettings != null) {
+                    Display.getDefault().asyncExec(() -> {
+                        if (!textServerUrl.isDisposed()) {
+                            textServerUrl.setText(UrlParser.createUrlFromConnectionSettings(connectionSettings));
+                        }
+                        saveValues();
+                    });
+                    Activator.setConnectionSettings(connectionSettings);
+                }
+                monitor.done();
+                return Status.OK_STATUS;
+            }
+        };
+        testConnectionJob.schedule();
+    }
 
-	private boolean isConnectionSettingsEmpty() {
-		return StringUtils.isEmpty(textServerUrl.getText()) && StringUtils.isEmpty(textUsername.getText())
-				&& StringUtils.isEmpty(textPassword.getText());
-	}
+    private boolean isConnectionSettingsEmpty() {
+        return StringUtils.isEmpty(textServerUrl.getText()) && StringUtils.isEmpty(textUsername.getText())
+                && StringUtils.isEmpty(textPassword.getText());
+    }
 
-	private ConnectionSettings testConnection(String serverUrl, String username, String password) {
-		ConnectionSettings newConnectionSettings;
+    private ConnectionSettings testConnection(String serverUrl, String username, String password) {
+        ConnectionSettings newConnectionSettings;
 
-		try {
-			newConnectionSettings = UrlParser.resolveConnectionSettings(serverUrl, username, password);
-		} catch (ServiceException e) {
-			Display.getDefault().asyncExec(
-					() -> setConnectionStatus(false, e.getMessage() + "\n" + Constants.CORRECT_URL_FORMAT_MESSAGE));
-			return null;
-		}
+        try {
+            newConnectionSettings = UrlParser.resolveConnectionSettings(serverUrl, username, password);
+        } catch (ServiceException e) {
+            Display.getDefault().asyncExec(
+                    () -> setConnectionStatus(false, e.getMessage() + "\n" + Constants.CORRECT_URL_FORMAT_MESSAGE));
+            return null;
+        }
 
-		try {
-			validateUsernameAndPassword(username, password);
-		} catch (ServiceException e) {
-			Display.getDefault().asyncExec(() -> setConnectionStatus(false, e.getMessage()));
-			return null;
-		}
+        try {
+            validateUsernameAndPassword(username, password);
+        } catch (ServiceException e) {
+            Display.getDefault().asyncExec(() -> setConnectionStatus(false, e.getMessage()));
+            return null;
+        }
 
-		try {
-			testService.testConnection(newConnectionSettings);
-			Display.getDefault().asyncExec(() -> setConnectionStatus(true, null));
-		} catch (ServiceException e) {
-			Display.getDefault().asyncExec(() -> setConnectionStatus(false, e.getMessage()));
-			return null;
-		}
+        try {
+            testService.testConnection(newConnectionSettings);
+            Display.getDefault().asyncExec(() -> setConnectionStatus(true, null));
+        } catch (ServiceException e) {
+            Display.getDefault().asyncExec(() -> setConnectionStatus(false, e.getMessage()));
+            return null;
+        }
 
-		return newConnectionSettings;
-	}
+        return newConnectionSettings;
+    }
 
-	private void validateUsernameAndPassword(String username, String password) throws ServiceException {
-		StringBuilder errorMessageBuilder = new StringBuilder();
-		if (StringUtils.isEmpty(username)) {
-			errorMessageBuilder.append("Username cannot be blank.");
-		}
-		if (errorMessageBuilder.length() != 0) {
-			errorMessageBuilder.append(" ");
-		}
-		if (StringUtils.isEmpty(password)) {
-			errorMessageBuilder.append("Password cannot be blank.");
-		}
+    private void validateUsernameAndPassword(String username, String password) throws ServiceException {
+        StringBuilder errorMessageBuilder = new StringBuilder();
+        if (StringUtils.isEmpty(username)) {
+            errorMessageBuilder.append("Username cannot be blank.");
+        }
+        if (errorMessageBuilder.length() != 0) {
+            errorMessageBuilder.append(" ");
+        }
+        if (StringUtils.isEmpty(password)) {
+            errorMessageBuilder.append("Password cannot be blank.");
+        }
 
-		if (errorMessageBuilder.length() != 0) {
-			throw new ServiceException(errorMessageBuilder.toString());
-		}
-	}
+        if (errorMessageBuilder.length() != 0) {
+            throw new ServiceException(errorMessageBuilder.toString());
+        }
+    }
 
-	private void setFieldsFromServerUrl(boolean setStatus) {
-		ConnectionSettings connectionSettings;
-		try {
-			connectionSettings = UrlParser.resolveConnectionSettings(textServerUrl.getText(), textUsername.getText(),
-					textPassword.getText());
-			textSharedSpace.setText(connectionSettings.getSharedSpaceId() + "");
-			textWorkspace.setText(connectionSettings.getWorkspaceId() + "");
-			setConnectionStatus(false, "");
-		} catch (ServiceException e) {
-			setHints(false);
-			if (setStatus) {
-				setConnectionStatus(false,
-						e.getMessage() + "\n" + com.hpe.adm.octane.services.util.Constants.CORRECT_URL_FORMAT_MESSAGE);
-			}
-		}
-	}
+    private void setFieldsFromServerUrl(boolean setStatus) {
+        ConnectionSettings connectionSettings;
+        try {
+            connectionSettings = UrlParser.resolveConnectionSettings(textServerUrl.getText(), textUsername.getText(),
+                    textPassword.getText());
+            textSharedSpace.setText(connectionSettings.getSharedSpaceId() + "");
+            textWorkspace.setText(connectionSettings.getWorkspaceId() + "");
+            setConnectionStatus(false, "");
+        } catch (ServiceException e) {
+            setHints(false);
+            if (setStatus) {
+                setConnectionStatus(false,
+                        e.getMessage() + "\n" + com.hpe.adm.octane.services.util.Constants.CORRECT_URL_FORMAT_MESSAGE);
+            }
+        }
+    }
 }

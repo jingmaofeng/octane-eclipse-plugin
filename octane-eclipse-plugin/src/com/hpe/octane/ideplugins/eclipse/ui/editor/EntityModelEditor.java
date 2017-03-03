@@ -20,12 +20,12 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class EntityModelEditor extends EditorPart {
 
-    public static final String     ID            = "com.hpe.octane.ideplugins.eclipse.ui.EntityModelEditor";             //$NON-NLS-1$
+    public static final String     ID            = "com.hpe.octane.ideplugins.eclipse.ui.EntityModelEditor"; //$NON-NLS-1$
 
     private EntityModel            entityModel;
     private EntityModelEditorInput input;
 
-    private EntityService          entityService = Activator.getServiceModuleInstance().getInstance(EntityService.class);
+    private EntityService          entityService = Activator.getInstance(EntityService.class);
 
     public EntityModelEditor() {
     }
