@@ -20,13 +20,13 @@ import com.hpe.octane.ideplugins.eclipse.preferences.PreferenceConstants;
 public class Activator extends AbstractUIPlugin {
 
     // The plug-in ID
-    public static final String                    PLUGIN_ID                = "octane-eclipse-plugin";                    //$NON-NLS-1$
+    public static final String PLUGIN_ID = "octane-eclipse-plugin"; //$NON-NLS-1$
 
     // The shared instance
-    private static Activator                      plugin;
+    private static Activator plugin;
 
     private static BasicConnectionSettingProvider settingsProviderInstance = new BasicConnectionSettingProvider();
-    private static ServiceModule                  serviceModuleInstance    = new ServiceModule(settingsProviderInstance);
+    private static ServiceModule serviceModuleInstance = new ServiceModule(settingsProviderInstance);
 
     /**
      * The constructor
@@ -69,9 +69,9 @@ public class Activator extends AbstractUIPlugin {
         ISecurePreferences securePrefs = SecurePreferencesFactory.getDefault().node(Activator.PLUGIN_ID);
 
         try {
-            String baseUrl = prefs.getString(PreferenceConstants.P_OCTANE_SERVER_URL);
-            String username = prefs.getString(PreferenceConstants.P_USERNAME);
-            String password = securePrefs.get(PreferenceConstants.P_PASSWORD, "");
+            String baseUrl = prefs.getString(PreferenceConstants.OCTANE_SERVER_URL);
+            String username = prefs.getString(PreferenceConstants.USERNAME);
+            String password = securePrefs.get(PreferenceConstants.PASSWORD, "");
             ConnectionSettings loadedConnectionSettings = UrlParser.resolveConnectionSettings(baseUrl, username, password);
             settingsProviderInstance.setConnectionSettings(loadedConnectionSettings);
         } catch (Exception e) {

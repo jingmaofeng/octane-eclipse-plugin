@@ -25,15 +25,11 @@ public class CallEditor extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
 
-        // get the page
         IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
         IWorkbenchPage page = window.getActivePage();
-        // get the selection
         ISelection selection = HandlerUtil.getCurrentSelection(event);
         if (selection != null && selection instanceof IStructuredSelection) {
             Object obj = ((IStructuredSelection) selection).getFirstElement();
-
-            // if we had a selection lets open the editor
             if (obj != null) {
 
                 EntityModel entityModel = (EntityModel) obj;
@@ -44,7 +40,7 @@ public class CallEditor extends AbstractHandler {
                     logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
                     page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
                 } catch (PartInitException e) {
-                    e.printStackTrace();
+                    logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "An exception has occured when opening the editor", e));
                 }
             }
         }

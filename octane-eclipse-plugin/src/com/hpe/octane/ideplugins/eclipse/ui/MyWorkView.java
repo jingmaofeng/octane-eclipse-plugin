@@ -28,7 +28,7 @@ public class MyWorkView extends ViewPart {
     private static final String LOADING_MESSAGE = "Loading \"My Work\"";
 
     private ListViewer          viewer;
-
+    
     private MyWorkService       myWorkService   = Activator.getInstance(MyWorkService.class);
 
     @Override
