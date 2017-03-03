@@ -3,16 +3,13 @@ package com.hpe.octane.ideplugins.eclipse.preferences;
 import java.io.IOException;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -35,17 +32,6 @@ import com.hpe.adm.octane.services.util.Constants;
 import com.hpe.adm.octane.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
-/**
- * This class represents a preference page that is contributed to the
- * Preferences dialog. By subclassing <samp>FieldEditorPreferencePage</samp>, we
- * can use the field support built into JFace that allows us to create a page
- * that is small and knows how to save, restore and apply itself.
- * <p>
- * This page is used to modify preferences only. They are stored in the
- * preference store that belongs to the main plug-in class. That way,
- * preferences can be accessed directly via the preference store.
- */
-
 public class PluginPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
     private Text               textServerUrl;
@@ -58,8 +44,6 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
     private IPreferenceStore   prefs       = Activator.getDefault().getPreferenceStore();
     private ISecurePreferences securePrefs = SecurePreferencesFactory.getDefault().node(Activator.PLUGIN_ID);
     private TestService        testService = Activator.getInstance(TestService.class);
-
-    private String             serverUrl, username, password;
 
     @Override
     public void init(IWorkbench workbench) {
@@ -135,17 +119,10 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             public void widgetSelected(SelectionEvent e) {
                 super.widgetSelected(e);
                 setConnectionStatus(null, null);
-                cacheValues();
-                new Job("Testing connection...") {
 
-                    @Override
-                    protected IStatus run(IProgressMonitor monitor) {
-                        monitor.beginTask("Testing connection...", IProgressMonitor.UNKNOWN);
-                        testConnection(serverUrl, username, password);
-                        monitor.done();
-                        return Status.OK_STATUS;
-                    }
-                }.schedule();
+                BusyIndicator.showWhile(Display.getCurrent(), () -> {
+                    testConnection(textServerUrl.getText(), textUsername.getText(), textPassword.getText());
+                });
             }
 
         });
@@ -183,8 +160,6 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
     }
 
     private void setConnectionStatus(Boolean success, String errorMessage) {
-        if (labelConnectionStatus.isDisposed())
-            return;
         if (success == null) {
             labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
             labelConnectionStatus.setText("Testing connection, please wait.");
@@ -208,20 +183,14 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         }
     }
 
-    private void cacheValues() {
-        serverUrl = textServerUrl.getText();
-        username = textUsername.getText();
-        password = textPassword.getText();
-    }
-
     private void saveValues() {
-        prefs.putValue(PreferenceConstants.P_OCTANE_SERVER_URL, serverUrl);
-        prefs.putValue(PreferenceConstants.P_USERNAME, username);
+        prefs.putValue(PreferenceConstants.P_OCTANE_SERVER_URL, textServerUrl.getText());
+        prefs.putValue(PreferenceConstants.P_USERNAME, textUsername.getText());
         try {
-            securePrefs.put(PreferenceConstants.P_PASSWORD, password, true);
+            securePrefs.put(PreferenceConstants.P_PASSWORD, textPassword.getText(), true);
             securePrefs.flush();
         } catch (StorageException | IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();// fix this
         }
     }
 
@@ -234,31 +203,30 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
     }
 
     private void apply() {
-        cacheValues();
+
         if (isConnectionSettingsEmpty()) {
             Activator.setConnectionSettings(new ConnectionSettings());
             saveValues();
             return;
         }
-        Job testConnectionJob = new Job("Applying connection settings...") {
-            @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                monitor.beginTask("Applying connection settings...", IProgressMonitor.UNKNOWN);
-                ConnectionSettings connectionSettings = testConnection(serverUrl, username, password);
-                if (connectionSettings != null) {
-                    Display.getDefault().asyncExec(() -> {
-                        if (!textServerUrl.isDisposed()) {
-                            textServerUrl.setText(UrlParser.createUrlFromConnectionSettings(connectionSettings));
-                        }
-                        saveValues();
-                    });
-                    Activator.setConnectionSettings(connectionSettings);
-                }
-                monitor.done();
-                return Status.OK_STATUS;
+
+        try {
+            if (Activator.getConnectionSettings()
+                    .equals(UrlParser.resolveConnectionSettings(textServerUrl.getText(), textUsername.getText(), textPassword.getText()))) {
+                return;
             }
-        };
-        testConnectionJob.schedule();
+        } catch (ServiceException e) {
+            setConnectionStatus(false, e.getMessage() + "\n" + Constants.CORRECT_URL_FORMAT_MESSAGE);
+        }
+
+        BusyIndicator.showWhile(Display.getCurrent(), () -> {
+            ConnectionSettings connectionSettings = testConnection(textServerUrl.getText(), textUsername.getText(), textPassword.getText());
+            if (connectionSettings != null) {
+                textServerUrl.setText(UrlParser.createUrlFromConnectionSettings(connectionSettings));
+                saveValues();
+                Activator.setConnectionSettings(connectionSettings);
+            }
+        });
     }
 
     private boolean isConnectionSettingsEmpty() {
@@ -272,23 +240,22 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         try {
             newConnectionSettings = UrlParser.resolveConnectionSettings(serverUrl, username, password);
         } catch (ServiceException e) {
-            Display.getDefault().asyncExec(
-                    () -> setConnectionStatus(false, e.getMessage() + "\n" + Constants.CORRECT_URL_FORMAT_MESSAGE));
+            setConnectionStatus(false, e.getMessage() + "\n" + Constants.CORRECT_URL_FORMAT_MESSAGE);
             return null;
         }
 
         try {
             validateUsernameAndPassword(username, password);
         } catch (ServiceException e) {
-            Display.getDefault().asyncExec(() -> setConnectionStatus(false, e.getMessage()));
+            setConnectionStatus(false, e.getMessage());
             return null;
         }
 
         try {
             testService.testConnection(newConnectionSettings);
-            Display.getDefault().asyncExec(() -> setConnectionStatus(true, null));
+            setConnectionStatus(true, null);
         } catch (ServiceException e) {
-            Display.getDefault().asyncExec(() -> setConnectionStatus(false, e.getMessage()));
+            setConnectionStatus(false, e.getMessage());
             return null;
         }
 
