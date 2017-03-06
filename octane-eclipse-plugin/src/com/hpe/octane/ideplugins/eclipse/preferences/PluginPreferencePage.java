@@ -42,6 +42,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
     private Text textUsername;
     private Text textPassword;
     private Label labelConnectionStatus;
+    private Button buttonTestConnection;
 
     private IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
     private ISecurePreferences securePrefs = SecurePreferencesFactory.getDefault().node(Activator.PLUGIN_ID);
@@ -105,7 +106,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         gridData.grabExcessHorizontalSpace = true;
         testConnectionContainer.setLayoutData(gridData);
 
-        Button buttonTestConnection = new Button(testConnectionContainer, SWT.PUSH);
+        buttonTestConnection = new Button(testConnectionContainer, SWT.PUSH);
         buttonTestConnection.setText("Test connection");
 
         labelConnectionStatus = new Label(testConnectionContainer, SWT.NONE);
@@ -174,6 +175,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED));
             labelConnectionStatus.setText(errorMessage);
         }
+        buttonTestConnection.setEnabled(success != null);
         labelConnectionStatus.getParent().requestLayout();
     }
 
