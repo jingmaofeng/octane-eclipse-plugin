@@ -3,6 +3,8 @@ package com.hpe.octane.ideplugins.eclipse.preferences;
 import java.io.IOException;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
@@ -34,16 +36,19 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class PluginPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
-    private Text               textServerUrl;
-    private Text               textSharedSpace;
-    private Text               textWorkspace;
-    private Text               textUsername;
-    private Text               textPassword;
-    private Label              labelConnectionStatus;
+    private Text textServerUrl;
+    private Text textSharedSpace;
+    private Text textWorkspace;
+    private Text textUsername;
+    private Text textPassword;
+    private Label labelConnectionStatus;
+    private Button buttonTestConnection;
 
-    private IPreferenceStore   prefs       = Activator.getDefault().getPreferenceStore();
+    private IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
     private ISecurePreferences securePrefs = SecurePreferencesFactory.getDefault().node(Activator.PLUGIN_ID);
-    private TestService        testService = Activator.getInstance(TestService.class);
+    private TestService testService = Activator.getInstance(TestService.class);
+
+    private ILog logger = Activator.getDefault().getLog();
 
     @Override
     public void init(IWorkbench workbench) {
@@ -101,7 +106,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         gridData.grabExcessHorizontalSpace = true;
         testConnectionContainer.setLayoutData(gridData);
 
-        Button buttonTestConnection = new Button(testConnectionContainer, SWT.PUSH);
+        buttonTestConnection = new Button(testConnectionContainer, SWT.PUSH);
         buttonTestConnection.setText("Test connection");
 
         labelConnectionStatus = new Label(testConnectionContainer, SWT.NONE);
@@ -170,27 +175,30 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED));
             labelConnectionStatus.setText(errorMessage);
         }
+        buttonTestConnection.setEnabled(success != null);
         labelConnectionStatus.getParent().requestLayout();
     }
 
     private void loadSavedValues() {
-        textServerUrl.setText(prefs.getString(PreferenceConstants.P_OCTANE_SERVER_URL));
-        textUsername.setText(prefs.getString(PreferenceConstants.P_USERNAME));
+        textServerUrl.setText(prefs.getString(PreferenceConstants.OCTANE_SERVER_URL));
+        textUsername.setText(prefs.getString(PreferenceConstants.USERNAME));
         try {
-            textPassword.setText(securePrefs.get(PreferenceConstants.P_PASSWORD, ""));
+            textPassword.setText(securePrefs.get(PreferenceConstants.PASSWORD, ""));
         } catch (StorageException e) {
-            e.printStackTrace();
+            logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+                    "An exception has occured when loading the Octane connection details", e));
         }
     }
 
     private void saveValues() {
-        prefs.putValue(PreferenceConstants.P_OCTANE_SERVER_URL, textServerUrl.getText());
-        prefs.putValue(PreferenceConstants.P_USERNAME, textUsername.getText());
+        prefs.putValue(PreferenceConstants.OCTANE_SERVER_URL, textServerUrl.getText());
+        prefs.putValue(PreferenceConstants.USERNAME, textUsername.getText());
         try {
-            securePrefs.put(PreferenceConstants.P_PASSWORD, textPassword.getText(), true);
+            securePrefs.put(PreferenceConstants.PASSWORD, textPassword.getText(), true);
             securePrefs.flush();
         } catch (StorageException | IOException e) {
-            e.printStackTrace();// fix this
+            logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+                    "An exception has occured when saving the Octane connection details", e));
         }
     }
 
