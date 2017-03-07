@@ -172,7 +172,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN));
             labelConnectionStatus.setText("Connection successful.");
         } else {
-            labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED));
+            labelConnectionStatus.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
             labelConnectionStatus.setText(errorMessage);
         }
         buttonTestConnection.setEnabled(success != null);
