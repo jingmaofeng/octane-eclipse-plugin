@@ -123,7 +123,6 @@ public class EntityIconFactory {
             loadImageData(entity);
         }
 
-        System.out.println(entity);
         ImageData imageData = imageDataCache.get(entity);
 
         if (isActive) {
