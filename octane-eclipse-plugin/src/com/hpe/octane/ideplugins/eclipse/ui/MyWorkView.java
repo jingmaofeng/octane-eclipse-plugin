@@ -23,13 +23,13 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class MyWorkView extends ViewPart {
 
-    public static final String  ID              = "com.hpe.octane.ideplugins.eclipse.ui.MyWorkView";
+    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.MyWorkView";
 
     private static final String LOADING_MESSAGE = "Loading \"My Work\"";
 
-    private ListViewer          viewer;
+    private ListViewer viewer;
 
-    private MyWorkService       myWorkService   = Activator.getInstance(MyWorkService.class);
+    private MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
 
     @Override
     public void createPartControl(Composite parent) {
@@ -40,7 +40,7 @@ public class MyWorkView extends ViewPart {
             @Override
             public String getText(Object element) {
                 EntityModel p = (EntityModel) element;
-                return p.getValue("name").getValue().toString();
+                return p.getValue("id").getValue().toString() + ": " + p.getValue("name").getValue().toString();
             };
         });
         getSite().setSelectionProvider(viewer);
