@@ -42,7 +42,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
     private Label labelConnectionStatus;
     private Button buttonTestConnection;
 
-    private ISecurePreferences securePrefs = Activator.securePrefsInstance;
+    private ISecurePreferences securePrefs = Activator.getSecurePrefs();
     private TestService testService = Activator.getInstance(TestService.class);
 
     private ILog logger = Activator.getDefault().getLog();

@@ -66,13 +66,13 @@ public class Activator extends AbstractUIPlugin {
         return serviceModuleInstance.getInstance(type);
     }
 
-    private static ISecurePreferences getSecurePrefs() {
+    public static ISecurePreferences getSecurePrefs() {
         String secureStorePath = ResourcesPlugin.getWorkspace().getRoot().getLocation()
                 .append(".metadata\\.plugins\\org.eclipse.core.runtime\\.settings\\" + Activator.PLUGIN_ID + "-secure.prefs").toOSString();
         File file = new File(secureStorePath);
         try {
             URL url = file.toURI().toURL();
-            Map<String, Object> options = new HashMap<String, Object>();
+            Map<String, Object> options = new HashMap<>();
             options.put(IProviderHints.DEFAULT_PASSWORD, new PBEKeySpec("masterpass".toCharArray()));
             return SecurePreferencesFactory.open(url, options);
         } catch (IOException e) {
@@ -94,10 +94,11 @@ public class Activator extends AbstractUIPlugin {
         plugin = this;
 
         try {
-            String baseUrl = securePrefsInstance.get(PreferenceConstants.OCTANE_SERVER_URL, "");
-            String username = securePrefsInstance.get(PreferenceConstants.USERNAME, "");
-            String password = securePrefsInstance.get(PreferenceConstants.PASSWORD, "");
-            if (!StringUtils.isEmpty(baseUrl)) {
+            ISecurePreferences securePrefs = getSecurePrefs();
+            String baseUrl = securePrefs.get(PreferenceConstants.OCTANE_SERVER_URL, "");
+            String username = securePrefs.get(PreferenceConstants.USERNAME, "");
+            String password = securePrefs.get(PreferenceConstants.PASSWORD, "");
+            if (StringUtils.isNotEmpty(baseUrl)) {
                 ConnectionSettings loadedConnectionSettings = UrlParser.resolveConnectionSettings(baseUrl, username, password);
                 settingsProviderInstance.setConnectionSettings(loadedConnectionSettings);
             } else {
@@ -105,7 +106,8 @@ public class Activator extends AbstractUIPlugin {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+                    "An exception has occured when loading the Octane connection details", e));
         }
     }
 
