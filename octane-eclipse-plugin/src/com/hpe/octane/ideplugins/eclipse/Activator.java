@@ -1,8 +1,19 @@
 package com.hpe.octane.ideplugins.eclipse;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.crypto.spec.PBEKeySpec;
+
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.equinox.security.storage.provider.IProviderHints;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -27,6 +38,7 @@ public class Activator extends AbstractUIPlugin {
 
     private static BasicConnectionSettingProvider settingsProviderInstance = new BasicConnectionSettingProvider();
     private static ServiceModule serviceModuleInstance = new ServiceModule(settingsProviderInstance);
+    public static ISecurePreferences securePrefsInstance = getSecurePrefs();
 
     /**
      * The constructor
@@ -54,6 +66,22 @@ public class Activator extends AbstractUIPlugin {
         return serviceModuleInstance.getInstance(type);
     }
 
+    public static ISecurePreferences getSecurePrefs() {
+        String secureStorePath = ResourcesPlugin.getWorkspace().getRoot().getLocation()
+                .append(".metadata\\.plugins\\org.eclipse.core.runtime\\.settings\\" + Activator.PLUGIN_ID + "-secure.prefs").toOSString();
+        File file = new File(secureStorePath);
+        try {
+            URL url = file.toURI().toURL();
+            Map<String, Object> options = new HashMap<>();
+            options.put(IProviderHints.DEFAULT_PASSWORD, new PBEKeySpec("masterpass".toCharArray()));
+            return SecurePreferencesFactory.open(url, options);
+        } catch (IOException e) {
+            getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+                    "An exception has occured when fetching secure preferences", e));
+            return null;
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -65,17 +93,21 @@ public class Activator extends AbstractUIPlugin {
         super.start(context);
         plugin = this;
 
-        IPreferenceStore prefs = getPreferenceStore();
-        ISecurePreferences securePrefs = SecurePreferencesFactory.getDefault().node(Activator.PLUGIN_ID);
-
         try {
-            String baseUrl = prefs.getString(PreferenceConstants.OCTANE_SERVER_URL);
-            String username = prefs.getString(PreferenceConstants.USERNAME);
+            ISecurePreferences securePrefs = getSecurePrefs();
+            String baseUrl = securePrefs.get(PreferenceConstants.OCTANE_SERVER_URL, "");
+            String username = securePrefs.get(PreferenceConstants.USERNAME, "");
             String password = securePrefs.get(PreferenceConstants.PASSWORD, "");
-            ConnectionSettings loadedConnectionSettings = UrlParser.resolveConnectionSettings(baseUrl, username, password);
-            settingsProviderInstance.setConnectionSettings(loadedConnectionSettings);
+            if (StringUtils.isNotEmpty(baseUrl)) {
+                ConnectionSettings loadedConnectionSettings = UrlParser.resolveConnectionSettings(baseUrl, username, password);
+                settingsProviderInstance.setConnectionSettings(loadedConnectionSettings);
+            } else {
+                settingsProviderInstance.setConnectionSettings(new ConnectionSettings());
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
+            getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+                    "An exception has occured when loading the Octane connection details", e));
         }
     }
 
