@@ -34,7 +34,6 @@ public class Activator extends AbstractUIPlugin {
 
     private static BasicConnectionSettingProvider settingsProviderInstance = new BasicConnectionSettingProvider();
     private static ServiceModule serviceModuleInstance = new ServiceModule(settingsProviderInstance);
-    public static ISecurePreferences securePrefsInstance = getSecurePrefs();
 
     /**
      * The constructor

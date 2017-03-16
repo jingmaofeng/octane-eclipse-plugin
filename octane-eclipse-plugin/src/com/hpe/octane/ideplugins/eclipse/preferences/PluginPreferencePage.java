@@ -173,7 +173,8 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             labelConnectionStatus.setText(errorMessage);
         }
         buttonTestConnection.setEnabled(success != null);
-        labelConnectionStatus.getParent().requestLayout();
+        labelConnectionStatus.getShell().layout(new Control[] {
+                labelConnectionStatus.getParent() }, SWT.DEFER);
     }
 
     private void loadSavedValues() {
