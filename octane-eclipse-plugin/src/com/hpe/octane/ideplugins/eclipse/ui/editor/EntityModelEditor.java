@@ -17,15 +17,18 @@ import com.hpe.adm.octane.services.EntityService;
 import com.hpe.adm.octane.services.exception.ServiceException;
 import com.hpe.adm.octane.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 
 public class EntityModelEditor extends EditorPart {
 
-    public static final String     ID            = "com.hpe.octane.ideplugins.eclipse.ui.EntityModelEditor"; //$NON-NLS-1$
+    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.EntityModelEditor"; //$NON-NLS-1$
 
-    private EntityModel            entityModel;
+    private EntityModel entityModel;
     private EntityModelEditorInput input;
 
-    private EntityService          entityService = Activator.getInstance(EntityService.class);
+    private EntityService entityService = Activator.getInstance(EntityService.class);
+
+    private static EntityIconFactory entityIconFactory = new EntityIconFactory(20, 20, 7);
 
     public EntityModelEditor() {
     }
@@ -47,6 +50,7 @@ public class EntityModelEditor extends EditorPart {
         }
 
         setPartName(entityModel.getValue("name").getValue().toString());
+        setTitleImage(entityIconFactory.getImageIcon(this.input.getEntityType()));
     }
 
     /**
