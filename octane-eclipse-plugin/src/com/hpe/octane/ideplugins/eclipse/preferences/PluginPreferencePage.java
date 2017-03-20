@@ -133,6 +133,8 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
+                if ((e.widget == textUsername || e.widget == textPassword) && textServerUrl.getText().isEmpty())
+                    return;
                 setFieldsFromServerUrl(true);
             }
         };
@@ -161,8 +163,10 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         textUsername.setText("");
         textPassword.setText("");
         textServerUrl.setText("");
-        setFieldsFromServerUrl(false);
-        setValid(true);
+        if (!Activator.getConnectionSettings().isEmpty()) {
+            setFieldsFromServerUrl(false);
+            setValid(true);
+        }
         setConnectionStatus(false, "");
     }
 
@@ -218,6 +222,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         if (isConnectionSettingsEmpty()) {
             Activator.setConnectionSettings(new ConnectionSettings());
             saveValues();
+            setValid(false);
             return;
         }
 
