@@ -50,7 +50,7 @@
       <page
             class="com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage"
             id="octaneeclipseplugin.preferences.SamplePreferencePage"
-            name="Octane Plugin Settings">
+            name="ALM Octane Settings">
       </page>
    </extension>
    <extension

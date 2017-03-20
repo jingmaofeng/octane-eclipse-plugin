@@ -110,7 +110,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         labelConnectionStatus.setLayoutData(gridData);
 
         setHints(true);
-
+        setValid(false);
         loadSavedValues();
 
         setFieldsFromServerUrl(false);
@@ -129,13 +129,17 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 
         });
 
-        textServerUrl.addKeyListener(new KeyAdapter() {
+        KeyAdapter keyListener = new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
                 setFieldsFromServerUrl(true);
             }
-        });
+        };
+
+        textServerUrl.addKeyListener(keyListener);
+        textUsername.addKeyListener(keyListener);
+        textPassword.addKeyListener(keyListener);
 
         return parent;
     }
@@ -158,6 +162,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         textPassword.setText("");
         textServerUrl.setText("");
         setFieldsFromServerUrl(false);
+        setValid(true);
         setConnectionStatus(false, "");
     }
 
@@ -230,6 +235,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             if (connectionSettings != null) {
                 textServerUrl.setText(UrlParser.createUrlFromConnectionSettings(connectionSettings));
                 saveValues();
+                setValid(false);
                 Activator.setConnectionSettings(connectionSettings);
             }
         });
@@ -292,10 +298,14 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
                     textPassword.getText());
             textSharedSpace.setText(connectionSettings.getSharedSpaceId() + "");
             textWorkspace.setText(connectionSettings.getWorkspaceId() + "");
+            if (setStatus) {
+                setValid(!connectionSettings.equals(Activator.getConnectionSettings()));
+            }
             setConnectionStatus(false, "");
         } catch (ServiceException e) {
             setHints(false);
             if (setStatus) {
+                setValid(false);
                 setConnectionStatus(false,
                         e.getMessage() + "\n" + com.hpe.adm.octane.services.util.Constants.CORRECT_URL_FORMAT_MESSAGE);
             }
