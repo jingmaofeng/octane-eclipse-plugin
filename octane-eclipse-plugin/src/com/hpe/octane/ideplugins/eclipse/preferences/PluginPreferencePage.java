@@ -53,6 +53,12 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
     }
 
     @Override
+    public void createControl(Composite parent) {
+        super.createControl(parent);
+        getApplyButton().setEnabled(false);
+    }
+
+    @Override
     protected Control createContents(Composite parent) {
 
         GridLayout gridLayout = new GridLayout();
@@ -110,7 +116,6 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         labelConnectionStatus.setLayoutData(gridData);
 
         setHints(true);
-        setValid(false);
         loadSavedValues();
 
         setFieldsFromServerUrl(false);
@@ -153,7 +158,9 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 
     @Override
     public boolean performOk() {
-        apply();
+        if (getApplyButton().getEnabled()) {
+            apply();
+        }
         return true;
     }
 
@@ -165,7 +172,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         textServerUrl.setText("");
         if (!Activator.getConnectionSettings().isEmpty()) {
             setFieldsFromServerUrl(false);
-            setValid(true);
+            getApplyButton().setEnabled(true);
         }
         setConnectionStatus(false, "");
     }
@@ -222,7 +229,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         if (isConnectionSettingsEmpty()) {
             Activator.setConnectionSettings(new ConnectionSettings());
             saveValues();
-            setValid(false);
+            getApplyButton().setEnabled(false);
             return;
         }
 
@@ -240,7 +247,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             if (connectionSettings != null) {
                 textServerUrl.setText(UrlParser.createUrlFromConnectionSettings(connectionSettings));
                 saveValues();
-                setValid(false);
+                getApplyButton().setEnabled(false);
                 Activator.setConnectionSettings(connectionSettings);
             }
         });
@@ -304,13 +311,13 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             textSharedSpace.setText(connectionSettings.getSharedSpaceId() + "");
             textWorkspace.setText(connectionSettings.getWorkspaceId() + "");
             if (setStatus) {
-                setValid(!connectionSettings.equals(Activator.getConnectionSettings()));
+                getApplyButton().setEnabled(!connectionSettings.equals(Activator.getConnectionSettings()));
             }
             setConnectionStatus(false, "");
         } catch (ServiceException e) {
             setHints(false);
             if (setStatus) {
-                setValid(false);
+                getApplyButton().setEnabled(false);
                 setConnectionStatus(false,
                         e.getMessage() + "\n" + com.hpe.adm.octane.services.util.Constants.CORRECT_URL_FORMAT_MESSAGE);
             }
