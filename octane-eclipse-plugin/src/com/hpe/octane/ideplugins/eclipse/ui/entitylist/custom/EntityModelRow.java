@@ -1,10 +1,11 @@
-package com.hpe.octane.ideplugins.eclipse.ui;
+package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -20,6 +21,8 @@ public class EntityModelRow extends Composite {
 	private Label lblEntityIcon;
 	private Composite compositeTopDetails;
 	private Composite compositeBottomDetails;
+	private Label labelTopSpacer;
+	private Label labelBottomSpacer;
 
 	/**
 	 * Create the composite.
@@ -28,28 +31,42 @@ public class EntityModelRow extends Composite {
 	 */
 	public EntityModelRow(Composite parent, int style) {
 		super(parent, style);
-		setLayout(new GridLayout(4, false));
+		GridLayout gridLayout = new GridLayout(5, false);
+		gridLayout.verticalSpacing = 0;
+		gridLayout.marginHeight = 0;
+		setLayout(gridLayout);
 		
 		lblEntityIcon = new Label(this, SWT.NONE);
-		lblEntityIcon.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 2));
+		lblEntityIcon.setAlignment(SWT.CENTER);
+		GridData gd_lblEntityIcon = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 2);
+		gd_lblEntityIcon.heightHint = 40;
+		gd_lblEntityIcon.widthHint = 40;
+		lblEntityIcon.setLayoutData(gd_lblEntityIcon);
 		
 		lblEntityId = new Label(this, SWT.NONE);
 		lblEntityId.setText("6666");
 		
-		lblEntityName = new Label(this, SWT.WRAP);
+		lblEntityName = new Label(this, SWT.NONE);
+		lblEntityName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		lblEntityName.setText("Implement all thingz");
 		
-		compositeTopDetails = new Composite(this, SWT.BORDER);
-		compositeTopDetails.setLayout(new FillLayout(SWT.HORIZONTAL));
-		compositeTopDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		labelTopSpacer = new Label(this, SWT.NONE);
+		labelTopSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		
-		lblEntityDetails = new Label(this, SWT.WRAP);
+		compositeTopDetails = new Composite(this, SWT.NONE);
+		compositeTopDetails.setLayout(new RowLayout(SWT.HORIZONTAL));
+		compositeTopDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		
+		lblEntityDetails = new Label(this, SWT.NONE);
 		lblEntityDetails.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		lblEntityDetails.setText("Entity Details Here");
 		
+		labelBottomSpacer = new Label(this, SWT.NONE);
+		labelBottomSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		
 		compositeBottomDetails = new Composite(this, SWT.NONE);
-		compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		compositeBottomDetails.setLayout(new FillLayout(SWT.HORIZONTAL));
+		compositeBottomDetails.setLayout(new RowLayout(SWT.HORIZONTAL));
+		compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));		
 	}
 	
 	public void setEntityIcon(Image entityIconImage){
@@ -64,9 +81,18 @@ public class EntityModelRow extends Composite {
 		lblEntityId.setText(id+"");
 	}
 	
-	public void setEntityDetails(String details){
-		lblEntityDetails.setText(details);
+	public void setEntitySubTitle(String subtitle){
+		lblEntityDetails.setText(subtitle);
 	}
+	
+	
+	public void setEntitySubTitle(String subtitle, String defaultValue){
+		if(StringUtils.isNotBlank(subtitle)){
+			lblEntityDetails.setText(subtitle);
+		} else {
+			lblEntityDetails.setText(defaultValue);
+		}
+	} 
 	
 	public void addDetails(String fieldName, String fieldValue, DetailsPosition position){
 		
@@ -77,16 +103,19 @@ public class EntityModelRow extends Composite {
 			parent = compositeBottomDetails;
 		}
 		
-		Composite composite = new Composite(parent, SWT.BORDER);
-		composite.setLayout(new GridLayout(3, false));
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayout gridLayout = new GridLayout(3, false);
+		gridLayout.marginHeight = 0;
+		gridLayout.verticalSpacing = 0;
+		composite.setLayout(gridLayout);
 		
 		Label lblSeparator = new Label(composite, SWT.SEPARATOR | SWT.VERTICAL);
 		GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_label.heightHint = 20;
+		gd_label.heightHint = 15;
 		lblSeparator.setLayoutData(gd_label);
 		
 		Label lblKey = new Label(composite, SWT.NONE);
-		lblKey.setText(fieldName);
+		lblKey.setText(fieldName+": ");
 		
 		Label lblValue = new Label(composite, SWT.NONE);
 		lblValue.setText(fieldValue);

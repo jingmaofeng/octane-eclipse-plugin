@@ -1,0 +1,76 @@
+package com.hpe.octane.ideplugins.eclipse.util;
+
+public class EntityFieldsConstants {
+	
+	public static final String FIELD_ID = "id";
+	
+    public static final String FIELD_DEFECT_TYPE = "defect_type";
+    public static final String FIELD_DESCRIPTION = "description";
+    public static final String FIELD_FEATURE = "parent";
+    public static final String FIELD_QAOWNER = "qa_owner";
+    public static final String FIELD_OWNER = "owner";
+    public static final String FIELD_BLOCKED = "blocked";
+    public static final String FIELD_BLOCKED_REASON = "blocked_reason";
+    public static final String FIELD_TEAM = "team";
+    public static final String FIELD_PRIORITY = "priority";
+    public static final String FIELD_PHASE = "phase";
+    public static final String FIELD_RELEASE = "release";
+    public static final String FIELD_FIXEDINPUSH = "fixed_in_build";
+    public static final String FIELD_SPRINT = "sprint";
+    public static final String FIELD_DETECTEDBY = "detected_by";
+    public static final String FIELD_SEVERITY = "severity";
+    public static final String FIELD_ENVIROMENT = "taxonomies";
+    public static final String FIELD_STORYPOINTS = "story_points";
+    public static final String FIELD_DETECTEDINPPUSH = "detected_in_build";
+    public static final String FIELD_DETECTEDINRELEASE = "detected_in_release";
+    public static final String FIELD_APPMODULE = "product_areas";
+    public static final String FIELD_DEV_STORY_POINTS = "dev_story_points";
+    public static final String FIELD_QA_STORY_POINTS = "qa_story_points_f";
+    public static final String FIELD_DESIGNER = "designer";
+    public static final String FIELD_IS_MANUAL = "manual";
+    public static final String FIELD_RUNS_IN_RELEASES = "run_in_releases";
+    public static final String FIELD_TEST_SUBTYPE = "subtype";
+    public static final String FIELD_SUBTYPE = "subtype";
+    public static final String FIELD_TEST_TYPE = "test_type";
+    public static final String FIELD_TESTING_TOOL_TYPE = "testing_tool_type";
+    public static final String FIELD_LAST_RUNS = "last_runs";
+    public static final String FIELD_QUALITY_STORY_TYPE = "quality_story_type";
+    public static final String FIELD_CREATED = "created";
+    public static final String FIELD_ESTIMATED_DURATTION = "estimated_duration";
+    public static final String FIELD_REQUIREMENT_COVERAGE = "requirement_coverage";
+    public static final String FIELD_RUN_SET = "run_set";
+    public static final String FIELD_CONTENT = "content";
+    public static final String FIELD_CLOSED_ON = "closed_on";
+    public static final String FIELD_COVERED_CONTENT = "covered_content";
+    public static final String FIELD_NAME = "name";
+    public static final String FIELD_STORY = "story";
+    public static final String FIELD_AUTHOR = "author";
+    public static final String FIELD_CREATION_TIME = "creation_time";
+    public static final String FIELD_INVESTED_HOURS = "invested_hours";
+    public static final String FIELD_REMAINING_HOURS = "remaining_hours";
+    public static final String FIELD_TASK_TYPE = "item_type";
+    public static final String FIELD_LAST_MODIFIED = "last_modified";
+    public static final String FIELD_ITEM_ORIGIN = "item_origin";
+    public static final String FIELD_ESTIMATED_HOURS = "estimated_hours";
+    public static final String FIELD_AUTOMATION_STATUS = "automation_status";
+    
+    //inner user prop
+    public static final String FIELD_FULL_NAME = "full_name";
+
+    //FOR TEST RUNS
+    public static final String FIELD_TEST_NAME = "test_name";
+    public static final String FIELD_TEST_RUN_NAME = "name";
+    public static final String FIELD_TEST_RUN_NATIVE_STATUS = "native_status";
+    public static final String FIELD_TEST_RUN_STARTED_DATE = "started";
+    public static final String FIELD_TEST_RUN_CONTENT = "steps_num";
+    public static final String FIELD_TEST_RUN_RUN_BY = "run_by";
+    public static final String FIELD_TEST_RUN_STARTED_TIME = "started";
+    public static final String FIELD_TEST_RUN_DRAFT_RUN = "draft_run";
+    public static final String FIELD_TEST_RUN_DURATION = "duration";
+    public static final String FIELD_TEST_RUN_VERSION = "test_version";
+
+    //COMMENTS
+    public static final String FIELD_COMMENT_TEXT="text";
+
+
+}
