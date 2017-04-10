@@ -4,19 +4,15 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.List;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
-import org.eclipse.swt.widgets.List;
-import org.eclipse.jface.viewers.ListViewer;
 
 public class TreeTableEntityListViewer extends Composite implements EntityListViewer {
 
