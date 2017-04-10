@@ -1,8 +1,15 @@
 package com.hpe.octane.ideplugins.eclipse;
 
+import java.util.UUID;
+
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -54,6 +61,25 @@ public class Activator extends AbstractUIPlugin {
         return serviceModuleInstance.getInstance(type);
     }
 
+    public static ISecurePreferences getSecurePrefs() {
+
+        QualifiedName qualifiedName = new QualifiedName(PLUGIN_ID, "workspaceId");
+        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        try {
+            String workspaceId = root.getPersistentProperty(qualifiedName);
+            if (workspaceId == null) {
+                workspaceId = UUID.randomUUID().toString();
+                root.setPersistentProperty(qualifiedName, workspaceId);
+            }
+            return SecurePreferencesFactory.getDefault().node(workspaceId);
+        } catch (CoreException e) {
+            getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+                    "An exception has occured when trying to access the Octane connection details", e));
+            String workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
+            return SecurePreferencesFactory.getDefault().node(workspacePath);
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -65,17 +91,21 @@ public class Activator extends AbstractUIPlugin {
         super.start(context);
         plugin = this;
 
-        IPreferenceStore prefs = getPreferenceStore();
-        ISecurePreferences securePrefs = SecurePreferencesFactory.getDefault().node(Activator.PLUGIN_ID);
-
         try {
-            String baseUrl = prefs.getString(PreferenceConstants.OCTANE_SERVER_URL);
-            String username = prefs.getString(PreferenceConstants.USERNAME);
+            ISecurePreferences securePrefs = getSecurePrefs();
+            String baseUrl = securePrefs.get(PreferenceConstants.OCTANE_SERVER_URL, "");
+            String username = securePrefs.get(PreferenceConstants.USERNAME, "");
             String password = securePrefs.get(PreferenceConstants.PASSWORD, "");
-            ConnectionSettings loadedConnectionSettings = UrlParser.resolveConnectionSettings(baseUrl, username, password);
-            settingsProviderInstance.setConnectionSettings(loadedConnectionSettings);
+            if (StringUtils.isNotEmpty(baseUrl)) {
+                ConnectionSettings loadedConnectionSettings = UrlParser.resolveConnectionSettings(baseUrl, username, password);
+                settingsProviderInstance.setConnectionSettings(loadedConnectionSettings);
+            } else {
+                settingsProviderInstance.setConnectionSettings(new ConnectionSettings());
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
+            getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+                    "An exception has occured when loading the Octane connection details", e));
         }
     }
 

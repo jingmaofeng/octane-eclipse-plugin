@@ -6,9 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -44,8 +42,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
     private Label labelConnectionStatus;
     private Button buttonTestConnection;
 
-    private IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
-    private ISecurePreferences securePrefs = SecurePreferencesFactory.getDefault().node(Activator.PLUGIN_ID);
+    private ISecurePreferences securePrefs = Activator.getSecurePrefs();
     private TestService testService = Activator.getInstance(TestService.class);
 
     private ILog logger = Activator.getDefault().getLog();
@@ -53,6 +50,12 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
     @Override
     public void init(IWorkbench workbench) {
 
+    }
+
+    @Override
+    public void createControl(Composite parent) {
+        super.createControl(parent);
+        getApplyButton().setEnabled(false);
     }
 
     @Override
@@ -113,7 +116,6 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         labelConnectionStatus.setLayoutData(gridData);
 
         setHints(true);
-
         loadSavedValues();
 
         setFieldsFromServerUrl(false);
@@ -132,13 +134,19 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 
         });
 
-        textServerUrl.addKeyListener(new KeyAdapter() {
+        KeyAdapter keyListener = new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
+                if ((e.widget == textUsername || e.widget == textPassword) && textServerUrl.getText().isEmpty())
+                    return;
                 setFieldsFromServerUrl(true);
             }
-        });
+        };
+
+        textServerUrl.addKeyListener(keyListener);
+        textUsername.addKeyListener(keyListener);
+        textPassword.addKeyListener(keyListener);
 
         return parent;
     }
@@ -150,7 +158,9 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 
     @Override
     public boolean performOk() {
-        apply();
+        if (getApplyButton().getEnabled()) {
+            apply();
+        }
         return true;
     }
 
@@ -160,7 +170,10 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         textUsername.setText("");
         textPassword.setText("");
         textServerUrl.setText("");
-        setFieldsFromServerUrl(false);
+        if (!Activator.getConnectionSettings().isEmpty()) {
+            setFieldsFromServerUrl(false);
+            getApplyButton().setEnabled(true);
+        }
         setConnectionStatus(false, "");
     }
 
@@ -176,13 +189,14 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             labelConnectionStatus.setText(errorMessage);
         }
         buttonTestConnection.setEnabled(success != null);
-        labelConnectionStatus.getParent().requestLayout();
+        labelConnectionStatus.getShell().layout(new Control[] {
+                labelConnectionStatus.getParent() }, SWT.DEFER);
     }
 
     private void loadSavedValues() {
-        textServerUrl.setText(prefs.getString(PreferenceConstants.OCTANE_SERVER_URL));
-        textUsername.setText(prefs.getString(PreferenceConstants.USERNAME));
         try {
+            textServerUrl.setText(securePrefs.get(PreferenceConstants.OCTANE_SERVER_URL, ""));
+            textUsername.setText(securePrefs.get(PreferenceConstants.USERNAME, ""));
             textPassword.setText(securePrefs.get(PreferenceConstants.PASSWORD, ""));
         } catch (StorageException e) {
             logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
@@ -191,9 +205,9 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
     }
 
     private void saveValues() {
-        prefs.putValue(PreferenceConstants.OCTANE_SERVER_URL, textServerUrl.getText());
-        prefs.putValue(PreferenceConstants.USERNAME, textUsername.getText());
         try {
+            securePrefs.put(PreferenceConstants.OCTANE_SERVER_URL, textServerUrl.getText(), false);
+            securePrefs.put(PreferenceConstants.USERNAME, textUsername.getText(), false);
             securePrefs.put(PreferenceConstants.PASSWORD, textPassword.getText(), true);
             securePrefs.flush();
         } catch (StorageException | IOException e) {
@@ -215,6 +229,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         if (isConnectionSettingsEmpty()) {
             Activator.setConnectionSettings(new ConnectionSettings());
             saveValues();
+            getApplyButton().setEnabled(false);
             return;
         }
 
@@ -232,6 +247,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             if (connectionSettings != null) {
                 textServerUrl.setText(UrlParser.createUrlFromConnectionSettings(connectionSettings));
                 saveValues();
+                getApplyButton().setEnabled(false);
                 Activator.setConnectionSettings(connectionSettings);
             }
         });
@@ -294,10 +310,14 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
                     textPassword.getText());
             textSharedSpace.setText(connectionSettings.getSharedSpaceId() + "");
             textWorkspace.setText(connectionSettings.getWorkspaceId() + "");
+            if (setStatus) {
+                getApplyButton().setEnabled(!connectionSettings.equals(Activator.getConnectionSettings()));
+            }
             setConnectionStatus(false, "");
         } catch (ServiceException e) {
             setHints(false);
             if (setStatus) {
+                getApplyButton().setEnabled(false);
                 setConnectionStatus(false,
                         e.getMessage() + "\n" + com.hpe.adm.octane.services.util.Constants.CORRECT_URL_FORMAT_MESSAGE);
             }
