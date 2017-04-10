@@ -35,7 +35,7 @@ public class EntityModelEditor extends EditorPart {
         if (!(input instanceof EntityModelEditorInput)) {
             throw new RuntimeException("Wrong input");
         }
-
+        
         this.input = (EntityModelEditorInput) input;
         setSite(site);
         setInput(input);
