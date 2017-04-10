@@ -18,7 +18,7 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.octane.services.MyWorkService;
+import com.hpe.adm.octane.services.mywork.MyWorkService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class MyWorkView extends ViewPart {
