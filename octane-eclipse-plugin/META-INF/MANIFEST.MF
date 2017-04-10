@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: javax.inject;version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: lib/aopalliance.jar,
+Bundle-ClassPath: .,
+ lib/aopalliance.jar,
  lib/commons-codec.jar,
  lib/commons-collections.jar,
  lib/commons-lang.jar,
