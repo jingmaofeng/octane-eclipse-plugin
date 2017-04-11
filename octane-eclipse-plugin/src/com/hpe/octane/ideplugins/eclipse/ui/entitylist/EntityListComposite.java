@@ -58,6 +58,14 @@ public class EntityListComposite extends Composite {
 		entityListViewer.setEntityModels(entityListData.getEntityList());
 	}
 	
+	/**
+	 * Change viewer implementation
+	 * @param entityListViewer
+	 */
+	public void setEntityListViewer(EntityListViewer entityListViewer){
+		this.entityListViewer = entityListViewer;
+	}
+	
 	private void init(){
 		
 		entityTypeSelectorComposite = new EntityTypeSelectorComposite(this, SWT.NONE, defaultFilterTypes.toArray(new Entity[]{}));
@@ -115,7 +123,7 @@ public class EntityListComposite extends Composite {
 			@Override
 			public ConnectionSettings getConnectionSettings() {
 				ConnectionSettings connectionSettings = new ConnectionSettings();
-				connectionSettings.setBaseUrl("http://myd-vm19852.hpeswlab.net:8080");
+				connectionSettings.setBaseUrl("http://myd-vm10632.hpeswlab.net:8081");
 				connectionSettings.setSharedSpaceId(1001L);
 				connectionSettings.setWorkspaceId(1002L);
 				connectionSettings.setUserName("sa@nga");
