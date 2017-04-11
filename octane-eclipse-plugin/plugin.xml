@@ -11,7 +11,7 @@
       <view
             allowMultiple="false"
             category="octane-eclipse-plugin"
-            class="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
+            class="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
             icon="icons/mywork.png"
             id="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
             name="My Work">

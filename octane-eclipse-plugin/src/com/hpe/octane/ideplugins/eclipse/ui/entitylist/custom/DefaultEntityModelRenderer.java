@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Display;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.services.filtering.Entity;
+import com.hpe.adm.octane.services.mywork.MyWorkUtil;
 import com.hpe.adm.octane.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow.DetailsPosition;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
@@ -36,6 +37,10 @@ class DefaultEntityModelRenderer implements EntityModelRenderer {
 
     @Override
     public EntityModelRow createRow(Composite parent, EntityModel entityModel) {
+
+        if (Entity.USER_ITEM == Entity.getEntityType(entityModel)) {
+            entityModel = MyWorkUtil.getEntityModelFromUserItem(entityModel);
+        }
 
         Entity entityType = Entity.getEntityType(entityModel);
         Integer entityId = Integer.valueOf(Util.getUiDataFromModel(entityModel.getValue(FIELD_ID)));

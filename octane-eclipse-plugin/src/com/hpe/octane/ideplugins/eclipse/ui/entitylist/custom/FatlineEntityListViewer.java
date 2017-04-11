@@ -1,22 +1,25 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom;
 
-import java.util.ArrayList;
+import java.text.Bidi;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import org.apache.commons.collections.BidiMap;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.util.SWTResourceManager;
@@ -24,9 +27,14 @@ import com.hpe.octane.ideplugins.eclipse.util.SWTResourceManager;
 public class FatlineEntityListViewer extends Composite implements EntityListViewer{
 	
 	private static final EntityModelRenderer entityModelRenderer = new DefaultEntityModelRenderer();
-
-	private List<EntityModelRow> rows = new ArrayList<>();
-	private Collection<EntityModel> entityModels = new ArrayList<>();
+	private static final Color selectionColor = SWTResourceManager.getColor(255, 105, 180);
+	private static final Color foregroundColor = SWTResourceManager.getColor(255, 255, 255);
+	
+	//Keep insertion order
+	private BiMap<EntityModel, EntityModelRow> entities = HashBiMap.create();
+	
+	private EntityModel previousSelection;
+	private EntityModel selection;
 	
 	private Composite rowComposite;
 	private ScrolledComposite rowScrollComposite;
@@ -35,22 +43,6 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
 	private int sideMargin = 2;
 	private int rowMargins = 2;
 	
-	public static MouseListener debugMouseListener = new MouseListener() {
-		@Override
-		public void mouseUp(MouseEvent e) {
-			System.out.println(e.getSource());
-		}
-		@Override
-		public void mouseDown(MouseEvent e) {
-			System.out.println(e.getSource());
-			
-		}
-		@Override
-		public void mouseDoubleClick(MouseEvent e) {
-			System.out.println(e.getSource());
-		}
-	};
-
 	/**
 	 * Create the composite.
 	 * @param parent
@@ -77,13 +69,16 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
 			}
 		});
 		
+		//Selection
 		rowComposite.getDisplay().addFilter(SWT.MouseDown, new Listener() {
 	        @Override
 	        public void handleEvent(Event event) {
-	        	 if (event.widget instanceof Control) {
-	        		System.out.println(event.widget.toString());	        		
-	        		//System.out.println(rowComposite.getDisplay().map((Control)rowComposite, (Control) event.widget, new Point(0, 0)));
-
+	        	 if (event.widget instanceof Control && event.button == 1) {
+	        		for(EntityModelRow row : entities.values()){
+	        			if(containsControl(row, (Control) event.widget)){				
+	        				changeSelection(entities.inverse().get(row));
+	        			}
+	        		}
 	        	 }
 	        }
 	    });
@@ -94,10 +89,16 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
 		//rowComposite.addMouseListener(debugMouseListener);
 	}
 	
+	private void changeSelection(EntityModel entityModel){
+		this.previousSelection = selection;
+		this.selection = entityModel;
+		paint();
+	}
+	
 	public void setEntityModels(Collection<EntityModel> entityModels){
-		this.entityModels = entityModels;	
 		clearRowComposite();
-		convertToRows();
+		entities.clear();
+		entityModels.forEach(entityModel -> entities.put(entityModel, entityModelRenderer.createRow(rowComposite, entityModel)));
 		paint();
 	}
 	
@@ -105,15 +106,12 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
 		Arrays.stream(rowComposite.getChildren()).forEach(control -> control.dispose());
 	}
 	
-	private void paint(){
-		System.out.println("Source entities size: " + entityModels.size());
-		System.out.println("Row size: " + rows.size());
-				
+	private void paint(){				
 		int scrollContainerHeight = rowScrollComposite.getBounds().height;
 		int containerHeight = rowComposite.getBounds().height;
 		
 		int rowWidth = rowScrollComposite.getBounds().width - (sideMargin * 2);
-		int rowHeight = 50;
+		int rowHeight = 53;
 	
 		if(scrollContainerHeight < containerHeight){
 			//needs a scrollbar, needs more space for it
@@ -123,21 +121,48 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
 		int x = sideMargin;
 		int y = topMargins;
 		
-		for(EntityModelRow row : rows){
+		for(EntityModelRow row : entities.values()){
 			row.setBounds(x, y, rowWidth , rowHeight);
 			
 			y += rowHeight + rowMargins;
 		}
 		
 		rowScrollComposite.setMinSize(rowComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		
+		paintSelected();
 	}
 	
-	private void convertToRows(){
-		rows.clear();
-		for(EntityModel entityModel : entityModels){
-			EntityModelRow row = entityModelRenderer.createRow(rowComposite, entityModel);			
-			rows.add(row);
+	private void paintSelected(){
+		if(entities.containsKey(selection)){
+			EntityModelRow row = entities.get(selection);
+			if(!row.isDisposed()){
+				row.setBackground(selectionColor);
+			}
+		} else {
+			selection = null;
 		}
+		if(entities.containsKey(previousSelection)){
+			EntityModelRow row = entities.get(previousSelection);
+			if(!row.isDisposed()){
+				row.setBackground(foregroundColor);
+			}
+		} else {
+			previousSelection = null;
+		}
+	}
+	
+	private static boolean containsControl(Control source, Control target){
+		//System.out.println("Looking inside " + source);
+		if(source == target){
+			return true;
+		} else if(source instanceof Composite){
+			for(Control control : ((Composite) source).getChildren()){
+				if(containsControl(control, target)){
+					return true;
+				};
+			}
+		}
+		return false;
 	}	
 
 	@Override

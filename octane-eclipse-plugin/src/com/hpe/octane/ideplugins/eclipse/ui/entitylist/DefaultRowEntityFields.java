@@ -21,28 +21,28 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.hpe.adm.octane.services.filtering.Entity;
 
-
 public class DefaultRowEntityFields {
-	
-    private static final String[] commonFields = new String[]{FIELD_ID, FIELD_PHASE, FIELD_NAME};
-    
-    private static final String[] progressFields = new String[]{
-    		FIELD_INVESTED_HOURS, 
-    		FIELD_REMAINING_HOURS, 
-    		FIELD_ESTIMATED_HOURS
-		};
-    
+
+    private static final String[] commonFields = new String[] { FIELD_ID, FIELD_PHASE, FIELD_NAME };
+
+    private static final String[] progressFields = new String[] {
+            FIELD_INVESTED_HOURS,
+            FIELD_REMAINING_HOURS,
+            FIELD_ESTIMATED_HOURS
+    };
+
     /**
      * The exposed map is immutable
      */
-    private static final Map<Entity, HashSet<String>> tempEntityFields = new HashMap<>();
-    public static final Map<Entity, HashSet<String>> entityFields;
-    
+    private static final Map<Entity, Set<String>> tempEntityFields = new HashMap<>();
+    public static final Map<Entity, Set<String>> entityFields;
+
     static {
-        //US
+        // US
         tempEntityFields.put(Entity.USER_STORY, new HashSet<>());
         Collections.addAll(tempEntityFields.get(Entity.USER_STORY), commonFields);
         tempEntityFields.get(Entity.USER_STORY).add(FIELD_SUBTYPE);
@@ -61,17 +61,17 @@ public class DefaultRowEntityFields {
         tempEntityFields.get(Entity.QUALITY_STORY).add(FIELD_OWNER);
         Collections.addAll(tempEntityFields.get(Entity.QUALITY_STORY), progressFields);
 
-        //TASK
+        // TASK
         tempEntityFields.put(Entity.TASK, new HashSet<>());
         Collections.addAll(tempEntityFields.get(Entity.TASK), commonFields);
-        //entityFields.get(Entity.TASK).add("type"); //not a subtype
+        // entityFields.get(Entity.TASK).add("type"); //not a subtype
         tempEntityFields.get(Entity.TASK).add(FIELD_RELEASE);
         tempEntityFields.get(Entity.TASK).add(FIELD_AUTHOR);
         tempEntityFields.get(Entity.TASK).add(FIELD_STORY);
         tempEntityFields.get(Entity.TASK).add(FIELD_OWNER);
         Collections.addAll(tempEntityFields.get(Entity.TASK), progressFields);
 
-        //DEFECT
+        // DEFECT
         tempEntityFields.put(Entity.DEFECT, new HashSet<>());
         Collections.addAll(tempEntityFields.get(Entity.DEFECT), commonFields);
         tempEntityFields.get(Entity.DEFECT).add(FIELD_SUBTYPE);
@@ -82,7 +82,7 @@ public class DefaultRowEntityFields {
         tempEntityFields.get(Entity.DEFECT).add(FIELD_OWNER);
         Collections.addAll(tempEntityFields.get(Entity.DEFECT), progressFields);
 
-        //GHERKIN_TEST
+        // GHERKIN_TEST
         tempEntityFields.put(Entity.GHERKIN_TEST, new HashSet<>());
         Collections.addAll(tempEntityFields.get(Entity.GHERKIN_TEST), commonFields);
         tempEntityFields.get(Entity.GHERKIN_TEST).add(FIELD_SUBTYPE);
@@ -91,7 +91,7 @@ public class DefaultRowEntityFields {
         tempEntityFields.get(Entity.GHERKIN_TEST).add(FIELD_OWNER);
         tempEntityFields.get(Entity.GHERKIN_TEST).add("automation_status");
 
-        //MANUAL_TEST
+        // MANUAL_TEST
         tempEntityFields.put(Entity.MANUAL_TEST, new HashSet<>());
         Collections.addAll(tempEntityFields.get(Entity.MANUAL_TEST), commonFields);
         tempEntityFields.get(Entity.MANUAL_TEST).add(FIELD_SUBTYPE);
@@ -101,7 +101,7 @@ public class DefaultRowEntityFields {
         tempEntityFields.get(Entity.MANUAL_TEST).add("steps_num");
         tempEntityFields.get(Entity.MANUAL_TEST).add("automation_status");
 
-        //MANUAL TEST RUNS
+        // MANUAL TEST RUNS
         tempEntityFields.put(Entity.MANUAL_TEST_RUN, new HashSet<>());
         tempEntityFields.get(Entity.MANUAL_TEST_RUN).add(FIELD_SUBTYPE);
         tempEntityFields.get(Entity.MANUAL_TEST_RUN).add(FIELD_NAME);
@@ -111,7 +111,7 @@ public class DefaultRowEntityFields {
         tempEntityFields.get(Entity.MANUAL_TEST_RUN).add("started");
         tempEntityFields.get(Entity.MANUAL_TEST_RUN).add("test_name");
 
-        //COMMENTS
+        // COMMENTS
         tempEntityFields.put(Entity.COMMENT, new HashSet<>());
         tempEntityFields.get(Entity.COMMENT).add(FIELD_ID);
         tempEntityFields.get(Entity.COMMENT).add("text");
@@ -119,27 +119,27 @@ public class DefaultRowEntityFields {
         tempEntityFields.get(Entity.COMMENT).add("owner_work_item");
         tempEntityFields.get(Entity.COMMENT).add("owner_test");
         tempEntityFields.get(Entity.COMMENT).add("owner_run");
-        
+
         entityFields = Collections.unmodifiableMap(tempEntityFields);
     }
-    
+
     private static final Map<String, String> subtypeNames = new HashMap<>();
     static {
-	    subtypeNames.put("story", "User Story");
-	    subtypeNames.put("defect", "Defect");
-	    subtypeNames.put("quality_story", "Quality Story");
-	    subtypeNames.put("epic", "Epic");
-	    subtypeNames.put("feature", "Feature");
-	    subtypeNames.put("gherkin_test", "Gherkin Test");
-	    subtypeNames.put("test_manual", "Manual Test");
-	    subtypeNames.put("run_manual", "Manual Run");
-	    subtypeNames.put("test_suite", "Test Suite");
-	    subtypeNames.put("run_suite", "Run Suite");
+        subtypeNames.put("story", "User Story");
+        subtypeNames.put("defect", "Defect");
+        subtypeNames.put("quality_story", "Quality Story");
+        subtypeNames.put("epic", "Epic");
+        subtypeNames.put("feature", "Feature");
+        subtypeNames.put("gherkin_test", "Gherkin Test");
+        subtypeNames.put("test_manual", "Manual Test");
+        subtypeNames.put("run_manual", "Manual Run");
+        subtypeNames.put("test_suite", "Test Suite");
+        subtypeNames.put("run_suite", "Run Suite");
     }
-    
+
     public static String getSubtypeName(String subtype) {
         String subtypeName = subtypeNames.get(subtype);
         return subtypeName != null ? subtypeName : subtype;
     }
-    
+
 }

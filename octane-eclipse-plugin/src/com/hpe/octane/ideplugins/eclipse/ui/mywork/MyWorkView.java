@@ -1,4 +1,6 @@
-package com.hpe.octane.ideplugins.eclipse.ui;
+package com.hpe.octane.ideplugins.eclipse.ui.mywork;
+
+import java.util.Collections;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -6,46 +8,30 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
-import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.mywork.MyWorkService;
-import com.hpe.adm.octane.services.mywork.MyWorkUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
 
 public class MyWorkView extends ViewPart {
 
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.MyWorkView";
-
     private static final String LOADING_MESSAGE = "Loading \"My Work\"";
 
-    private ListViewer          viewer;    
-    private MyWorkService       myWorkService   = Activator.getInstance(MyWorkService.class);
-
+    private MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
+    private UserItemArrayEntityListData entityData = new UserItemArrayEntityListData();
+    private EntityListComposite entityListComposite;
 
     @Override
     public void createPartControl(Composite parent) {
-        // Init view
-        viewer = new ListViewer(parent);
-        viewer.setContentProvider(ArrayContentProvider.getInstance());
-        viewer.setLabelProvider(new LabelProvider() {
-            @Override
-            public String getText(Object element) {
-                EntityModel entityModel = MyWorkUtil.getEntityModelFromUserItem((EntityModel) element);
-                return entityModel.getValue("name").getValue().toString();
-            };
-        });
-        getSite().setSelectionProvider(viewer);
-        hookDoubleClickCommand();
+        entityListComposite = new EntityListComposite(parent, SWT.NONE, entityData);
 
         // Initial fill
         Job refreshJob = createRefreshJob();
@@ -76,10 +62,10 @@ public class MyWorkView extends ViewPart {
                 monitor.beginTask(LOADING_MESSAGE, IProgressMonitor.UNKNOWN);
                 Display.getDefault().asyncExec(() -> {
                     try {
-                        viewer.setInput(myWorkService.getMyWork());
+                        entityData.setEntityList(myWorkService.getMyWork(DefaultRowEntityFields.entityFields));
                     } catch (Exception e) {
                         MessageDialog.openError(getSite().getShell(), "Error while loading \"My Work\"", e.toString());
-                        viewer.setInput(null);
+                        entityData.setEntityList(Collections.emptyList());
                     }
                 });
                 monitor.done();
@@ -88,29 +74,8 @@ public class MyWorkView extends ViewPart {
         };
     }
 
-    private void hookDoubleClickCommand() {
-        viewer.addDoubleClickListener(new IDoubleClickListener() {
-            @Override
-            public void doubleClick(DoubleClickEvent event) {
-                IHandlerService handlerService = getSite().getService(IHandlerService.class);
-                try {
-
-                    Object obj = viewer.getStructuredSelection().getFirstElement();
-                    if (obj instanceof EntityModel) {
-                        // ContributionItem1.setLblText(((EntityModel)
-                        // obj).getValue("name").getValue().toString());
-                    }
-
-                    handlerService.executeCommand("octane-eclipse-plugin.openEntityEditor", null);
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex.getMessage());
-                }
-            }
-        });
-    }
-
     @Override
     public void setFocus() {
-        viewer.getControl().setFocus();
+        // TODO Auto-generated method stub
     }
 }
