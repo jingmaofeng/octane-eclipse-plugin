@@ -19,17 +19,18 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.mywork.MyWorkService;
+import com.hpe.adm.octane.services.mywork.MyWorkUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class MyWorkView extends ViewPart {
 
-    public static final String  ID              = "com.hpe.octane.ideplugins.eclipse.ui.MyWorkView";
+    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.MyWorkView";
 
     private static final String LOADING_MESSAGE = "Loading \"My Work\"";
 
-    private ListViewer          viewer;
-    
+    private ListViewer          viewer;    
     private MyWorkService       myWorkService   = Activator.getInstance(MyWorkService.class);
+
 
     @Override
     public void createPartControl(Composite parent) {
@@ -39,8 +40,8 @@ public class MyWorkView extends ViewPart {
         viewer.setLabelProvider(new LabelProvider() {
             @Override
             public String getText(Object element) {
-                EntityModel p = (EntityModel) element;
-                return p.getValue("name").getValue().toString();
+                EntityModel entityModel = MyWorkUtil.getEntityModelFromUserItem((EntityModel) element);
+                return entityModel.getValue("name").getValue().toString();
             };
         });
         getSite().setSelectionProvider(viewer);
