@@ -1,20 +1,22 @@
 package com.hpe.octane.ideplugins.eclipse.ui.util;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.SWTException;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Display;
 
 public class LoadingComposite extends Composite {
 
-    private boolean isLoading = false;
-    private GridData loadingGridData;
-    private GridData maskedControlGridData;
-    private Label lblLoading;
-    private Composite composite;
+    private ImageData[] imageDataArray;
+    private Thread animateThread;
+    private Image image;
+    private ImageLoader loader;
 
     /**
      * Create the composite.
@@ -22,50 +24,154 @@ public class LoadingComposite extends Composite {
      * @param parent
      * @param style
      */
-    public LoadingComposite(Composite parent, Control maskedControl, int style) {
+    public LoadingComposite(Composite parent, int style) {
         super(parent, style);
-        setLayout(new GridLayout(1, false));
 
-        lblLoading = new Label(this, SWT.NONE);
-        lblLoading.setAlignment(SWT.CENTER);
-        lblLoading.setText("Loading...");
-        loadingGridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1);
+        Display display = parent.getDisplay();
+        GC shellGC = new GC(this);
+        Color shellBackground = getBackground();
 
-        // Initially not loading
-        loadingGridData.exclude = true;
-        lblLoading.setVisible(false);
+        loader = new ImageLoader();
+        imageDataArray = loader.load("C:/dev/projects/eclipse-plugin/octane-eclipse-plugin/octane-eclipse-plugin/icons/octane_preloader.gif");
 
-        lblLoading.setLayoutData(loadingGridData);
+        animateThread = new Thread() {
+            @Override
+            public void run() {
+                /*
+                 * Create an off-screen image to draw on, and fill it with the
+                 * shell background.
+                 */
+                Image offScreenImage = new Image(display, loader.logicalScreenWidth, loader.logicalScreenHeight);
+                GC offScreenImageGC = new GC(offScreenImage);
+                offScreenImageGC.setBackground(shellBackground);
+                offScreenImageGC.fillRectangle(0, 0, loader.logicalScreenWidth, loader.logicalScreenHeight);
 
-        composite = new Composite(this, SWT.BORDER);
-        composite.setLayout(new FillLayout(SWT.HORIZONTAL));
-        maskedControlGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-        composite.setLayoutData(maskedControlGridData);
+                try {
+                    /*
+                     * Create the first image and draw it on the off-screen
+                     * image.
+                     */
+                    int imageDataIndex = 0;
+                    ImageData imageData = imageDataArray[imageDataIndex];
+                    if (image != null && !image.isDisposed())
+                        image.dispose();
+                    image = new Image(display, imageData);
+                    offScreenImageGC.drawImage(
+                            image,
+                            0,
+                            0,
+                            imageData.width,
+                            imageData.height,
+                            imageData.x,
+                            imageData.y,
+                            imageData.width,
+                            imageData.height);
+
+                    /*
+                     * Now loop through the images, creating and drawing each
+                     * one on the off-screen image before drawing it on the
+                     * shell.
+                     */
+                    int repeatCount = loader.repeatCount;
+                    while (loader.repeatCount == 0 || repeatCount > 0) {
+                        switch (imageData.disposalMethod) {
+                            case SWT.DM_FILL_BACKGROUND:
+                                /*
+                                 * Fill with the background color before
+                                 * drawing.
+                                 */
+                                Color bgColor = null;
+                                offScreenImageGC.setBackground(bgColor != null ? bgColor : shellBackground);
+                                offScreenImageGC.fillRectangle(imageData.x, imageData.y, imageData.width, imageData.height);
+                                break;
+                            case SWT.DM_FILL_PREVIOUS:
+                                /*
+                                 * Restore the previous image before drawing.
+                                 */
+                                offScreenImageGC.drawImage(
+                                        image,
+                                        0,
+                                        0,
+                                        imageData.width,
+                                        imageData.height,
+                                        imageData.x,
+                                        imageData.y,
+                                        imageData.width,
+                                        imageData.height);
+                                break;
+                        }
+
+                        imageDataIndex = (imageDataIndex + 1) % imageDataArray.length;
+                        imageData = imageDataArray[imageDataIndex];
+                        image.dispose();
+                        image = new Image(display, imageData);
+                        offScreenImageGC.drawImage(
+                                image,
+                                0,
+                                0,
+                                imageData.width,
+                                imageData.height,
+                                imageData.x,
+                                imageData.y,
+                                imageData.width,
+                                imageData.height);
+
+                        /*
+                         * Draw the off-screen image
+                         */
+
+                        display.syncExec(new Runnable() {
+                            @Override
+                            public void run() {
+                                Point point = LoadingComposite.this.getSize();
+                                int xPos = point.x / 2 - offScreenImage.getBounds().width / 2;
+                                int yPos = point.y / 2 - offScreenImage.getBounds().height / 2;
+                                shellGC.fillRectangle(0, 0, point.x, point.y);
+                                shellGC.drawImage(offScreenImage, xPos, yPos);
+                            }
+                        });
+
+                        /*
+                         * Sleep for the specified delay time (adding
+                         * commonly-used slow-down fudge factors).
+                         */
+                        try {
+                            int ms = imageData.delayTime * 10;
+                            if (ms < 20)
+                                ms += 30;
+                            if (ms < 30)
+                                ms += 10;
+                            Thread.sleep(ms);
+                        } catch (InterruptedException e) {
+                        }
+
+                        /*
+                         * If we have just drawn the last image, decrement the
+                         * repeat count and start again.
+                         */
+                        if (imageDataIndex == imageDataArray.length - 1)
+                            repeatCount--;
+                    }
+                } catch (SWTException ex) {
+                    System.out.println("There was an error animating the GIF");
+                } finally {
+                    if (offScreenImage != null && !offScreenImage.isDisposed())
+                        offScreenImage.dispose();
+                    if (offScreenImageGC != null && !offScreenImageGC.isDisposed())
+                        offScreenImageGC.dispose();
+                    if (image != null && !image.isDisposed())
+                        image.dispose();
+                }
+            }
+        };
+
+        animateThread.setDaemon(true);
+        animateThread.start();
     }
 
     @Override
     protected void checkSubclass() {
         // Disable the check that prevents subclassing of SWT components
-    }
-
-    public void setIsLoading(boolean isLoading) {
-        if (isLoading) {
-            loadingGridData.exclude = true;
-            lblLoading.setVisible(false);
-            maskedControlGridData.exclude = false;
-            composite.setVisible(true);
-        } else {
-            loadingGridData.exclude = false;
-            lblLoading.setVisible(true);
-            maskedControlGridData.exclude = true;
-            composite.setVisible(false);
-        }
-        getShell().layout(false);
-        this.isLoading = isLoading;
-    }
-
-    public boolean isLoading() {
-        return this.isLoading;
     }
 
 }
