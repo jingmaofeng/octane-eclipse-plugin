@@ -1,23 +1,29 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.util.SWTResourceManager;
 
 public class FatlineEntityListViewer extends Composite implements EntityListViewer {
@@ -38,6 +44,8 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
     private int topMargins = 2;
     private int sideMargin = 2;
     private int rowMargins = 2;
+
+    private List<EntityMouseListener> entityMouseListeners = new ArrayList<>();
 
     /**
      * Create the composite.
@@ -60,24 +68,15 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
             public void controlResized(ControlEvent e) {
                 paint();
             }
-
             @Override
-            public void controlMoved(ControlEvent e) {
-                // paint();
-            }
+            public void controlMoved(ControlEvent e) {}
         });
 
         // Selection
         rowComposite.getDisplay().addFilter(SWT.MouseDown, new Listener() {
             @Override
             public void handleEvent(Event event) {
-                if (event.widget instanceof Control && event.button == 1) {
-                    for (EntityModelRow row : entities.values()) {
-                        if (containsControl(row, (Control) event.widget)) {
-                            changeSelection(entities.inverse().get(row));
-                        }
-                    }
-                }
+                handleMouseFilterEvent(event);
             }
         });
 
@@ -87,17 +86,55 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         // rowComposite.addMouseListener(debugMouseListener);
     }
 
+    private void handleMouseFilterEvent(Event event) {
+        EntityModelRow row = getEntityModelRowFromMouseFilter(event);
+        if (row != null) {
+            EntityModel entityModel = entities.inverse().get(row);
+            changeSelection(entityModel);
+            MouseEvent mouseEvent = new MouseEvent(event);
+            for (EntityMouseListener listener : entityMouseListeners) {
+                listener.mouseClick(entityModel, mouseEvent);
+            }
+        } else {
+            changeSelection(null);
+        }
+    }
+
+    private EntityModelRow getEntityModelRowFromMouseFilter(Event event) {
+        if (event.widget instanceof Control) {
+            for (EntityModelRow row : entities.values()) {
+                if (containsControl(row, (Control) event.widget)) {
+                    return row;
+                }
+            }
+        }
+        return null;
+    }
+
     private void changeSelection(EntityModel entityModel) {
-        this.previousSelection = selection;
-        this.selection = entityModel;
-        paint();
+        if (entityModel != selection) {
+            this.previousSelection = selection;
+            this.selection = entityModel;
+            paint();
+        }
     }
 
     @Override
     public void setEntityModels(Collection<EntityModel> entityModels) {
         clearRowComposite();
         entities.clear();
-        entityModels.forEach(entityModel -> entities.put(entityModel, entityModelRenderer.createRow(rowComposite, entityModel)));
+        entityModels.forEach(entityModel -> {
+            EntityModelRow row = entityModelRenderer.createRow(rowComposite, entityModel);
+            entities.put(entityModel, row);
+            Menu popupMenu = new Menu(row);
+            MenuItem newItem = new MenuItem(popupMenu, SWT.CASCADE);
+            newItem.setText("New");
+            MenuItem refreshItem = new MenuItem(popupMenu, SWT.NONE);
+            refreshItem.setText("Refresh");
+            MenuItem deleteItem = new MenuItem(popupMenu, SWT.NONE);
+            deleteItem.setText("Delete");
+            row.setMenu(popupMenu);
+        });
         paint();
     }
 
@@ -132,7 +169,7 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
     }
 
     private void paintSelected() {
-        if (entities.containsKey(selection)) {
+        if (entities.containsKey(selection) && selection != null) {
             EntityModelRow row = entities.get(selection);
             if (!row.isDisposed()) {
                 row.setBackground(selectionColor);
@@ -168,5 +205,15 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
     @Override
     protected void checkSubclass() {
         // Disable the check that prevents subclassing of SWT components
+    }
+
+    @Override
+    public void addEntityMouseListener(EntityMouseListener entityMouseListener) {
+        entityMouseListeners.add(entityMouseListener);
+    }
+
+    @Override
+    public void removeEntityMouseListener(EntityMouseListener entityMouseListener) {
+        entityMouseListeners.remove(entityMouseListener);
     }
 }

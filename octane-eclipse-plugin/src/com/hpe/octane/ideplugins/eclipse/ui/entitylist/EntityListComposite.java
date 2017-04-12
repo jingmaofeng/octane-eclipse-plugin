@@ -116,4 +116,12 @@ public class EntityListComposite extends Composite {
         // Disable the check that prevents subclassing of SWT components
     }
 
+    public void addEntityMouseListener(EntityMouseListener entityMouseListener) {
+        entityListViewer.addEntityMouseListener(entityMouseListener);
+    }
+
+    public void removeEntityMouseListener(EntityMouseListener entityMouseListener) {
+        entityListViewer.removeEntityMouseListener(entityMouseListener);
+    }
+
 }
