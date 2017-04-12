@@ -49,16 +49,12 @@ public class EntityTypeSelectorComposite extends Composite {
     }
 
     public Set<Entity> getCheckedEntityTypes() {
-
         Set<Entity> result = new HashSet<>();
-
         for (Button checkBox : checkBoxes) {
             if (checkBox.getSelection()) {
                 result.add((Entity) checkBox.getData());
             }
-            ;
         }
-
         return result;
     }
 

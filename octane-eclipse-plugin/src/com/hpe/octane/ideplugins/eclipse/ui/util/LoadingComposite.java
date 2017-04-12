@@ -12,8 +12,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 
 public class LoadingComposite extends Composite {
 
@@ -31,13 +34,6 @@ public class LoadingComposite extends Composite {
     public LoadingComposite(Composite parent, int style) {
         super(parent, style);
 
-        // setLayout(new GridLayout(1, false));
-        // Label lblNewLabel = new Label(this, SWT.NONE);
-        // lblNewLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
-        // true, 1, 1));
-        // lblNewLabel.setAlignment(SWT.CENTER);
-        // lblNewLabel.setText("Loading...");
-
         Display display = parent.getDisplay();
         GC shellGC = new GC(this);
         Color shellBackground = getBackground();
@@ -45,11 +41,16 @@ public class LoadingComposite extends Composite {
         loader = new ImageLoader();
         InputStream stream;
         try {
-
             stream = Platform.getBundle("octane-eclipse-plugin").getEntry("icons/octane_preloader.gif").openStream();
             imageDataArray = loader.load(stream);
-
         } catch (IOException ex) {
+            // BACKUP PLAN!!!
+            setLayout(new GridLayout(1, false));
+            Label lblLoading = new Label(this, SWT.NONE);
+            lblLoading.setLayoutData(
+                    new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+            lblLoading.setAlignment(SWT.CENTER);
+            lblLoading.setText("Loading...");
             return;
         }
 
