@@ -28,7 +28,6 @@ public class PredefinedEntityComparator implements Comparator<Entity> {
         if (indexOfLeft < 0 && indexOfRight < 0) {
             return entityLeft.name().compareTo(entityRight.name());
         }
-        System.out.println(indexOfLeft + " compare " + indexOfRight + " " + Integer.compare(indexOfLeft, indexOfRight));
         return Integer.compare(indexOfLeft, indexOfRight);
     }
 
