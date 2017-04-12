@@ -6,6 +6,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.google.api.client.util.PemReader.Section;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Label;
 
 public class DevWindow {
 
@@ -51,7 +54,13 @@ public class DevWindow {
         shell.setSize(450, 300);
         shell.setText("SWT Application");
         shell.setLayout(new FillLayout(SWT.HORIZONTAL));
+        
+        Composite composite = new Composite(shell, SWT.NONE);
+        composite.setLayout(new GridLayout(1, false));
+        
+        Label lblNewLabel = new Label(composite, SWT.NONE);
+        lblNewLabel.setText("New Label");
 
-        new EntityListComposite(shell, SWT.NONE);
+//        new EntityListComposite(shell, SWT.NONE);
     }
 }
