@@ -1,5 +1,6 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitylist;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,6 +19,7 @@ import org.eclipse.swt.widgets.Text;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
+import com.hpe.octane.ideplugins.eclipse.util.PredefinedEntityComparator;
 
 public class EntityListComposite extends Composite {
 
@@ -25,7 +27,12 @@ public class EntityListComposite extends Composite {
     private Text textFilter;
     private EntityTypeSelectorComposite entityTypeSelectorComposite;
 
-    private static final Set<Entity> defaultFilterTypes = DefaultRowEntityFields.entityFields.keySet();
+    private static final Set<Entity> defaultFilterTypes = new LinkedHashSet<>(DefaultRowEntityFields.entityFields
+            .keySet()
+            .stream()
+            .sorted(new PredefinedEntityComparator())
+            .collect(Collectors.toList()));
+
     private static final Set<String> clientSideQueryFields = DefaultRowEntityFields.entityFields
             .values()
             .stream()
@@ -46,6 +53,7 @@ public class EntityListComposite extends Composite {
         setLayout(new GridLayout(1, false));
 
         this.entityListData = entityListData;
+
         entityListData.setTypeFilter(defaultFilterTypes);
         entityListData.setStringFilterFields(clientSideQueryFields);
 
