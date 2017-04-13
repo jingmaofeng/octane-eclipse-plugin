@@ -1,11 +1,9 @@
 package com.hpe.octane.ideplugins.eclipse.ui;
 
-import java.awt.TextField;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
@@ -15,7 +13,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
@@ -115,13 +112,12 @@ public class TestDetailsEntinty {
 		for (FormField formField : formSection.getFields()) {
 			Label tempLabel = new Label(sectionClient, SWT.NONE);
 			tempLabel.setText(prettifyLables(formField.getName()));
-			
+
 			Label tempValuesLabel = new Label(sectionClient, SWT.NONE);
 			tempValuesLabel.setText(Util.getUiDataFromModel(defectData.getValue(formField.getName())));
-			//Text tempValuesLabel = new Text(sectionClient, SWT.BORDER);
-			//tempValuesLabel.setText(Util.getUiDataFromModel(defectData.getValue(formField.getName())));
-			
-			
+			// Text tempValuesLabel = new Text(sectionClient, SWT.BORDER);
+			// tempValuesLabel.setText(Util.getUiDataFromModel(defectData.getValue(formField.getName())));
+
 		}
 		section.setClient(sectionClient);
 	}
@@ -196,7 +192,7 @@ public class TestDetailsEntinty {
 	}
 
 	private String prettifyLables(String str1) {
-		str1=str1.replaceAll("_", " ");
+		str1 = str1.replaceAll("_", " ");
 		char[] chars = str1.toCharArray();
 
 		// all ways make first char a cap
