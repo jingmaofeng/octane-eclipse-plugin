@@ -61,15 +61,6 @@ public class EntityListComposite extends Composite {
         entityListViewer.setEntityModels(entityListData.getEntityList());
     }
 
-    /**
-     * Change viewer implementation
-     * 
-     * @param entityListViewer
-     */
-    public void setEntityListViewer(EntityListViewer entityListViewer) {
-        this.entityListViewer = entityListViewer;
-    }
-
     private void init() {
 
         entityTypeSelectorComposite = new EntityTypeSelectorComposite(this, SWT.NONE, defaultFilterTypes.toArray(new Entity[] {}));

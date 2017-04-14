@@ -24,7 +24,6 @@ public class EntityModelRow extends Composite {
     private Composite compositeBottomDetails;
     private Label labelTopSpacer;
     private Label labelBottomSpacer;
-    private Label lblNewLabel;
 
     /**
      * Create the composite.
@@ -67,9 +66,6 @@ public class EntityModelRow extends Composite {
         compositeBottomDetails = new Composite(this, SWT.NONE);
         compositeBottomDetails.setLayout(new RowLayout(SWT.HORIZONTAL));
         compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-
-        lblNewLabel = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL | SWT.CENTER);
-        lblNewLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 5, 1));
     }
 
     public void setBackgroundColor(Color color) {
@@ -101,7 +97,6 @@ public class EntityModelRow extends Composite {
     }
 
     public void addDetails(String fieldName, String fieldValue, DetailsPosition position) {
-
         Composite parent;
         if (DetailsPosition.TOP == position) {
             parent = compositeTopDetails;

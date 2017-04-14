@@ -9,17 +9,15 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
@@ -36,18 +34,13 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
 
     // Keep insertion order
     private BiMap<EntityModel, EntityModelRow> entities;
+    private List<EntityMouseListener> entityMouseListeners = new ArrayList<>();
+
+    private Composite rowComposite;
+    private ScrolledComposite rowScrolledComposite;
 
     private EntityModel previousSelection;
     private EntityModel selection;
-
-    private Composite rowComposite;
-    private ScrolledComposite rowScrollComposite;
-
-    private int topMargins = 2;
-    private int sideMargin = 2;
-    private int rowMargins = 2;
-
-    private List<EntityMouseListener> entityMouseListeners = new ArrayList<>();
 
     /**
      * Create the composite.
@@ -56,25 +49,29 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
      * @param style
      */
     public FatlineEntityListViewer(Composite parent, int style) {
-        super(parent, style);
+        super(parent, SWT.NONE);
         setLayout(new FillLayout(SWT.HORIZONTAL));
 
-        rowScrollComposite = new ScrolledComposite(this, SWT.BORDER | SWT.V_SCROLL);
-        rowScrollComposite.setExpandHorizontal(true);
-        rowScrollComposite.setExpandVertical(true);
+        rowScrolledComposite = new ScrolledComposite(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        rowScrolledComposite.setExpandHorizontal(true);
+        rowScrolledComposite.setExpandVertical(true);
 
-        rowComposite = new Composite(rowScrollComposite, SWT.NONE);
-        rowComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-        parent.addControlListener(new ControlListener() {
-            @Override
-            public void controlResized(ControlEvent e) {
-                paint();
-            }
+        rowComposite = new Composite(rowScrolledComposite, SWT.NONE);
 
-            @Override
-            public void controlMoved(ControlEvent e) {
-            }
-        });
+        GridLayout layout = new GridLayout(1, false);
+        layout.horizontalSpacing = 0;
+        layout.verticalSpacing = 1;
+        layout.marginTop = 0;
+        layout.marginRight = 0;
+        layout.marginBottom = 0;
+        layout.marginLeft = 0;
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+
+        rowComposite.setLayout(layout);
+
+        rowScrolledComposite.setContent(rowComposite);
+        rowScrolledComposite.setMinSize(rowComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
         // Selection
         rowComposite.getDisplay().addFilter(SWT.MouseDown, new Listener() {
@@ -83,11 +80,27 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
                 handleMouseFilterEvent(event);
             }
         });
+    }
 
-        rowScrollComposite.setContent(rowComposite);
-        rowScrollComposite.setMinSize(rowComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+    @Override
+    public void setEntityModels(Collection<EntityModel> entityModels) {
+        clearRows();
 
-        // rowComposite.addMouseListener(debugMouseListener);
+        Map<EntityModel, EntityModelRow> tempMap = new LinkedHashMap<>();
+
+        entityModels.forEach(entityModel -> {
+            EntityModelRow row = entityModelRenderer.createRow(rowComposite, entityModel);
+            row.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+            tempMap.put(entityModel, row);
+        });
+        rowScrolledComposite.setMinSize(rowComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        rowComposite.pack();
+
+        this.entities = ImmutableBiMap.copyOf(tempMap);
+    }
+
+    private void clearRows() {
+        Arrays.stream(rowComposite.getChildren()).forEach(control -> control.dispose());
     }
 
     private void handleMouseFilterEvent(Event event) {
@@ -119,63 +132,8 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         if (entityModel != selection) {
             this.previousSelection = selection;
             this.selection = entityModel;
-            paint();
+            paintSelected();
         }
-    }
-
-    @Override
-    public void setEntityModels(Collection<EntityModel> entityModels) {
-
-        Map<EntityModel, EntityModelRow> tempMap = new LinkedHashMap<>();
-
-        clearRowComposite();
-        entityModels.forEach(entityModel -> {
-            EntityModelRow row = entityModelRenderer.createRow(rowComposite, entityModel);
-            tempMap.put(entityModel, row);
-            Menu popupMenu = new Menu(row);
-            MenuItem newItem = new MenuItem(popupMenu, SWT.CASCADE);
-            newItem.setText("New");
-            MenuItem refreshItem = new MenuItem(popupMenu, SWT.NONE);
-            refreshItem.setText("Refresh");
-            MenuItem deleteItem = new MenuItem(popupMenu, SWT.NONE);
-            deleteItem.setText("Delete");
-            row.setMenu(popupMenu);
-        });
-
-        this.entities = ImmutableBiMap.copyOf(tempMap);
-
-        paint();
-    }
-
-    private void clearRowComposite() {
-        Arrays.stream(rowComposite.getChildren()).forEach(control -> control.dispose());
-    }
-
-    private void paint() {
-        int scrollContainerHeight = rowScrollComposite.getBounds().height;
-        int containerHeight = rowComposite.getBounds().height;
-
-        int rowWidth = getParent().getBounds().width - (sideMargin * 2);
-        int rowHeight = 53;
-
-        if (scrollContainerHeight < containerHeight) {
-            // needs a scrollbar, needs more space for it
-            rowWidth -= 20;
-        }
-
-        int x = sideMargin;
-        int y = topMargins;
-
-        for (EntityModelRow row : entities.values()) {
-            // System.out.println(String.format("row bounds: x: %d y: %d width:
-            // %d height: %d", x, y, rowWidth, rowHeight));
-            row.setBounds(x, y, rowWidth, rowHeight);
-            y += rowHeight + rowMargins;
-        }
-
-        rowScrollComposite.setMinSize(rowComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-
-        paintSelected();
     }
 
     private void paintSelected() {
@@ -211,17 +169,18 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
     }
 
     @Override
-    protected void checkSubclass() {
-        // Disable the check that prevents subclassing of SWT components
-    }
-
-    @Override
     public void addEntityMouseListener(EntityMouseListener entityMouseListener) {
         entityMouseListeners.add(entityMouseListener);
+
     }
 
     @Override
     public void removeEntityMouseListener(EntityMouseListener entityMouseListener) {
         entityMouseListeners.remove(entityMouseListener);
+    }
+
+    @Override
+    protected void checkSubclass() {
+        // Disable the check that prevents subclassing of SWT components
     }
 }
