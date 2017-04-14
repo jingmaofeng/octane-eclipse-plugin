@@ -18,6 +18,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
+import com.hpe.octane.ideplugins.eclipse.util.SWTResourceManager;
+
 public class LoadingComposite extends Composite {
 
     private ImageData[] imageDataArray;
@@ -34,6 +36,7 @@ public class LoadingComposite extends Composite {
     public LoadingComposite(Composite parent, int style) {
         super(parent, style);
 
+        setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         Display display = parent.getDisplay();
         GC shellGC = new GC(this);
         Color shellBackground = getBackground();
