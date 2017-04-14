@@ -146,6 +146,10 @@ public class LoadingComposite extends Composite {
                         display.syncExec(new Runnable() {
                             @Override
                             public void run() {
+                                if (LoadingComposite.this.isDisposed()) {
+                                    return;
+                                }
+
                                 Point point = LoadingComposite.this.getSize();
                                 int xPos = point.x / 2 - offScreenImage.getBounds().width / 2;
                                 int yPos = point.y / 2 - offScreenImage.getBounds().height / 2;
