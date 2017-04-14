@@ -65,7 +65,7 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
 
         rowComposite = new Composite(rowScrollComposite, SWT.NONE);
         rowComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-        rowComposite.addControlListener(new ControlListener() {
+        parent.addControlListener(new ControlListener() {
             @Override
             public void controlResized(ControlEvent e) {
                 paint();
