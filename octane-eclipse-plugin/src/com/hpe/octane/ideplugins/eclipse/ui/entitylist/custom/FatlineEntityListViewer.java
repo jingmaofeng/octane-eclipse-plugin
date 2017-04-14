@@ -59,7 +59,7 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         super(parent, style);
         setLayout(new FillLayout(SWT.HORIZONTAL));
 
-        rowScrollComposite = new ScrolledComposite(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        rowScrollComposite = new ScrolledComposite(this, SWT.BORDER | SWT.V_SCROLL);
         rowScrollComposite.setExpandHorizontal(true);
         rowScrollComposite.setExpandVertical(true);
 
@@ -155,7 +155,7 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         int scrollContainerHeight = rowScrollComposite.getBounds().height;
         int containerHeight = rowComposite.getBounds().height;
 
-        int rowWidth = rowScrollComposite.getBounds().width - (sideMargin * 2);
+        int rowWidth = getParent().getBounds().width - (sideMargin * 2);
         int rowHeight = 53;
 
         if (scrollContainerHeight < containerHeight) {
@@ -167,8 +167,9 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         int y = topMargins;
 
         for (EntityModelRow row : entities.values()) {
+            // System.out.println(String.format("row bounds: x: %d y: %d width:
+            // %d height: %d", x, y, rowWidth, rowHeight));
             row.setBounds(x, y, rowWidth, rowHeight);
-
             y += rowHeight + rowMargins;
         }
 
