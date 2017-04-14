@@ -116,7 +116,7 @@ public class MyWorkView extends OctaneViewPart {
                 Collection<EntityModel> entities;
                 try {
                     entities = myWorkService.getMyWork(DefaultRowEntityFields.entityFields);
-
+                    
                     Display.getDefault().asyncExec(() -> {
                         entityData.setEntityList(entities);
                     });
@@ -137,4 +137,5 @@ public class MyWorkView extends OctaneViewPart {
     public void setFocus() {
         // TODO Auto-generated method stub
     }
+
 }

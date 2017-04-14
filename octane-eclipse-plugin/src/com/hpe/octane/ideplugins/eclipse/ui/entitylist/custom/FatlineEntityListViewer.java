@@ -3,7 +3,9 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -20,7 +22,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
@@ -33,7 +35,7 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
     private static final Color foregroundColor = SWTResourceManager.getColor(255, 255, 255);
 
     // Keep insertion order
-    private BiMap<EntityModel, EntityModelRow> entities = HashBiMap.create();
+    private BiMap<EntityModel, EntityModelRow> entities;
 
     private EntityModel previousSelection;
     private EntityModel selection;
@@ -68,8 +70,10 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
             public void controlResized(ControlEvent e) {
                 paint();
             }
+
             @Override
-            public void controlMoved(ControlEvent e) {}
+            public void controlMoved(ControlEvent e) {
+            }
         });
 
         // Selection
@@ -121,11 +125,13 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
 
     @Override
     public void setEntityModels(Collection<EntityModel> entityModels) {
+
+        Map<EntityModel, EntityModelRow> tempMap = new LinkedHashMap<>();
+
         clearRowComposite();
-        entities.clear();
         entityModels.forEach(entityModel -> {
             EntityModelRow row = entityModelRenderer.createRow(rowComposite, entityModel);
-            entities.put(entityModel, row);
+            tempMap.put(entityModel, row);
             Menu popupMenu = new Menu(row);
             MenuItem newItem = new MenuItem(popupMenu, SWT.CASCADE);
             newItem.setText("New");
@@ -135,6 +141,9 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
             deleteItem.setText("Delete");
             row.setMenu(popupMenu);
         });
+
+        this.entities = ImmutableBiMap.copyOf(tempMap);
+
         paint();
     }
 
@@ -188,7 +197,6 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
     }
 
     private static boolean containsControl(Control source, Control target) {
-        // System.out.println("Looking inside " + source);
         if (source == target) {
             return true;
         } else if (source instanceof Composite) {
@@ -196,7 +204,6 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
                 if (containsControl(control, target)) {
                     return true;
                 }
-                ;
             }
         }
         return false;
