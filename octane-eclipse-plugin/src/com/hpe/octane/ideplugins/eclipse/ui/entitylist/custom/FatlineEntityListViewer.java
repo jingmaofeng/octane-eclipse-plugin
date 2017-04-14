@@ -107,7 +107,13 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         EntityModelRow row = getEntityModelRowFromMouseFilter(event);
         if (row != null) {
             EntityModel entityModel = entities.inverse().get(row);
+
+            row.setFocus();
+
+            // Selection
             changeSelection(entityModel);
+
+            // Fire listeners
             MouseEvent mouseEvent = new MouseEvent(event);
             for (EntityMouseListener listener : entityMouseListeners) {
                 listener.mouseClick(entityModel, mouseEvent);
