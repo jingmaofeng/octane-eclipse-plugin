@@ -9,7 +9,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
@@ -30,6 +29,8 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
+import com.hpe.octane.ideplugins.eclipse.ui.util.ErrorComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.NoWorkComposite;
 
 public class MyWorkView extends OctaneViewPart {
 
@@ -42,22 +43,53 @@ public class MyWorkView extends OctaneViewPart {
     private UserItemArrayEntityListData entityData = new UserItemArrayEntityListData();
     private EntityListComposite entityListComposite;
 
-    private Action refreshAction;
-    private Job refreshJob;
+    private Action refreshAction = new Action() {
+        private Job refreshJob = new Job(LOADING_MESSAGE) {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                showLoading();
+                monitor.beginTask(LOADING_MESSAGE, IProgressMonitor.UNKNOWN);
+                Collection<EntityModel> entities;
+                try {
+                    entities = myWorkService.getMyWork(DefaultRowEntityFields.entityFields);
+                    Display.getDefault().asyncExec(() -> {
+                        entityData.setEntityList(entities);
+                        if (entities.size() == 0) {
+                            showControl(noWorkComposite);
+                        } else {
+                            showContent();
+                        }
+                    });
+                } catch (Exception e) {
+                    errorComposite.setErrorMessage("Error while loading \"My Work\"" + e.getMessage());
+                    showControl(errorComposite);
+                    entityData.setEntityList(Collections.emptyList());
+                }
+                monitor.done();
+                return Status.OK_STATUS;
+            }
+        };
+
+        @Override
+        public void run() {
+            refreshJob.schedule();
+        }
+    };
+
+    /**
+     * Shown when my work service returns an empty list
+     */
+    private NoWorkComposite noWorkComposite;
+    private ErrorComposite errorComposite;
 
     @Override
     public Control createOctanePartControl(Composite parent) {
         entityListComposite = new EntityListComposite(parent, SWT.NONE, entityData);
+        noWorkComposite = new NoWorkComposite(parent, SWT.NONE);
+        errorComposite = new ErrorComposite(parent, SWT.NONE);
 
-        // Add refresh
-        refreshJob = createRefreshJob();
+        // Add refresh action to view
         IActionBars viewToolbar = getViewSite().getActionBars();
-        refreshAction = new Action() {
-            @Override
-            public void run() {
-                refreshJob.schedule();
-            }
-        };
         refreshAction.setText("Refresh");
         refreshAction.setToolTipText("Refresh \"My Work\"");
         refreshAction.setImageDescriptor(Activator.getImageDescriptor("icons/refresh-16x16.png"));
@@ -66,7 +98,7 @@ public class MyWorkView extends OctaneViewPart {
         // Init
         if (!Activator.getConnectionSettings().isEmpty()) {
             refreshAction.setEnabled(true);
-            refreshJob.schedule();
+            refreshAction.run();
         } else {
             refreshAction.setEnabled(false);
         }
@@ -74,7 +106,7 @@ public class MyWorkView extends OctaneViewPart {
         Activator.addConnectionSettingsChangeHandler(() -> {
             if (!Activator.getConnectionSettings().isEmpty()) {
                 refreshAction.setEnabled(true);
-                refreshJob.schedule();
+                refreshAction.run();
             } else {
                 refreshAction.setEnabled(false);
             }
@@ -107,33 +139,6 @@ public class MyWorkView extends OctaneViewPart {
 
         // Return root
         return entityListComposite;
-    }
-
-    private Job createRefreshJob() {
-        return new Job(LOADING_MESSAGE) {
-            @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                showLoading();
-                monitor.beginTask(LOADING_MESSAGE, IProgressMonitor.UNKNOWN);
-
-                Collection<EntityModel> entities;
-                try {
-                    entities = myWorkService.getMyWork(DefaultRowEntityFields.entityFields);
-
-                    Display.getDefault().asyncExec(() -> {
-                        entityData.setEntityList(entities);
-                    });
-                } catch (Exception e) {
-                    MessageDialog.openError(getSite().getShell(), "Error while loading \"My Work\"", e.toString());
-                    entityData.setEntityList(Collections.emptyList());
-                    showContent();
-                }
-
-                showContent();
-                monitor.done();
-                return Status.OK_STATUS;
-            }
-        };
     }
 
     @Override
