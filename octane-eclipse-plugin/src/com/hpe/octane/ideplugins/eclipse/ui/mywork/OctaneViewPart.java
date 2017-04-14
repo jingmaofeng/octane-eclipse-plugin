@@ -3,6 +3,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.mywork;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -17,8 +18,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.WelcomeComposite;
  */
 public abstract class OctaneViewPart extends ViewPart {
 
-    private Composite parent;
-
     private WelcomeComposite welcomeComposite;
     private LoadingComposite loadingComposite;
     private Control octaneViewControl;
@@ -27,8 +26,6 @@ public abstract class OctaneViewPart extends ViewPart {
 
     @Override
     public void createPartControl(Composite parent) {
-        this.parent = parent;
-
         rootContainer = new StackLayoutComposite(parent, SWT.NONE);
         welcomeComposite = new WelcomeComposite(rootContainer, SWT.NONE);
         loadingComposite = new LoadingComposite(rootContainer, SWT.NONE);
@@ -61,22 +58,8 @@ public abstract class OctaneViewPart extends ViewPart {
         showControl(welcomeComposite);
     }
 
-    private void showControl(Control control) {
-        parent.getDisplay().syncExec(new Runnable() {
-            @Override
-            public void run() {
-                rootContainer.showControl(control);
-
-                // layout of parent works
-                parent.layout(true, true);
-                // marks the composite's screen are as invalidates, which will
-                // force a redraw on next paint request
-                rootContainer.redraw();
-                // tells the application to do all outstanding paint requests
-                // immediately
-                rootContainer.update();
-            }
-        });
+    public void showControl(Control control) {
+        Display.getDefault().asyncExec(() -> rootContainer.showControl(control));
     }
 
 }
