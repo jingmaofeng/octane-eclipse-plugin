@@ -5,10 +5,11 @@ import java.util.stream.Collectors;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.EntityService;
+import com.hpe.adm.octane.services.connection.BasicConnectionSettingProvider;
 import com.hpe.adm.octane.services.connection.ConnectionSettings;
-import com.hpe.adm.octane.services.connection.ConnectionSettingsProvider;
 import com.hpe.adm.octane.services.di.ServiceModule;
 import com.hpe.adm.octane.services.filtering.Entity;
+import com.hpe.adm.octane.services.mywork.MyWorkService;
 import com.hpe.adm.octane.services.mywork.MyWorkUtil;
 
 public class DebugUtil {
@@ -27,6 +28,8 @@ public class DebugUtil {
         connectionSettings.setUserName(USERNAME);
         connectionSettings.setPassword(PASSWORD);
     }
+
+    private static ServiceModule serviceModule = new ServiceModule(new BasicConnectionSettingProvider(connectionSettings));
 
     public static void printEntities(Collection<EntityModel> entities) {
         System.out.println("My Work Entities size: " + entities.size());
@@ -48,21 +51,11 @@ public class DebugUtil {
     }
 
     public static Collection<EntityModel> getEntitites(Entity entityType) {
-        ServiceModule serviceModule = new ServiceModule(new ConnectionSettingsProvider() {
-            @Override
-            public void setConnectionSettings(ConnectionSettings connectionSettings) {
-            }
-
-            @Override
-            public ConnectionSettings getConnectionSettings() {
-                return connectionSettings;
-            }
-
-            @Override
-            public void addChangeHandler(Runnable observer) {
-            }
-        });
         return serviceModule.getInstance(EntityService.class).findEntities(entityType);
+    }
+
+    public static Collection<EntityModel> getMyWork() {
+        return serviceModule.getInstance(MyWorkService.class).getMyWork();
     }
 
 }

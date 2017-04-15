@@ -23,6 +23,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.util.SWTResourceManager;
 
@@ -42,15 +43,19 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
     private EntityModel previousSelection;
     private EntityModel selection;
 
+    private EntityModelMenuFactory entityModelMenuFactory;
+
     /**
      * Create the composite.
      * 
      * @param parent
      * @param style
      */
-    public FatlineEntityListViewer(Composite parent, int style) {
+    public FatlineEntityListViewer(Composite parent, int style, EntityModelMenuFactory entityModelMenuFactory) {
         super(parent, SWT.NONE);
         setLayout(new FillLayout(SWT.HORIZONTAL));
+
+        this.entityModelMenuFactory = entityModelMenuFactory;
 
         rowScrolledComposite = new ScrolledComposite(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         rowScrolledComposite.setExpandHorizontal(true);
@@ -89,7 +94,13 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         Map<EntityModel, EntityModelRow> tempMap = new LinkedHashMap<>();
 
         entityModels.forEach(entityModel -> {
+
+            // Create the row
             EntityModelRow row = entityModelRenderer.createRow(rowComposite, entityModel);
+            if (entityModelMenuFactory != null) {
+                row.addMenuDetectListener(new EntityModelRowMenuDetectListener(row, entityModel, entityModelMenuFactory));
+            }
+
             row.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
             tempMap.put(entityModel, row);
         });
@@ -97,6 +108,10 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         rowComposite.pack();
 
         this.entities = ImmutableBiMap.copyOf(tempMap);
+    }
+
+    private void recreateRows() {
+        setEntityModels(entities.keySet());
     }
 
     private void clearRows() {
@@ -183,6 +198,12 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
     @Override
     public void removeEntityMouseListener(EntityMouseListener entityMouseListener) {
         entityMouseListeners.remove(entityMouseListener);
+    }
+
+    @Override
+    public void setEntityModelMenuFatory(EntityModelMenuFactory entityModelMenuFactory) {
+        this.entityModelMenuFactory = entityModelMenuFactory;
+        recreateRows();
     }
 
     @Override

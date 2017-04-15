@@ -41,6 +41,7 @@ public class EntityListComposite extends Composite {
 
     // Currently only fatlines
     private EntityListViewer entityListViewer;
+    private EntityModelMenuFactory entityModelMenuFactory;
 
     /**
      * Create the composite.
@@ -48,11 +49,12 @@ public class EntityListComposite extends Composite {
      * @param parent
      * @param style
      */
-    public EntityListComposite(Composite parent, int style, EntityListData entityListData) {
+    public EntityListComposite(Composite parent, int style, EntityListData entityListData, EntityModelMenuFactory entityModelMenuFactory) {
         super(parent, style);
         setLayout(new GridLayout(1, false));
 
         this.entityListData = entityListData;
+        this.entityModelMenuFactory = entityModelMenuFactory;
 
         entityListData.setTypeFilter(defaultFilterTypes);
         entityListData.setStringFilterFields(clientSideQueryFields);
@@ -106,7 +108,7 @@ public class EntityListComposite extends Composite {
         compositeEntityList.setLayout(new FillLayout(SWT.HORIZONTAL));
         compositeEntityList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 
-        entityListViewer = new FatlineEntityListViewer(compositeEntityList, SWT.NONE);
+        entityListViewer = new FatlineEntityListViewer(compositeEntityList, SWT.NONE, entityModelMenuFactory);
         entityListData.addDataChangedHandler(entityList -> entityListViewer.setEntityModels(entityList));
     }
 
