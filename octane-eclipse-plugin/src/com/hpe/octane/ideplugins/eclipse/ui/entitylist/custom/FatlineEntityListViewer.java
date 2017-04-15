@@ -64,6 +64,7 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         rowScrolledComposite.setExpandVertical(true);
 
         rowComposite = new Composite(rowScrolledComposite, SWT.NONE);
+        rowComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
 
         GridLayout layout = new GridLayout(1, false);
         layout.horizontalSpacing = 0;

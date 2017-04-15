@@ -37,38 +37,41 @@ public class EntityModelRow extends Composite {
     public EntityModelRow(Composite parent, int style) {
         super(parent, style);
         GridLayout gridLayout = new GridLayout(5, false);
+        gridLayout.marginBottom = 3;
+        gridLayout.marginTop = 3;
         gridLayout.verticalSpacing = 0;
         gridLayout.marginHeight = 0;
         setLayout(gridLayout);
 
-        lblEntityIcon = new Label(this, SWT.NONE);
+        lblEntityIcon = new Label(this, SWT.CENTER);
         lblEntityIcon.setAlignment(SWT.CENTER);
-        GridData gd_lblEntityIcon = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 2);
-        gd_lblEntityIcon.heightHint = 40;
+        GridData gd_lblEntityIcon = new GridData(SWT.CENTER, SWT.CENTER, false, true, 1, 2);
+        gd_lblEntityIcon.heightHint = 39;
         gd_lblEntityIcon.widthHint = 40;
         lblEntityIcon.setLayoutData(gd_lblEntityIcon);
 
         lblEntityId = new Label(this, SWT.NONE);
+        lblEntityId.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
 
         lblEntityName = new Label(this, SWT.NONE);
-        lblEntityName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        lblEntityName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 
         labelTopSpacer = new Label(this, SWT.NONE);
-        labelTopSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        labelTopSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 
         compositeTopDetails = new Composite(this, SWT.NONE);
         compositeTopDetails.setLayout(new RowLayout(SWT.HORIZONTAL));
-        compositeTopDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        compositeTopDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true, 1, 1));
 
         lblEntityDetails = new Label(this, SWT.NONE);
-        lblEntityDetails.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+        lblEntityDetails.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 2, 1));
 
         labelBottomSpacer = new Label(this, SWT.NONE);
-        labelBottomSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        labelBottomSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 
         compositeBottomDetails = new Composite(this, SWT.NONE);
         compositeBottomDetails.setLayout(new RowLayout(SWT.HORIZONTAL));
-        compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true, 1, 1));
     }
 
     public void setBackgroundColor(Color color) {
