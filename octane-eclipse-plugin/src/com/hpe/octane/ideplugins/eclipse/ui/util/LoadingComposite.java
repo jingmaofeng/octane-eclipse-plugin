@@ -18,7 +18,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
-import com.hpe.octane.ideplugins.eclipse.util.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class LoadingComposite extends Composite {
 
@@ -44,7 +45,7 @@ public class LoadingComposite extends Composite {
         loader = new ImageLoader();
         InputStream stream;
         try {
-            stream = Platform.getBundle("octane-eclipse-plugin").getEntry("icons/octane_preloader.gif").openStream();
+            stream = Platform.getBundle("octane-eclipse-plugin").getEntry(ImageResources.OCTANE_PRELOADER.getPluginPath()).openStream();
             imageDataArray = loader.load(stream);
         } catch (IOException ex) {
             // BACKUP PLAN!!!

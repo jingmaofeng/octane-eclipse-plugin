@@ -12,7 +12,7 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
 
 import com.hpe.adm.octane.services.filtering.Entity;
-import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 
 public class EntityIconFactory {
 
@@ -29,16 +29,7 @@ public class EntityIconFactory {
     private Color fontColor = new Color(Display.getCurrent(), 255, 255, 255);
     private int fontSize = 11;
 
-    private static Image activeImg;
-    // Try to lead the active image
-    static {
-        activeImg = ResourceManager.getPluginImage(Activator.PLUGIN_ID, "icons/activeitem.png");
-        if (activeImg == null) {
-            // for testing outside of the eclipse runtime
-            // activeImg =
-            // SWTResourceManager.getImage("C:\\absoulute path here");
-        }
-    }
+    private static Image activeImg = ImageResources.ACTIVEITEM.getImage();
 
     public EntityIconFactory() {
         init();

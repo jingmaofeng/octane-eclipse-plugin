@@ -29,7 +29,7 @@ public class DebugUtil {
         connectionSettings.setPassword(PASSWORD);
     }
 
-    private static ServiceModule serviceModule = new ServiceModule(new BasicConnectionSettingProvider(connectionSettings));
+    public static ServiceModule serviceModule = new ServiceModule(new BasicConnectionSettingProvider(connectionSettings));
 
     public static void printEntities(Collection<EntityModel> entities) {
         System.out.println("My Work Entities size: " + entities.size());
