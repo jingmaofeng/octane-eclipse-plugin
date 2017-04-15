@@ -30,8 +30,10 @@ import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 public class FatlineEntityListViewer extends Composite implements EntityListViewer {
 
     private static final EntityModelRenderer entityModelRenderer = new DefaultEntityModelRenderer();
-    private static final Color selectionColor = SWTResourceManager.getColor(255, 105, 180);
-    private static final Color foregroundColor = SWTResourceManager.getColor(255, 255, 255);
+    private static final Color selectionBackgroundColor = SWTResourceManager.getColor(255, 105, 180);
+    private static final Color selectionForegroundColor = SWTResourceManager.getColor(255, 255, 255);
+    private static final Color backgroundColor = SWTResourceManager.getColor(255, 255, 255);
+    private static final Color foregroundColor = SWTResourceManager.getColor(0, 0, 0);
 
     // Keep insertion order
     private BiMap<EntityModel, EntityModelRow> entities;
@@ -161,7 +163,8 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         if (entities.containsKey(selection) && selection != null) {
             EntityModelRow row = entities.get(selection);
             if (!row.isDisposed()) {
-                row.setBackground(selectionColor);
+                row.setBackground(selectionBackgroundColor);
+                row.setLabelFontColor(selectionForegroundColor);
             }
         } else {
             selection = null;
@@ -169,7 +172,8 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         if (entities.containsKey(previousSelection)) {
             EntityModelRow row = entities.get(previousSelection);
             if (!row.isDisposed()) {
-                row.setBackground(foregroundColor);
+                row.setBackground(backgroundColor);
+                row.setLabelFontColor(foregroundColor);
             }
         } else {
             previousSelection = null;

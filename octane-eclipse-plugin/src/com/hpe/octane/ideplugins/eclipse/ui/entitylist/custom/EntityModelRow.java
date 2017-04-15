@@ -1,5 +1,7 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -8,6 +10,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
 public class EntityModelRow extends Composite {
@@ -120,6 +123,21 @@ public class EntityModelRow extends Composite {
 
         Label lblValue = new Label(composite, SWT.NONE);
         lblValue.setText(fieldValue);
+    }
+
+    public void setLabelFontColor(Color color) {
+        setLabelFontColor(this, color);
+    }
+
+    private void setLabelFontColor(Control control, Color color) {
+        if (control instanceof Composite) {
+            Arrays.stream(((Composite) control).getChildren())
+                    .forEach(child -> setLabelFontColor(child, color));
+        }
+        if (control instanceof Label) {
+            Label lbl = (Label) control;
+            lbl.setForeground(color);
+        }
     }
 
     @Override
