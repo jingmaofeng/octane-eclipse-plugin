@@ -16,11 +16,12 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
  * Fetch images for the plugin or for the test SWT shells used for debugging
  */
 public enum ImageResources {
-  //@formatter:off
+    //@formatter:off
     ACTIVEITEM("activeitem.png"),
     ADD("add.png"),
     BROWSER_16X16("browser-16x16.png"),
     DISMISS("dismiss.gif"),
+    DOWNLOAD("download.png"),
     HPE_LOGO("hpe-logo.png"),
     MYWORK("mywork.png"),
     OCTANE_ICON_13X13("octane-icon-13x13.png"),
@@ -31,8 +32,7 @@ public enum ImageResources {
     START_TIMER_16X16("startTimer-16x16.png"),
     STOP_TIMER_16X16("stopTimer-16x16.png"),
     UNIDRAG_SMALL_SAD("unidrag-small-sad.png"),
-    UNIDRAG_SMALL("unidrag-small.png"),
-    UNIDRAG("unidrag.png");
+    UNIDRAG_SMALL("unidrag-small.png");
     //@formatter:on
 
     private static final String PATH_PREFIX = "icons/";

@@ -29,7 +29,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
     // private static final ILog logger = Activator.getDefault().getLog();
 
-    private static final EntityIconFactory entityIconFactory = new EntityIconFactory(20, 20, 7);
+    private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
     private static EntityService entityService = DebugUtil.serviceModule.getInstance(EntityService.class);
     private static MyWorkService myWorkService = DebugUtil.serviceModule.getInstance(MyWorkService.class);
     private ViewPart parentViewPart;
@@ -98,7 +98,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
             addMenuItem(
                     menu,
                     "Download script",
-                    null, // TODO no icon
+                    ImageResources.DOWNLOAD.getImage(),
                     () -> {
                         System.out.println("Please imlement me");
                     });
