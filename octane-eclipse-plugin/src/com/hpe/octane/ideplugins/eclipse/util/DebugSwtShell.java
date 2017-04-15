@@ -1,6 +1,8 @@
 package com.hpe.octane.ideplugins.eclipse.util;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -87,6 +89,14 @@ public class DebugSwtShell {
                 Menu menu = new Menu(menuParent);
                 MenuItem iconItem = new MenuItem(menu, SWT.NONE);
                 iconItem.setText(entityModel.getValue("id").getValue().toString());
+
+                iconItem.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        System.out.println("ALL HAIL MASTER CRUBMLE!");
+                    }
+                });
+
                 return menu;
             }
         });

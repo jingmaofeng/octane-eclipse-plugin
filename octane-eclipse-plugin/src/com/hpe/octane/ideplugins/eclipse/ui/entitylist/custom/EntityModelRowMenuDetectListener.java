@@ -2,8 +2,6 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom;
 
 import org.eclipse.swt.events.MenuDetectEvent;
 import org.eclipse.swt.events.MenuDetectListener;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
@@ -43,25 +41,13 @@ class EntityModelRowMenuDetectListener implements MenuDetectListener {
         if (e.widget instanceof Control) {
             Control control = (Control) e.widget;
 
-            // Dispose menu contents
+            // Dispose old menu if it exists
             if (control.getMenu() != null && !control.getMenu().isDisposed()) {
                 control.getMenu().dispose();
             }
 
             Menu menu = menuFactory.createMenu(entityModel, control);
             control.setMenu(menu);
-
-            menu.addMenuListener(new MenuListener() {
-                @Override
-                public void menuShown(MenuEvent e) {
-                }
-
-                @Override
-                public void menuHidden(MenuEvent e) {
-                    menu.dispose();
-                    control.setMenu(null);
-                }
-            });
         }
     }
 }
