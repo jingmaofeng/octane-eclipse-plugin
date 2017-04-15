@@ -10,7 +10,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
-import com.hpe.octane.ideplugins.eclipse.ui.util.WelcomeComposite;
+import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
+import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkEntityModelMenuFactory;
 
 public class DebugSwtShell {
 
@@ -72,14 +75,10 @@ public class DebugSwtShell {
         composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         composite.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-        WelcomeComposite welcomeComposite = new WelcomeComposite(composite, SWT.NONE);
-
-        // EntityListData entityListData = new UserItemArrayEntityListData();
-        // EntityListComposite entityListComposite = new
-        // EntityListComposite(shell, SWT.NONE, entityListData, new
-        // MyWorkEntityModelMenuFactory());
-        // entityListComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
-        // true, true, 1, 1));
-        // entityListData.setEntityList(DebugUtil.getMyWork());
+        EntityListData entityListData = new UserItemArrayEntityListData();
+        EntityListComposite entityListComposite = new EntityListComposite(shell, SWT.NONE, entityListData, new MyWorkEntityModelMenuFactory(null));
+        entityListComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+                true, true, 1, 1));
+        entityListData.setEntityList(DebugUtil.getMyWork());
     }
 }

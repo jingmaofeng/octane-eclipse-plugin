@@ -14,8 +14,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -30,7 +28,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
-import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.ErrorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.NoWorkComposite;
@@ -87,15 +84,7 @@ public class MyWorkView extends OctaneViewPart {
 
     @Override
     public Control createOctanePartControl(Composite parent) {
-        entityListComposite = new EntityListComposite(parent, SWT.NONE, entityData, new EntityModelMenuFactory() {
-            @Override
-            public Menu createMenu(EntityModel entityModel, Control menuParent) {
-                Menu menu = new Menu(menuParent);
-                MenuItem iconItem = new MenuItem(menu, SWT.NONE);
-                iconItem.setText(entityModel.getValue("id").getValue().toString());
-                return menu;
-            }
-        });
+        entityListComposite = new EntityListComposite(parent, SWT.NONE, entityData, new MyWorkEntityModelMenuFactory(this));
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE);
         errorComposite = new ErrorComposite(parent, SWT.NONE);
 
