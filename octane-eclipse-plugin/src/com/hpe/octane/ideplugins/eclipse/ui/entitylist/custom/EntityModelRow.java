@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -21,7 +23,7 @@ public class EntityModelRow extends Composite {
         TOP, BOTTOM
     }
 
-    private Label lblEntityDetails;
+    private StyledText lblEntityDetails;
     private Label lblEntityName;
     private Label lblEntityId;
     private Label lblEntityIcon;
@@ -29,6 +31,7 @@ public class EntityModelRow extends Composite {
     private Composite compositeBottomDetails;
     private Label labelTopSpacer;
     private Label labelBottomSpacer;
+    private static StyleRange[] emptyRange;
 
     /**
      * Create the composite.
@@ -66,15 +69,17 @@ public class EntityModelRow extends Composite {
         compositeTopDetails.setLayout(new RowLayout(SWT.HORIZONTAL));
         compositeTopDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true, 1, 1));
 
-        lblEntityDetails = new Label(this, SWT.NONE);
-        lblEntityDetails.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 2, 1));
+        lblEntityDetails = new StyledText(this, SWT.NONE);
+        lblEntityDetails.setEnabled(false);
+        lblEntityDetails.setEditable(false);
+        lblEntityDetails.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 2, 1));
 
         labelBottomSpacer = new Label(this, SWT.NONE);
-        labelBottomSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+        labelBottomSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1));
 
         compositeBottomDetails = new Composite(this, SWT.NONE);
         compositeBottomDetails.setLayout(new RowLayout(SWT.HORIZONTAL));
-        compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true, 1, 1));
+        compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, true, 1, 1));
     }
 
     public void setBackgroundColor(Color color) {
@@ -95,15 +100,26 @@ public class EntityModelRow extends Composite {
     }
 
     public void setEntitySubTitle(String subtitle) {
-        subtitle = checkEmptyValue(subtitle);
-        lblEntityDetails.setText(subtitle);
+        setEntitySubTitle(subtitle, emptyRange);
     }
 
     public void setEntitySubTitle(String subtitle, String defaultValue) {
-        if (StringUtils.isNotBlank(subtitle)) {
-            lblEntityDetails.setText(subtitle);
+        if (StringUtils.isEmpty(subtitle)) {
+            setEntitySubTitle(defaultValue, emptyRange);
         } else {
-            lblEntityDetails.setText(defaultValue);
+            setEntitySubTitle(subtitle, emptyRange);
+        }
+    }
+
+    public void setEntitySubTitle(String subtitle, StyleRange[] styleRanges) {
+        try {
+            subtitle = checkEmptyValue(subtitle);
+            lblEntityDetails.setText(subtitle);
+            if (styleRanges != null) {
+                lblEntityDetails.setStyleRanges(styleRanges);
+            }
+        } catch (Exception ex) {
+
         }
     }
 
@@ -145,6 +161,10 @@ public class EntityModelRow extends Composite {
         }
         if (control instanceof Label) {
             Label lbl = (Label) control;
+            lbl.setForeground(color);
+        }
+        if (control instanceof StyledText) {
+            StyledText lbl = (StyledText) control;
             lbl.setForeground(color);
         }
     }

@@ -49,15 +49,6 @@ class DefaultEntityModelRenderer implements EntityModelRenderer {
         final EntityModelRow rowPanel = new EntityModelRow(parent, SWT.NONE);
         rowPanel.setBackgroundMode(SWT.INHERIT_FORCE);
         rowPanel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
-
-        // if (selected && hasFocus) {
-        // rowPanel = new EntityModelRow(new Color(255, 255, 255));
-        // } else {
-        // rowPanel = new EntityModelRow();
-        // }
-        // rowPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0,
-        // JBColor.border()));
-
         rowPanel.setEntityIcon(entityIconFactory.getImageIcon(entityType));
 
         // Add owner if entity is not owned by the current plugin user
