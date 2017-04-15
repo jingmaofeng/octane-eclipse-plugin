@@ -33,7 +33,7 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 
 class DefaultEntityModelRenderer implements EntityModelRenderer {
 
-    private static final EntityIconFactory entityIconFactory = new EntityIconFactory(40, 40, 13);
+    private static final EntityIconFactory entityIconFactory = new EntityIconFactory(40, 40, 14);
 
     @Override
     public EntityModelRow createRow(Composite parent, EntityModel entityModel) {

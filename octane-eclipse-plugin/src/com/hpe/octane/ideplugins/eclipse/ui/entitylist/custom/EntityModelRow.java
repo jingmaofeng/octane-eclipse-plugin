@@ -13,6 +13,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
+import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
+
 public class EntityModelRow extends Composite {
 
     public enum DetailsPosition {
@@ -52,6 +54,7 @@ public class EntityModelRow extends Composite {
 
         lblEntityId = new Label(this, SWT.NONE);
         lblEntityId.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
+        lblEntityId.setFont(SWTResourceManager.getBoldFont(lblEntityId.getFont()));
 
         lblEntityName = new Label(this, SWT.NONE);
         lblEntityName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
@@ -83,6 +86,7 @@ public class EntityModelRow extends Composite {
     }
 
     public void setEntityName(String entityName) {
+        entityName = checkEmptyValue(entityName);
         lblEntityName.setText(entityName);
     }
 
@@ -91,6 +95,7 @@ public class EntityModelRow extends Composite {
     }
 
     public void setEntitySubTitle(String subtitle) {
+        subtitle = checkEmptyValue(subtitle);
         lblEntityDetails.setText(subtitle);
     }
 
@@ -125,6 +130,7 @@ public class EntityModelRow extends Composite {
         lblKey.setText(fieldName + ": ");
 
         Label lblValue = new Label(composite, SWT.NONE);
+        fieldValue = checkEmptyValue(fieldValue);
         lblValue.setText(fieldValue);
     }
 
@@ -141,6 +147,15 @@ public class EntityModelRow extends Composite {
             Label lbl = (Label) control;
             lbl.setForeground(color);
         }
+    }
+
+    private String checkEmptyValue(String fieldValue) {
+        if (fieldValue == null || fieldValue.trim().length() == 0) {
+            fieldValue = "-";
+        } else {
+            fieldValue = fieldValue.trim();
+        }
+        return fieldValue;
     }
 
     @Override
