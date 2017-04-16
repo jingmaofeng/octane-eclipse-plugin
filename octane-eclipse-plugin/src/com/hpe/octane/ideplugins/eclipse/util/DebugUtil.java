@@ -1,6 +1,8 @@
 package com.hpe.octane.ideplugins.eclipse.util;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
@@ -54,8 +56,8 @@ public class DebugUtil {
         return serviceModule.getInstance(EntityService.class).findEntities(entityType);
     }
 
-    public static Collection<EntityModel> getMyWork() {
-        return serviceModule.getInstance(MyWorkService.class).getMyWork();
+    public static Collection<EntityModel> getMyWork(Map<Entity, Set<String>> fieldListMap) {
+        return serviceModule.getInstance(MyWorkService.class).getMyWork(fieldListMap);
     }
 
 }

@@ -8,5 +8,5 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
  * Convert your entity model into a row for the composite
  */
 public interface EntityModelRenderer {
-	EntityModelRow createRow(Composite parent, EntityModel entityModel);
+    EntityModelRow createRow(Composite parent, EntityModel entityModel);
 }

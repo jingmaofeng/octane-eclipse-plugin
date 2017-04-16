@@ -127,23 +127,22 @@ public class DefaultRowEntityFields {
         entityFields = Collections.unmodifiableMap(tempEntityFields);
     }
 
-    private static final Map<String, String> subtypeNames = new HashMap<>();
+    private static final Map<Entity, String> subtypeNames = new HashMap<>();
     static {
-        subtypeNames.put("story", "User Story");
-        subtypeNames.put("defect", "Defect");
-        subtypeNames.put("quality_story", "Quality Story");
-        subtypeNames.put("epic", "Epic");
-        subtypeNames.put("feature", "Feature");
-        subtypeNames.put("gherkin_test", "Gherkin Test");
-        subtypeNames.put("test_manual", "Manual Test");
-        subtypeNames.put("run_manual", "Manual Run");
-        subtypeNames.put("test_suite", "Test Suite");
-        subtypeNames.put("run_suite", "Run Suite");
+        subtypeNames.put(Entity.USER_STORY, "User Story");
+        subtypeNames.put(Entity.DEFECT, "Defect");
+        subtypeNames.put(Entity.QUALITY_STORY, "Quality Story");
+        subtypeNames.put(Entity.EPIC, "Epic");
+        subtypeNames.put(Entity.FEATURE, "Feature");
+        subtypeNames.put(Entity.GHERKIN_TEST, "Gherkin Test");
+        subtypeNames.put(Entity.MANUAL_TEST, "Manual Test");
+        subtypeNames.put(Entity.MANUAL_TEST_RUN, "Manual Run");
+        subtypeNames.put(Entity.TEST_SUITE_RUN, "Test Suite Run");
     }
 
-    public static String getSubtypeName(String subtype) {
-        String subtypeName = subtypeNames.get(subtype);
-        return subtypeName != null ? subtypeName : subtype;
+    public static String getEntityDisplayName(Entity entityType) {
+        String subtypeName = subtypeNames.get(entityType);
+        return subtypeName != null ? subtypeName : entityType.name().toLowerCase().replace("_", " ");
     }
 
 }

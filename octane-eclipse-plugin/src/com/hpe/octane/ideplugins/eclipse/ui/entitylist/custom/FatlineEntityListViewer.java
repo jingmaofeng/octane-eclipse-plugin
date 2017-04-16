@@ -25,11 +25,12 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.rowrenderer.MyWorkEntityModelRowRenderer;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class FatlineEntityListViewer extends Composite implements EntityListViewer {
 
-    private static final EntityModelRenderer entityModelRenderer = new DefaultEntityModelRenderer();
+    private static final EntityModelRenderer entityModelRenderer = new MyWorkEntityModelRowRenderer();
     private static final Color selectionBackgroundColor = SWTResourceManager.getColor(255, 105, 180);
     private static final Color selectionForegroundColor = SWTResourceManager.getColor(255, 255, 255);
     private static final Color backgroundColor = SWTResourceManager.getColor(255, 255, 255);
@@ -64,11 +65,11 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         rowScrolledComposite.setExpandVertical(true);
 
         rowComposite = new Composite(rowScrolledComposite, SWT.NONE);
-        rowComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
+        rowComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
         GridLayout layout = new GridLayout(1, false);
         layout.horizontalSpacing = 0;
-        layout.verticalSpacing = 1;
+        layout.verticalSpacing = 0;
         layout.marginTop = 0;
         layout.marginRight = 0;
         layout.marginBottom = 0;

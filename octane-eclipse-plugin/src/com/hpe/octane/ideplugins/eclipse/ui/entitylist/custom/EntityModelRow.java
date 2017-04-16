@@ -7,7 +7,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -32,6 +34,8 @@ public class EntityModelRow extends Composite {
     private Label labelTopSpacer;
     private Label labelBottomSpacer;
     private static StyleRange[] emptyRange;
+    private Label lblNewLabel;
+    private Composite iconComposite;
 
     /**
      * Create the composite.
@@ -42,18 +46,20 @@ public class EntityModelRow extends Composite {
     public EntityModelRow(Composite parent, int style) {
         super(parent, style);
         GridLayout gridLayout = new GridLayout(5, false);
-        gridLayout.marginBottom = 3;
-        gridLayout.marginTop = 3;
+        gridLayout.marginBottom = 0;
         gridLayout.verticalSpacing = 0;
         gridLayout.marginHeight = 0;
         setLayout(gridLayout);
 
-        lblEntityIcon = new Label(this, SWT.CENTER);
+        iconComposite = new Composite(this, SWT.NONE);
+        FillLayout fl_iconComposite = new FillLayout(SWT.HORIZONTAL);
+        fl_iconComposite.marginWidth = 3;
+        fl_iconComposite.marginHeight = 3;
+        iconComposite.setLayout(fl_iconComposite);
+        iconComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 2));
+
+        lblEntityIcon = new Label(iconComposite, SWT.CENTER);
         lblEntityIcon.setAlignment(SWT.CENTER);
-        GridData gd_lblEntityIcon = new GridData(SWT.CENTER, SWT.CENTER, false, true, 1, 2);
-        gd_lblEntityIcon.heightHint = 39;
-        gd_lblEntityIcon.widthHint = 40;
-        lblEntityIcon.setLayoutData(gd_lblEntityIcon);
 
         lblEntityId = new Label(this, SWT.NONE);
         lblEntityId.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
@@ -66,20 +72,24 @@ public class EntityModelRow extends Composite {
         labelTopSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 
         compositeTopDetails = new Composite(this, SWT.NONE);
-        compositeTopDetails.setLayout(new RowLayout(SWT.HORIZONTAL));
+        RowLayout rl_compositeTopDetails = new RowLayout(SWT.HORIZONTAL);
+        compositeTopDetails.setLayout(rl_compositeTopDetails);
         compositeTopDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true, 1, 1));
 
         lblEntityDetails = new StyledText(this, SWT.NONE);
         lblEntityDetails.setEnabled(false);
         lblEntityDetails.setEditable(false);
-        lblEntityDetails.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 2, 1));
+        lblEntityDetails.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 2, 1));
 
         labelBottomSpacer = new Label(this, SWT.NONE);
-        labelBottomSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1));
+        labelBottomSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 
         compositeBottomDetails = new Composite(this, SWT.NONE);
         compositeBottomDetails.setLayout(new RowLayout(SWT.HORIZONTAL));
-        compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, true, 1, 1));
+        compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true, 1, 1));
+
+        lblNewLabel = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL | SWT.CENTER);
+        lblNewLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
     }
 
     public void setBackgroundColor(Color color) {
@@ -139,13 +149,22 @@ public class EntityModelRow extends Composite {
 
         Label lblSeparator = new Label(composite, SWT.SEPARATOR | SWT.VERTICAL);
         GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-        gd_label.heightHint = 15;
+        gd_label.heightHint = lblSeparator.getFont().getFontData()[0].getHeight() + 2;
+        gd_label.verticalIndent = 2;
         lblSeparator.setLayoutData(gd_label);
 
         Label lblKey = new Label(composite, SWT.NONE);
+        GridData gd_lblKey = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+        gd_lblKey.verticalIndent = 2;
+        lblKey.setLayoutData(gd_lblKey);
+        lblKey.setForeground(SWTResourceManager.getColor(128, 128, 128));
         lblKey.setText(fieldName + ": ");
 
         Label lblValue = new Label(composite, SWT.NONE);
+        lblValue.setForeground(SWTResourceManager.getColor(0, 0, 0));
+        Font font = lblValue.getFont();
+        lblValue.setFont(SWTResourceManager.getBiggerFont(font, font.getFontData()[0].getHeight() + 1));
+
         fieldValue = checkEmptyValue(fieldValue);
         lblValue.setText(fieldValue);
     }
@@ -171,7 +190,7 @@ public class EntityModelRow extends Composite {
 
     private String checkEmptyValue(String fieldValue) {
         if (fieldValue == null || fieldValue.trim().length() == 0) {
-            fieldValue = "-";
+            fieldValue = "—";
         } else {
             fieldValue = fieldValue.trim();
         }
