@@ -22,6 +22,7 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.mywork.MyWorkService;
 import com.hpe.adm.octane.services.mywork.MyWorkUtil;
+import com.hpe.adm.octane.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
@@ -122,6 +123,10 @@ public class MyWorkView extends OctaneViewPart {
 
                     if (Entity.USER_ITEM == Entity.getEntityType(entityModel)) {
                         entityModel = MyWorkUtil.getEntityModelFromUserItem(entityModel);
+                    }
+
+                    if (Entity.COMMENT == Entity.getEntityType(entityModel)) {
+                        entityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
                     }
 
                     Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
