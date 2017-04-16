@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.mywork;
+package com.hpe.octane.ideplugins.eclipse.ui;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;

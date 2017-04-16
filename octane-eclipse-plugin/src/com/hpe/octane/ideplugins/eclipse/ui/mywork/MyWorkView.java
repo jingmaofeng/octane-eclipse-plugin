@@ -25,6 +25,7 @@ import com.hpe.adm.octane.services.mywork.MyWorkUtil;
 import com.hpe.adm.octane.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
+import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields;
