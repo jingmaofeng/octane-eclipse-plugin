@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
@@ -48,6 +50,13 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
 
     private EntityModelMenuFactory entityModelMenuFactory;
 
+    private Listener displayListener = new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+            handleMouseFilterEvent(event);
+        }
+    };
+
     /**
      * Create the composite.
      * 
@@ -83,10 +92,11 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         rowScrolledComposite.setMinSize(rowComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
         // Selection
-        rowComposite.getDisplay().addFilter(SWT.MouseDown, new Listener() {
+        rowComposite.getDisplay().addFilter(SWT.MouseDown, displayListener);
+        rowComposite.addDisposeListener(new DisposeListener() {
             @Override
-            public void handleEvent(Event event) {
-                handleMouseFilterEvent(event);
+            public void widgetDisposed(DisposeEvent e) {
+                rowComposite.getDisplay().removeFilter(SWT.MouseDown, displayListener);
             }
         });
     }
@@ -98,13 +108,11 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         Map<EntityModel, EntityModelRow> tempMap = new LinkedHashMap<>();
 
         entityModels.forEach(entityModel -> {
-
             // Create the row
             EntityModelRow row = entityModelRenderer.createRow(rowComposite, entityModel);
             if (entityModelMenuFactory != null) {
                 row.addMenuDetectListener(new EntityModelRowMenuDetectListener(row, entityModel, entityModelMenuFactory));
             }
-
             row.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
             tempMap.put(entityModel, row);
         });
