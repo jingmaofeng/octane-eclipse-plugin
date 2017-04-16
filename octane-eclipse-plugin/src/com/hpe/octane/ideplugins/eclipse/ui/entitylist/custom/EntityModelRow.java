@@ -153,12 +153,14 @@ public class EntityModelRow extends Composite {
         gd_label.verticalIndent = 2;
         lblSeparator.setLayoutData(gd_label);
 
-        Label lblKey = new Label(composite, SWT.NONE);
-        GridData gd_lblKey = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-        gd_lblKey.verticalIndent = 2;
-        lblKey.setLayoutData(gd_lblKey);
-        lblKey.setForeground(SWTResourceManager.getColor(128, 128, 128));
-        lblKey.setText(fieldName + ": ");
+        if (StringUtils.isNotEmpty(fieldName)) {
+            Label lblKey = new Label(composite, SWT.NONE);
+            GridData gd_lblKey = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+            gd_lblKey.verticalIndent = 2;
+            lblKey.setLayoutData(gd_lblKey);
+            lblKey.setForeground(SWTResourceManager.getColor(128, 128, 128));
+            lblKey.setText(fieldName + ": ");
+        }
 
         Label lblValue = new Label(composite, SWT.NONE);
         lblValue.setForeground(SWTResourceManager.getColor(0, 0, 0));

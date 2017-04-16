@@ -25,6 +25,7 @@ import com.hpe.adm.octane.services.mywork.MyWorkUtil;
 import com.hpe.adm.octane.services.util.UrlParser;
 import com.hpe.adm.octane.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
@@ -40,9 +41,11 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
     private static EntityService entityService = DebugUtil.serviceModule.getInstance(EntityService.class);
     private static MyWorkService myWorkService = DebugUtil.serviceModule.getInstance(MyWorkService.class);
     private ViewPart parentViewPart;
+    private EntityListData entityListData;
 
-    public MyWorkEntityModelMenuFactory(ViewPart parentViewPart) {
+    public MyWorkEntityModelMenuFactory(ViewPart parentViewPart, EntityListData entityListData) {
         this.parentViewPart = parentViewPart;
+        this.entityListData = entityListData;
     }
 
     private void openDetailTab(Integer entityId, Entity entityType) {
@@ -167,7 +170,13 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     "Dismiss",
                     ImageResources.DISMISS.getImage(),
                     () -> {
-                        System.out.println("Please imlement me");
+                        // lambdaception
+                        menuParent.getDisplay().asyncExec(() -> {
+                            boolean removed = myWorkService.removeFromMyWork(entityModel);
+                            if (removed) {
+                                entityListData.remove(userItem);
+                            }
+                        });
                     });
         }
 

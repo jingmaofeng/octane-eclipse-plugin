@@ -187,4 +187,16 @@ public class ArrayEntityListData implements EntityListData {
         dataChangedHandlers.forEach(dataChangedHandler -> dataChangedHandler.dataChanged(filteredEntityList));
     }
 
+    @Override
+    public void add(EntityModel entityModel) {
+        entityList.add(entityModel);
+        applyFilter();
+    }
+
+    @Override
+    public void remove(EntityModel entityModel) {
+        entityList.remove(entityModel);
+        applyFilter();
+    }
+
 }

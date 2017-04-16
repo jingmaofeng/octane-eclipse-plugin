@@ -86,7 +86,7 @@ public class MyWorkView extends OctaneViewPart {
 
     @Override
     public Control createOctanePartControl(Composite parent) {
-        entityListComposite = new EntityListComposite(parent, SWT.NONE, entityData, new MyWorkEntityModelMenuFactory(this));
+        entityListComposite = new EntityListComposite(parent, SWT.NONE, entityData, new MyWorkEntityModelMenuFactory(this, entityData));
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE);
         errorComposite = new ErrorComposite(parent, SWT.NONE);
 

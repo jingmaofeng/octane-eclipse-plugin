@@ -174,23 +174,23 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
     }
 
     @Override
-    public EntityModelRow createRow(Composite parent, EntityModel entityModel) {
+    public EntityModelRow createRow(Composite parent, EntityModel userItem) {
 
-        // Convert user items if needed
-        if (Entity.USER_ITEM == Entity.getEntityType(entityModel)) {
-            entityModel = MyWorkUtil.getEntityModelFromUserItem(entityModel);
-        }
-        final EntityModel finalEntityModel = entityModel;
-
-        Entity entityType = Entity.getEntityType(finalEntityModel);
+        final EntityModel entityModel = MyWorkUtil.getEntityModelFromUserItem(userItem);
+        Entity entityType = Entity.getEntityType(entityModel);
 
         final EntityModelRow rowComposite = new EntityModelRow(parent, SWT.NONE);
         rowComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         rowComposite.setBackgroundMode(SWT.INHERIT_FORCE);
 
+        // Show dismissible if needed
+        if (MyWorkUtil.isUserItemDismissible(userItem)) {
+            rowComposite.addDetails("", "Dismissible", DetailsPosition.BOTTOM);
+        }
+
         // Setup row based on field setters
         Collection<RowFieldSetter> fieldSetters = fieldSetterMap.get(entityType);
-        fieldSetters.forEach(fs -> fs.setField(rowComposite, finalEntityModel));
+        fieldSetters.forEach(fs -> fs.setField(rowComposite, entityModel));
 
         return rowComposite;
     }

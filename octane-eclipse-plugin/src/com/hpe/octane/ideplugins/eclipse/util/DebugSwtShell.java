@@ -81,7 +81,8 @@ public class DebugSwtShell {
         composite.setLayout(new FillLayout(SWT.HORIZONTAL));
 
         EntityListData entityListData = new UserItemArrayEntityListData();
-        EntityListComposite entityListComposite = new EntityListComposite(shell, SWT.NONE, entityListData, new MyWorkEntityModelMenuFactory(null));
+        EntityListComposite entityListComposite = new EntityListComposite(shell, SWT.NONE, entityListData,
+                new MyWorkEntityModelMenuFactory(null, entityListData));
         entityListComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
                 true, true, 1, 1));
 

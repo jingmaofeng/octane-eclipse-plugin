@@ -13,6 +13,10 @@ public interface EntityListData {
 
     Collection<EntityModel> getEntityList();
 
+    void add(EntityModel entityModel);
+
+    void remove(EntityModel entityModel);
+
     void setTypeFilter(Set<Entity> entityTypeFilter);
 
     void setStringFilter(String query);
