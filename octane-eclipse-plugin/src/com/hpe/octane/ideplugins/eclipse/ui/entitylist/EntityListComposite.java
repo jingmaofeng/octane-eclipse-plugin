@@ -2,23 +2,19 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitylist;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
+import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
 import com.hpe.octane.ideplugins.eclipse.util.PredefinedEntityComparator;
 
 public class EntityListComposite extends Composite {
@@ -74,34 +70,13 @@ public class EntityListComposite extends Composite {
 
         textFilter = new Text(this, SWT.BORDER);
         textFilter.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
         textFilter.setMessage("Filter");
-
-        textFilter.addModifyListener(new ModifyListener() {
-
-            private Timer fireEventTimer = new Timer();
-
-            @Override
-            public void modifyText(ModifyEvent e) {
-                fireEventTimer.cancel();
-                fireEventTimer = new Timer();
-                fireEventTimer.schedule(createTask(), 500);
-            }
-
-            private TimerTask createTask() {
-                return new TimerTask() {
-                    @Override
-                    public void run() {
-                        Display.getDefault().asyncExec(() -> {
-                            String text = textFilter.getText();
-                            text = text.trim();
-                            text = text.toLowerCase();
-                            entityListData.setStringFilter(text);
-                        });
-                    }
-                };
-            }
-        });
+        textFilter.addModifyListener(new DelayedModifyListener((e) -> {
+            String text = textFilter.getText();
+            text = text.trim();
+            text = text.toLowerCase();
+            entityListData.setStringFilter(text);
+        }));
 
         // Just a placeholder for the viewer
         Composite compositeEntityList = new Composite(this, SWT.NONE);
