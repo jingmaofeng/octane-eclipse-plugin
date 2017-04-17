@@ -34,7 +34,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer.MyWorkEntityModelRowRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.util.ErrorComposite;
-import com.hpe.octane.ideplugins.eclipse.ui.util.NoWorkComposite;
 
 public class MyWorkView extends OctaneViewPart {
 

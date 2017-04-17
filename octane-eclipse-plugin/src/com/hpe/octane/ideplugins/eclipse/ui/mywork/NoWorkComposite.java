@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.util;
+package com.hpe.octane.ideplugins.eclipse.ui.mywork;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;

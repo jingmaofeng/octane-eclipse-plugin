@@ -13,9 +13,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 
@@ -27,7 +32,6 @@ import com.hpe.octane.ideplugins.eclipse.filter.ArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
-import com.hpe.octane.ideplugins.eclipse.ui.util.NoSearchResultsComposite;
 import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
 import com.hpe.octane.ideplugins.eclipse.util.PredefinedEntityComparator;
 
@@ -57,10 +61,56 @@ public class SearchView extends OctaneViewPart {
     private EntityListComposite entityListComposite;
     private Text textFilter;
 
+    private Job searchJob = new Job(ID + ".search") {
+
+        boolean isCancelled = false;
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            isCancelled = false;
+            showLoading();
+
+            final StringBuilder query = new StringBuilder();
+            Display.getDefault().syncExec(() -> {
+                query.append(textFilter.getText().trim().toLowerCase());
+            });
+
+            monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
+
+            if (query.toString().trim().length() != 0) {
+                Collection<EntityModel> searchResults = search(query.toString());
+
+                if (!isCancelled) {
+                    Display.getDefault().asyncExec(() -> {
+                        entityData.setEntityList(searchResults);
+                        if (entityData.getEntityList().size() == 0) {
+                            showControl(noSearchResultsComposite);
+                        } else {
+                            showContent();
+                        }
+                    });
+                }
+            } else {
+                showControl(searchPromptComposite);
+            }
+
+            monitor.done();
+            return Status.OK_STATUS;
+        }
+
+        @Override
+        protected void canceling() {
+            isCancelled = true;
+        }
+
+    };
+
     /**
-     * Shown when my work service returns an empty list
+     * Shown when my search service returns an empty list
      */
     private NoSearchResultsComposite noSearchResultsComposite;
+
+    private SearchPromptComposite searchPromptComposite;
 
     @Override
     public Control createOctanePartControl(Composite parent) {
@@ -79,8 +129,13 @@ public class SearchView extends OctaneViewPart {
                 searchEntityFilterFields);
 
         noSearchResultsComposite = new NoSearchResultsComposite(parent, SWT.NONE);
+        searchPromptComposite = new SearchPromptComposite(parent, SWT.NONE, () -> {
+            if (textFilter != null) {
+                textFilter.setFocus();
+            }
+        });
 
-        showControl(noSearchResultsComposite);
+        showControl(searchPromptComposite);
 
         // Add refresh action to view
         IActionBars viewToolbar = getViewSite().getActionBars();
@@ -90,20 +145,10 @@ public class SearchView extends OctaneViewPart {
                 SearchView.this.textFilter = new Text(parent, SWT.BORDER);
                 textFilter.setMessage("Search");
                 textFilter.addModifyListener(new DelayedModifyListener((e) -> {
-
-                    showLoading();
-
-                    String query = textFilter.getText().trim().toLowerCase();
-                    if (query.trim().length() != 0) {
-                        entityData.setEntityList(search(query));
-                        if (entityData.getEntityList().size() == 0) {
-                            showControl(noSearchResultsComposite);
-                        } else {
-                            showContent();
-                        }
-                    } else {
-                        // TODO: show "search for something"
-                    }
+                    String query = textFilter.getText().trim();
+                    searchJob.cancel();
+                    searchJob.setName("Searching Octane for \"" + query + "\"");
+                    searchJob.schedule();
                 }));
                 return textFilter;
             }

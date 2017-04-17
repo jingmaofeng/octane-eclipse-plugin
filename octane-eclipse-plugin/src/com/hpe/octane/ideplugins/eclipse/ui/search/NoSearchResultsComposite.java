@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.util;
+package com.hpe.octane.ideplugins.eclipse.ui.search;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -17,13 +17,13 @@ public class NoSearchResultsComposite extends Composite {
         Label lblPlaceholder = new Label(this, SWT.NONE);
         lblPlaceholder.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
 
-        Label lblCompanyLogo = new Label(this, SWT.NONE);
-        lblCompanyLogo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
-        lblCompanyLogo.setImage(ImageResources.UNIDRAG_SMALL_SAD.getImage());
+        Label lblUnidragon = new Label(this, SWT.NONE);
+        lblUnidragon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+        lblUnidragon.setImage(ImageResources.UNIDRAG_SMALL_SAD.getImage());
 
-        Label lblWelcome = new Label(this, SWT.NONE);
-        lblWelcome.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true, true, 1, 1));
-        lblWelcome.setText("No results");
+        Label lblNoResults = new Label(this, SWT.NONE);
+        lblNoResults.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true, true, 1, 1));
+        lblNoResults.setText("No results");
     }
 
 }
