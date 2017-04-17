@@ -68,7 +68,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             class="com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage"
-            id="octaneeclipseplugin.preferences.SamplePreferencePage"
+            id="com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage"
             name="ALM Octane Settings">
       </page>
    </extension>

@@ -22,7 +22,7 @@ public class WelcomeComposite extends Composite {
      * @param parent
      * @param style
      */
-    public WelcomeComposite(Composite parent, int style) {
+    public WelcomeComposite(Composite parent, int style, Runnable settingsLinkClicked) {
         super(parent, style);
         setLayout(new GridLayout(3, false));
 
@@ -48,7 +48,7 @@ public class WelcomeComposite extends Composite {
         link.addListener(SWT.Selection, new Listener() {
             @Override
             public void handleEvent(Event event) {
-                System.out.println("Selection: " + event.text);
+                settingsLinkClicked.run();
             }
         });
     }
