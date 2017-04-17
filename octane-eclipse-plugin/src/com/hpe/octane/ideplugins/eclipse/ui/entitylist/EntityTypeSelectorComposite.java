@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Label;
 
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class EntityTypeSelectorComposite extends Composite {
 
@@ -47,21 +48,23 @@ public class EntityTypeSelectorComposite extends Composite {
                 }
             });
 
+            btnCheckButton.setFont(SWTResourceManager.getBoldFont(btnCheckButton.getFont()));
             btnCheckButton.setData(entity);
             btnCheckButton.setImage(entityIconFactory.getImageIcon(entity));
             checkBoxes.add(btnCheckButton);
         }
 
         totalCountLbl = new Label(this, SWT.NONE);
+        totalCountLbl.setFont(SWTResourceManager.getBoldFont(totalCountLbl.getFont()));
     }
 
     public void setEntityTypeCount(Map<Entity, Integer> entityTypeCount) {
         checkBoxes.forEach(checkBox -> {
             Integer count = entityTypeCount.get(checkBox.getData());
             if (count != null) {
-                checkBox.setText("(" + count + ")");
+                checkBox.setText("" + count);
             } else {
-                checkBox.setText("(0)");
+                checkBox.setText("0");
             }
         });
         totalCountLbl.setText("Total: " + entityTypeCount.values().stream().mapToInt(i -> i.intValue()).sum());

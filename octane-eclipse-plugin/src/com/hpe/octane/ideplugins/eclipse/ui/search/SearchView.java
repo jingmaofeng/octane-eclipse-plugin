@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ public class SearchView extends OctaneViewPart {
 
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.SearchView";
 
-    private static final Set<Entity> searchEntityTypes = new HashSet<>(Arrays.asList(
+    private static final Set<Entity> searchEntityTypes = new LinkedHashSet<>(Arrays.asList(
             Entity.EPIC,
             Entity.FEATURE,
             Entity.USER_STORY,
