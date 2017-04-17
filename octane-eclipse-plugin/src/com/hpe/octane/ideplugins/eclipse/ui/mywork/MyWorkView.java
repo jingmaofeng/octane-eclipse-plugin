@@ -38,7 +38,7 @@ public class MyWorkView extends OctaneViewPart {
 
     private static final ILog logger = Activator.getDefault().getLog();
 
-    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.MyWorkView";
+    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView";
     private static final String LOADING_MESSAGE = "Loading \"My Work\"";
 
     private MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);

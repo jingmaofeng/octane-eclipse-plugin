@@ -29,6 +29,7 @@ public enum ImageResources {
     OCTANE_LOGO("octane-logo.png"),
     OCTANE_PRELOADER("octane_preloader.gif"),
     REFRESH_16X16("refresh-16x16.png"),
+    SEARCH("search.png"),
     START_TIMER_16X16("startTimer-16x16.png"),
     STOP_TIMER_16X16("stopTimer-16x16.png"),
     UNIDRAG_SMALL_SAD("unidrag-small-sad.png"),

@@ -13,19 +13,33 @@
             category="octane-eclipse-plugin"
             class="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
             icon="icons/mywork.png"
-            id="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
+            id="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
             name="Octane: My Work">
+      </view>
+      <view
+            allowMultiple="false"
+            category="octane-eclipse-plugin"
+            class="com.hpe.octane.ideplugins.eclipse.ui.search.SearchView"
+            icon="icons/search.png"
+            id="com.hpe.octane.ideplugins.eclipse.ui.search.SearchView"
+            name="Octane: Search">
       </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="org.eclipse.jdt.ui.JavaPerspective">
+            targetID="*">
          <view
-               id="com.hpe.octane.ideplugins.eclipse.ui.MyWorkView"
+               id="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
                ratio="0.5"
                relationship="stack"
                relative="org.eclipse.ui.views.ProblemView">
+         </view>
+         <view
+               id="com.hpe.octane.ideplugins.eclipse.ui.search.SearchView"
+               ratio="0.5"
+               relationship="stack"
+               relative="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView">
          </view>
       </perspectiveExtension>
    </extension>
