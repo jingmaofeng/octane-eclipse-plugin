@@ -175,6 +175,11 @@ public class EntityModelRow extends Composite {
         setLabelFontColor(this, color);
     }
 
+    @Override
+    public void setForeground(Color color) {
+        setLabelFontColor(this, color);
+    }
+
     private void setLabelFontColor(Control control, Color color) {
         if (control instanceof Composite) {
             Arrays.stream(((Composite) control).getChildren())

@@ -17,8 +17,9 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
-import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.rowrenderer.MyWorkEntityModelRowRenderer;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkEntityModelMenuFactory;
+import com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer.MyWorkEntityModelRowRenderer;
 
 public class DebugSwtShell {
 
@@ -81,8 +82,18 @@ public class DebugSwtShell {
         composite.setLayout(new FillLayout(SWT.HORIZONTAL));
 
         EntityListData entityListData = new UserItemArrayEntityListData();
-        EntityListComposite entityListComposite = new EntityListComposite(shell, SWT.NONE, entityListData,
-                new MyWorkEntityModelMenuFactory(null, entityListData));
+
+        EntityListComposite entityListComposite = new EntityListComposite(
+                shell,
+                SWT.NONE,
+                entityListData,
+                (viewerParent) -> {
+                    return new FatlineEntityListViewer((Composite) viewerParent,
+                            SWT.NONE,
+                            new MyWorkEntityModelMenuFactory(null, entityListData),
+                            new MyWorkEntityModelRowRenderer());
+                });
+
         entityListComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
                 true, true, 1, 1));
 

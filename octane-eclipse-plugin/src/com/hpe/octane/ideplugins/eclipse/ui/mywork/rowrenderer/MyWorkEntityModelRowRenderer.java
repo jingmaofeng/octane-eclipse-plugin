@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.rowrenderer;
+package com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer;
 
 import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_AUTHOR;
 import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_DETECTEDBY;

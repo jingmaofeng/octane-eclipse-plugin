@@ -21,7 +21,7 @@ class EntityModelRowMenuDetectListener implements MenuDetectListener {
     private EntityModel entityModel;
     private EntityModelMenuFactory menuFactory;
 
-    public EntityModelRowMenuDetectListener(Composite entityModelComposite, EntityModel entityModel, EntityModelMenuFactory menuFactory) {
+    public EntityModelRowMenuDetectListener(Control entityModelComposite, EntityModel entityModel, EntityModelMenuFactory menuFactory) {
         this.entityModel = entityModel;
         this.menuFactory = menuFactory;
         addMenuDetectListener(entityModelComposite, this);

@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.rowrenderer;
+package com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.filtering.Entity;

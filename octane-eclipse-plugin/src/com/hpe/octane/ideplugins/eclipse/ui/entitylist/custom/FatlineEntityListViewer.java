@@ -27,19 +27,18 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
-import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.rowrenderer.MyWorkEntityModelRowRenderer;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class FatlineEntityListViewer extends Composite implements EntityListViewer {
 
-    private static final EntityModelRenderer entityModelRenderer = new MyWorkEntityModelRowRenderer();
+    private EntityModelRenderer entityModelRenderer;
     private static final Color selectionBackgroundColor = SWTResourceManager.getColor(255, 105, 180);
     private static final Color selectionForegroundColor = SWTResourceManager.getColor(255, 255, 255);
     private static final Color backgroundColor = SWTResourceManager.getColor(255, 255, 255);
     private static final Color foregroundColor = SWTResourceManager.getColor(0, 0, 0);
 
     // Keep insertion order
-    private BiMap<EntityModel, EntityModelRow> entities;
+    private BiMap<EntityModel, Control> entities;
     private List<EntityMouseListener> entityMouseListeners = new ArrayList<>();
 
     private Composite rowComposite;
@@ -63,10 +62,16 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
      * @param parent
      * @param style
      */
-    public FatlineEntityListViewer(Composite parent, int style, EntityModelMenuFactory entityModelMenuFactory) {
+    public FatlineEntityListViewer(
+            Composite parent,
+            int style,
+            EntityModelMenuFactory entityModelMenuFactory,
+            EntityModelRenderer entityModelRenderer) {
+
         super(parent, SWT.NONE);
         setLayout(new FillLayout(SWT.HORIZONTAL));
 
+        this.entityModelRenderer = entityModelRenderer;
         this.entityModelMenuFactory = entityModelMenuFactory;
 
         rowScrolledComposite = new ScrolledComposite(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -105,11 +110,11 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
     public void setEntityModels(Collection<EntityModel> entityModels) {
         clearRows();
 
-        Map<EntityModel, EntityModelRow> tempMap = new LinkedHashMap<>();
+        Map<EntityModel, Control> tempMap = new LinkedHashMap<>();
 
         entityModels.forEach(entityModel -> {
             // Create the row
-            EntityModelRow row = entityModelRenderer.createRow(rowComposite, entityModel);
+            Control row = entityModelRenderer.createRow(rowComposite, entityModel);
             if (entityModelMenuFactory != null) {
                 row.addMenuDetectListener(new EntityModelRowMenuDetectListener(row, entityModel, entityModelMenuFactory));
             }
@@ -131,7 +136,7 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
     }
 
     private void handleMouseFilterEvent(Event event) {
-        EntityModelRow row = getEntityModelRowFromMouseFilter(event);
+        Control row = getEntityModelRowFromMouseFilter(event);
         if (row != null) {
             EntityModel entityModel = entities.inverse().get(row);
 
@@ -150,9 +155,9 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         }
     }
 
-    private EntityModelRow getEntityModelRowFromMouseFilter(Event event) {
+    private Control getEntityModelRowFromMouseFilter(Event event) {
         if (event.widget instanceof Control) {
-            for (EntityModelRow row : entities.values()) {
+            for (Control row : entities.values()) {
                 if (containsControl(row, (Control) event.widget)) {
                     return row;
                 }
@@ -171,19 +176,19 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
 
     private void paintSelected() {
         if (entities.containsKey(selection) && selection != null) {
-            EntityModelRow row = entities.get(selection);
+            Control row = entities.get(selection);
             if (!row.isDisposed()) {
                 row.setBackground(selectionBackgroundColor);
-                row.setLabelFontColor(selectionForegroundColor);
+                row.setForeground(selectionForegroundColor);
             }
         } else {
             selection = null;
         }
         if (entities.containsKey(previousSelection)) {
-            EntityModelRow row = entities.get(previousSelection);
+            Control row = entities.get(previousSelection);
             if (!row.isDisposed()) {
                 row.setBackground(backgroundColor);
-                row.setLabelFontColor(foregroundColor);
+                row.setForeground(foregroundColor);
             }
         } else {
             previousSelection = null;

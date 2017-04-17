@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.rowrenderer;
+package com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer;
 
 import static com.hpe.adm.octane.services.util.Util.getContainerItemForCommentModel;
 import static com.hpe.adm.octane.services.util.Util.getUiDataFromModel;

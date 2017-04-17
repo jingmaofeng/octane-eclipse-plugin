@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
-import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
+import com.hpe.octane.ideplugins.eclipse.util.ControlProvider;
 import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
 import com.hpe.octane.ideplugins.eclipse.util.PredefinedEntityComparator;
 
@@ -37,7 +37,7 @@ public class EntityListComposite extends Composite {
 
     // Currently only fatlines
     private EntityListViewer entityListViewer;
-    private EntityModelMenuFactory entityModelMenuFactory;
+    private ControlProvider<EntityListViewer> controlProvider;
 
     /**
      * Create the composite.
@@ -45,12 +45,17 @@ public class EntityListComposite extends Composite {
      * @param parent
      * @param style
      */
-    public EntityListComposite(Composite parent, int style, EntityListData entityListData, EntityModelMenuFactory entityModelMenuFactory) {
+    public EntityListComposite(
+            Composite parent,
+            int style,
+            EntityListData entityListData,
+            ControlProvider<EntityListViewer> controlProvider) {
+
         super(parent, style);
         setLayout(new GridLayout(1, false));
 
         this.entityListData = entityListData;
-        this.entityModelMenuFactory = entityModelMenuFactory;
+        this.controlProvider = controlProvider;
 
         entityListData.setTypeFilter(defaultFilterTypes);
         entityListData.setStringFilterFields(clientSideQueryFields);
@@ -83,7 +88,7 @@ public class EntityListComposite extends Composite {
         compositeEntityList.setLayout(new FillLayout(SWT.HORIZONTAL));
         compositeEntityList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 
-        entityListViewer = new FatlineEntityListViewer(compositeEntityList, SWT.NONE, entityModelMenuFactory);
+        entityListViewer = controlProvider.createControl(compositeEntityList);
         entityListData.addDataChangedHandler(entityList -> entityListViewer.setEntityModels(entityList));
     }
 

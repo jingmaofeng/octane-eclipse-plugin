@@ -31,6 +31,8 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
+import com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer.MyWorkEntityModelRowRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.util.ErrorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.NoWorkComposite;
 
@@ -86,7 +88,18 @@ public class MyWorkView extends OctaneViewPart {
 
     @Override
     public Control createOctanePartControl(Composite parent) {
-        entityListComposite = new EntityListComposite(parent, SWT.NONE, entityData, new MyWorkEntityModelMenuFactory(this, entityData));
+
+        entityListComposite = new EntityListComposite(
+                parent,
+                SWT.NONE,
+                entityData,
+                (viewerParent) -> {
+                    return new FatlineEntityListViewer((Composite) viewerParent,
+                            SWT.NONE,
+                            new MyWorkEntityModelMenuFactory(MyWorkView.this, entityData),
+                            new MyWorkEntityModelRowRenderer());
+                });
+
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE);
         errorComposite = new ErrorComposite(parent, SWT.NONE);
 
