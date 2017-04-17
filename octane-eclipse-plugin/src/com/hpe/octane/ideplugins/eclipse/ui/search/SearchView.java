@@ -2,13 +2,9 @@ package com.hpe.octane.ideplugins.eclipse.ui.search;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
@@ -34,14 +30,16 @@ public class SearchView extends OctaneViewPart {
 
         showControl(noSearchResultsComposite);
 
-        IWorkbench workbench = PlatformUI.getWorkbench();
-        ISharedImages images = workbench.getSharedImages();
-        Image image = images.getImage(ISharedImages.IMG_OBJ_FOLDER);
+        // Init
+        if (Activator.getConnectionSettings().isEmpty()) {
+            showWelcome();
+        }
 
         // Return root
         Label lbl = new Label(parent, SWT.NONE);
         lbl.setText("Placeholder");
         return lbl;
+
     }
 
     @Override

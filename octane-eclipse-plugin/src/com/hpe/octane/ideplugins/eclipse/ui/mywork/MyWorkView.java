@@ -103,6 +103,7 @@ public class MyWorkView extends OctaneViewPart {
             refreshAction.run();
         } else {
             refreshAction.setEnabled(false);
+            showWelcome();
         }
 
         Activator.addConnectionSettingsChangeHandler(() -> {
