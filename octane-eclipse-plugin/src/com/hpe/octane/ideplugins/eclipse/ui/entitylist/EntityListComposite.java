@@ -1,6 +1,9 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitylist;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -11,7 +14,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.filtering.Entity;
+import com.hpe.adm.octane.services.mywork.MyWorkUtil;
 import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
 import com.hpe.octane.ideplugins.eclipse.util.ControlProvider;
 import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
@@ -29,27 +34,35 @@ public class EntityListComposite extends Composite {
             .sorted(new PredefinedEntityComparator())
             .collect(Collectors.toList()));
 
-    private static final Set<String> clientSideQueryFields = DefaultRowEntityFields.entityFields
+    private static final Set<String> defaultClientSideQueryFields = DefaultRowEntityFields.entityFields
             .values()
             .stream()
             .flatMap(coll -> coll.stream())
             .collect(Collectors.toSet());
 
+    private Set<Entity> filterTypes;
+    private Set<String> clientSideQueryFields;
+
     // Currently only fatlines
     private EntityListViewer entityListViewer;
     private ControlProvider<EntityListViewer> controlProvider;
 
-    /**
-     * Create the composite.
-     * 
-     * @param parent
-     * @param style
-     */
     public EntityListComposite(
             Composite parent,
             int style,
             EntityListData entityListData,
             ControlProvider<EntityListViewer> controlProvider) {
+
+        this(parent, style, entityListData, controlProvider, defaultFilterTypes, defaultClientSideQueryFields);
+    }
+
+    public EntityListComposite(
+            Composite parent,
+            int style,
+            EntityListData entityListData,
+            ControlProvider<EntityListViewer> controlProvider,
+            Set<Entity> filterTypes,
+            Set<String> clientSideQueryFields) {
 
         super(parent, style);
         setLayout(new GridLayout(1, false));
@@ -57,7 +70,10 @@ public class EntityListComposite extends Composite {
         this.entityListData = entityListData;
         this.controlProvider = controlProvider;
 
-        entityListData.setTypeFilter(defaultFilterTypes);
+        this.filterTypes = filterTypes;
+        this.clientSideQueryFields = clientSideQueryFields;
+
+        entityListData.setTypeFilter(filterTypes);
         entityListData.setStringFilterFields(clientSideQueryFields);
 
         init();
@@ -66,7 +82,7 @@ public class EntityListComposite extends Composite {
 
     private void init() {
 
-        entityTypeSelectorComposite = new EntityTypeSelectorComposite(this, SWT.NONE, defaultFilterTypes.toArray(new Entity[] {}));
+        entityTypeSelectorComposite = new EntityTypeSelectorComposite(this, SWT.NONE, filterTypes.toArray(new Entity[] {}));
         entityTypeSelectorComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         entityTypeSelectorComposite.checkAll();
         entityTypeSelectorComposite.addSelectionListener(() -> {
@@ -90,6 +106,27 @@ public class EntityListComposite extends Composite {
 
         entityListViewer = controlProvider.createControl(compositeEntityList);
         entityListData.addDataChangedHandler(entityList -> entityListViewer.setEntityModels(entityList));
+        entityListData.addDataChangedHandler(entityList -> {
+            entityTypeSelectorComposite
+                    .setEntityTypeCount(
+                            countEntitiesByType(entityListData.getOriginalEntityList()));
+        });
+    }
+
+    private Map<Entity, Integer> countEntitiesByType(Collection<EntityModel> entities) {
+        Map<Entity, Integer> result = new HashMap<>();
+
+        entities.forEach(entityModel -> {
+            Entity entityType = Entity.getEntityType(entityModel);
+            if (entityType == Entity.USER_ITEM) {
+                entityType = Entity.getEntityType(MyWorkUtil.getEntityModelFromUserItem(entityModel));
+            }
+            if (!result.containsKey(entityType)) {
+                result.put(entityType, 0);
+            }
+            result.put(entityType, result.get(entityType) + 1);
+        });
+        return result;
     }
 
     @Override

@@ -13,6 +13,9 @@ public interface EntityListData {
 
     Collection<EntityModel> getEntityList();
 
+    // Get the unfiltered list
+    Collection<EntityModel> getOriginalEntityList();
+
     void add(EntityModel entityModel);
 
     void remove(EntityModel entityModel);

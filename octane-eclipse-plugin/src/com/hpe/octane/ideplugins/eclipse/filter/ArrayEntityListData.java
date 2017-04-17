@@ -57,6 +57,11 @@ public class ArrayEntityListData implements EntityListData {
         return filteredEntityList;
     }
 
+    @Override
+    public Collection<EntityModel> getOriginalEntityList() {
+        return entityList;
+    }
+
     /*
      * (non-Javadoc)
      * 
