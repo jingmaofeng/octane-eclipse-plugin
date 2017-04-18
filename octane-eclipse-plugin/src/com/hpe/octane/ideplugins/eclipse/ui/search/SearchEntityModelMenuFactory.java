@@ -12,9 +12,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
@@ -27,7 +29,6 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
-import com.hpe.octane.ideplugins.eclipse.util.DebugUtil;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 
@@ -36,18 +37,20 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
     // private static final ILog logger = Activator.getDefault().getLog();
 
     private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
-    private static EntityService entityService = DebugUtil.serviceModule.getInstance(EntityService.class);
-    private static MyWorkService myWorkService = DebugUtil.serviceModule.getInstance(MyWorkService.class);
-    private ViewPart parentViewPart;
+    private static EntityService entityService = Activator.getInstance(EntityService.class);
+    private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
 
-    public SearchEntityModelMenuFactory(ViewPart parentViewPart) {
-        this.parentViewPart = parentViewPart;
+    public SearchEntityModelMenuFactory() {
     }
 
     private void openDetailTab(Integer entityId, Entity entityType) {
+        IWorkbench wb = PlatformUI.getWorkbench();
+        IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+        IWorkbenchPage page = win.getActivePage();
+
         EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(entityId, entityType);
         try {
-            parentViewPart.getSite().getWorkbenchWindow().getActivePage().openEditor(entityModelEditorInput, EntityModelEditor.ID);
+            page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
         } catch (PartInitException ex) {
             // logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID,
             // Status.ERROR, "An exception has occured when opening the editor",
