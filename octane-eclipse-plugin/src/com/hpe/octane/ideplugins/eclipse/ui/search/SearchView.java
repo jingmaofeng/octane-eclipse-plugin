@@ -32,6 +32,7 @@ import com.hpe.octane.ideplugins.eclipse.filter.ArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
+import com.hpe.octane.ideplugins.eclipse.ui.util.OpenDetailTabEntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
 import com.hpe.octane.ideplugins.eclipse.util.PredefinedEntityComparator;
 
@@ -127,6 +128,8 @@ public class SearchView extends OctaneViewPart {
                 },
                 searchEntityTypes,
                 searchEntityFilterFields);
+
+        entityListComposite.addEntityMouseListener(new OpenDetailTabEntityMouseListener());
 
         noSearchResultsComposite = new NoSearchResultsComposite(parent, SWT.NONE);
         searchPromptComposite = new SearchPromptComposite(parent, SWT.NONE, () -> {
