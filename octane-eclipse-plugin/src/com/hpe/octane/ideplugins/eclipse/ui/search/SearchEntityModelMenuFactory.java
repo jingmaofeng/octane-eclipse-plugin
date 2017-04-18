@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.mywork;
+package com.hpe.octane.ideplugins.eclipse.ui.search;
 
 import static com.hpe.adm.octane.services.util.Util.getUiDataFromModel;
 
@@ -21,11 +21,9 @@ import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.services.EntityService;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.mywork.MyWorkService;
-import com.hpe.adm.octane.services.mywork.MyWorkUtil;
 import com.hpe.adm.octane.services.util.UrlParser;
 import com.hpe.adm.octane.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
-import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
@@ -33,7 +31,7 @@ import com.hpe.octane.ideplugins.eclipse.util.DebugUtil;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 
-public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
+public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
 
     // private static final ILog logger = Activator.getDefault().getLog();
 
@@ -41,11 +39,9 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
     private static EntityService entityService = DebugUtil.serviceModule.getInstance(EntityService.class);
     private static MyWorkService myWorkService = DebugUtil.serviceModule.getInstance(MyWorkService.class);
     private ViewPart parentViewPart;
-    private EntityListData entityListData;
 
-    public MyWorkEntityModelMenuFactory(ViewPart parentViewPart, EntityListData entityListData) {
+    public SearchEntityModelMenuFactory(ViewPart parentViewPart) {
         this.parentViewPart = parentViewPart;
-        this.entityListData = entityListData;
     }
 
     private void openDetailTab(Integer entityId, Entity entityType) {
@@ -60,14 +56,11 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
     }
 
     @Override
-    public Menu createMenu(EntityModel userItem, Control menuParent) {
+    public Menu createMenu(EntityModel entityModel, Control menuParent) {
 
         Menu menu = new Menu(menuParent);
 
-        EntityModel entityModel = MyWorkUtil.getEntityModelFromUserItem(userItem);
         Entity entityType = Entity.getEntityType(entityModel);
-        // String entityName =
-        // Util.getUiDataFromModel(entityModel.getValue("name"));
         Integer entityId = Integer.valueOf(getUiDataFromModel(entityModel.getValue("id")));
 
         addMenuItem(
@@ -111,74 +104,21 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     () -> openDetailTab(entityId, entityType));
         }
 
-        if (entityType == Entity.TASK || entityType == Entity.COMMENT) {
-            // Get parent info
-            EntityModel parentEntityModel;
-            if (entityType == Entity.TASK) {
-                parentEntityModel = (EntityModel) entityModel.getValue("story").getValue();
-            } else {
-                parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
-            }
-
-            addMenuItem(
-                    menu,
-                    "View parent details",
-                    entityIconFactory.getImageIcon(Entity.getEntityType(parentEntityModel)),
-                    () -> {
-                        Integer parentId = Integer.valueOf(parentEntityModel.getValue("id").getValue().toString());
-                        Entity parentEntityType = Entity.getEntityType(parentEntityModel);
-                        openDetailTab(parentId, parentEntityType);
-                    });
-        }
-
-        if (entityType == Entity.GHERKIN_TEST) {
-            addMenuItem(
-                    menu,
-                    "Download script",
-                    ImageResources.DOWNLOAD.getImage(),
-                    () -> {
-                        System.out.println("Please imlement me");
-                    });
-        }
-
-        if (entityType == Entity.DEFECT ||
-                entityType == Entity.USER_STORY ||
-                entityType == Entity.QUALITY_STORY ||
-                entityType == Entity.TASK) {
-
-            new MenuItem(menu, SWT.SEPARATOR);
-
-            addMenuItem(
-                    menu,
-                    "Start work",
-                    ImageResources.START_TIMER_16X16.getImage(),
-                    () -> {
-                        System.out.println("Please imlement me");
-                    });
-
-            addMenuItem(
-                    menu,
-                    "Stop work",
-                    ImageResources.STOP_TIMER_16X16.getImage(),
-                    () -> {
-                        System.out.println("Please imlement me");
-                    }).setEnabled(false);
-        }
-
-        if (myWorkService.isAddingToMyWorkSupported(entityType) && MyWorkUtil.isUserItemDismissible(userItem)) {
+        if (myWorkService.isAddingToMyWorkSupported(entityType)) {
             new MenuItem(menu, SWT.SEPARATOR);
             addMenuItem(
                     menu,
-                    "Dismiss",
-                    ImageResources.DISMISS.getImage(),
+                    "Add to \"My Work\"",
+                    ImageResources.ADD.getImage(),
                     () -> {
-                        // lambdaception
                         menuParent.getDisplay().asyncExec(() -> {
-                            boolean removed = myWorkService.removeFromMyWork(entityModel);
-                            if (removed) {
-                                entityListData.remove(userItem);
+                            if (myWorkService.addToMyWork(entityModel)) {
+                                // TODO: Show added notification
+                            } else {
+                                // TODO: Show add failed notification
                             }
                         });
+
                     });
         }
 

@@ -122,7 +122,7 @@ public class SearchView extends OctaneViewPart {
                 (parentControl) -> {
                     return new FatlineEntityListViewer((Composite) parentControl,
                             SWT.NONE,
-                            null,
+                            new SearchEntityModelMenuFactory(this),
                             new SearchResultRowRenderer());
                 },
                 searchEntityTypes,
