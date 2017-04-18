@@ -1,7 +1,7 @@
 package com.hpe.octane.ideplugins.eclipse.ui.combobox;
 
-public interface PhaseComboBoxLabelProvider<T> {
-    public String getSelectedLabel(T element);
+public interface CustomEntityComboBoxLabelProvider<T> {
+    public String getSelectedLabel(T entityModelElemnt);
 
-    public String getListLabel(T element);
+    public String getListLabel(T entityModelElemnt);
 }

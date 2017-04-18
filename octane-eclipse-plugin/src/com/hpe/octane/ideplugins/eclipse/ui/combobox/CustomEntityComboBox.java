@@ -13,26 +13,26 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-public class PhaseComboBox <T>{
+public class CustomEntityComboBox <T>{
 	private ComboViewer viewer;
-    private PhaseComboBoxLabelProvider<T> labelProvider;
+    private CustomEntityComboBoxLabelProvider<T> labelProvider;
     private List<T> content;
-    private List<PhaseComboBoxSelectionListener<T>> selectionListeners;
+    private List<CustomEntityComboBoxSelectionListener<T>> selectionListeners;
     private T currentSelection;
 
-    public PhaseComboBox(Composite parent) {
+    public CustomEntityComboBox(Composite parent) {
     	   this.viewer = new ComboViewer(parent, SWT.READ_ONLY);
            this.viewer.setContentProvider(ArrayContentProvider.getInstance());
            
            viewer.setLabelProvider(new LabelProvider() {
                @Override
                public String getText(Object element) {
-                   T typedElement = getTypedObject(element);
-                   if (labelProvider != null && typedElement != null) {
-                       if (typedElement == currentSelection) {
-                           return labelProvider.getSelectedLabel(typedElement);
+                   T entityModelElement = getTypedObject(element);
+                   if (labelProvider != null && entityModelElement != null) {
+                       if (entityModelElement == currentSelection) {
+                           return labelProvider.getSelectedLabel(entityModelElement);
                        } else {
-                           return labelProvider.getListLabel(typedElement);
+                           return labelProvider.getListLabel(entityModelElement);
                        }
 
                    } else {
@@ -46,20 +46,20 @@ public class PhaseComboBox <T>{
                public void selectionChanged(SelectionChangedEvent event) {
                    IStructuredSelection selection = (IStructuredSelection) event
                            .getSelection();
-                   T typedSelection = getTypedObject(selection.getFirstElement());
-                   if (typedSelection != null) {
-                       currentSelection = typedSelection;
+                   T selectedEntityModelElement = getTypedObject(selection.getFirstElement());
+                   if (selectedEntityModelElement != null) {
+                       currentSelection = selectedEntityModelElement;
                        viewer.refresh();
-                       notifySelectionListeners(typedSelection);
+                       notifySelectionListeners(selectedEntityModelElement);
                    }
 
                }
            });
            
            this.content = new ArrayList<T>();
-           this.selectionListeners = new ArrayList<PhaseComboBoxSelectionListener<T>>();
+           this.selectionListeners = new ArrayList<CustomEntityComboBoxSelectionListener<T>>();
 	}
-    public void setLabelProvider(PhaseComboBoxLabelProvider<T> labelProvider) {
+    public void setLabelProvider(CustomEntityComboBoxLabelProvider<T> labelProvider) {
         this.labelProvider = labelProvider;
     }
 
@@ -83,12 +83,12 @@ public class PhaseComboBox <T>{
             setSelection(content.get(0));
         }
     }
-    public void addSelectionListener(PhaseComboBoxSelectionListener<T> listener) {
+    public void addSelectionListener(CustomEntityComboBoxSelectionListener<T> listener) {
         this.selectionListeners.add(listener);
     }
 
     public void removeSelectionListener(
-    		PhaseComboBoxSelectionListener<T> listener) {
+    		CustomEntityComboBoxSelectionListener<T> listener) {
         this.selectionListeners.remove(listener);
     }
 
@@ -101,7 +101,7 @@ public class PhaseComboBox <T>{
     }
 
     private void notifySelectionListeners(T newSelection) {
-        for (PhaseComboBoxSelectionListener<T> listener : selectionListeners) {
+        for (CustomEntityComboBoxSelectionListener<T> listener : selectionListeners) {
             listener.selectionChanged(this, newSelection);
         }
     }
