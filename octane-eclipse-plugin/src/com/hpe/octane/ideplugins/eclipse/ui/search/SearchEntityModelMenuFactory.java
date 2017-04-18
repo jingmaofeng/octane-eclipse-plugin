@@ -5,6 +5,8 @@ import static com.hpe.adm.octane.services.util.Util.getUiDataFromModel;
 import java.net.MalformedURLException;
 import java.net.URI;
 
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -29,7 +31,9 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
+import com.hpe.octane.ideplugins.eclipse.ui.mywork.job.AddToMyWorkJob;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 
 public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
@@ -114,17 +118,22 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                     "Add to \"My Work\"",
                     ImageResources.ADD.getImage(),
                     () -> {
-                        menuParent.getDisplay().asyncExec(() -> {
-                            if (myWorkService.addToMyWork(entityModel)) {
-                                // TODO: Show added notification
-                            } else {
-                                // TODO: Show add failed notification
+                        AddToMyWorkJob job = new AddToMyWorkJob("Adding item to \"My Work...\"", entityModel);
+                        job.schedule();
+                        job.addJobChangeListener(new JobChangeAdapter() {
+                            @Override
+                            public void done(IJobChangeEvent event) {
+                                menuParent.getDisplay().asyncExec(() -> {
+                                    if (job.wasAdded()) {
+                                        new InfoPopup("My Work", "Item added.").open();
+                                    } else {
+                                        new InfoPopup("My Work", "Failed to add item. Already in \"My Work\".").open();
+                                    }
+                                });
                             }
                         });
-
                     });
         }
-
         return menu;
     }
 

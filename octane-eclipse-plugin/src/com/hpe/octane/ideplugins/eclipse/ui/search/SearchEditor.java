@@ -58,6 +58,8 @@ public class SearchEditor extends EditorPart {
     private LoadingComposite loadingComposite;
     private StackLayoutComposite container;
 
+    private SearchJob searchJob;
+
     @Override
     public void init(IEditorSite site, IEditorInput input) throws PartInitException {
         if (!(input instanceof SearchEditorInput)) {
@@ -95,7 +97,7 @@ public class SearchEditor extends EditorPart {
 
         entityListComposite.addEntityMouseListener(new OpenDetailTabEntityMouseListener());
 
-        SearchJob searchJob = new SearchJob(
+        searchJob = new SearchJob(
                 "Searching Octane for: \"" + searchEditorInput.getQuery() + "\"",
                 searchEditorInput.getQuery(),
                 entityData);
@@ -107,10 +109,14 @@ public class SearchEditor extends EditorPart {
             @Override
             public void done(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
-                    if (entityData.getOriginalEntityList().size() == 0) {
-                        container.showControl(noSearchResultsComposite);
-                    } else {
-                        container.showControl(entityListComposite);
+                    // The user can close the search tab before the job returned
+                    // the result, so we need a disposed check
+                    if (!container.isDisposed()) {
+                        if (entityData.getOriginalEntityList().size() == 0) {
+                            container.showControl(noSearchResultsComposite);
+                        } else {
+                            container.showControl(entityListComposite);
+                        }
                     }
                 });
             }

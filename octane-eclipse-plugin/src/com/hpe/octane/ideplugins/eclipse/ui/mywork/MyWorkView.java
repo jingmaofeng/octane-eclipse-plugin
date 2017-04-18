@@ -34,6 +34,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.ErrorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.OpenDetailTabEntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.SeparatorControlContribution;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TextContributionItem;
+import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class MyWorkView extends OctaneViewPart {
 
@@ -91,6 +92,8 @@ public class MyWorkView extends OctaneViewPart {
     @Override
     public Control createOctanePartControl(Composite parent) {
 
+        parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+
         entityListComposite = new EntityListComposite(
                 parent,
                 SWT.NONE,
@@ -98,7 +101,7 @@ public class MyWorkView extends OctaneViewPart {
                 (viewerParent) -> {
                     return new FatlineEntityListViewer((Composite) viewerParent,
                             SWT.NONE,
-                            new MyWorkEntityModelMenuFactory(MyWorkView.this, entityData),
+                            new MyWorkEntityModelMenuFactory(entityData),
                             new MyWorkEntityModelRowRenderer());
                 });
 
