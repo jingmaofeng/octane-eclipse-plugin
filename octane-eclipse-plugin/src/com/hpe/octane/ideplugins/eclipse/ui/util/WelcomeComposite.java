@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 
-import com.hpe.octane.ideplugins.eclipse.util.ResourceManager;
+import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 
 public class WelcomeComposite extends Composite {
 
@@ -22,7 +22,7 @@ public class WelcomeComposite extends Composite {
      * @param parent
      * @param style
      */
-    public WelcomeComposite(Composite parent, int style) {
+    public WelcomeComposite(Composite parent, int style, Runnable settingsLinkClicked) {
         super(parent, style);
         setLayout(new GridLayout(3, false));
 
@@ -31,12 +31,12 @@ public class WelcomeComposite extends Composite {
 
         Label lblCompanyLogo = new Label(this, SWT.NONE);
         lblCompanyLogo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true, 1, 1));
-        lblCompanyLogo.setImage(ResourceManager.getPluginImage("octane-eclipse-plugin", "icons/hpe-logo.png"));
+        lblCompanyLogo.setImage(ImageResources.HPE_LOGO.getImage());
         new Label(this, SWT.NONE);
 
         Label lblProductLogo = new Label(this, SWT.NONE);
         lblProductLogo.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
-        lblProductLogo.setImage(ResourceManager.getPluginImage("octane-eclipse-plugin", "icons/octane-logo.png"));
+        lblProductLogo.setImage(ImageResources.OCTANE_LOGO.getImage());
 
         Label lblWelcome = new Label(this, SWT.NONE);
         lblWelcome.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 3, 1));
@@ -48,7 +48,7 @@ public class WelcomeComposite extends Composite {
         link.addListener(SWT.Selection, new Listener() {
             @Override
             public void handleEvent(Event event) {
-                System.out.println("Selection: " + event.text);
+                settingsLinkClicked.run();
             }
         });
     }

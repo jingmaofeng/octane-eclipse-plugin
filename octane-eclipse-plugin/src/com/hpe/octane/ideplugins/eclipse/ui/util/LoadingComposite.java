@@ -18,6 +18,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
+import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
+
 public class LoadingComposite extends Composite {
 
     private ImageData[] imageDataArray;
@@ -34,6 +37,7 @@ public class LoadingComposite extends Composite {
     public LoadingComposite(Composite parent, int style) {
         super(parent, style);
 
+        setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         Display display = parent.getDisplay();
         GC shellGC = new GC(this);
         Color shellBackground = getBackground();
@@ -41,7 +45,7 @@ public class LoadingComposite extends Composite {
         loader = new ImageLoader();
         InputStream stream;
         try {
-            stream = Platform.getBundle("octane-eclipse-plugin").getEntry("icons/octane_preloader.gif").openStream();
+            stream = Platform.getBundle("octane-eclipse-plugin").getEntry(ImageResources.OCTANE_PRELOADER.getPluginPath()).openStream();
             imageDataArray = loader.load(stream);
         } catch (IOException ex) {
             // BACKUP PLAN!!!
@@ -146,6 +150,10 @@ public class LoadingComposite extends Composite {
                         display.syncExec(new Runnable() {
                             @Override
                             public void run() {
+                                if (LoadingComposite.this.isDisposed()) {
+                                    return;
+                                }
+
                                 Point point = LoadingComposite.this.getSize();
                                 int xPos = point.x / 2 - offScreenImage.getBounds().width / 2;
                                 int yPos = point.y / 2 - offScreenImage.getBounds().height / 2;

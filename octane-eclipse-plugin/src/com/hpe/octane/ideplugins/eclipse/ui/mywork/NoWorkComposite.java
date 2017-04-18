@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.util;
+package com.hpe.octane.ideplugins.eclipse.ui.mywork;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -7,13 +7,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.hpe.octane.ideplugins.eclipse.util.ResourceManager;
+import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 
 public class NoWorkComposite extends Composite {
 
     private static final String NO_WORK_TEXT = "You're Awesome! You finished all your work!";
     private static final String NO_WORK_LINK_TEXT = "You may want to talk with your team leader... or have some fun!";
-    private static final Image unidragonImage = ResourceManager.getPluginImage("octane-eclipse-plugin", "icons/unidrag-small.png");
+    private static final Image unidragonImage = ImageResources.UNIDRAG_SMALL.getImage();
 
     /**
      * Create the composite.

@@ -34,6 +34,8 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class PluginPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
+    public static final String ID = "com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage";
+
     private Text textServerUrl;
     private Text textSharedSpace;
     private Text textWorkspace;

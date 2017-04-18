@@ -33,8 +33,12 @@ public class ArrayEntityListData implements EntityListData {
     private String query;
     private Set<String> queryFields = new HashSet<>();
 
-    /* (non-Javadoc)
-     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#setEntityList(java.util.Collection)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#setEntityList(
+     * java.util.Collection)
      */
     @Override
     public void setEntityList(Collection<EntityModel> entityList) {
@@ -42,16 +46,28 @@ public class ArrayEntityListData implements EntityListData {
         applyFilter();
     }
 
-    /* (non-Javadoc)
-     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#getEntityList()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#getEntityList()
      */
     @Override
     public Collection<EntityModel> getEntityList() {
         return filteredEntityList;
     }
 
-    /* (non-Javadoc)
-     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#setTypeFilter(java.util.Set)
+    @Override
+    public Collection<EntityModel> getOriginalEntityList() {
+        return entityList;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#setTypeFilter(
+     * java.util.Set)
      */
     @Override
     public void setTypeFilter(Set<Entity> entityTypeFilter) {
@@ -59,8 +75,12 @@ public class ArrayEntityListData implements EntityListData {
         applyFilter();
     }
 
-    /* (non-Javadoc)
-     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#setStringFilter(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#setStringFilter(
+     * java.lang.String)
      */
     @Override
     public void setStringFilter(String query) {
@@ -68,8 +88,11 @@ public class ArrayEntityListData implements EntityListData {
         applyFilter();
     }
 
-    /* (non-Javadoc)
-     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#setStringFilterFields(java.util.Set)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#
+     * setStringFilterFields(java.util.Set)
      */
     @Override
     public void setStringFilterFields(Set<String> queryFields) {
@@ -109,8 +132,12 @@ public class ArrayEntityListData implements EntityListData {
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#matchStringFilter(com.hpe.adm.nga.sdk.model.EntityModel, java.lang.String, java.util.Set)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#
+     * matchStringFilter(com.hpe.adm.nga.sdk.model.EntityModel,
+     * java.lang.String, java.util.Set)
      */
     @Override
     public boolean matchStringFilter(EntityModel entityModel, String queryString, Set<String> affectedFields) {
@@ -125,24 +152,36 @@ public class ArrayEntityListData implements EntityListData {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#matchTypeFilter(com.hpe.adm.nga.sdk.model.EntityModel, java.util.Set)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#matchTypeFilter(
+     * com.hpe.adm.nga.sdk.model.EntityModel, java.util.Set)
      */
     @Override
     public boolean matchTypeFilter(EntityModel entityModel, Set<Entity> entityTypeFilter) {
         return entityTypeFilter.contains(Entity.getEntityType(entityModel));
     }
 
-    /* (non-Javadoc)
-     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#addDataChangedHandler(com.hpe.octane.ideplugins.eclipse.filter.EntityListData.DataChangedHandler)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#
+     * addDataChangedHandler(com.hpe.octane.ideplugins.eclipse.filter.
+     * EntityListData.DataChangedHandler)
      */
     @Override
     public void addDataChangedHandler(DataChangedHandler dataChangedHandler) {
         dataChangedHandlers.add(dataChangedHandler);
     }
 
-    /* (non-Javadoc)
-     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#removeDataChangedHandler(com.hpe.octane.ideplugins.eclipse.filter.EntityListData.DataChangedHandler)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.hpe.octane.ideplugins.eclipse.filter.IEntityListData#
+     * removeDataChangedHandler(com.hpe.octane.ideplugins.eclipse.filter.
+     * EntityListData.DataChangedHandler)
      */
     @Override
     public void removeDataChangedHandler(DataChangedHandler dataChangedHandler) {
@@ -151,6 +190,18 @@ public class ArrayEntityListData implements EntityListData {
 
     private void fireDataChangedHandlers() {
         dataChangedHandlers.forEach(dataChangedHandler -> dataChangedHandler.dataChanged(filteredEntityList));
+    }
+
+    @Override
+    public void add(EntityModel entityModel) {
+        entityList.add(entityModel);
+        applyFilter();
+    }
+
+    @Override
+    public void remove(EntityModel entityModel) {
+        entityList.remove(entityModel);
+        applyFilter();
     }
 
 }

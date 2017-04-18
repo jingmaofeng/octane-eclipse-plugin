@@ -14,4 +14,6 @@ public interface EntityListViewer extends Drawable {
 
     public void removeEntityMouseListener(EntityMouseListener entityMouseListener);
 
+    public void setEntityModelMenuFatory(EntityModelMenuFactory entityModelMenuFactory);
+
 }
