@@ -17,12 +17,11 @@ public class SearchPromptComposite extends Composite {
         super(parent, style);
         setLayout(new GridLayout(1, false));
 
-        Label lblPlaceholder = new Label(this, SWT.NONE);
-        lblPlaceholder.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
-
         Label lblLogo = new Label(this, SWT.NONE);
-        lblLogo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+        lblLogo.setLayoutData(new GridData(SWT.CENTER, SWT.BOTTOM, true, true, 1, 1));
         lblLogo.setImage(ImageResources.OCTANE_LOGO.getImage());
+
+        Label lblPlaceholder = new Label(this, SWT.NONE);
 
         Link link = new Link(this, SWT.NONE);
         link.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true, true, 1, 1));
