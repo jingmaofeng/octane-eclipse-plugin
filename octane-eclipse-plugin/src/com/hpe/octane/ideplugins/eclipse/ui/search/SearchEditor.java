@@ -107,10 +107,14 @@ public class SearchEditor extends EditorPart {
             @Override
             public void done(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
-                    if (entityData.getOriginalEntityList().size() == 0) {
-                        container.showControl(noSearchResultsComposite);
-                    } else {
-                        container.showControl(entityListComposite);
+                    // The user can close the search tab before the job returned
+                    // the result, so we need a disposed check
+                    if (!container.isDisposed()) {
+                        if (entityData.getOriginalEntityList().size() == 0) {
+                            container.showControl(noSearchResultsComposite);
+                        } else {
+                            container.showControl(entityListComposite);
+                        }
                     }
                 });
             }
