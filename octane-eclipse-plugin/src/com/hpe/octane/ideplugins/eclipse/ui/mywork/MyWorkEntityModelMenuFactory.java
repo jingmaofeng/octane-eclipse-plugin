@@ -5,6 +5,7 @@ import static com.hpe.adm.octane.services.util.Util.getUiDataFromModel;
 import java.net.MalformedURLException;
 import java.net.URI;
 
+import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -178,11 +179,24 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                             if (removed) {
                                 entityListData.remove(userItem);
                             }
+
+                            PopupDialog dialog = new PopupDialog(
+                                    parentViewPart.getSite().getShell(),
+                                    PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE,
+                                    false,
+                                    false,
+                                    false,
+                                    false,
+                                    false,
+                                    "WHY",
+                                    "ME");
+                            dialog.open();
                         });
                     });
         }
 
         return menu;
+
     }
 
     private static MenuItem addMenuItem(Menu menu, String text, Image image, Runnable selectAction) {
