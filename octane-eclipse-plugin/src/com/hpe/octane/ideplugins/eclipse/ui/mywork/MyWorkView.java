@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
@@ -31,6 +32,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.util.ErrorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.OpenDetailTabEntityMouseListener;
+import com.hpe.octane.ideplugins.eclipse.ui.util.SeparatorControlContribution;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TextContributionItem;
 
 public class MyWorkView extends OctaneViewPart {
@@ -141,11 +143,15 @@ public class MyWorkView extends OctaneViewPart {
                 });
         viewToolbar.getToolBarManager().add(textContributionItem);
 
+        viewToolbar.getToolBarManager().add(new SeparatorControlContribution(ID + ".separator"));
+
         // Add refresh action to view toolbar
         refreshAction.setText("Refresh");
         refreshAction.setToolTipText("Refresh \"My Work\"");
         refreshAction.setImageDescriptor(Activator.getImageDescriptor("icons/refresh-16x16.png"));
-        viewToolbar.getToolBarManager().add(refreshAction);
+        ActionContributionItem refreshActionItem = new ActionContributionItem(refreshAction);
+        refreshActionItem.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+        viewToolbar.getToolBarManager().add(refreshActionItem);
 
         // Mouse handlers
         entityListComposite.addEntityMouseListener(new OpenDetailTabEntityMouseListener());
