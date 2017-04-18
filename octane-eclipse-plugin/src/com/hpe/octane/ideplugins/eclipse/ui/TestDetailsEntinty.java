@@ -88,12 +88,12 @@ public class TestDetailsEntinty {
 		form.setText("Custom Form Widgets Demo");
 		form.getBody().setLayout(new FillLayout(SWT.HORIZONTAL));
 		Map<Entity, FormLayout> mapOfForms = getOctaneForms();
-		if(mapOfForms.containsKey(Entity.DEFECT)){
+		if (mapOfForms.containsKey(Entity.DEFECT)) {
 			FormLayout defectForm = mapOfForms.get(Entity.DEFECT);
 			EntityModel defectData = getEntityWithId(Entity.DEFECT, 1022l);
 			for (FormLayoutSection formSection : defectForm.getFormLayoutSections()) {
 				demoSections(formSection, defectData);
-			}	
+			}
 		}
 	}
 
