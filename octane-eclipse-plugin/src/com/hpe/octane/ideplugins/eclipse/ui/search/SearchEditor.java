@@ -58,6 +58,8 @@ public class SearchEditor extends EditorPart {
     private LoadingComposite loadingComposite;
     private StackLayoutComposite container;
 
+    private SearchJob searchJob;
+
     @Override
     public void init(IEditorSite site, IEditorInput input) throws PartInitException {
         if (!(input instanceof SearchEditorInput)) {
@@ -95,7 +97,7 @@ public class SearchEditor extends EditorPart {
 
         entityListComposite.addEntityMouseListener(new OpenDetailTabEntityMouseListener());
 
-        SearchJob searchJob = new SearchJob(
+        searchJob = new SearchJob(
                 "Searching Octane for: \"" + searchEditorInput.getQuery() + "\"",
                 searchEditorInput.getQuery(),
                 entityData);
