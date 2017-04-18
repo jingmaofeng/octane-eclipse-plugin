@@ -87,14 +87,13 @@ public class TestDetailsEntinty {
 		// Sets title.
 		form.setText("Custom Form Widgets Demo");
 		form.getBody().setLayout(new FillLayout(SWT.HORIZONTAL));
-		List<FormLayout> formList = getOctaneForms();
-		Map<Entity, FormLayout> mapOfForms = formList.stream().filter(form -> form.isDefault())
-				.collect(Collectors.toMap(FormLayout::getEntity, Function.identity()));
-
-		FormLayout defectForm = mapOfForms.get(Entity.DEFECT);
-		EntityModel defectData = getEntityWithId(Entity.DEFECT, 1022l);
-		for (FormLayoutSection formSection : defectForm.getFormLayoutSections()) {
-			demoSections(formSection, defectData);
+		Map<Entity, FormLayout> mapOfForms = getOctaneForms();
+		if(mapOfForms.containsKey(Entity.DEFECT)){
+			FormLayout defectForm = mapOfForms.get(Entity.DEFECT);
+			EntityModel defectData = getEntityWithId(Entity.DEFECT, 1022l);
+			for (FormLayoutSection formSection : defectForm.getFormLayoutSections()) {
+				demoSections(formSection, defectData);
+			}	
 		}
 	}
 
@@ -122,8 +121,8 @@ public class TestDetailsEntinty {
 		section.setClient(sectionClient);
 	}
 
-	private List<FormLayout> getOctaneForms() {
-		List<FormLayout> ret = null;
+	private Map<Entity, FormLayout> getOctaneForms() {
+		Map<Entity, FormLayout> ret = null;
 		ServiceModule serviceModule = new ServiceModule(new ConnectionSettingsProvider() {
 			@Override
 			public void setConnectionSettings(ConnectionSettings connectionSettings) {
@@ -132,9 +131,9 @@ public class TestDetailsEntinty {
 			@Override
 			public ConnectionSettings getConnectionSettings() {
 				ConnectionSettings connectionSettings = new ConnectionSettings();
-				connectionSettings.setBaseUrl("http://myd-vm19852.hpeswlab.net:8080");
+				connectionSettings.setBaseUrl("http://myd-vm02524.hpeswlab.net:7521");
 				connectionSettings.setSharedSpaceId(1001L);
-				connectionSettings.setWorkspaceId(1004L);
+				connectionSettings.setWorkspaceId(1002L);
 				connectionSettings.setUserName("sa@nga");
 				connectionSettings.setPassword("Welcome1");
 
@@ -166,9 +165,9 @@ public class TestDetailsEntinty {
 			@Override
 			public ConnectionSettings getConnectionSettings() {
 				ConnectionSettings connectionSettings = new ConnectionSettings();
-				connectionSettings.setBaseUrl("http://myd-vm19852.hpeswlab.net:8080");
+				connectionSettings.setBaseUrl("http://myd-vm02524.hpeswlab.net:7521");
 				connectionSettings.setSharedSpaceId(1001L);
-				connectionSettings.setWorkspaceId(1004L);
+				connectionSettings.setWorkspaceId(1002L);
 				connectionSettings.setUserName("sa@nga");
 				connectionSettings.setPassword("Welcome1");
 
