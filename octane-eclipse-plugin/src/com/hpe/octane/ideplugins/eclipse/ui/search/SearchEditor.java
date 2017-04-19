@@ -21,6 +21,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.octane.services.filtering.Entity;
+import com.hpe.adm.octane.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.filter.ArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
@@ -70,7 +71,12 @@ public class SearchEditor extends EditorPart {
         setSite(site);
         setInput(input);
 
-        setPartName("\"" + searchEditorInput.getQuery() + "\"");
+        String tabTitle = searchEditorInput.getQuery();
+        if (tabTitle.length() > 25) {
+            tabTitle = Util.ellipsisTruncate(tabTitle, 25);
+        }
+        tabTitle = "\"" + tabTitle + "\"";
+        setPartName(tabTitle);
     }
 
     @Override
