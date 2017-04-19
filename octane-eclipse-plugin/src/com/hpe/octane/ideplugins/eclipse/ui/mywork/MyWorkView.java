@@ -98,10 +98,16 @@ public class MyWorkView extends OctaneViewPart {
                 SWT.NONE,
                 entityData,
                 (viewerParent) -> {
-                    return new FatlineEntityListViewer((Composite) viewerParent,
+                    FatlineEntityListViewer viewer = new FatlineEntityListViewer((Composite) viewerParent,
                             SWT.NONE,
                             new MyWorkEntityModelMenuFactory(entityData),
                             new MyWorkEntityModelRowRenderer());
+
+                    Activator.addActiveItemChangedHandler(() -> {
+                        viewer.recreateRows();
+                    });
+
+                    return viewer;
                 });
 
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE);

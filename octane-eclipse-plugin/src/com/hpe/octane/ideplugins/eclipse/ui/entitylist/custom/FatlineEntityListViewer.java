@@ -127,7 +127,7 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
         this.entities = ImmutableBiMap.copyOf(tempMap);
     }
 
-    private void recreateRows() {
+    public void recreateRows() {
         setEntityModels(entities.keySet());
     }
 
