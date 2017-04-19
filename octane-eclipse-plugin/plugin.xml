@@ -76,5 +76,19 @@
             class="com.hpe.octane.ideplugins.eclipse.preferences.PreferenceInitializer">
       </initializer>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="octane-eclipse-plugin.toolbarActiveItem">
+            <dynamic
+                  class="com.hpe.octane.ideplugins.eclipse.ui.activeitem.ActiveEntityContributionItem"
+                  id="com.hpe.octane.ideplugins.eclipse.ui.ActiveEntityContributionItem">
+            </dynamic>
+         </toolbar>
+      </menuContribution>
+   </extension>
 
 </plugin>

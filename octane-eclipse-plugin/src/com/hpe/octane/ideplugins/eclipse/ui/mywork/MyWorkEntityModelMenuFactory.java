@@ -150,21 +150,29 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
             new MenuItem(menu, SWT.SEPARATOR);
 
-            addMenuItem(
+            MenuItem startWork = addMenuItem(
                     menu,
                     "Start work",
                     ImageResources.START_TIMER_16X16.getImage(),
                     () -> {
-                        System.out.println("Please imlement me");
+                        Activator.setActiveItem(new EntityModelEditorInput(entityModel));
                     });
 
-            addMenuItem(
+            MenuItem stopWork = addMenuItem(
                     menu,
                     "Stop work",
                     ImageResources.STOP_TIMER_16X16.getImage(),
                     () -> {
-                        System.out.println("Please imlement me");
-                    }).setEnabled(false);
+                        Activator.setActiveItem(null);
+                    });
+
+            if (!new EntityModelEditorInput(entityModel).equals(Activator.getActiveItem())) {
+                startWork.setEnabled(true);
+                stopWork.setEnabled(false);
+            } else {
+                startWork.setEnabled(false);
+                stopWork.setEnabled(true);
+            }
         }
 
         if (myWorkService.isAddingToMyWorkSupported(entityType) && MyWorkUtil.isUserItemDismissible(userItem)) {

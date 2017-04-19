@@ -4,12 +4,18 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 
+import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.filtering.Entity;
 
 public class EntityModelEditorInput implements IEditorInput {
 
-    private final long   id;
+    private final long id;
     private final Entity entityType;
+
+    public EntityModelEditorInput(EntityModel entityModel) {
+        this.id = Long.parseLong(entityModel.getValue("id").getValue().toString());
+        this.entityType = Entity.getEntityType(entityModel);
+    }
 
     public EntityModelEditorInput(long id, Entity entityType) {
         this.id = id;

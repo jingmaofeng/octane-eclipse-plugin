@@ -91,7 +91,6 @@ public class MyWorkView extends OctaneViewPart {
 
     @Override
     public Control createOctanePartControl(Composite parent) {
-
         parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
         entityListComposite = new EntityListComposite(
