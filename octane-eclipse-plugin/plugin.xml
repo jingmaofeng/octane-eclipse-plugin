@@ -90,5 +90,12 @@
          </toolbar>
       </menuContribution>
    </extension>
+   <extension
+         point="org.eclipse.ui.elementFactories">
+      <factory
+            class="com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditorInput"
+            id="com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditorInput">
+      </factory>
+   </extension>
 
 </plugin>
