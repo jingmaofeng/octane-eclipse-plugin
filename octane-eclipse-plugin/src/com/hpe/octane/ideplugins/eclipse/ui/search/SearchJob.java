@@ -1,9 +1,6 @@
 package com.hpe.octane.ideplugins.eclipse.ui.search;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -16,7 +13,6 @@ import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.nonentity.EntitySearchService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
-import com.hpe.octane.ideplugins.eclipse.util.PredefinedEntityComparator;
 
 public class SearchJob extends Job {
 
@@ -37,7 +33,10 @@ public class SearchJob extends Job {
 
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
 
-        Collection<EntityModel> searchResults = search(query);
+        Collection<EntityModel> searchResults = searchService.searchGlobal(
+                query,
+                20,
+                SearchEditor.searchEntityTypes.toArray(new Entity[] {}));
 
         if (!isCancelled) {
             Display.getDefault().asyncExec(() -> {
@@ -52,29 +51,6 @@ public class SearchJob extends Job {
     @Override
     protected void canceling() {
         isCancelled = true;
-    }
-
-    private List<EntityModel> search(String query) {
-
-        Collection<EntityModel> searchResults = new ArrayList<>();
-
-        searchResults = searchService.searchGlobal(query, Entity.WORK_ITEM);
-        searchResults.addAll(searchService.searchGlobal(query, Entity.TASK));
-        searchResults.addAll(searchService.searchGlobal(query, Entity.TEST));
-
-        return searchResults
-                .stream()
-                .sorted((entityLeft, entityRight) -> {
-                    Entity entityTypeLeft = Entity.getEntityType(entityLeft);
-                    Entity entityTypeRight = Entity.getEntityType(entityRight);
-                    if (entityTypeLeft != entityTypeRight) {
-                        return new PredefinedEntityComparator().compare(entityTypeLeft, entityTypeRight);
-                    } else {
-                        Long leftId = Long.parseLong(entityLeft.getValue("id").getValue().toString());
-                        Long rightId = Long.parseLong(entityRight.getValue("id").getValue().toString());
-                        return leftId.compareTo(rightId);
-                    }
-                }).collect(Collectors.toList());
     }
 
 }
