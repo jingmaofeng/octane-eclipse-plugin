@@ -1,16 +1,28 @@
 package com.hpe.octane.ideplugins.eclipse.ui.editor;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IElementFactory;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.filtering.Entity;
+import com.hpe.octane.ideplugins.eclipse.ui.activeitem.ImageDataImageDescriptor;
+import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 
-public class EntityModelEditorInput implements IEditorInput {
+public class EntityModelEditorInput implements IElementFactory, IEditorInput {
 
-    private final long id;
-    private final Entity entityType;
+    private static final String FACTORY_ID = "com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput";
+    private static final EntityIconFactory entityIconFactory = new EntityIconFactory(20, 20, 7);
+
+    private long id;
+    private Entity entityType;
+
+    // Default constructor needed because of IElementFactory
+    public EntityModelEditorInput() {
+    }
 
     public EntityModelEditorInput(EntityModel entityModel) {
         this.id = Long.parseLong(entityModel.getValue("id").getValue().toString());
@@ -43,18 +55,13 @@ public class EntityModelEditorInput implements IEditorInput {
 
     @Override
     public ImageDescriptor getImageDescriptor() {
-        return null;
+        return new ImageDataImageDescriptor(
+                entityIconFactory.getImageIcon(entityType).getImageData());
     }
 
     @Override
     public String getName() {
-        return entityType.name() + " " + id;
-    }
-
-    @Override
-    public IPersistableElement getPersistable() {
-        // TODO Auto-generated method stub
-        return null;
+        return String.valueOf(id);
     }
 
     @Override
@@ -91,6 +98,30 @@ public class EntityModelEditorInput implements IEditorInput {
     @Override
     public String toString() {
         return "EntityModelEditorInput [id=" + id + ", entityType=" + entityType + "]";
+    }
+
+    @Override
+    public IPersistableElement getPersistable() {
+        IPersistableElement persistableElement = new IPersistableElement() {
+            @Override
+            public void saveState(IMemento memento) {
+                memento.putString("id", id + "");
+                memento.putString("entityType", entityType.name());
+            }
+
+            @Override
+            public String getFactoryId() {
+                return FACTORY_ID;
+            }
+        };
+        return persistableElement;
+    }
+
+    @Override
+    public IAdaptable createElement(IMemento memento) {
+        long id = Long.valueOf(memento.getString("id"));
+        Entity entityType = Entity.valueOf(memento.getString("entityType"));
+        return new EntityModelEditorInput(id, entityType);
     }
 
 }

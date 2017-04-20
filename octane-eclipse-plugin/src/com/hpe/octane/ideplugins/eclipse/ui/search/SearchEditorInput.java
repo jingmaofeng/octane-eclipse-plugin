@@ -16,6 +16,7 @@ public class SearchEditorInput implements IElementFactory, IEditorInput {
     private String query = "";
     private static final ImageDescriptor searchImage = ImageDescriptor.createFromImage(ImageResources.SEARCH.getImage());
 
+    // Default constructor needed because of IElementFactory
     public SearchEditorInput() {
     }
 
@@ -48,22 +49,6 @@ public class SearchEditorInput implements IElementFactory, IEditorInput {
     }
 
     @Override
-    public IPersistableElement getPersistable() {
-        IPersistableElement persistableElement = new IPersistableElement() {
-            @Override
-            public void saveState(IMemento memento) {
-                memento.putString("query", query);
-            }
-
-            @Override
-            public String getFactoryId() {
-                return FACTORY_ID;
-            }
-        };
-        return persistableElement;
-    }
-
-    @Override
     public String getToolTipText() {
         return "\"" + query + "\"";
     }
@@ -91,6 +76,22 @@ public class SearchEditorInput implements IElementFactory, IEditorInput {
         } else if (!query.equals(other.query))
             return false;
         return true;
+    }
+
+    @Override
+    public IPersistableElement getPersistable() {
+        IPersistableElement persistableElement = new IPersistableElement() {
+            @Override
+            public void saveState(IMemento memento) {
+                memento.putString("query", query);
+            }
+
+            @Override
+            public String getFactoryId() {
+                return FACTORY_ID;
+            }
+        };
+        return persistableElement;
     }
 
     @Override
