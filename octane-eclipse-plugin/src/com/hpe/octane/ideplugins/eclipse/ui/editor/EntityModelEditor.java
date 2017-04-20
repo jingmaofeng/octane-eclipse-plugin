@@ -22,7 +22,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.EditorPart;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
@@ -40,6 +39,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelPr
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class EntityModelEditor extends EditorPart {
 
