@@ -3,7 +3,6 @@ package com.hpe.octane.ideplugins.eclipse.ui.editor;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
@@ -50,7 +49,7 @@ public class EntityModelEditor extends EditorPart {
     private FieldModel currentPhase;
     private EntityModel selectedPhase;
     private EntityModelEditorInput input;
-    private Map<Entity, FormLayout> octaneForms;
+    private FormLayout octaneEntityForm;
     private Form specificEntityDetails;
     private FormToolkit toolkit;
     private Collection<EntityModel> possibleTransitions;
@@ -77,7 +76,7 @@ public class EntityModelEditor extends EditorPart {
 
         try {
             entityModel = entityService.findEntity(this.input.getEntityType(), this.input.getId());
-            octaneForms = metadataService.getFormLayoutForAllEntityTypes();
+            octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(Entity.getEntityType(entityModel));
             currentPhase = entityModel.getValue("phase");
             Long currentPhaseId = Long.valueOf(Util.getUiDataFromModel(currentPhase, "id"));
             possibleTransitions = entityService.findPossibleTransitionFromCurrentPhase(Entity.getEntityType(entityModel), currentPhaseId);
@@ -124,8 +123,7 @@ public class EntityModelEditor extends EditorPart {
 
             CustomEntityComboBox<EntityModel> nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(genericHeaderComposite);
             nextPhasesComboBox.addSelectionListener((phaseEntityModel, newSelection) -> {
-                System.out.println(newSelection);
-                // TODO: save this value
+                selectedPhase = newSelection;
             });
             nextPhasesComboBox.setLabelProvider(new CustomEntityComboBoxLabelProvider<EntityModel>() {
 
@@ -165,8 +163,7 @@ public class EntityModelEditor extends EditorPart {
         specificEntityDetails.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 
         if (entityModel != null) {
-            FormLayout entityForm = octaneForms.get(Entity.getEntityType(entityModel));
-            for (FormLayoutSection formSection : entityForm.getFormLayoutSections()) {
+            for (FormLayoutSection formSection : octaneEntityForm.getFormLayoutSections()) {
                 addEntityDataToSection(entityModel, formSection);
             }
         }
