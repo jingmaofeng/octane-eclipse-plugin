@@ -2,23 +2,48 @@ package com.hpe.octane.ideplugins.eclipse.ui.mywork;
 
 import static com.hpe.adm.octane.services.util.Util.getUiDataFromModel;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IFileEditorMapping;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.internal.ide.dialogs.FileFolderSelectionDialog;
+import org.eclipse.ui.internal.registry.EditorDescriptor;
+import org.eclipse.ui.internal.registry.EditorRegistry;
+import org.eclipse.ui.internal.registry.FileEditorMapping;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
@@ -26,6 +51,7 @@ import com.hpe.adm.octane.services.EntityService;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.mywork.MyWorkService;
 import com.hpe.adm.octane.services.mywork.MyWorkUtil;
+import com.hpe.adm.octane.services.nonentity.DownloadScriptService;
 import com.hpe.adm.octane.services.util.UrlParser;
 import com.hpe.adm.octane.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -43,6 +69,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
     private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
     private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
+    private static DownloadScriptService scriptService = Activator.getInstance(DownloadScriptService.class);
     private EntityListData entityListData;
 
     public MyWorkEntityModelMenuFactory(EntityListData entityListData) {
@@ -139,7 +166,36 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     "Download script",
                     ImageResources.DOWNLOAD.getImage(),
                     () -> {
-                        System.out.println("Please imlement me");
+                        File parentFolder = chooseParentFolder();
+
+                        if (parentFolder != null) {
+                            long gherkinTestId = Long.parseLong(entityModel.getValue("id").getValue().toString());
+                            String gherkinTestName = entityModel.getValue("name").getValue().toString();
+                            String scriptFileName = gherkinTestName + "-" +
+                                    gherkinTestId + ".feature";
+                            File scriptFile = new File(parentFolder.getPath() + File.separator +
+                                    scriptFileName);
+                            boolean shouldDownloadScript = true;
+
+                            if (scriptFile.exists()) {
+                                MessageBox messageBox = new MessageBox(menu.getShell(), SWT.YES | SWT.NO);
+                                messageBox.setMessage("Selected destination folder already contains a file named \"" +
+                                        scriptFileName + "\". Do you want to overwrite this file?");
+                                messageBox.setText("Confirm file overwrite");
+                                shouldDownloadScript = messageBox.open() == SWT.YES;
+                            }
+
+                            if (shouldDownloadScript) {
+                                BusyIndicator.showWhile(Display.getCurrent(), () -> {
+                                    String content = scriptService.getGherkinTestScriptContent(gherkinTestId);
+                                    createTestScriptFile(parentFolder.getPath(), scriptFileName,
+                                            content);
+
+                                    associateTextEditorToScriptFile(scriptFile);
+                                    openInEditor(scriptFile);
+                                });
+                            }
+                        }
                     });
         }
 
@@ -200,6 +256,78 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     });
         }
         return menu;
+    }
+
+    private void associateTextEditorToScriptFile(File file) {
+        EditorRegistry editorRegistry = (EditorRegistry) PlatformUI.getWorkbench().getEditorRegistry();
+        IEditorDescriptor editorDescriptor = editorRegistry.getDefaultEditor(file.getName());
+        if (editorDescriptor == null) {
+            String extension = "feature";
+            String editorId = EditorsUI.DEFAULT_TEXT_EDITOR_ID;
+
+            EditorDescriptor editor = (EditorDescriptor) editorRegistry.findEditor(editorId);
+            FileEditorMapping mapping = new FileEditorMapping(extension);
+            mapping.addEditor(editor);
+            mapping.setDefaultEditor(editor);
+
+            IFileEditorMapping[] mappings = editorRegistry.getFileEditorMappings();
+            FileEditorMapping[] newMappings = new FileEditorMapping[mappings.length + 1];
+            for (int i = 0; i < mappings.length; i++) {
+                newMappings[i] = (FileEditorMapping) mappings[i];
+            }
+            newMappings[mappings.length] = mapping;
+            editorRegistry.setFileEditorMappings(newMappings);
+        }
+    }
+
+    private void openInEditor(File file) {
+        IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
+        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+
+        try {
+            IDE.openEditorOnFileStore(page, fileStore);
+        } catch (PartInitException e) {
+            Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
+                    Status.ERROR, "Script file could not be opened in the editor", e));
+        }
+    }
+
+    private File chooseParentFolder() {
+        FileFolderSelectionDialog selectionDialog = new FileFolderSelectionDialog(
+                Display.getDefault().getActiveShell(), false, IResource.FOLDER);
+        selectionDialog.setAllowMultiple(false);
+        selectionDialog.setTitle("Parent folder selection");
+        selectionDialog.setMessage("Select the folder where the script file should be downloaded");
+
+        File workspaceFolder = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString());
+        try {
+            IFileStore root = EFS.getStore(workspaceFolder.toURI());
+            selectionDialog.setInput(root);
+            if (selectionDialog.open() == Window.OK) {
+                return new File(selectionDialog.getFirstResult().toString());
+            }
+        } catch (CoreException e) {
+            Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
+                    Status.ERROR, "Error accessing workspace folder", e));
+        }
+        return null;
+    }
+
+    private File createTestScriptFile(String path, String fileName, String script) {
+        File f = new File(path + "/" + fileName.replaceAll("[\\\\/:?*\"<>|]", ""));
+        try {
+            f.createNewFile();
+            if (script != null) {
+                Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8));
+                out.append(script);
+                out.flush();
+                out.close();
+            }
+        } catch (IOException e) {
+            Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
+                    Status.ERROR, "Could not create or write script file in " + path, e));
+        }
+        return f;
     }
 
     private static MenuItem addMenuItem(Menu menu, String text, Image image, Runnable selectAction) {
