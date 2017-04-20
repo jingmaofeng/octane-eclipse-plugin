@@ -1,5 +1,7 @@
 package com.hpe.octane.ideplugins.eclipse;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
@@ -10,6 +12,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
+import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -18,8 +21,10 @@ import com.hpe.adm.octane.services.connection.BasicConnectionSettingProvider;
 import com.hpe.adm.octane.services.connection.ConnectionSettings;
 import com.hpe.adm.octane.services.connection.HttpClientProvider;
 import com.hpe.adm.octane.services.di.ServiceModule;
+import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.preferences.PreferenceConstants;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -34,6 +39,7 @@ public class Activator extends AbstractUIPlugin {
 
     private static BasicConnectionSettingProvider settingsProviderInstance = new BasicConnectionSettingProvider();
     private static ServiceModule serviceModuleInstance = new ServiceModule(settingsProviderInstance);
+    private static List<Runnable> activeItemChangedHandler = new ArrayList<Runnable>();
 
     /**
      * The constructor
@@ -59,6 +65,60 @@ public class Activator extends AbstractUIPlugin {
 
     public static <T> T getInstance(Class<T> type) {
         return serviceModuleInstance.getInstance(type);
+    }
+
+    public static void setActiveItem(EntityModelEditorInput entityModelEditorInput) {
+        ISecurePreferences securePrefs = getSecurePrefs();
+
+        if (entityModelEditorInput == null) {
+            securePrefs.remove(PreferenceConstants.ACTIVE_ITEM_ID);
+            securePrefs.remove(PreferenceConstants.ACTIVE_ITEM_ENTITY);
+        } else {
+            try {
+                securePrefs.putLong(
+                        PreferenceConstants.ACTIVE_ITEM_ID,
+                        entityModelEditorInput.getId(),
+                        false);
+                securePrefs.put(
+                        PreferenceConstants.ACTIVE_ITEM_ENTITY,
+                        entityModelEditorInput.getEntityType().name(),
+                        false);
+            } catch (StorageException e) {
+                Activator.getDefault().getLog().log(
+                        new Status(
+                                Status.ERROR,
+                                Activator.PLUGIN_ID,
+                                Status.ERROR,
+                                "An exception has occured while saving active item",
+                                e));
+            }
+        }
+        activeItemChangedHandler.forEach(runnable -> runnable.run());
+    }
+
+    public static EntityModelEditorInput getActiveItem() {
+        EntityModelEditorInput editorInput = null;
+        ISecurePreferences securePrefs = getSecurePrefs();
+        try {
+            Long id = securePrefs.getLong(PreferenceConstants.ACTIVE_ITEM_ID, -1);
+            Entity entityType = Entity.valueOf(securePrefs.get(PreferenceConstants.ACTIVE_ITEM_ENTITY, Entity.DEFECT.name()));
+            editorInput = new EntityModelEditorInput(id, entityType);
+        } catch (Exception ex) {
+            Activator.getDefault().getLog().log(
+                    new Status(
+                            Status.ERROR,
+                            Activator.PLUGIN_ID,
+                            Status.ERROR,
+                            "An exception has occured while fetching active item",
+                            ex));
+            return null;
+        }
+
+        return (editorInput.getId() != -1) ? editorInput : null;
+    }
+
+    public static void addActiveItemChangedHandler(Runnable activeItemChanged) {
+        activeItemChangedHandler.add(activeItemChanged);
     }
 
     public static ISecurePreferences getSecurePrefs() {

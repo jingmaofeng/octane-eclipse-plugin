@@ -25,17 +25,21 @@ import org.eclipse.swt.widgets.Composite;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.mywork.MyWorkUtil;
+import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow.DetailsPosition;
+import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
 
+    private static final EntityIconFactory entityIconFactory = new EntityIconFactory(40, 40, 14);
+
     // Re-usable field setters
     static IdFieldSetter fsId = new IdFieldSetter();
     static NameFieldSetter fsName = new NameFieldSetter();
-    static IconFieldSetter fsIcon = new IconFieldSetter();
 
     // Top
     static RowFieldSetter fsStoryPoints = new GenericFieldSetter(FIELD_STORYPOINTS, "SP", DetailsPosition.TOP);
@@ -163,8 +167,6 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
 
         // Add common details
         fieldSetterMap.forEach((entityType, fieldSetters) -> {
-            fieldSetters.add(fsIcon);
-
             // Add ID and Name field setters for everything except the COMMENT
             if (entityType != Entity.COMMENT) {
                 fieldSetters.add(fsId);
@@ -186,6 +188,12 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
         // Show dismissible if needed
         if (MyWorkUtil.isUserItemDismissible(userItem)) {
             rowComposite.addDetails("", "Dismissible", DetailsPosition.BOTTOM);
+        }
+
+        if (new EntityModelEditorInput(entityModel).equals(Activator.getActiveItem())) {
+            rowComposite.setEntityIcon(entityIconFactory.getImageIcon(entityType, true));
+        } else {
+            rowComposite.setEntityIcon(entityIconFactory.getImageIcon(entityType, false));
         }
 
         // Setup row based on field setters

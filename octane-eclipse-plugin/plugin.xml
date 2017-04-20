@@ -16,14 +16,6 @@
             id="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
             name="Octane: My Work">
       </view>
-      <view
-            allowMultiple="false"
-            category="octane-eclipse-plugin"
-            class="com.hpe.octane.ideplugins.eclipse.ui.search.SearchView"
-            icon="icons/search.png"
-            id="com.hpe.octane.ideplugins.eclipse.ui.search.SearchView"
-            name="Octane: Search">
-      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -49,6 +41,12 @@
             class="com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor"
             id="com.hpe.octane.ideplugins.eclipse.ui.EntityModelEditor"
             name="EntityModelEditor">
+      </editor>
+      <editor
+            class="com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor"
+            icon="icons/search.png"
+            id="com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor"
+            name="SearchEditor">
       </editor>
    </extension>
    <extension
@@ -77,6 +75,20 @@
       <initializer
             class="com.hpe.octane.ideplugins.eclipse.preferences.PreferenceInitializer">
       </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="octane-eclipse-plugin.toolbarActiveItem">
+            <dynamic
+                  class="com.hpe.octane.ideplugins.eclipse.ui.activeitem.ActiveEntityContributionItem"
+                  id="com.hpe.octane.ideplugins.eclipse.ui.ActiveEntityContributionItem">
+            </dynamic>
+         </toolbar>
+      </menuContribution>
    </extension>
 
 </plugin>

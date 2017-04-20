@@ -5,6 +5,8 @@ import static com.hpe.adm.octane.services.util.Util.getUiDataFromModel;
 import java.net.MalformedURLException;
 import java.net.URI;
 
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -12,9 +14,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
@@ -29,33 +33,31 @@ import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
-import com.hpe.octane.ideplugins.eclipse.util.DebugUtil;
+import com.hpe.octane.ideplugins.eclipse.ui.mywork.job.DismissItemJob;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 
 public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
-    // private static final ILog logger = Activator.getDefault().getLog();
-
     private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
-    private static EntityService entityService = DebugUtil.serviceModule.getInstance(EntityService.class);
-    private static MyWorkService myWorkService = DebugUtil.serviceModule.getInstance(MyWorkService.class);
-    private ViewPart parentViewPart;
+    private static EntityService entityService = Activator.getInstance(EntityService.class);
+    private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
     private EntityListData entityListData;
 
-    public MyWorkEntityModelMenuFactory(ViewPart parentViewPart, EntityListData entityListData) {
-        this.parentViewPart = parentViewPart;
+    public MyWorkEntityModelMenuFactory(EntityListData entityListData) {
         this.entityListData = entityListData;
     }
 
     private void openDetailTab(Integer entityId, Entity entityType) {
+        IWorkbench wb = PlatformUI.getWorkbench();
+        IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+        IWorkbenchPage page = win.getActivePage();
+
         EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(entityId, entityType);
         try {
-            parentViewPart.getSite().getWorkbenchWindow().getActivePage().openEditor(entityModelEditorInput, EntityModelEditor.ID);
+            page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
         } catch (PartInitException ex) {
-            // logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID,
-            // Status.ERROR, "An exception has occured when opening the editor",
-            // ex));
         }
     }
 
@@ -148,21 +150,29 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
             new MenuItem(menu, SWT.SEPARATOR);
 
-            addMenuItem(
+            MenuItem startWork = addMenuItem(
                     menu,
                     "Start work",
                     ImageResources.START_TIMER_16X16.getImage(),
                     () -> {
-                        System.out.println("Please imlement me");
+                        Activator.setActiveItem(new EntityModelEditorInput(entityModel));
                     });
 
-            addMenuItem(
+            MenuItem stopWork = addMenuItem(
                     menu,
                     "Stop work",
                     ImageResources.STOP_TIMER_16X16.getImage(),
                     () -> {
-                        System.out.println("Please imlement me");
-                    }).setEnabled(false);
+                        Activator.setActiveItem(null);
+                    });
+
+            if (!new EntityModelEditorInput(entityModel).equals(Activator.getActiveItem())) {
+                startWork.setEnabled(true);
+                stopWork.setEnabled(false);
+            } else {
+                startWork.setEnabled(false);
+                stopWork.setEnabled(true);
+            }
         }
 
         if (myWorkService.isAddingToMyWorkSupported(entityType) && MyWorkUtil.isUserItemDismissible(userItem)) {
@@ -172,16 +182,23 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     "Dismiss",
                     ImageResources.DISMISS.getImage(),
                     () -> {
-                        // lambdaception
-                        menuParent.getDisplay().asyncExec(() -> {
-                            boolean removed = myWorkService.removeFromMyWork(entityModel);
-                            if (removed) {
-                                entityListData.remove(userItem);
+                        DismissItemJob job = new DismissItemJob("Dismissing item from \"My Work...\"", entityModel);
+                        job.schedule();
+                        job.addJobChangeListener(new JobChangeAdapter() {
+                            @Override
+                            public void done(IJobChangeEvent event) {
+                                menuParent.getDisplay().asyncExec(() -> {
+                                    if (job.wasRemoved()) {
+                                        entityListData.remove(userItem);
+                                        new InfoPopup("My Work", "Item removed.").open();
+                                    } else {
+                                        new InfoPopup("My Work", "Failed to remove item.").open();
+                                    }
+                                });
                             }
                         });
                     });
         }
-
         return menu;
     }
 
