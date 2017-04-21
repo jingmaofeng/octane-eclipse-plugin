@@ -184,6 +184,10 @@ public class MyWorkView extends OctaneViewPart {
         return entityListComposite;
     }
 
+    public void refresh() {
+        refreshAction.run();
+    }
+
     @Override
     public void setFocus() {
         // TODO Auto-generated method stub

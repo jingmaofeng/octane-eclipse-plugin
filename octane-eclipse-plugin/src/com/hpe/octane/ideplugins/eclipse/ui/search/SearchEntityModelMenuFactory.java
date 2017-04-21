@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -31,6 +32,7 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
+import com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.job.AddToMyWorkJob;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
@@ -126,6 +128,7 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                                 menuParent.getDisplay().asyncExec(() -> {
                                     if (job.wasAdded()) {
                                         new InfoPopup("My Work", "Item added.").open();
+                                        tryMyWorkRefresh();
                                     } else {
                                         new InfoPopup("My Work", "Failed to add item. Already in \"My Work\".").open();
                                     }
@@ -135,6 +138,24 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                     });
         }
         return menu;
+    }
+
+    /**
+     * Attempt to refresh the my work viewpart if active
+     */
+    private static void tryMyWorkRefresh() {
+        // Attempt to refresh the my work view
+        try {
+            IViewPart part = PlatformUI
+                    .getWorkbench()
+                    .getActiveWorkbenchWindow()
+                    .getActivePage()
+                    .findView(MyWorkView.ID);
+
+            MyWorkView view = (MyWorkView) part;
+            view.refresh();
+        } catch (Exception ignored) {
+        }
     }
 
     private static MenuItem addMenuItem(Menu menu, String text, Image image, Runnable selectAction) {

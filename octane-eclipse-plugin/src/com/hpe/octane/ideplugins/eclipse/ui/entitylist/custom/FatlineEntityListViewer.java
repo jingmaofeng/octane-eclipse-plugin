@@ -32,8 +32,8 @@ import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 public class FatlineEntityListViewer extends Composite implements EntityListViewer {
 
     private EntityModelRenderer entityModelRenderer;
-    private static final Color selectionBackgroundColor = SWTResourceManager.getColor(255, 105, 180);
-    private static final Color selectionForegroundColor = SWTResourceManager.getColor(255, 255, 255);
+    private static final Color selectionBackgroundColor = SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION);
+    private static final Color selectionForegroundColor = SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT);
     private static final Color backgroundColor = SWTResourceManager.getColor(255, 255, 255);
     private static final Color foregroundColor = SWTResourceManager.getColor(0, 0, 0);
 

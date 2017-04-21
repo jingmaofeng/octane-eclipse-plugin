@@ -1,15 +1,24 @@
 package com.hpe.octane.ideplugins.eclipse.ui.search;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IElementFactory;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
 
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 
-public class SearchEditorInput implements IEditorInput {
+public class SearchEditorInput implements IElementFactory, IEditorInput {
 
-    private String query;
+    private static final String FACTORY_ID = "com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditorInput";
+
+    private String query = "";
     private static final ImageDescriptor searchImage = ImageDescriptor.createFromImage(ImageResources.SEARCH.getImage());
+
+    // Default constructor needed because of IElementFactory
+    public SearchEditorInput() {
+    }
 
     public SearchEditorInput(String query) {
         this.query = query;
@@ -40,11 +49,6 @@ public class SearchEditorInput implements IEditorInput {
     }
 
     @Override
-    public IPersistableElement getPersistable() {
-        return null;
-    }
-
-    @Override
     public String getToolTipText() {
         return "\"" + query + "\"";
     }
@@ -72,6 +76,27 @@ public class SearchEditorInput implements IEditorInput {
         } else if (!query.equals(other.query))
             return false;
         return true;
+    }
+
+    @Override
+    public IPersistableElement getPersistable() {
+        IPersistableElement persistableElement = new IPersistableElement() {
+            @Override
+            public void saveState(IMemento memento) {
+                memento.putString("query", query);
+            }
+
+            @Override
+            public String getFactoryId() {
+                return FACTORY_ID;
+            }
+        };
+        return persistableElement;
+    }
+
+    @Override
+    public IAdaptable createElement(IMemento memento) {
+        return new SearchEditorInput(memento.getString("query"));
     }
 
 }

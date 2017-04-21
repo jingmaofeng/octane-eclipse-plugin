@@ -36,18 +36,15 @@ public class SearchEditor extends EditorPart {
 
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor";
 
-    private static final Set<Entity> searchEntityTypes = new LinkedHashSet<>(Arrays.asList(
+    static final Set<Entity> searchEntityTypes = new LinkedHashSet<>(Arrays.asList(
             Entity.EPIC,
             Entity.FEATURE,
             Entity.USER_STORY,
-            Entity.QUALITY_STORY,
             Entity.DEFECT,
             Entity.TASK,
             Entity.MANUAL_TEST,
-            Entity.GHERKIN_TEST,
-            Entity.TEST_SUITE_RUN,
-            Entity.MANUAL_TEST_RUN,
-            Entity.COMMENT));
+            Entity.AUTOMATED_TEST,
+            Entity.GHERKIN_TEST));
 
     private static final Set<String> searchEntityFilterFields = new HashSet<>(Arrays.asList(FIELD_ID, FIELD_NAME, FIELD_DESCRIPTION));
 
