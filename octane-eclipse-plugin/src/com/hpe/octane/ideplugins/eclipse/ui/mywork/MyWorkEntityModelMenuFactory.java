@@ -14,9 +14,13 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -178,7 +182,8 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                             boolean shouldDownloadScript = true;
 
                             if (scriptFile.exists()) {
-                                MessageBox messageBox = new MessageBox(menu.getShell(), SWT.YES | SWT.NO);
+                                MessageBox messageBox = new MessageBox(menu.getShell(), SWT.ICON_QUESTION |
+                                        SWT.YES | SWT.NO);
                                 messageBox.setMessage("Selected destination folder already contains a file named \"" +
                                         scriptFileName + "\". Do you want to overwrite this file?");
                                 messageBox.setText("Confirm file overwrite");
@@ -281,14 +286,48 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
     }
 
     private void openInEditor(File file) {
-        IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
+
+        IPath path = new Path(file.getPath());
+        IFile eclipseFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
         IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 
+        // if (eclipseFile != null) {
+        // // open as internal Eclipse file
+        // IEditorDescriptor desc =
+        // PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getName());
+        // try {
+        // page.openEditor(new FileEditorInput(eclipseFile), desc.getId());
+        // refreshFile(file);
+        // return;
+        // } catch (PartInitException e) {
+        // Activator.getDefault().getLog().log(new Status(Status.ERROR,
+        // Activator.PLUGIN_ID,
+        // Status.ERROR, "Script file could not be opened in the editor", e));
+        // }
+        // }
+
+        IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
+
         try {
+            // open as external file
             IDE.openEditorOnFileStore(page, fileStore);
+            refreshFile(file);
         } catch (PartInitException e) {
             Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
                     Status.ERROR, "Script file could not be opened in the editor", e));
+        }
+    }
+
+    private void refreshFile(File file) {
+        IPath path = new Path(file.getPath());
+        IFile eclipseFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
+        if (eclipseFile != null) {
+            try {
+                eclipseFile.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+            } catch (CoreException e) {
+                Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
+                        Status.ERROR, "Script file could not be refreshed", e));
+            }
         }
     }
 
