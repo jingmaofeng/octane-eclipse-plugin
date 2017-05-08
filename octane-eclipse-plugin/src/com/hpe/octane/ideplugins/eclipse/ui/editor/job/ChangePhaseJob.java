@@ -15,6 +15,7 @@ public class ChangePhaseJob extends Job {
     private EntityModel openedEntity;
     private EntityService entityService = Activator.getInstance(EntityService.class);
     private boolean wasChanged = false;
+    private String errorMessage;
 
     public ChangePhaseJob(String name, EntityModel openedEntity, EntityModel selectedPhase) {
         super(name);
@@ -30,6 +31,7 @@ public class ChangePhaseJob extends Job {
             wasChanged = true;
         } catch (Exception e) {
             wasChanged = false;
+            errorMessage = e.getMessage();
         }
         monitor.done();
         return Status.OK_STATUS;
@@ -37,6 +39,10 @@ public class ChangePhaseJob extends Job {
 
     public boolean isPhaseChanged() {
         return wasChanged;
+    }
+
+    public String getFailedReason() {
+        return errorMessage;
     }
 
 }

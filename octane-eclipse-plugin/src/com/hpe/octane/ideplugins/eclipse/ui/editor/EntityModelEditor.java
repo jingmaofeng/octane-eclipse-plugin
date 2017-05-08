@@ -1,12 +1,12 @@
 package com.hpe.octane.ideplugins.eclipse.ui.editor;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridData;
@@ -30,14 +30,11 @@ import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
-import com.hpe.adm.octane.services.EntityService;
-import com.hpe.adm.octane.services.MetadataService;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.ui.FormField;
 import com.hpe.adm.octane.services.ui.FormLayout;
 import com.hpe.adm.octane.services.ui.FormLayoutSection;
 import com.hpe.adm.octane.services.util.Util;
-import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.ChangePhaseJob;
@@ -62,9 +59,8 @@ public class EntityModelEditor extends EditorPart {
     private Form specificEntityDetails;
     private FormToolkit toolkit;
     private Collection<EntityModel> possibleTransitions;
-
-    private EntityService entityService = Activator.getInstance(EntityService.class);
-    private MetadataService metadataService = Activator.getInstance(MetadataService.class);
+    private StackLayoutComposite container;
+    private LoadingComposite loadingComposite;
 
     private static EntityIconFactory entityIconFactory = new EntityIconFactory(20, 20, 7);
     private Composite entityDetailsComposite;
@@ -99,11 +95,9 @@ public class EntityModelEditor extends EditorPart {
     @Override
     public void createPartControl(Composite parent) {
 
-        StackLayoutComposite container = new StackLayoutComposite(parent,
-                SWT.NONE);
+        container = new StackLayoutComposite(parent, SWT.NONE);
 
-        LoadingComposite loadingComposite = new LoadingComposite(container,
-                SWT.NONE);
+        loadingComposite = new LoadingComposite(container, SWT.NONE);
         container.showControl(loadingComposite);
 
         getEntiyJob = new GetEntityDetailsJob("Retiving entity details", this.input.getEntityType(), this.input.getId());
@@ -123,16 +117,10 @@ public class EntityModelEditor extends EditorPart {
                     entityModel = getEntiyJob.getEntiyData();
 
                     Display.getDefault().asyncExec(() -> {
-                        try {
-                            octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(Entity.getEntityType(entityModel));
-                            currentPhase = entityModel.getValue("phase");
-                            Long currentPhaseId = Long.valueOf(Util.getUiDataFromModel(currentPhase, "id"));
-                            possibleTransitions = entityService.findPossibleTransitionFromCurrentPhase(Entity.getEntityType(entityModel),
-                                    currentPhaseId);
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-
+                        entityModel = getEntiyJob.getEntiyData();
+                        octaneEntityForm = getEntiyJob.getFormForCurrentEntity();
+                        currentPhase = getEntiyJob.getCurrentPhase();
+                        possibleTransitions = getEntiyJob.getPossibleTransitionsForCurrentEntity();
                         createSpecificEntitySections(container);
                         container.showControl(entityDetailsScrolledComposite);
                     });
@@ -211,6 +199,7 @@ public class EntityModelEditor extends EditorPart {
         Button savePhase = new Button(genericHeaderComposite, SWT.NONE);
         savePhase.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
         savePhase.addListener(SWT.Selection, new Listener() {
+
             @Override
             public void handleEvent(Event event) {
                 saveCurrentPhase();
@@ -261,18 +250,19 @@ public class EntityModelEditor extends EditorPart {
     }
 
     private void saveCurrentPhase() {
-        ChangePhaseJob changePhaseHob = new ChangePhaseJob("Chaging phase of entity", entityModel, selectedPhase);
-        changePhaseHob.schedule();
-        changePhaseHob.addJobChangeListener(new JobChangeAdapter() {
+        ChangePhaseJob changePhaseJob = new ChangePhaseJob("Chaging phase of entity", entityModel, selectedPhase);
+        changePhaseJob.schedule();
+        changePhaseJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
             public void done(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
-                    if (changePhaseHob.isPhaseChanged()) {
+                    if (changePhaseJob.isPhaseChanged()) {
                         new InfoPopup("Phase Transition", "Phase was changed").open();
-                        // TODO: osavencu: refresh entity
                     } else {
-                        // TODO:osavencu: open error dialog
+                        MessageDialog.openError(Display.getCurrent().getActiveShell(), "ERROR",
+                                "Phase changed failed \n " + changePhaseJob.getFailedReason());
                     }
+                    getEntiyJob.schedule();
                 });
             }
         });
