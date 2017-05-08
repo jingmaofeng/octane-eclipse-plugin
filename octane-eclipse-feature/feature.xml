@@ -5,15 +5,15 @@
       version="1.0.0.qualifier">
 
    <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
+      Enables integration with ALM Octane
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+      Copyright 2017 Hewlett-Packard Enterprise Development Company, L.P.
    </copyright>
 
    <license url="http://www.example.com/license">
-Copyright 2017 Hewlett-Packard Development Company, L.P.
+Copyright 2017 Hewlett-Packard Enterprise Development Company, L.P.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
