@@ -14,6 +14,9 @@ import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -24,7 +27,9 @@ import com.hpe.adm.octane.services.di.ServiceModule;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.preferences.PreferenceConstants;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
+import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -169,8 +174,19 @@ public class Activator extends AbstractUIPlugin {
         }
 
         settingsProviderInstance.addChangeHandler(() -> {
+            // Clear active item
             setActiveItem(null);
+
+            // Close active entity editors and search editors
+            IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+            for (IEditorReference editor : page.getEditorReferences()) {
+                if (EntityModelEditor.ID.equals(editor.getId()) ||
+                        SearchEditor.ID.equals(editor.getId())) {
+                    page.closeEditor(editor.getEditor(false), false);
+                }
+            }
         });
+
     }
 
     /*
