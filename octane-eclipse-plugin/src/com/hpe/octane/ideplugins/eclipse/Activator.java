@@ -167,6 +167,10 @@ public class Activator extends AbstractUIPlugin {
             getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
                     "An exception has occured when loading the Octane connection details", e));
         }
+
+        settingsProviderInstance.addChangeHandler(() -> {
+            setActiveItem(null);
+        });
     }
 
     /*
