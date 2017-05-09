@@ -71,6 +71,9 @@ public class GetEntityDetailsJob extends Job {
     }
 
     public Collection<EntityModel> getPossibleTransitionsForCurrentEntity() {
+        if (possibleTransitions.isEmpty()) {
+            possibleTransitions.add(new EntityModel("target_phase", "No transition"));
+        }
         return possibleTransitions;
     }
 
