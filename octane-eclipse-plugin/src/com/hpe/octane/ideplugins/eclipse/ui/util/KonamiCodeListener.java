@@ -7,12 +7,16 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
+
 /**
  * Use in a diplay filter to catch the Konami Code over the whole swt
  * application
  * 
  */
 public class KonamiCodeListener implements Listener {
+
+    InfoPopup infoPopup = new InfoPopup("KONAMI", "↑↑↓↓←→←→ba");
 
     private final int[] konamiCode = {
             SWT.ARROW_UP,
@@ -50,6 +54,7 @@ public class KonamiCodeListener implements Listener {
         // Check if the lastKeyCodes are eq to the konami code
         if (areEq()) {
             runIfKonamiCode.run();
+            infoPopup.open();
         }
     }
 
