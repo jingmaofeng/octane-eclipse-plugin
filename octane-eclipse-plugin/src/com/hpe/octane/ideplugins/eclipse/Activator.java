@@ -30,6 +30,7 @@ import com.hpe.octane.ideplugins.eclipse.preferences.PreferenceConstants;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
+import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -45,6 +46,8 @@ public class Activator extends AbstractUIPlugin {
     private static BasicConnectionSettingProvider settingsProviderInstance = new BasicConnectionSettingProvider();
     private static ServiceModule serviceModuleInstance = new ServiceModule(settingsProviderInstance);
     private static List<Runnable> activeItemChangedHandler = new ArrayList<Runnable>();
+
+    private static EntityIconFactory entityIconFactory = new EntityIconFactory(20, 20, 7);
 
     /**
      * The constructor
@@ -173,12 +176,13 @@ public class Activator extends AbstractUIPlugin {
                     "An exception has occured when loading the Octane connection details", e));
         }
 
+        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+
         settingsProviderInstance.addChangeHandler(() -> {
             // Clear active item
             setActiveItem(null);
 
             // Close active entity editors and search editors
-            IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
             for (IEditorReference editor : page.getEditorReferences()) {
                 if (EntityModelEditor.ID.equals(editor.getId()) ||
                         SearchEditor.ID.equals(editor.getId())) {
@@ -187,6 +191,13 @@ public class Activator extends AbstractUIPlugin {
             }
         });
 
+        // Restore all entity model editors from their references, this is a
+        // silly fix to properly set the editor part icon and tooltip
+        for (IEditorReference editorReference : page.getEditorReferences()) {
+            if (editorReference.getEditorInput() instanceof EntityModelEditorInput) {
+                editorReference.getEditor(true);
+            }
+        }
     }
 
     /*

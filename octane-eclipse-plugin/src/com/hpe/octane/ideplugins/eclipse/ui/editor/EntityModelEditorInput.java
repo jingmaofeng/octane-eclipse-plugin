@@ -66,8 +66,7 @@ public class EntityModelEditorInput implements IElementFactory, IEditorInput {
 
     @Override
     public String getToolTipText() {
-        // TODO Auto-generated method stub
-        return null;
+        return String.valueOf(id);
     }
 
     @Override
