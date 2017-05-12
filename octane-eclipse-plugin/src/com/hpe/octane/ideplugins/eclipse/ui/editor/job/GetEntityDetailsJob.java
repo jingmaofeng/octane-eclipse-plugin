@@ -29,6 +29,7 @@ public class GetEntityDetailsJob extends Job {
     private Collection<EntityModel> possibleTransitions;
     private MetadataService metadataService = Activator.getInstance(MetadataService.class);
     private EntityService entityService = Activator.getInstance(EntityService.class);
+    private boolean shoulShowPhase = false;
 
     public GetEntityDetailsJob(String name, Entity entityType, long entityId) {
         super(name);
@@ -42,9 +43,15 @@ public class GetEntityDetailsJob extends Job {
         try {
             retrivedEntity = entityService.findEntity(this.entityType, this.entityId);
             octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(Entity.getEntityType(retrivedEntity));
-            currentPhase = retrivedEntity.getValue("phase");
-            Long currentPhaseId = Long.valueOf(Util.getUiDataFromModel(currentPhase, "id"));
-            possibleTransitions = entityService.findPossibleTransitionFromCurrentPhase(Entity.getEntityType(retrivedEntity), currentPhaseId);
+            if (Entity.MANUAL_TEST_RUN.equals(Entity.getEntityType(retrivedEntity))
+                    || Entity.TEST_SUITE_RUN.equals(Entity.getEntityType(retrivedEntity))) {
+                shoulShowPhase = false;
+            } else {
+                shoulShowPhase = true;
+                currentPhase = retrivedEntity.getValue("phase");
+                Long currentPhaseId = Long.valueOf(Util.getUiDataFromModel(currentPhase, "id"));
+                possibleTransitions = entityService.findPossibleTransitionFromCurrentPhase(Entity.getEntityType(retrivedEntity), currentPhaseId);
+            }
             wasEntityRetrived = true;
         } catch (ServiceException | UnsupportedEncodingException e) {
             wasEntityRetrived = false;
@@ -75,6 +82,10 @@ public class GetEntityDetailsJob extends Job {
             possibleTransitions.add(new EntityModel("target_phase", "No transition"));
         }
         return possibleTransitions;
+    }
+
+    public boolean shouldShowPhase() {
+        return shoulShowPhase;
     }
 
 }

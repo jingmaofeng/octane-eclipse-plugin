@@ -7,8 +7,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -25,13 +31,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
-import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.services.filtering.Entity;
-import com.hpe.adm.octane.services.ui.FormField;
 import com.hpe.adm.octane.services.ui.FormLayout;
 import com.hpe.adm.octane.services.ui.FormLayoutSection;
 import com.hpe.adm.octane.services.util.Util;
@@ -56,19 +60,16 @@ public class EntityModelEditor extends EditorPart {
     private EntityModel selectedPhase;
     private EntityModelEditorInput input;
     private FormLayout octaneEntityForm;
-    private Form specificEntityDetails;
-    private FormToolkit toolkit;
+    private Form parentSectionForm;
+    private FormToolkit sectionFormGenerator;
     private Collection<EntityModel> possibleTransitions;
-    private StackLayoutComposite container;
     private LoadingComposite loadingComposite;
-
-    private static EntityIconFactory entityIconFactory = new EntityIconFactory(20, 20, 7);
-    private Composite entityDetailsComposite;
-
+    private static String DESCRIPTION_FIELD = "description";
+    private static EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
+    private static EntityIconFactory entityIconFactory = new EntityIconFactory(25, 25, 7);
+    private Composite headerAndEntityDetailsParent;
     private boolean shouldShowPhase = true;
-
-    private ScrolledComposite entityDetailsScrolledComposite;
-
+    private ScrolledComposite headerAndEntityDetailsScrollComposite;
     private GetEntityDetailsJob getEntiyJob;
 
     public EntityModelEditor() {
@@ -82,9 +83,8 @@ public class EntityModelEditor extends EditorPart {
         this.input = (EntityModelEditorInput) input;
         setSite(site);
         setInput(input);
-
         setPartName(String.valueOf(this.input.getId()));
-        setTitleImage(entityIconFactory.getImageIcon(this.input.getEntityType()));
+        setTitleImage(entityIconFactoryForTabInfo.getImageIcon(this.input.getEntityType()));
     }
 
     /**
@@ -94,20 +94,23 @@ public class EntityModelEditor extends EditorPart {
      */
     @Override
     public void createPartControl(Composite parent) {
+        parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+        parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
-        container = new StackLayoutComposite(parent, SWT.NONE);
+        StackLayoutComposite stackContainer = new StackLayoutComposite(parent, SWT.NONE);
 
-        loadingComposite = new LoadingComposite(container, SWT.NONE);
-        container.showControl(loadingComposite);
+        // set loading GIF until the data is loaded
+        loadingComposite = new LoadingComposite(stackContainer, SWT.NONE);
+        stackContainer.showControl(loadingComposite);
 
+        // This job retrieves the necessary data for the details view
         getEntiyJob = new GetEntityDetailsJob("Retiving entity details", this.input.getEntityType(), this.input.getId());
         getEntiyJob.schedule();
         getEntiyJob.addJobChangeListener(new JobChangeAdapter() {
-
             @Override
             public void scheduled(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
-                    container.showControl(loadingComposite);
+                    stackContainer.showControl(loadingComposite);
                 });
             }
 
@@ -115,47 +118,60 @@ public class EntityModelEditor extends EditorPart {
             public void done(IJobChangeEvent event) {
                 if (getEntiyJob.wasEntityRetrived()) {
                     entityModel = getEntiyJob.getEntiyData();
-
                     Display.getDefault().asyncExec(() -> {
                         entityModel = getEntiyJob.getEntiyData();
                         octaneEntityForm = getEntiyJob.getFormForCurrentEntity();
-                        currentPhase = getEntiyJob.getCurrentPhase();
-                        possibleTransitions = getEntiyJob.getPossibleTransitionsForCurrentEntity();
-                        createSpecificEntitySections(container);
-                        container.showControl(entityDetailsScrolledComposite);
+                        if (getEntiyJob.shouldShowPhase()) {
+                            shouldShowPhase = true;
+                            currentPhase = getEntiyJob.getCurrentPhase();
+                            possibleTransitions = getEntiyJob.getPossibleTransitionsForCurrentEntity();
+                        } else {
+                            shouldShowPhase = false;
+                        }
+                        // After the data is loaded the UI is created
+                        createSpecificEntitySections(stackContainer);
+                        // After the UI is created it gets displayed
+                        stackContainer.showControl(headerAndEntityDetailsScrollComposite);
                     });
                 }
-
             }
         });
-
     }
 
     private void createSpecificEntitySections(Composite parent) {
-        entityDetailsScrolledComposite = new ScrolledComposite(parent,
-                SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-        entityDetailsScrolledComposite.setExpandHorizontal(true);
-        entityDetailsScrolledComposite.setExpandVertical(true);
+        headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        headerAndEntityDetailsScrollComposite.setExpandHorizontal(true);
+        headerAndEntityDetailsScrollComposite.setExpandVertical(true);
 
-        entityDetailsComposite = new Composite(entityDetailsScrolledComposite, SWT.NONE);
+        headerAndEntityDetailsParent = new Composite(headerAndEntityDetailsScrollComposite, SWT.NONE);
+        headerAndEntityDetailsParent.setLayout(new FillLayout(SWT.HORIZONTAL));
+        headerAndEntityDetailsParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 
-        createGeneralEntitySection(entityDetailsComposite);
+        createHeaderPanel(headerAndEntityDetailsParent);
 
-        toolkit = new FormToolkit(parent.getDisplay());
-        specificEntityDetails = toolkit.createForm(entityDetailsComposite);
-        specificEntityDetails.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+        sectionFormGenerator = new FormToolkit(parent.getDisplay());
+
+        parentSectionForm = sectionFormGenerator.createForm(headerAndEntityDetailsParent);
+        parentSectionForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+        parentSectionForm.getBody().setLayout(new GridLayout(1, false));
+        parentSectionForm.getBody().setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+        sectionFormGenerator.adapt(headerAndEntityDetailsParent);
+        sectionFormGenerator.paintBordersFor(headerAndEntityDetailsParent);
 
         if (entityModel != null) {
+            // For each section form from Octane one is created in eclipse.
             for (FormLayoutSection formSection : octaneEntityForm.getFormLayoutSections()) {
-                addEntityDataToSection(entityModel, formSection);
+                createSectionsWithEntityData(formSection);
             }
+            // For the Description a separate section is created
+            createDescriptionFormSection();
         }
-        entityDetailsScrolledComposite.setContent(entityDetailsComposite);
-        entityDetailsScrolledComposite.setMinSize(entityDetailsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        headerAndEntityDetailsScrollComposite.setContent(headerAndEntityDetailsParent);
+        headerAndEntityDetailsScrollComposite.setMinSize(headerAndEntityDetailsParent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
 
-    private void createGeneralEntitySection(Composite parent) {
-        entityDetailsComposite.setLayout(new GridLayout(1, false));
+    private void createHeaderPanel(Composite parent) {
+        headerAndEntityDetailsParent.setLayout(new GridLayout(1, false));
         Composite genericHeaderComposite = new Composite(parent, SWT.NONE);
         genericHeaderComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         genericHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -169,6 +185,8 @@ public class EntityModelEditor extends EditorPart {
         lblEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         lblEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         lblEntityName.setText(Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME)));
+        Font boldFont = new Font(lblEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
+        lblEntityName.setFont(boldFont);
 
         if (shouldShowPhase) {
             Label lblCurrentPhase = new Label(genericHeaderComposite, SWT.NONE);
@@ -195,17 +213,17 @@ public class EntityModelEditor extends EditorPart {
             nextPhasesComboBox.setContent(new ArrayList<>(possibleTransitions));
 
             nextPhasesComboBox.selectFirstItem();
+
+            Button savePhase = new Button(genericHeaderComposite, SWT.NONE);
+            savePhase.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
+            savePhase.addListener(SWT.Selection, new Listener() {
+
+                @Override
+                public void handleEvent(Event event) {
+                    saveCurrentPhase();
+                }
+            });
         }
-        Button savePhase = new Button(genericHeaderComposite, SWT.NONE);
-        savePhase.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
-        savePhase.addListener(SWT.Selection, new Listener() {
-
-            @Override
-            public void handleEvent(Event event) {
-                saveCurrentPhase();
-            }
-        });
-
         Button refresh = new Button(genericHeaderComposite, SWT.NONE);
         refresh.setImage(ImageResources.REFRESH_16X16.getImage());
         refresh.addListener(SWT.Selection, new Listener() {
@@ -216,23 +234,67 @@ public class EntityModelEditor extends EditorPart {
         });
     }
 
-    private void addEntityDataToSection(EntityModel entityModel, FormLayoutSection formSection) {
-        specificEntityDetails.getBody().setLayout(new TableWrapLayout());
+    // STEP 3
+    private void createDescriptionFormSection() {
 
-        Section section = toolkit.createSection(specificEntityDetails.getBody(),
+        Section section = sectionFormGenerator.createSection(parentSectionForm.getBody(),
                 Section.DESCRIPTION | Section.TREE_NODE | Section.EXPANDED);
+        section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
+                1));
+        section.setExpanded(true);
 
+        section.setLayout(new FillLayout(SWT.HORIZONTAL));
+        section.setText("Description");
+
+        Browser descriptionPanel = new Browser(section, SWT.NONE);
+        String descriptionText = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION));
+        if (descriptionText.isEmpty()) {
+            descriptionPanel.setText("No description");
+        } else {
+            descriptionPanel.setText(descriptionText);
+        }
+        sectionFormGenerator.createCompositeSeparator(section);
+        section.setClient(descriptionPanel);
+    }
+
+    // STEP 4
+    private void createSectionsWithEntityData(FormLayoutSection formSection) {
+        Section section = sectionFormGenerator.createSection(parentSectionForm.getBody(),
+                Section.DESCRIPTION | Section.TREE_NODE | Section.EXPANDED);
         section.setText(formSection.getSectionTitle());
-        toolkit.createCompositeSeparator(section);
+        section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+        section.setExpanded(true);
+        sectionFormGenerator.createCompositeSeparator(section);
 
         Composite sectionClient = new Composite(section, SWT.NONE);
-        sectionClient.setLayout(new GridLayout(4, true));
-        for (FormField formField : formSection.getFields()) {
-            Label tempLabel = new Label(sectionClient, SWT.NONE);
-            tempLabel.setText(prettifyLabels(formField.getName()));
+        sectionClient.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-            Label tempValuesLabel = new Label(sectionClient, SWT.NONE);
-            tempValuesLabel.setText(Util.getUiDataFromModel(entityModel.getValue(formField.getName())));
+        Composite sectionClientLeft = new Composite(sectionClient, SWT.NONE);
+        sectionClientLeft.setLayout(new GridLayout(2, false));
+        Composite sectionClientRight = new Composite(sectionClient, SWT.NONE);
+        sectionClientRight.setLayout(new GridLayout(2, false));
+        for (int i = 0; i <= formSection.getFields().size() - 1; i += 2) {
+            if (!DESCRIPTION_FIELD.equals(formSection.getFields().get(i).getName())) {
+                CLabel tempLabelLeft = new CLabel(sectionClientLeft, SWT.NONE);
+                tempLabelLeft.setText(prettifyLabels(formSection.getFields().get(i).getName()));
+                tempLabelLeft.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
+                tempLabelLeft.setMargins(5, 2, 5, 2);
+
+                CLabel tempValuesLabelLeft = new CLabel(sectionClientLeft, SWT.NONE);
+                tempValuesLabelLeft.setText(Util.getUiDataFromModel(entityModel.getValue(formSection.getFields().get(i).getName())));
+                tempValuesLabelLeft.setMargins(5, 2, 5, 2);
+            }
+            if (formSection.getFields().size() > i + 1 && null != formSection.getFields().get(i + 1)
+                    && !DESCRIPTION_FIELD.equals(formSection.getFields().get(i + 1).getName())) {
+                CLabel tempLabelRight = new CLabel(sectionClientRight, SWT.NONE);
+                tempLabelRight.setText(prettifyLabels(formSection.getFields().get(i + 1).getName()));
+                tempLabelRight.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
+                tempLabelRight.setMargins(5, 2, 5, 2);
+
+                CLabel tempValuesLabelRight = new CLabel(sectionClientRight, SWT.NONE);
+                tempValuesLabelRight.setText(Util.getUiDataFromModel(entityModel.getValue(formSection.getFields().get(i + 1).getName())));
+                tempValuesLabelRight.setMargins(5, 2, 5, 2);
+            }
         }
         section.setClient(sectionClient);
     }

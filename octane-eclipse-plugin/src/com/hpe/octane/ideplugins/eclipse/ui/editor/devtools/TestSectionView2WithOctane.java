@@ -20,12 +20,11 @@ import com.hpe.adm.octane.services.connection.ConnectionSettingsProvider;
 import com.hpe.adm.octane.services.di.ServiceModule;
 import com.hpe.adm.octane.services.exception.ServiceException;
 import com.hpe.adm.octane.services.filtering.Entity;
-import com.hpe.adm.octane.services.ui.FormField;
 import com.hpe.adm.octane.services.ui.FormLayout;
 import com.hpe.adm.octane.services.ui.FormLayoutSection;
 import com.hpe.adm.octane.services.util.Util;
 
-public class TestDetailsEntinty {
+public class TestSectionView2WithOctane {
     protected Form form;
     protected FormToolkit toolkit;
     protected Shell shell;
@@ -37,7 +36,7 @@ public class TestDetailsEntinty {
      */
     public static void main(String[] args) {
         try {
-            TestDetailsEntinty window = new TestDetailsEntinty();
+            TestSectionView2WithOctane window = new TestSectionView2WithOctane();
             window.open();
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,15 +80,35 @@ public class TestDetailsEntinty {
 
     private void demoSections(FormLayoutSection formSection, EntityModel defectData, Composite parent) {
 
-        Composite sectionClient = new Composite(parent, SWT.NONE);
-        sectionClient.setLayout(new GridLayout(4, true));
-        for (FormField formField : formSection.getFields()) {
-            Label tempLabel = new Label(sectionClient, SWT.NONE);
-            tempLabel.setText(prettifyLables(formField.getName()));
+        Composite sectionClientLeft = new Composite(parent, SWT.NONE);
+        sectionClientLeft.setLayout(new GridLayout(2, false));
 
-            Label tempValuesLabel = new Label(sectionClient, SWT.NONE);
-            tempValuesLabel.setText(Util.getUiDataFromModel(defectData.getValue(formField.getName())));
+        Composite sectionClientRight = new Composite(parent, SWT.NONE);
+        sectionClientRight.setLayout(new GridLayout(2, false));
+        // formSection.setFields(formSection.getFields().subList(0, 19));
+        for (int i = 0; i <= formSection.getFields().size() - 1; i += 2) {
+            Label tempLabelLeft = new Label(sectionClientLeft, SWT.NONE);
+            tempLabelLeft.setText(prettifyLables(formSection.getFields().get(i).getName()));
+
+            Label tempValuesLabelLeft = new Label(sectionClientLeft, SWT.NONE);
+            tempValuesLabelLeft.setText(Util.getUiDataFromModel(defectData.getValue(formSection.getFields().get(i).getName())));
+            if (formSection.getFields().size() > i + 1 && null != formSection.getFields().get(i + 1)) {
+                Label tempLabelRight = new Label(sectionClientRight, SWT.NONE);
+                tempLabelRight.setText(prettifyLables(formSection.getFields().get(i + 1).getName()));
+
+                Label tempValuesLabelRight = new Label(sectionClientRight, SWT.NONE);
+                tempValuesLabelRight.setText(Util.getUiDataFromModel(defectData.getValue(formSection.getFields().get(i + 1).getName())));
+            }
+
         }
+
+        // for (FormField formField : formSection.getFields()) {
+        // Label tempLabel = new Label(sectionClient, SWT.NONE);
+        // tempLabel.setText(prettifyLables(formField.getName()));
+        //
+        // Label tempValuesLabel = new Label(sectionClient, SWT.NONE);
+        // tempValuesLabel.setText(Util.getUiDataFromModel(defectData.getValue(formField.getName())));
+        // }
     }
 
     private FormLayout getOctaneForms(Entity entityType) {
