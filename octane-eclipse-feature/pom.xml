@@ -44,8 +44,8 @@
 										${project.build.directory}
 									</parameters>
 									<properties>
-										<krb.account_name>${krb.account_name}</krb.account_name>
-										<krb.password>${krb.password}</krb.password>
+										<krb.account_name>${hpsign.account_name}</krb.account_name>
+										<krb.password>${hpsign.krb.password}</krb.password>
 									</properties>
 								</configuration>
 							</execution>
