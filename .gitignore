@@ -1,3 +1,11 @@
 /lib/*
 .settings
 *.project
+
+# Files generated if using the signhp profile
+/SighHPUtility.log
+/SighHPUtility.logerr
+/SignHP.log
+/filelist.txt
+/filelist_after_filtering-AGN_JAR.txt
+/login.conf
