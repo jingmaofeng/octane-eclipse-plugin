@@ -17,13 +17,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.services.mywork.MyWorkService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
@@ -110,7 +113,16 @@ public class MyWorkView extends OctaneViewPart {
                     return viewer;
                 });
 
-        noWorkComposite = new NoWorkComposite(parent, SWT.NONE);
+        noWorkComposite = new NoWorkComposite(parent, SWT.NONE, new Runnable() {
+            @Override
+            public void run() {
+                IWorkbenchPage currentPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                try {
+                    currentPage.openEditor(SnakeEditor.snakeEditorInput, SnakeEditor.ID);
+                } catch (PartInitException ignored) {
+                }
+            }
+        });
         errorComposite = new ErrorComposite(parent, SWT.NONE);
 
         IActionBars viewToolbar = getViewSite().getActionBars();

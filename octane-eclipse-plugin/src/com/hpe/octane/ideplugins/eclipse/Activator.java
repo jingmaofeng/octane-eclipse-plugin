@@ -34,7 +34,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.KonamiCodeListener;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
-import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -50,8 +49,6 @@ public class Activator extends AbstractUIPlugin {
     private static BasicConnectionSettingProvider settingsProviderInstance = new BasicConnectionSettingProvider();
     private static ServiceModule serviceModuleInstance = new ServiceModule(settingsProviderInstance);
     private static List<Runnable> activeItemChangedHandler = new ArrayList<Runnable>();
-
-    private static EntityIconFactory entityIconFactory = new EntityIconFactory(20, 20, 7);
 
     /**
      * The constructor
