@@ -14,8 +14,10 @@ import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -29,8 +31,11 @@ import com.hpe.adm.octane.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.preferences.PreferenceConstants;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.KonamiCodeListener;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.util.NullEditorInput;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -198,6 +203,16 @@ public class Activator extends AbstractUIPlugin {
                 editorReference.getEditor(true);
             }
         }
+
+        // Easter egg
+        KonamiCodeListener konamiCodeListener = new KonamiCodeListener(() -> {
+            try {
+                IWorkbenchPage currentPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                currentPage.openEditor(new NullEditorInput(), SnakeEditor.ID);
+            } catch (PartInitException ignored) {
+            }
+        });
+        PlatformUI.getWorkbench().getDisplay().addFilter(SWT.KeyDown, konamiCodeListener);
     }
 
     /*
