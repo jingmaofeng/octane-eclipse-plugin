@@ -2,6 +2,10 @@ package com.hpe.octane.ideplugins.eclipse.ui.editor.snake;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
@@ -26,6 +30,7 @@ public class SnakeEditor extends EditorPart {
     public void init(IEditorSite site, IEditorInput input) throws PartInitException {
         setSite(site);
         setInput(input);
+        setPartName("Octane Snake");
     }
 
     /**
@@ -37,7 +42,23 @@ public class SnakeEditor extends EditorPart {
     public void createPartControl(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new FillLayout());
+
         snakeGameCanvas = new SnakeGameCanvas(composite);
+
+        composite.addControlListener(new ControlAdapter() {
+            @Override
+            public void controlResized(ControlEvent e) {
+                if (snakeGameCanvas.getGameState() != SnakeGameCanvas.GameState.RUNNING) {
+                    snakeGameCanvas.redraw();
+                }
+            }
+        });
+        snakeGameCanvas.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                snakeGameCanvas.pause();
+            }
+        });
     }
 
     @Override

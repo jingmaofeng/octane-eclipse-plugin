@@ -47,7 +47,7 @@ public class SnakeGameCanvas extends Canvas {
 
     private static final FontData defaultFontData = Display.getCurrent().getSystemFont().getFontData()[0];
 
-    private enum GameState {
+    public enum GameState {
         NOT_STARTED, RUNNING, PAUSED, OVER, WON;
     }
 
@@ -153,8 +153,12 @@ public class SnakeGameCanvas extends Canvas {
     }
 
     private void stopGameLoop() {
-        gameLoopTask.cancel();
-        gameLoopTimer.purge();
+        if (gameLoopTask != null) {
+            gameLoopTask.cancel();
+        }
+        if (gameLoopTimer != null) {
+            gameLoopTimer.purge();
+        }
     }
 
     private void callGameLoop() {
@@ -187,6 +191,18 @@ public class SnakeGameCanvas extends Canvas {
             }
         });
 
+    }
+
+    public void pause() {
+        if (gameState == GameState.RUNNING) {
+            gameState = GameState.PAUSED;
+            stopGameLoop();
+            redraw();
+        }
+    }
+
+    public GameState getGameState() {
+        return gameState;
     }
 
     private void initGame() {
@@ -369,6 +385,7 @@ public class SnakeGameCanvas extends Canvas {
             // draw apple
             if (applePos != null) {
                 Image sprite = getSprite(SpriteDirection.UP, true);
+
                 g.drawImage(
                         sprite,
                         0,
@@ -376,8 +393,12 @@ public class SnakeGameCanvas extends Canvas {
                         sprite.getBounds().width, sprite.getBounds().height,
                         x1 + spriteSize * applePos.x,
                         y1 + spriteSize * applePos.y,
-                        spriteSizeWidth,
-                        spriteSizeHeight);
+                        spriteSize,
+                        spriteSize);
+
+                if (!sprite.isDisposed()) {
+                    sprite.dispose();
+                }
             }
 
             // draw the snake at it's current position
@@ -399,8 +420,11 @@ public class SnakeGameCanvas extends Canvas {
                             0,
                             sprite.getBounds().width, sprite.getBounds().height,
                             x1 + spriteSize * pos.x, y1 + spriteSize * pos.y,
-                            spriteSizeWidth,
-                            spriteSizeHeight);
+                            spriteSize,
+                            spriteSize);
+                }
+                if (sprite != null && !sprite.isDisposed()) {
+                    sprite.dispose();
                 }
             }
 
@@ -414,7 +438,6 @@ public class SnakeGameCanvas extends Canvas {
                     createColor(SWT.COLOR_RED), "GAME WON", "Wow, that's impressive!", "You should really get back to work now...");
         }
 
-        // e.gc.drawString("WHAT", 0, 0);
         if (!e.gc.isDisposed()) {
             e.gc.drawImage(buffer, 0, 0, width, height, 0, 0, width, height);
             e.gc.dispose();
@@ -444,14 +467,13 @@ public class SnakeGameCanvas extends Canvas {
         if (key == SWT.SPACE) {
             togglePaused();
         }
-        // redraw();
     }
 
     private void changeDirection(SpriteDirection direction, SpriteDirection oppositeDir) {
         if (!snakeDirectionQueue.peek().equals(oppositeDir)) {
             snakeDirectionQueue.clear();
             snakeDirectionQueue.add(direction);
-            callGameLoop();
+            // callGameLoop(); DISABLED
         }
     }
 
@@ -524,8 +546,8 @@ public class SnakeGameCanvas extends Canvas {
     }
 
     private void drawGameString(GC g, int x, int y, int width, int height, Color titleColor, String title, String subTitle, String subsubTitle) {
-        int titleFontSize = width * 4 / 100;
-        int bottomFontSize = width * 3 / 100;
+        int titleFontSize = width * 5 / 100;
+        int bottomFontSize = width * 2 / 100;
         titleFontSize = titleFontSize < 0 ? 0 : titleFontSize;
         bottomFontSize = bottomFontSize < 0 ? 0 : bottomFontSize;
 
@@ -538,14 +560,14 @@ public class SnakeGameCanvas extends Canvas {
 
         g.setForeground(titleColor);
         g.setFont(titleFont);
-        g.drawString(title, x + (width - g.textExtent(title).x) / 2, y + height / 2 - titleFontSize);
+        g.drawString(title, x + (width - g.textExtent(title).x) / 2, y + height / 2 - titleFontSize * 2);
 
         decriptor = decriptor.setHeight(bottomFontSize);
         Font bottomFont = decriptor.createFont(Display.getCurrent());
         g.setForeground(colorColorGray);
         g.setFont(bottomFont);
         g.drawString(subTitle, x + (width - g.textExtent(subTitle).x) / 2, y + height / 2 + bottomFontSize);
-        g.drawString(subsubTitle, x + (width - g.textExtent(subsubTitle).x) / 2, (int) (y + height / 2 + bottomFontSize * 2.5));
+        g.drawString(subsubTitle, x + (width - g.textExtent(subsubTitle).x) / 2, y + height / 2 + bottomFontSize * 3);
 
         titleColor.dispose();
         colorColorGray.dispose();
