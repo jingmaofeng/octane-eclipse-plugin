@@ -43,7 +43,7 @@ import com.hpe.octane.ideplugins.eclipse.util.NullEditorInput;
 public class Activator extends AbstractUIPlugin {
 
     // The plug-in ID
-    public static final String PLUGIN_ID = "octane-eclipse-plugin"; //$NON-NLS-1$
+    public static final String PLUGIN_ID = "octane.eclipse.plugin"; //$NON-NLS-1$
 
     // The shared instance
     private static Activator plugin;
