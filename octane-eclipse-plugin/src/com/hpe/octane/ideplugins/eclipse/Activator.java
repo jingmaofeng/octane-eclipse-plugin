@@ -35,7 +35,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.KonamiCodeListener;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
-import com.hpe.octane.ideplugins.eclipse.util.NullEditorInput;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -208,7 +207,7 @@ public class Activator extends AbstractUIPlugin {
         KonamiCodeListener konamiCodeListener = new KonamiCodeListener(() -> {
             try {
                 IWorkbenchPage currentPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                currentPage.openEditor(new NullEditorInput(), SnakeEditor.ID);
+                currentPage.openEditor(SnakeEditor.snakeEditorInput, SnakeEditor.ID);
             } catch (PartInitException ignored) {
             }
         });

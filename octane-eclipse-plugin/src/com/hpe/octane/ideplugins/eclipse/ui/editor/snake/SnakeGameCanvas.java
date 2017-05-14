@@ -15,6 +15,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -28,6 +29,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 
+import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 /**
@@ -129,8 +131,9 @@ public class SnakeGameCanvas extends Canvas {
                     if (GameState.RUNNING.equals(gameState)) {
                         gameState = GameState.RUNNING;
                         moveSnake();
-                        redraw();
-                        ;
+                        if (!SnakeGameCanvas.this.isDisposed()) {
+                            redraw();
+                        }
                     }
                 });
             }
@@ -159,7 +162,9 @@ public class SnakeGameCanvas extends Canvas {
     }
 
     public SnakeGameCanvas(Composite parent) {
-        super(parent, SWT.NO_BACKGROUND | SWT.NO_REDRAW_RESIZE | SWT.NO_MERGE_PAINTS);
+        super(parent, SWT.NO_BACKGROUND | SWT.NO_REDRAW_RESIZE |
+                SWT.NO_MERGE_PAINTS);
+        // super(parent, SWT.NONE);
         addListener(SWT.Paint, event -> doPainting(event));
         addListener(SWT.KeyDown, event -> onKeyDown(event));
 
@@ -363,12 +368,12 @@ public class SnakeGameCanvas extends Canvas {
             // Draw the snake according to the game state
             // draw apple
             if (applePos != null) {
+                Image sprite = getSprite(SpriteDirection.UP, true);
                 g.drawImage(
-                        getSprite(SpriteDirection.UP, true),
+                        sprite,
                         0,
                         0,
-                        30,
-                        30,
+                        sprite.getBounds().width, sprite.getBounds().height,
                         x1 + spriteSize * applePos.x,
                         y1 + spriteSize * applePos.y,
                         spriteSizeWidth,
@@ -392,7 +397,7 @@ public class SnakeGameCanvas extends Canvas {
                             sprite,
                             0,
                             0,
-                            30, 30,
+                            sprite.getBounds().width, sprite.getBounds().height,
                             x1 + spriteSize * pos.x, y1 + spriteSize * pos.y,
                             spriteSizeWidth,
                             spriteSizeHeight);
@@ -422,17 +427,19 @@ public class SnakeGameCanvas extends Canvas {
     private void onKeyDown(Event e) {
         int key = e.keyCode;
 
-        if (key == SWT.ARROW_UP) {
-            changeDirection(SpriteDirection.UP, SpriteDirection.DOWN);
-        }
-        if (key == SWT.ARROW_LEFT) {
-            changeDirection(SpriteDirection.LEFT, SpriteDirection.RIGHT);
-        }
-        if (key == SWT.ARROW_DOWN) {
-            changeDirection(SpriteDirection.DOWN, SpriteDirection.UP);
-        }
-        if (key == SWT.ARROW_RIGHT) {
-            changeDirection(SpriteDirection.RIGHT, SpriteDirection.LEFT);
+        if (GameState.RUNNING.equals(gameState)) {
+            if (key == SWT.ARROW_UP) {
+                changeDirection(SpriteDirection.UP, SpriteDirection.DOWN);
+            }
+            if (key == SWT.ARROW_LEFT) {
+                changeDirection(SpriteDirection.LEFT, SpriteDirection.RIGHT);
+            }
+            if (key == SWT.ARROW_DOWN) {
+                changeDirection(SpriteDirection.DOWN, SpriteDirection.UP);
+            }
+            if (key == SWT.ARROW_RIGHT) {
+                changeDirection(SpriteDirection.RIGHT, SpriteDirection.LEFT);
+            }
         }
         if (key == SWT.SPACE) {
             togglePaused();
@@ -472,10 +479,11 @@ public class SnakeGameCanvas extends Canvas {
         backgroundColor = new Color(Display.getCurrent(), red, green, blue);
     }
 
-    Map<String, ImageData> spriteDataMap = new HashMap<>();
+    private static final Map<String, ImageData> spriteDataMap = new HashMap<>();
 
     private Image getSprite(SpriteDirection direction, boolean red) {
-        String spriteName = "/images/snake/octane";
+
+        String spriteName = "icons/snake/octane";
         if (red) {
             spriteName += "-red";
         }
@@ -488,13 +496,16 @@ public class SnakeGameCanvas extends Canvas {
 
         ImageData imageData = null;
 
-        if (spriteDataMap.containsKey(spriteName)) {
-
+        if (!spriteDataMap.containsKey(spriteName)) {
+            ImageDescriptor img = Activator.getImageDescriptor(spriteName);
+            spriteDataMap.put(spriteName, img.getImageData());
+            imageData = img.getImageData();
         } else {
-
+            imageData = spriteDataMap.get(spriteName);
         }
 
         if (imageData == null) {
+            System.out.println("Failed to get image " + spriteName);
             Color color = createColor(COLOR_OCTANE_GREEN);
             Color black = createColor(SWT.COLOR_BLACK);
             Image img = new Image(Display.getDefault(), new Rectangle(0, 0, 30, 30));

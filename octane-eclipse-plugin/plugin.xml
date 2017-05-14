@@ -53,7 +53,7 @@
             default="false"
             icon="icons/octane-icon-13x13.png"
             id="com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor"
-            name="SnakeEditor">
+            name="Octane Snake">
       </editor>
    </extension>
    <extension
