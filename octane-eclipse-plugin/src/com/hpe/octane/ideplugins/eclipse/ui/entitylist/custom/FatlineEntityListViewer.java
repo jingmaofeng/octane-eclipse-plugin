@@ -27,18 +27,12 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
-import com.hpe.octane.ideplugins.eclipse.ui.util.KonamiCodeListener;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class FatlineEntityListViewer extends Composite implements EntityListViewer {
 
     private EntityModelRenderer entityModelRenderer;
-    private static Color selectionBackgroundColor = SWTResourceManager.getColor((SWT.COLOR_LIST_SELECTION));
-    private static Runnable makeSelectioPinkRunnable = () -> {
-        selectionBackgroundColor = SWTResourceManager.getColor(255, 105, 180);
-    };
-    private static KonamiCodeListener konamiCodeListener;
-
+    private static final Color selectionBackgroundColor = SWTResourceManager.getColor((SWT.COLOR_LIST_SELECTION));
     private static final Color selectionForegroundColor = SWTResourceManager.getColor(255, 255, 255);
 
     private static final Color backgroundColor = SWTResourceManager.getColor(255, 255, 255);
@@ -74,13 +68,8 @@ public class FatlineEntityListViewer extends Composite implements EntityListView
             int style,
             EntityModelMenuFactory entityModelMenuFactory,
             EntityModelRenderer entityModelRenderer) {
+
         super(parent, SWT.NONE);
-
-        if (konamiCodeListener == null) {
-            konamiCodeListener = new KonamiCodeListener(makeSelectioPinkRunnable);
-            parent.getDisplay().addFilter(SWT.KeyDown, konamiCodeListener);
-        }
-
         setLayout(new FillLayout(SWT.HORIZONTAL));
 
         this.entityModelRenderer = entityModelRenderer;
