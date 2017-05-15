@@ -4,6 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -42,17 +45,20 @@ import com.hpe.adm.octane.services.ui.FormLayoutSection;
 import com.hpe.adm.octane.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetCommentsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetEntityDetailsJob;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.job.SendCommentJob;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class DetailsView {
     private Composite headerAndEntityDetailsParent;
     private EntityModel entityModel;
-    private FormToolkit sectionFormGenerator;
-    private Form parentSectionForm;
+    private FormToolkit formGenerator;
+    private Form sectionsParentForm;
     private FormLayout octaneEntityForm;
     private FieldModel currentPhase;
     private EntityModel selectedPhase;
@@ -62,8 +68,8 @@ public class DetailsView {
     protected Shell shell;
 
     private static EntityIconFactory entityIconFactory = new EntityIconFactory(20, 20, 7);
-    private Composite formParent;
-    private Text text;
+    private Composite entityDetailsParentComposite;
+    private Text inputComments;
 
     public static void main(String[] args) {
         try {
@@ -155,7 +161,6 @@ public class DetailsView {
         try {
             ret = serviceModule.getInstance(EntityService.class).findEntity(entityType, entityId);
         } catch (ServiceException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -177,59 +182,86 @@ public class DetailsView {
 
         headerAndEntityDetailsParent = new Composite(headerAndEntityDetailsScrollComposite, SWT.NONE);
 
-        createGeneralEntitySection(headerAndEntityDetailsParent);
+        createHeaderPanel(headerAndEntityDetailsParent);
 
-        sectionFormGenerator = new FormToolkit(shell.getDisplay());
+        formGenerator = new FormToolkit(shell.getDisplay());
 
-        Composite detailsAndCommentsComposite = new Composite(headerAndEntityDetailsParent, SWT.NONE);
-        detailsAndCommentsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-        sectionFormGenerator.adapt(detailsAndCommentsComposite);
-        sectionFormGenerator.paintBordersFor(detailsAndCommentsComposite);
-        detailsAndCommentsComposite.setLayout(new GridLayout(2, false));
+        Composite entityDetailsAndCommentsComposite = new Composite(headerAndEntityDetailsParent, SWT.NONE);
+        entityDetailsAndCommentsComposite.setForeground(org.eclipse.wb.swt.SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+        entityDetailsAndCommentsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        formGenerator.adapt(entityDetailsAndCommentsComposite);
+        formGenerator.paintBordersFor(entityDetailsAndCommentsComposite);
+        entityDetailsAndCommentsComposite.setLayout(new GridLayout(3, false));
 
-        formParent = new Composite(detailsAndCommentsComposite, SWT.NONE);
-        formParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-        formParent.setLayout(new FillLayout(SWT.HORIZONTAL));
-        sectionFormGenerator.adapt(formParent);
-        sectionFormGenerator.paintBordersFor(formParent);
+        entityDetailsParentComposite = new Composite(entityDetailsAndCommentsComposite, SWT.NONE);
+        entityDetailsParentComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        entityDetailsParentComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+        formGenerator.adapt(entityDetailsParentComposite);
+        formGenerator.paintBordersFor(entityDetailsParentComposite);
 
-        parentSectionForm = sectionFormGenerator.createForm(formParent);
-        parentSectionForm.getBody().setLayout(new GridLayout(1, false));
+        sectionsParentForm = formGenerator.createForm(entityDetailsParentComposite);
+        sectionsParentForm.getBody().setLayout(new GridLayout(1, false));
 
-        Composite composite = new Composite(detailsAndCommentsComposite, SWT.NONE);
-        GridData gd_composite = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-        gd_composite.widthHint = 300;
-        gd_composite.minimumWidth = 300;
-        composite.setLayoutData(gd_composite);
-        sectionFormGenerator.adapt(composite);
-        sectionFormGenerator.paintBordersFor(composite);
-        composite.setLayout(new GridLayout(1, false));
+        Label commentsSeparator = new Label(entityDetailsAndCommentsComposite, SWT.SEPARATOR | SWT.SHADOW_IN);
+        commentsSeparator.setForeground(org.eclipse.wb.swt.SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
+        commentsSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+        formGenerator.adapt(commentsSeparator, true, true);
 
-        text = new Text(composite, SWT.BORDER);
-        text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        sectionFormGenerator.adapt(text, true, true);
+        Composite commentsParentComposite = new Composite(entityDetailsAndCommentsComposite, SWT.NONE);
+        GridData gd_commentsParentComposite = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
+        gd_commentsParentComposite.widthHint = 300;
+        gd_commentsParentComposite.minimumWidth = 300;
+        commentsParentComposite.setLayoutData(gd_commentsParentComposite);
+        formGenerator.adapt(commentsParentComposite);
+        formGenerator.paintBordersFor(commentsParentComposite);
+        commentsParentComposite.setLayout(new GridLayout(1, false));
 
-        Button btnNewButton = new Button(composite, SWT.NONE);
-        btnNewButton.addSelectionListener(new SelectionAdapter() {
+        Label commentsTitleLabel = new Label(commentsParentComposite, SWT.NONE);
+        commentsTitleLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        formGenerator.adapt(commentsTitleLabel, true, true);
+        commentsTitleLabel.setText("Comments");
+
+        Composite inputCommentAndSendButtonComposite = new Composite(commentsParentComposite, SWT.NONE);
+        inputCommentAndSendButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+        formGenerator.adapt(inputCommentAndSendButtonComposite);
+        formGenerator.paintBordersFor(inputCommentAndSendButtonComposite);
+        inputCommentAndSendButtonComposite.setLayout(new GridLayout(2, false));
+
+        inputComments = new Text(inputCommentAndSendButtonComposite, SWT.NONE);
+        inputComments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
+        inputComments.setToolTipText("Add new comment");
+        formGenerator.adapt(inputComments, true, true);
+
+        Button postCommentBtn = new Button(inputCommentAndSendButtonComposite, SWT.NONE);
+        postCommentBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
+        postCommentBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                postComment(inputComments.getText());
             }
-        });
-        btnNewButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        sectionFormGenerator.adapt(btnNewButton, true, true);
-        btnNewButton.setText("Send");
 
-        Browser browser = new Browser(composite, SWT.NONE);
-        browser.setText("dasdas asdgf asgafe gadfg adfg adfg adfg adfg adf gadfg adfg afg afg asfg afg afg agagegtq345 4hq24h 1q45 q34trq5bwrb");
-        browser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-        sectionFormGenerator.adapt(browser);
-        sectionFormGenerator.paintBordersFor(browser);
+        });
+        formGenerator.adapt(postCommentBtn, true, true);
+        postCommentBtn.setText("Send");
+
+        ScrolledComposite scrolledComposite = new ScrolledComposite(commentsParentComposite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        formGenerator.adapt(scrolledComposite);
+        formGenerator.paintBordersFor(scrolledComposite);
+        scrolledComposite.setExpandHorizontal(true);
+        scrolledComposite.setExpandVertical(true);
+
+        Browser commentsPanel = new Browser(scrolledComposite, SWT.NONE);
+        formGenerator.adapt(commentsPanel);
+        formGenerator.paintBordersFor(commentsPanel);
+        scrolledComposite.setContent(commentsPanel);
+        scrolledComposite.setMinSize(commentsPanel.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
         if (entityModel != null) {
 
             // create other Sections
             for (FormLayoutSection formSection : octaneEntityForm.getFormLayoutSections()) {
-                createOctaneFormSectionsWithData(entityModel, formSection);
+                createSectionsWithEntityData(entityModel, formSection);
             }
 
             // Create Description Section
@@ -241,33 +273,74 @@ public class DetailsView {
         headerAndEntityDetailsScrollComposite.setMinSize(headerAndEntityDetailsParent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
 
+    private String getCommentsForCurrentEntity() {
+        GetCommentsJob getCommentsJob = new GetCommentsJob("Getting comments", entityModel);
+        getCommentsJob.schedule();
+        getCommentsJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                Display.getDefault().asyncExec(() -> {
+                    if (getCommentsJob.areCommentsLoaded()) {
+
+                    } else {
+                        // MessageDialog.openError(Display.getCurrent().getActiveShell(),
+                        // "ERROR",
+                        // "Comments could not be send \n ");
+                    }
+                    // getEntiyJob.schedule();
+                });
+            }
+        });
+        return null;
+    }
+
+    private void postComment(String text) {
+        SendCommentJob sendCommentJob = new SendCommentJob("Sending Comments", entityModel, text);
+        sendCommentJob.schedule();
+        sendCommentJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                Display.getDefault().asyncExec(() -> {
+                    if (sendCommentJob.isCommentsSaved()) {
+                        new InfoPopup("Comments", "Comment send").open();
+                    } else {
+                        MessageDialog.openError(Display.getCurrent().getActiveShell(), "ERROR",
+                                "Comments could not be send \n ");
+                    }
+                    getEntiyJob.schedule();
+                });
+            }
+        });
+
+    }
+
     // STEP 2 - this creates the header
     /**
      * @param parent
      */
-    private void createGeneralEntitySection(Composite parent) {
+    private void createHeaderPanel(Composite parent) {
         headerAndEntityDetailsParent.setLayout(new GridLayout(1, false));
-        Composite genericHeaderComposite = new Composite(parent, SWT.NONE);
-        genericHeaderComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-        genericHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        genericHeaderComposite.setLayout(new GridLayout(6, false));
+        Composite headerComposite = new Composite(parent, SWT.NONE);
+        headerComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        headerComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        headerComposite.setLayout(new GridLayout(6, false));
 
-        Label entityIcon = new Label(genericHeaderComposite, SWT.NONE);
+        Label entityIcon = new Label(headerComposite, SWT.NONE);
         entityIcon.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         entityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
 
-        Label lblEntityName = new Label(genericHeaderComposite, SWT.NONE);
+        Label lblEntityName = new Label(headerComposite, SWT.NONE);
         lblEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         lblEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         lblEntityName.setText(Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME)));
         Font boldFont = new Font(lblEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
         lblEntityName.setFont(boldFont);
 
-        Label lblCurrentPhase = new Label(genericHeaderComposite, SWT.NONE);
+        Label lblCurrentPhase = new Label(headerComposite, SWT.NONE);
         lblCurrentPhase.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         lblCurrentPhase.setText(Util.getUiDataFromModel(currentPhase, EntityFieldsConstants.FIELD_NAME));
 
-        CustomEntityComboBox<EntityModel> nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(genericHeaderComposite);
+        CustomEntityComboBox<EntityModel> nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(headerComposite);
         nextPhasesComboBox.addSelectionListener((phaseEntityModel, newSelection) -> {
             selectedPhase = newSelection;
         });
@@ -287,7 +360,7 @@ public class DetailsView {
         nextPhasesComboBox.setContent(new ArrayList<>(possibleTransitions));
 
         nextPhasesComboBox.selectFirstItem();
-        Button savePhase = new Button(genericHeaderComposite, SWT.NONE);
+        Button savePhase = new Button(headerComposite, SWT.NONE);
         savePhase.setImage(ImageResources.REFRESH_16X16.getImage());
         savePhase.addListener(SWT.Selection, new Listener() {
 
@@ -297,9 +370,9 @@ public class DetailsView {
             }
         });
 
-        Button refresh = new Button(genericHeaderComposite, SWT.NONE);
+        Button refresh = new Button(headerComposite, SWT.NONE);
         refresh.setImage(ImageResources.REFRESH_16X16.getImage());
-        new Label(genericHeaderComposite, SWT.NONE);
+        new Label(headerComposite, SWT.NONE);
         refresh.addListener(SWT.Selection, new Listener() {
             @Override
             public void handleEvent(Event event) {
@@ -312,7 +385,7 @@ public class DetailsView {
     // STEP 3 - this creates description
     private void createDescriptionFormSection(EntityModel entityModel2) {
 
-        Section section = sectionFormGenerator.createSection(parentSectionForm.getBody(), Section.DESCRIPTION | Section.TREE_NODE | Section.EXPANDED);
+        Section section = formGenerator.createSection(sectionsParentForm.getBody(), Section.DESCRIPTION | Section.TREE_NODE | Section.EXPANDED);
         section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         section.setExpanded(true);
 
@@ -321,19 +394,19 @@ public class DetailsView {
 
         Browser descriptionPanel = new Browser(section, SWT.NONE);
         descriptionPanel.setText(Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION)));
-        sectionFormGenerator.createCompositeSeparator(section);
+        formGenerator.createCompositeSeparator(section);
         section.setClient(descriptionPanel);
     }
 
     // STEP 4 - this creates every section with its fields
-    private void createOctaneFormSectionsWithData(EntityModel entityModel, FormLayoutSection formSection) {
-        Section section = sectionFormGenerator.createSection(parentSectionForm.getBody(), Section.DESCRIPTION | Section.TREE_NODE | Section.EXPANDED);
+    private void createSectionsWithEntityData(EntityModel entityModel, FormLayoutSection formSection) {
+        Section section = formGenerator.createSection(sectionsParentForm.getBody(), Section.DESCRIPTION | Section.TREE_NODE | Section.EXPANDED);
         section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
         section.setExpanded(true);
 
         section.setLayout(new FillLayout(SWT.HORIZONTAL));
         section.setText(formSection.getSectionTitle());
-        sectionFormGenerator.createCompositeSeparator(section);
+        formGenerator.createCompositeSeparator(section);
 
         Composite sectionClient = new Composite(section, SWT.NONE);
         sectionClient.setLayout(new FillLayout(SWT.HORIZONTAL));
