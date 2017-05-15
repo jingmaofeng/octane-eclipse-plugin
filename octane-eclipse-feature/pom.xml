@@ -36,18 +36,15 @@
 								<goals>
 									<goal>signHP</goal>
 								</goals>
-								<configuration>
-									<parameters>
-										-g
-										${project.build.directory}/${project.name}-${project.version}.jar
-										-t 24 -p AGN_JAR -i -v -u jarsigner -c 1 -o
-										${project.build.directory}
-									</parameters>
-									<properties>
-										<krb.account_name>${hpsign.account_name}</krb.account_name>
+					 			<configuration>
+                                    <parameters>
+                                    -g ${project.build.directory}/${project.name}-${project.version}.jar -t 24 -p AGN_JAR -i -v -u jarsigner -c 1 -o ${project.build.directory}
+                                    </parameters>
+                                    <properties>
+                                		<krb.account_name>${hpsign.account_name}</krb.account_name>
 										<krb.password>${hpsign.krb.password}</krb.password>
-									</properties>
-								</configuration>
+                                    </properties>
+                                </configuration>
 							</execution>
 						</executions>
 					</plugin>
