@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.util;
+package com.hpe.octane.ideplugins.eclipse.ui.editor.snake;
 
 import java.util.ArrayList;
 import java.util.List;

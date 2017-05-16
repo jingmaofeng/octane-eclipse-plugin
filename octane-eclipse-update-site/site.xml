@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/octane.eclipse.feature_1.0.0.qualifier.jar" id="octane.eclipse.feature" version="1.0.0.qualifier"/>
+   <feature url="features/octane.eclipse.feature_1.0.0.jar" id="octane.eclipse.feature" version="1.0.0">
+      <category name="alm.octane"/>
+   </feature>
+   <category-def name="alm.octane" label="ALM Octane"/>
 </site>
