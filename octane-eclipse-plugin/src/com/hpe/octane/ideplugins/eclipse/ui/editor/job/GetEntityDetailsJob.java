@@ -84,19 +84,18 @@ public class GetEntityDetailsJob extends Job {
         }
     }
 
-    public StringBuilder getCommentsForCurrentEntity() {
-        if (comments.isEmpty()) {
-            comments.add(new EntityModel("target_phase", "No comments"));
-        }
+    public String getCommentsForCurrentEntity() {
         StringBuilder commentsBuilder = new StringBuilder();
-        for (EntityModel comment : comments) {
-            String commentsPostTime = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_CREATION_TIME));
-            String userName = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_AUTHOR), "full_name");
-            String commentLine = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_COMMENT_TEXT));
-            String currentText = commentsPostTime + " <b>" + userName + ":</b> <br>" + commentLine + "<hr>";
-            commentsBuilder.append(currentText);
+        if (!comments.isEmpty()) {
+            for (EntityModel comment : comments) {
+                String commentsPostTime = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_CREATION_TIME));
+                String userName = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_AUTHOR), "full_name");
+                String commentLine = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_COMMENT_TEXT));
+                String currentText = commentsPostTime + " <b>" + userName + ":</b> <br>" + commentLine + "<hr>";
+                commentsBuilder.append(currentText);
+            }
         }
-        return commentsBuilder;
+        return commentsBuilder.toString();
     }
 
     public boolean areCommentsLoaded() {

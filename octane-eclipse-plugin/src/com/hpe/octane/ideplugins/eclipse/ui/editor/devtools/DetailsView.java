@@ -89,7 +89,7 @@ public class DetailsView {
         possibleTransitions.add(new EntityModel("target_phase", "Open"));
         possibleTransitions.add(new EntityModel("target_phase", "Defered"));
         possibleTransitions.add(new EntityModel("target_phase", "Duplicated"));
-        createSpecificEntitySections();
+        createEntityDetailsView();
         shell.open();
         shell.layout();
         while (!shell.isDisposed()) {
@@ -168,7 +168,7 @@ public class DetailsView {
     }
 
     // STEP 1
-    private void createSpecificEntitySections() {
+    private void createEntityDetailsView() {
         shell = new Shell();
         shell.setSize(487, 300);
         shell.setText("SWT Application");
@@ -432,6 +432,13 @@ public class DetailsView {
 
                 Label tempValuesLabelRight = new Label(sectionClientRight, SWT.NONE);
                 tempValuesLabelRight.setText(Util.getUiDataFromModel(entityModel.getValue(formSection.getFields().get(i + 1).getName())));
+
+                if (i == 4) {
+                    tempValuesLabelRight.setText("wqeihjqwuioehqwioehqwioehioqwheioqwehioqwheqwioeqweqweqw");
+                } else {
+                    tempValuesLabelRight.setText(Util.getUiDataFromModel(entityModel.getValue(formSection.getFields().get(i + 1).getName())));
+                }
+
             }
 
         }

@@ -68,9 +68,10 @@ public class EntityModelEditor extends EditorPart {
     private EntityModelEditorInput input;
     private Collection<EntityModel> possibleTransitions;
     private boolean shouldShowPhase = true;
+    private boolean shouldCommentsBeShown;
     private GetEntityDetailsJob getEntiyJob;
     private Text inputComments;
-    private StringBuilder comments;
+    private String comments;
 
     private Composite entityDetailsParentComposite;
     private LoadingComposite loadingComposite;
@@ -114,7 +115,6 @@ public class EntityModelEditor extends EditorPart {
         getEntiyJob = new GetEntityDetailsJob("Retiving entity details", this.input.getEntityType(), this.input.getId());
         getEntiyJob.schedule();
         getEntiyJob.addJobChangeListener(new JobChangeAdapter() {
-            private boolean shouldCommentsBeShown;
 
             @Override
             public void scheduled(IJobChangeEvent event) {
@@ -144,7 +144,7 @@ public class EntityModelEditor extends EditorPart {
                             shouldShowPhase = false;
                         }
                         // After the data is loaded the UI is created
-                        createSpecificEntitySections(stackContainer);
+                        createEntityDetailsView(stackContainer);
                         // After the UI is created it gets displayed
                         stackContainer.showControl(headerAndEntityDetailsScrollComposite);
                     });
@@ -153,7 +153,7 @@ public class EntityModelEditor extends EditorPart {
         });
     }
 
-    private void createSpecificEntitySections(Composite parent) {
+    private void createEntityDetailsView(Composite parent) {
         headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         headerAndEntityDetailsScrollComposite.setExpandHorizontal(true);
         headerAndEntityDetailsScrollComposite.setExpandVertical(true);
@@ -182,53 +182,54 @@ public class EntityModelEditor extends EditorPart {
         sectionsParentForm = formGenerator.createForm(entityDetailsParentComposite);
         sectionsParentForm.getBody().setLayout(new GridLayout(1, false));
 
-        Label commentsSeparator = new Label(entityDetailsAndCommentsComposite, SWT.SEPARATOR | SWT.SHADOW_IN);
-        commentsSeparator.setForeground(org.eclipse.wb.swt.SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
-        commentsSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
-        formGenerator.adapt(commentsSeparator, true, true);
+        if (shouldCommentsBeShown) {
+            Label commentsSeparator = new Label(entityDetailsAndCommentsComposite, SWT.SEPARATOR | SWT.SHADOW_IN);
+            commentsSeparator.setForeground(org.eclipse.wb.swt.SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
+            commentsSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+            formGenerator.adapt(commentsSeparator, true, true);
 
-        Composite commentsParentComposite = new Composite(entityDetailsAndCommentsComposite, SWT.NONE);
-        GridData gd_commentsParentComposite = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
-        gd_commentsParentComposite.widthHint = 300;
-        gd_commentsParentComposite.minimumWidth = 300;
-        commentsParentComposite.setLayoutData(gd_commentsParentComposite);
-        formGenerator.adapt(commentsParentComposite);
-        formGenerator.paintBordersFor(commentsParentComposite);
-        commentsParentComposite.setLayout(new GridLayout(1, false));
+            Composite commentsParentComposite = new Composite(entityDetailsAndCommentsComposite, SWT.NONE);
+            GridData gd_commentsParentComposite = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
+            gd_commentsParentComposite.widthHint = 300;
+            gd_commentsParentComposite.minimumWidth = 300;
+            commentsParentComposite.setLayoutData(gd_commentsParentComposite);
+            formGenerator.adapt(commentsParentComposite);
+            formGenerator.paintBordersFor(commentsParentComposite);
+            commentsParentComposite.setLayout(new GridLayout(1, false));
 
-        CLabel commentsTitleLabel = new CLabel(commentsParentComposite, SWT.NONE);
-        formGenerator.adapt(commentsTitleLabel, true, true);
-        commentsTitleLabel.setText("Comments");
-        commentsTitleLabel.setMargins(5, 0, 0, 0);
+            CLabel commentsTitleLabel = new CLabel(commentsParentComposite, SWT.NONE);
+            formGenerator.adapt(commentsTitleLabel, true, true);
+            commentsTitleLabel.setText("Comments");
+            commentsTitleLabel.setMargins(5, 0, 0, 0);
 
-        Composite inputCommentAndSendButtonComposite = new Composite(commentsParentComposite, SWT.NONE);
-        inputCommentAndSendButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-        formGenerator.adapt(inputCommentAndSendButtonComposite);
-        formGenerator.paintBordersFor(inputCommentAndSendButtonComposite);
-        inputCommentAndSendButtonComposite.setLayout(new GridLayout(2, false));
+            Composite inputCommentAndSendButtonComposite = new Composite(commentsParentComposite, SWT.NONE);
+            inputCommentAndSendButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+            formGenerator.adapt(inputCommentAndSendButtonComposite);
+            formGenerator.paintBordersFor(inputCommentAndSendButtonComposite);
+            inputCommentAndSendButtonComposite.setLayout(new GridLayout(2, false));
 
-        inputComments = new Text(inputCommentAndSendButtonComposite, SWT.NONE);
-        inputComments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
-        inputComments.setToolTipText("Add new comment");
-        formGenerator.adapt(inputComments, true, true);
+            inputComments = new Text(inputCommentAndSendButtonComposite, SWT.NONE);
+            inputComments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
+            inputComments.setToolTipText("Add new comment");
+            formGenerator.adapt(inputComments, true, true);
 
-        Button postCommentBtn = new Button(inputCommentAndSendButtonComposite, SWT.NONE);
-        postCommentBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
-        postCommentBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                postComment(inputComments.getText());
-            }
-        });
-        formGenerator.adapt(postCommentBtn, true, true);
-        postCommentBtn.setText("Send");
+            Button postCommentBtn = new Button(inputCommentAndSendButtonComposite, SWT.NONE);
+            postCommentBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
+            postCommentBtn.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    postComment(inputComments.getText());
+                }
+            });
+            formGenerator.adapt(postCommentBtn, true, true);
+            postCommentBtn.setText("Send");
 
-        Browser commentsPanel = new Browser(commentsParentComposite, SWT.NONE);
-        commentsPanel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-        formGenerator.adapt(commentsPanel);
-        formGenerator.paintBordersFor(commentsPanel);
-        commentsPanel.setText(comments.toString());
-
+            Browser commentsPanel = new Browser(commentsParentComposite, SWT.NONE);
+            commentsPanel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+            formGenerator.adapt(commentsPanel);
+            formGenerator.paintBordersFor(commentsPanel);
+            commentsPanel.setText(comments);
+        }
         if (entityModel != null) {
 
             // create other Sections
@@ -361,7 +362,11 @@ public class EntityModelEditor extends EditorPart {
                 tempLabelRight.setMargins(5, 2, 5, 2);
 
                 CLabel tempValuesLabelRight = new CLabel(sectionClientRight, SWT.NONE);
-                tempValuesLabelRight.setText(Util.getUiDataFromModel(entityModel.getValue(formSection.getFields().get(i + 1).getName())));
+                if (i == 4) {
+                    tempValuesLabelRight.setText("");
+                } else {
+                    tempValuesLabelRight.setText(Util.getUiDataFromModel(entityModel.getValue(formSection.getFields().get(i + 1).getName())));
+                }
                 tempValuesLabelRight.setMargins(5, 2, 5, 2);
             }
         }
