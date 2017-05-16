@@ -30,6 +30,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow.DetailsPosition;
+import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
@@ -46,7 +47,7 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
     static RowFieldSetter fsAuthor = new GenericFieldSetter(FIELD_AUTHOR, "Author", DetailsPosition.TOP);
     static RowFieldSetter fsOwner = new GenericFieldSetter("owner", "Owner", DetailsPosition.TOP);
     static RowFieldSetter fsPhase = new GenericFieldSetter("phase", "Phase", DetailsPosition.TOP);
-    static RowFieldSetter fsStatus = new GenericFieldSetter("status", "Status", DetailsPosition.TOP);
+    static RowFieldSetter fsStatus = new GenericFieldSetter(EntityFieldsConstants.FIELD_TEST_RUN_NATIVE_STATUS, "Status", DetailsPosition.TOP);
 
     // Bottom
     static RowFieldSetter fsAutomationStatus = new GenericFieldSetter("automation_status", "Automation status", DetailsPosition.BOTTOM);

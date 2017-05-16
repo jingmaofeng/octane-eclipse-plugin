@@ -114,6 +114,12 @@ public class DefaultRowEntityFields {
         // TODO: temp
         tempEntityFields.put(Entity.TEST_SUITE_RUN, new HashSet<>());
         tempEntityFields.get(Entity.TEST_SUITE_RUN).add("id");
+        tempEntityFields.get(Entity.TEST_SUITE_RUN).add(FIELD_NAME);
+        tempEntityFields.get(Entity.TEST_SUITE_RUN).add("native_status");
+        tempEntityFields.get(Entity.TEST_SUITE_RUN).add(FIELD_AUTHOR);
+        tempEntityFields.get(Entity.TEST_SUITE_RUN).add(FIELD_ENVIROMENT);
+        tempEntityFields.get(Entity.TEST_SUITE_RUN).add("started");
+        tempEntityFields.get(Entity.TEST_SUITE_RUN).add("test_name");
 
         // COMMENTS
         tempEntityFields.put(Entity.COMMENT, new HashSet<>());
