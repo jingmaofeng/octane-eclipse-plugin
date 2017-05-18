@@ -1,5 +1,9 @@
 package com.hpe.octane.ideplugins.eclipse.ui.editor;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -10,6 +14,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.LocationEvent;
+import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -229,6 +235,8 @@ public class EntityModelEditor extends EditorPart {
             formGenerator.adapt(commentsPanel);
             formGenerator.paintBordersFor(commentsPanel);
             commentsPanel.setText(comments);
+
+            commentsPanel.addLocationListener(new LinkInterceptListener());
         }
         if (entityModel != null) {
 
@@ -301,10 +309,12 @@ public class EntityModelEditor extends EditorPart {
         Button refresh = new Button(headerComposite, SWT.NONE);
         refresh.setImage(ImageResources.REFRESH_16X16.getImage());
         refresh.addListener(SWT.Selection, new Listener() {
+
             @Override
             public void handleEvent(Event event) {
                 getEntiyJob.schedule();
             }
+
         });
     }
 
@@ -323,6 +333,7 @@ public class EntityModelEditor extends EditorPart {
         } else {
             descriptionPanel.setText(descriptionText);
         }
+        descriptionPanel.addLocationListener(new LinkInterceptListener());
         formGenerator.createCompositeSeparator(section);
         section.setClient(descriptionPanel);
     }
@@ -455,6 +466,32 @@ public class EntityModelEditor extends EditorPart {
             }
         });
 
+    }
+
+    private class LinkInterceptListener implements LocationListener {
+        // method called when the user clicks a link but before the link is
+        // opened.
+        public void changing(LocationEvent event) {
+            URI externalUrl = null;
+            try {
+                externalUrl = new URI(event.location);
+            } catch (URISyntaxException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                Desktop.getDesktop().browse(externalUrl);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            event.doit = false;
+        }
+
+        // method called after the link has been opened in place.
+        public void changed(LocationEvent event) {
+            // Not used in this example
+        }
     }
 
     @Override
