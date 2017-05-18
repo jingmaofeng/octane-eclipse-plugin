@@ -28,13 +28,13 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import com.hpe.adm.octane.services.TestService;
 import com.hpe.adm.octane.services.connection.ConnectionSettings;
 import com.hpe.adm.octane.services.exception.ServiceException;
-import com.hpe.adm.octane.services.util.Constants;
 import com.hpe.adm.octane.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class PluginPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage";
+    public static final String CORRECT_URL_FORMAT_MESSAGE = "Example: (http|https)://{serverurl[:port]}/?p={sharedspaceId}/{workspaceId}";
 
     private Text textServerUrl;
     private Text textSharedSpace;
@@ -241,7 +241,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
                 return;
             }
         } catch (ServiceException e) {
-            setConnectionStatus(false, e.getMessage() + "\n" + Constants.CORRECT_URL_FORMAT_MESSAGE);
+            setConnectionStatus(false, e.getMessage() + "\n" + CORRECT_URL_FORMAT_MESSAGE);
         }
 
         BusyIndicator.showWhile(Display.getCurrent(), () -> {
@@ -266,7 +266,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         try {
             newConnectionSettings = UrlParser.resolveConnectionSettings(serverUrl, username, password);
         } catch (ServiceException e) {
-            setConnectionStatus(false, e.getMessage() + "\n" + Constants.CORRECT_URL_FORMAT_MESSAGE);
+            setConnectionStatus(false, e.getMessage() + "\n" + CORRECT_URL_FORMAT_MESSAGE);
             return null;
         }
 
@@ -321,7 +321,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
             if (setStatus) {
                 getApplyButton().setEnabled(false);
                 setConnectionStatus(false,
-                        e.getMessage() + "\n" + com.hpe.adm.octane.services.util.Constants.CORRECT_URL_FORMAT_MESSAGE);
+                        e.getMessage() + "\n" + CORRECT_URL_FORMAT_MESSAGE);
             }
         }
     }

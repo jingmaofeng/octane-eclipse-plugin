@@ -14,7 +14,7 @@ import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 public class WelcomeComposite extends Composite {
 
     private static final String OCTANE_SETTINGS_TEXT = "To start, go to Settings and connect.";
-    private static final String WELCOME_TEXT = "Welcome to ALM Octane plugin";
+    private static final String WELCOME_TEXT = "Welcome to the ALM Octane plugin";
 
     /**
      * Create the composite.
@@ -44,7 +44,7 @@ public class WelcomeComposite extends Composite {
 
         Link link = new Link(this, SWT.NONE);
         link.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true, true, 3, 1));
-        link.setText("</a>" + OCTANE_SETTINGS_TEXT + "</a>");
+        link.setText("<A>" + OCTANE_SETTINGS_TEXT + "</A>");
         link.addListener(SWT.Selection, new Listener() {
             @Override
             public void handleEvent(Event event) {
