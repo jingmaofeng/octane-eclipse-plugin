@@ -345,28 +345,46 @@ public class EntityModelEditor extends EditorPart {
         sectionClientRight.setLayout(new GridLayout(2, false));
         for (int i = 0; i <= formSection.getFields().size() - 1; i += 2) {
             if (!DESCRIPTION_FIELD.equals(formSection.getFields().get(i).getName())) {
+                String fieldName = formSection.getFields().get(i).getName();
+                String fielValue = "";
+
+                if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName) || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
+                        || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
+                        || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
+                    fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName), "full_name");
+                } else {
+                    fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
+                }
+
                 CLabel tempLabelLeft = new CLabel(sectionClientLeft, SWT.NONE);
-                tempLabelLeft.setText(prettifyLabels(formSection.getFields().get(i).getName()));
+                tempLabelLeft.setText(prettifyLabels(fieldName));
                 tempLabelLeft.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
                 tempLabelLeft.setMargins(5, 2, 5, 2);
 
                 CLabel tempValuesLabelLeft = new CLabel(sectionClientLeft, SWT.NONE);
-                tempValuesLabelLeft.setText(Util.getUiDataFromModel(entityModel.getValue(formSection.getFields().get(i).getName())));
+                tempValuesLabelLeft.setText(fielValue);
                 tempValuesLabelLeft.setMargins(5, 2, 5, 2);
             }
             if (formSection.getFields().size() > i + 1 && null != formSection.getFields().get(i + 1)
                     && !DESCRIPTION_FIELD.equals(formSection.getFields().get(i + 1).getName())) {
+                String fieldName = formSection.getFields().get(i + 1).getName();
+                String fielValue = "";
+
+                if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName) || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
+                        || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
+                        || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
+                    fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName), "full_name");
+                } else {
+                    fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
+                }
+
                 CLabel tempLabelRight = new CLabel(sectionClientRight, SWT.NONE);
-                tempLabelRight.setText(prettifyLabels(formSection.getFields().get(i + 1).getName()));
+                tempLabelRight.setText(prettifyLabels(fieldName));
                 tempLabelRight.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
                 tempLabelRight.setMargins(5, 2, 5, 2);
 
                 CLabel tempValuesLabelRight = new CLabel(sectionClientRight, SWT.NONE);
-                if (i == 4) {
-                    tempValuesLabelRight.setText("");
-                } else {
-                    tempValuesLabelRight.setText(Util.getUiDataFromModel(entityModel.getValue(formSection.getFields().get(i + 1).getName())));
-                }
+                tempValuesLabelRight.setText(fielValue);
                 tempValuesLabelRight.setMargins(5, 2, 5, 2);
             }
         }
