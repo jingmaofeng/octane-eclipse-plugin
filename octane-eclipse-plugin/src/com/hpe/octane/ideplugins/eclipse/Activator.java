@@ -15,8 +15,11 @@ import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -28,7 +31,11 @@ import com.hpe.adm.octane.services.di.ServiceModule;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.preferences.PreferenceConstants;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.KonamiCodeListener;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
+import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -36,7 +43,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 public class Activator extends AbstractUIPlugin {
 
     // The plug-in ID
-    public static final String PLUGIN_ID = "octane-eclipse-plugin"; //$NON-NLS-1$
+    public static final String PLUGIN_ID = "octane.eclipse.plugin"; //$NON-NLS-1$
 
     // The shared instance
     private static Activator plugin;
@@ -162,6 +169,7 @@ public class Activator extends AbstractUIPlugin {
         plugin = this;
 
         IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+
         if (Activator.getActiveItem() != null) {
             page.addPartListener(CommitMessageUtil.stagingViewListener);
             IViewPart viewPart = page.findView(StagingView.VIEW_ID);
@@ -187,6 +195,37 @@ public class Activator extends AbstractUIPlugin {
             getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
                     "An exception has occured when loading the Octane connection details", e));
         }
+
+        settingsProviderInstance.addChangeHandler(() -> {
+            // Clear active item
+            setActiveItem(null);
+
+            // Close active entity editors and search editors
+            for (IEditorReference editor : page.getEditorReferences()) {
+                if (EntityModelEditor.ID.equals(editor.getId()) ||
+                        SearchEditor.ID.equals(editor.getId())) {
+                    page.closeEditor(editor.getEditor(false), false);
+                }
+            }
+        });
+
+        // Restore all entity model editors from their references, this is a
+        // silly fix to properly set the editor part icon and tooltip
+        for (IEditorReference editorReference : page.getEditorReferences()) {
+            if (editorReference.getEditorInput() instanceof EntityModelEditorInput) {
+                editorReference.getEditor(true);
+            }
+        }
+
+        // Easter egg
+        KonamiCodeListener konamiCodeListener = new KonamiCodeListener(() -> {
+            try {
+                IWorkbenchPage currentPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                currentPage.openEditor(SnakeEditor.snakeEditorInput, SnakeEditor.ID);
+            } catch (PartInitException ignored) {
+            }
+        });
+        PlatformUI.getWorkbench().getDisplay().addFilter(SWT.KeyDown, konamiCodeListener);
     }
 
     /*

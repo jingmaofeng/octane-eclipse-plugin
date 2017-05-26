@@ -48,6 +48,13 @@
             id="com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor"
             name="SearchEditor">
       </editor>
+      <editor
+            class="com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor"
+            default="false"
+            icon="icons/octane-icon-13x13.png"
+            id="com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor"
+            name="Octane Snake">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.ui.commands">

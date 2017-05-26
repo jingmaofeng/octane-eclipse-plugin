@@ -197,7 +197,7 @@ public class EntityModelRow extends Composite {
 
     private String checkEmptyValue(String fieldValue) {
         if (fieldValue == null || fieldValue.trim().length() == 0) {
-            fieldValue = "—";
+            fieldValue = "-";
         } else {
             fieldValue = fieldValue.trim();
         }

@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui;
+package com.hpe.octane.ideplugins.eclipse.ui.editor.devtools;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;

@@ -10,8 +10,6 @@
 		<artifactId>octane-eclipse-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-	<groupId>com.hpe.adm.octane</groupId>
 	<artifactId>octane-eclipse-update-site</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
 	<packaging>eclipse-update-site</packaging>
 </project>
