@@ -101,5 +101,11 @@
             id="com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput">
       </factory>
    </extension>
-
+    <extension
+         id="com.hpe.octane.ideplugins.eclipse.ui.commitMessage"
+         point="org.eclipse.egit.ui.commitMessageProvider">
+    <commitMessageProvider
+            class="com.hpe.octane.ideplugins.eclipse.ui.OctaneCommitMessageProvider">
+    </commitMessageProvider>
+ 	</extension>
 </plugin>

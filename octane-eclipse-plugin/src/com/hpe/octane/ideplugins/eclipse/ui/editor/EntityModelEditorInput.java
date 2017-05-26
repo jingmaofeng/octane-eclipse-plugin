@@ -19,6 +19,7 @@ public class EntityModelEditorInput implements IElementFactory, IEditorInput {
 
     private long id;
     private Entity entityType;
+    private String title;
 
     // Default constructor needed because of IElementFactory
     public EntityModelEditorInput() {
@@ -26,6 +27,7 @@ public class EntityModelEditorInput implements IElementFactory, IEditorInput {
 
     public EntityModelEditorInput(EntityModel entityModel) {
         this.id = Long.parseLong(entityModel.getValue("id").getValue().toString());
+        this.title = entityModel.getValue("name").getValue().toString();
         this.entityType = Entity.getEntityType(entityModel);
     }
 
@@ -34,12 +36,22 @@ public class EntityModelEditorInput implements IElementFactory, IEditorInput {
         this.entityType = entityType;
     }
 
+    public EntityModelEditorInput(long id, Entity entityType, String title) {
+        this.id = id;
+        this.entityType = entityType;
+        this.title = title;
+    }
+
     public long getId() {
         return id;
     }
 
     public Entity getEntityType() {
         return entityType;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     @Override
@@ -97,7 +109,7 @@ public class EntityModelEditorInput implements IElementFactory, IEditorInput {
 
     @Override
     public String toString() {
-        return "EntityModelEditorInput [id=" + id + ", entityType=" + entityType + "]";
+        return "EntityModelEditorInput [id=" + id + ", entityType=" + entityType + ", title = " + title + "]";
     }
 
     @Override
@@ -107,6 +119,7 @@ public class EntityModelEditorInput implements IElementFactory, IEditorInput {
             public void saveState(IMemento memento) {
                 memento.putString("id", id + "");
                 memento.putString("entityType", entityType.name());
+                memento.putString("title", title);
             }
 
             @Override
@@ -121,7 +134,8 @@ public class EntityModelEditorInput implements IElementFactory, IEditorInput {
     public IAdaptable createElement(IMemento memento) {
         long id = Long.valueOf(memento.getString("id"));
         Entity entityType = Entity.valueOf(memento.getString("entityType"));
-        return new EntityModelEditorInput(id, entityType);
+        String title = memento.getString("title");
+        return new EntityModelEditorInput(id, entityType, title);
     }
 
 }

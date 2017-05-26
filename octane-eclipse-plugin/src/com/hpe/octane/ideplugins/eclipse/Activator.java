@@ -10,10 +10,14 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.egit.ui.internal.staging.StagingView;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -73,6 +77,7 @@ public class Activator extends AbstractUIPlugin {
         if (entityModelEditorInput == null) {
             securePrefs.remove(PreferenceConstants.ACTIVE_ITEM_ID);
             securePrefs.remove(PreferenceConstants.ACTIVE_ITEM_ENTITY);
+            securePrefs.remove(PreferenceConstants.ACTIVE_ITEM_TITLE);
         } else {
             try {
                 securePrefs.putLong(
@@ -82,6 +87,10 @@ public class Activator extends AbstractUIPlugin {
                 securePrefs.put(
                         PreferenceConstants.ACTIVE_ITEM_ENTITY,
                         entityModelEditorInput.getEntityType().name(),
+                        false);
+                securePrefs.put(
+                        PreferenceConstants.ACTIVE_ITEM_TITLE,
+                        entityModelEditorInput.getTitle(),
                         false);
             } catch (StorageException e) {
                 Activator.getDefault().getLog().log(
@@ -102,7 +111,8 @@ public class Activator extends AbstractUIPlugin {
         try {
             Long id = securePrefs.getLong(PreferenceConstants.ACTIVE_ITEM_ID, -1);
             Entity entityType = Entity.valueOf(securePrefs.get(PreferenceConstants.ACTIVE_ITEM_ENTITY, Entity.DEFECT.name()));
-            editorInput = new EntityModelEditorInput(id, entityType);
+            String title = securePrefs.get(PreferenceConstants.ACTIVE_ITEM_TITLE, null);
+            editorInput = new EntityModelEditorInput(id, entityType, title);
         } catch (Exception ex) {
             Activator.getDefault().getLog().log(
                     new Status(
@@ -150,6 +160,16 @@ public class Activator extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
+
+        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        if (Activator.getActiveItem() != null) {
+            page.addPartListener(CommitMessageUtil.stagingViewListener);
+            IViewPart viewPart = page.findView(StagingView.VIEW_ID);
+            if (viewPart != null && viewPart instanceof StagingView) {
+                System.out.println(" >> found staging view at start");
+                CommitMessageUtil.changeMessageIfValid((StagingView) viewPart);
+            }
+        }
 
         try {
             ISecurePreferences securePrefs = getSecurePrefs();
