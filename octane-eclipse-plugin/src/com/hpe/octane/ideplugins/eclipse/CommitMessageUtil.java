@@ -11,9 +11,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 
-import com.hpe.adm.nga.sdk.Query;
-import com.hpe.adm.nga.sdk.QueryMethod;
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.nga.sdk.query.Query;
+import com.hpe.adm.nga.sdk.query.QueryMethod;
 import com.hpe.adm.octane.services.EntityService;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.nonentity.CommitMessageService;

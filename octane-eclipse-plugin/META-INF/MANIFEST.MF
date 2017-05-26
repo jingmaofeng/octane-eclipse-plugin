@@ -50,5 +50,7 @@ Bundle-ClassPath: .,
  lib/log4j-core.jar,
  lib/octane-plugin-common.jar,
  lib/sdk-src.jar,
+ lib/velocity.jarlib/sdk-extension-src.jar,
+ lib/sdk-extension-src.jar,
  lib/velocity.jar
 
