@@ -13,7 +13,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.egit.ui.internal.staging.StagingView;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.Query;
 import com.hpe.adm.nga.sdk.QueryMethod;
@@ -96,20 +98,23 @@ public class CommitMessageUtil {
                 monitor.done();
                 display.asyncExec(() -> {
                     System.out.println(" >> valid = " + valid);
-                    if (valid) {
-                        String message = getCommitMessageForActiveItem();
-                        System.out.println(" >> message = " + message);
-                        stagingView.setCommitMessage(message);
-                    } else {
-                        stagingView.setCommitMessage("");
-                        String patterns = Activator.getInstance(CommitMessageService.class).getCommitPatternsForStoryType(
-                                Activator.getActiveItem().getEntityType()).stream().collect(Collectors.joining(", "));
-                        new InfoPopup("Commit message", "Please make sure your commit message " +
-                                "matches one of the following patterns: " +
-                                patterns, 400, 70).open();
+                    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                    if (page.findView(StagingView.VIEW_ID) != null) {
+                        if (valid) {
+                            String message = getCommitMessageForActiveItem();
+                            System.out.println(" >> message = " + message);
+                            stagingView.setCommitMessage(message);
+                        } else {
+                            stagingView.setCommitMessage("");
+                            String patterns = Activator.getInstance(CommitMessageService.class).getCommitPatternsForStoryType(
+                                    Activator.getActiveItem().getEntityType()).stream().collect(Collectors.joining(", "));
+                            new InfoPopup("Commit message", "Please make sure your commit message " +
+                                    "matches one of the following patterns: " +
+                                    patterns, 400, 70).open();
+                        }
+                        // stagingView.resetCommitMessageComponent();
+                        stagingView.refreshViewersPreservingExpandedElements();
                     }
-                    // stagingView.resetCommitMessageComponent();
-                    stagingView.refreshViewersPreservingExpandedElements();
                 });
                 return Status.OK_STATUS;
             }
