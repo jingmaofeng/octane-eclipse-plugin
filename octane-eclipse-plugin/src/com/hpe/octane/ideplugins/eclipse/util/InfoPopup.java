@@ -22,9 +22,17 @@ public final class InfoPopup extends PopupDialog {
     private Text text;
     private String content = "";
     private boolean autoClose = true;
+    private long timeToClose = 3000;
 
     public InfoPopup(String headerString, String content) {
         this(headerString, null, content);
+    }
+
+    public InfoPopup(String headerString, String content, int width, int height) {
+        this(headerString, null, content);
+        this.width = width;
+        this.height = height;
+        this.timeToClose = 7000;
     }
 
     public InfoPopup(String headerString, String footerString, String content) {
@@ -56,7 +64,7 @@ public final class InfoPopup extends PopupDialog {
             }
         };
         Timer fireEventTimer = new Timer();
-        fireEventTimer.schedule(timer, 3000);
+        fireEventTimer.schedule(timer, timeToClose);
     }
 
     @Override

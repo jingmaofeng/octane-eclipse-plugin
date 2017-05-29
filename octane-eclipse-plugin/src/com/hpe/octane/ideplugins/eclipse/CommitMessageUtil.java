@@ -4,20 +4,25 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.egit.ui.internal.staging.StagingView;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 
+import com.hpe.adm.nga.sdk.Query;
+import com.hpe.adm.nga.sdk.QueryMethod;
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.nga.sdk.query.Query;
-import com.hpe.adm.nga.sdk.query.QueryMethod;
 import com.hpe.adm.octane.services.EntityService;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.nonentity.CommitMessageService;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
+import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 
 public class CommitMessageUtil {
 
@@ -47,7 +52,7 @@ public class CommitMessageUtil {
 
         @Override
         public void partActivated(IWorkbenchPart part) {
-            // setCommitMessage(part);
+            setCommitMessage(part);
         }
 
         private void setCommitMessage(IWorkbenchPart part) {
@@ -80,19 +85,64 @@ public class CommitMessageUtil {
 
     public static void changeMessageIfValid(StagingView stagingView) {
 
-        stagingView.setCommitMessage("loading commit message ...");
+        Display display = Display.getCurrent();
+        new Job("Validating commit message ...") {
 
-        BusyIndicator.showWhile(Display.getCurrent(), () -> {
-            boolean valid = validate();
-            System.out.println(" >> valid = " + valid);
-            if (valid) {
-                stagingView.setCommitMessage(getCommitMessageForActiveItem());
-            } else {
-                stagingView.setCommitMessage("commit message is invalid");
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                monitor.beginTask("Validating commit message ...", IProgressMonitor.UNKNOWN);
+
+                final boolean valid = validate();
+                monitor.done();
+                display.asyncExec(() -> {
+                    System.out.println(" >> valid = " + valid);
+                    if (valid) {
+                        String message = getCommitMessageForActiveItem();
+                        System.out.println(" >> message = " + message);
+                        stagingView.setCommitMessage(message);
+                    } else {
+                        stagingView.setCommitMessage("");
+                        String patterns = Activator.getInstance(CommitMessageService.class).getCommitPatternsForStoryType(
+                                Activator.getActiveItem().getEntityType()).stream().collect(Collectors.joining(", "));
+                        new InfoPopup("Commit message", "Please make sure your commit message " +
+                                "matches one of the following patterns: " +
+                                patterns, 400, 70).open();
+                    }
+                    // stagingView.resetCommitMessageComponent();
+                    stagingView.refreshViewersPreservingExpandedElements();
+                });
+                return Status.OK_STATUS;
             }
-            stagingView.resetCommitMessageComponent();
-            stagingView.refreshViewersPreservingExpandedElements();
-        });
+        }.schedule();
+
+        // TimerTask task = new TimerTask() {
+        //
+        // @Override
+        // public void run() {
+        // Display display2 = Display.getCurrent();
+        // System.out.println(" >> 2.display = " + display2);
+        //
+        // display.asyncExec(() -> {
+        // stagingView.setCommitMessage("loading commit message ...");
+        //
+        // BusyIndicator.showWhile(Display.getCurrent(), () -> {
+        // boolean valid = validate();
+        // System.out.println(" >> valid = " + valid);
+        // if (valid) {
+        // String message = getCommitMessageForActiveItem();
+        // System.out.println(" >> message = " + message);
+        // stagingView.setCommitMessage(message);
+        // } else {
+        // // TODO
+        // stagingView.setCommitMessage("<<commit message is invalid>>");
+        // }
+        // stagingView.resetCommitMessageComponent();
+        // stagingView.refreshViewersPreservingExpandedElements();
+        // });
+        // });
+        // }
+        // };
+        // new Timer().schedule(task, 200);
     }
 
     public static boolean validate() {
