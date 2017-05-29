@@ -17,8 +17,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.e4.ui.widgets;bundle-version="1.1.0",
  org.eclipse.ui.forms;bundle-version="3.6.200",
  org.eclipse.core.filesystem;bundle-version="1.5.0",
- org.eclipse.ui.ide;bundle-version="3.11.0",
- org.eclipse.egit.ui
+ org.eclipse.ui.ide;bundle-version="3.11.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: javax.inject;version="1.0.0"
 Bundle-ActivationPolicy: lazy
@@ -50,6 +49,6 @@ Bundle-ClassPath: .,
  lib/log4j-core.jar,
  lib/octane-plugin-common.jar,
  lib/sdk-src.jar,
- lib/velocity.jarlib/sdk-extension-src.jar,
- lib/velocity.jar
+ lib/velocity.jar,
+ lib/sdk-extension-src.jar
 
