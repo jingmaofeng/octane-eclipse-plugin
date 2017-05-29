@@ -147,7 +147,7 @@ public class EntityModelEditor extends EditorPart {
                             shouldCommentsBeShown = true;
                             comments = getEntiyJob.getCommentsForCurrentEntity();
                         } else {
-                            shouldShowPhase = false;
+                            shouldCommentsBeShown = false;
                         }
                         // After the data is loaded the UI is created
                         createEntityDetailsView(stackContainer);
