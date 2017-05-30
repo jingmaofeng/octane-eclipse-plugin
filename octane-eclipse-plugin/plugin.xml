@@ -14,7 +14,7 @@
             class="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
             icon="icons/mywork.png"
             id="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
-            name="Octane: My Work">
+            name="My Work">
       </view>
    </extension>
    <extension
