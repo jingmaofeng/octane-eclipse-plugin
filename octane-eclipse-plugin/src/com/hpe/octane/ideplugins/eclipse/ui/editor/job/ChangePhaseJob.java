@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.hpe.adm.nga.sdk.exception.OctaneException;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.services.EntityService;
@@ -29,9 +30,9 @@ public class ChangePhaseJob extends Job {
         try {
             entityService.updateEntityPhase(openedEntity, (ReferenceFieldModel) selectedPhase.getValue("target_phase"));
             wasChanged = true;
-        } catch (Exception e) {
+        } catch (OctaneException ex) {
             wasChanged = false;
-            errorMessage = e.getMessage();
+            errorMessage = ex.getMessage();
         }
         monitor.done();
         return Status.OK_STATUS;
