@@ -229,7 +229,6 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                         page.addPartListener(CommitMessageUtil.stagingViewListener);
                         IViewPart viewPart = page.findView(StagingView.VIEW_ID);
                         if (viewPart != null && viewPart instanceof StagingView) {
-                            System.out.println(" >> found staging view");
                             CommitMessageUtil.changeMessageIfValid((StagingView) viewPart);
                         }
                     });

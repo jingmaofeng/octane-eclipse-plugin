@@ -14,7 +14,6 @@ public class OctaneCommitMessageProvider implements ICommitMessageProvider {
 
     @Override
     public String getMessage(IResource[] resources) {
-        System.out.println(" >> providing commit message");
         if (Activator.getActiveItem() != null) {
             if (CommitMessageUtil.validate()) {
                 return CommitMessageUtil.getCommitMessageForActiveItem();

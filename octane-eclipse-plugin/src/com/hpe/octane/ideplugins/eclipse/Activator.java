@@ -174,7 +174,6 @@ public class Activator extends AbstractUIPlugin {
             page.addPartListener(CommitMessageUtil.stagingViewListener);
             IViewPart viewPart = page.findView(StagingView.VIEW_ID);
             if (viewPart != null && viewPart instanceof StagingView) {
-                System.out.println(" >> found staging view at start");
                 CommitMessageUtil.changeMessageIfValid((StagingView) viewPart);
             }
         }
