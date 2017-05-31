@@ -42,12 +42,16 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.part.EditorPart;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
+import com.hpe.adm.octane.services.EntityService;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.ui.FormLayout;
 import com.hpe.adm.octane.services.ui.FormLayoutSection;
 import com.hpe.adm.octane.services.util.Util;
+import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.ChangePhaseJob;
@@ -67,6 +71,7 @@ public class EntityModelEditor extends EditorPart {
     private static final String DESCRIPTION_FIELD = "description";
     private static EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
     private static EntityIconFactory entityIconFactory = new EntityIconFactory(25, 25, 7);
+    private static EntityService entityService = Activator.getInstance(EntityService.class);
 
     private EntityModel entityModel;
     private FieldModel currentPhase;
@@ -86,6 +91,8 @@ public class EntityModelEditor extends EditorPart {
     private FormToolkit formGenerator;
     private Composite headerAndEntityDetailsParent;
     private ScrolledComposite headerAndEntityDetailsScrollComposite;
+    private final String GO_TO_BROWSER_DIALOG_MESSAGE = "\nYou can only provide a value for this field using ALM Octane in a browser."
+            + "\nDo you want to do this now? ";
 
     public EntityModelEditor() {
     }
@@ -424,8 +431,26 @@ public class EntityModelEditor extends EditorPart {
                     if (changePhaseJob.isPhaseChanged()) {
                         new InfoPopup("Phase Transition", "Phase was changed").open();
                     } else {
-                        MessageDialog.openError(Display.getCurrent().getActiveShell(), "ERROR",
-                                "Phase changed failed \n " + changePhaseJob.getFailedReason());
+                        String errorMessage = changePhaseJob.getFailedReason();
+                        String detailedErrorMessage = "";
+                        if (errorMessage.contains("400")) {
+                            try {
+                                JsonParser jsonParser = new JsonParser();
+                                JsonObject jsonObject = (JsonObject) jsonParser.parse(errorMessage.substring(errorMessage.indexOf("{")));
+                                detailedErrorMessage = jsonObject.get("description_translated").getAsString();
+                            } catch (Exception e1) {
+                                // logger.debug("Failed to get JSON message from
+                                // Octane Server" + e1.getMessage());
+                            }
+                        } else {
+                            detailedErrorMessage = changePhaseJob.getFailedReason();
+                        }
+                        boolean shouldGoToBroeser = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(), "Business rule violation",
+                                "Phase changed failed \n " + detailedErrorMessage + "\n" + GO_TO_BROWSER_DIALOG_MESSAGE);
+                        if (shouldGoToBroeser) {
+                            entityService.openInBrowser(entityModel);
+                        }
+
                     }
                     getEntiyJob.schedule();
                 });
