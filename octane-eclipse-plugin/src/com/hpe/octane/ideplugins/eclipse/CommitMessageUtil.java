@@ -59,7 +59,6 @@ public class CommitMessageUtil {
 
         private void setCommitMessage(IWorkbenchPart part) {
             if (part instanceof StagingView && Activator.getActiveItem() != null) {
-                System.out.println(" >> brought to top staging view");
                 changeMessageIfValid((StagingView) part);
             }
         }
@@ -97,12 +96,10 @@ public class CommitMessageUtil {
                 final boolean valid = validate();
                 monitor.done();
                 display.asyncExec(() -> {
-                    System.out.println(" >> valid = " + valid);
                     IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
                     if (page.findView(StagingView.VIEW_ID) != null) {
                         if (valid) {
                             String message = getCommitMessageForActiveItem();
-                            System.out.println(" >> message = " + message);
                             stagingView.setCommitMessage(message);
                         } else {
                             stagingView.setCommitMessage("");
@@ -119,35 +116,6 @@ public class CommitMessageUtil {
                 return Status.OK_STATUS;
             }
         }.schedule();
-
-        // TimerTask task = new TimerTask() {
-        //
-        // @Override
-        // public void run() {
-        // Display display2 = Display.getCurrent();
-        // System.out.println(" >> 2.display = " + display2);
-        //
-        // display.asyncExec(() -> {
-        // stagingView.setCommitMessage("loading commit message ...");
-        //
-        // BusyIndicator.showWhile(Display.getCurrent(), () -> {
-        // boolean valid = validate();
-        // System.out.println(" >> valid = " + valid);
-        // if (valid) {
-        // String message = getCommitMessageForActiveItem();
-        // System.out.println(" >> message = " + message);
-        // stagingView.setCommitMessage(message);
-        // } else {
-        // // TODO
-        // stagingView.setCommitMessage("<<commit message is invalid>>");
-        // }
-        // stagingView.resetCommitMessageComponent();
-        // stagingView.refreshViewersPreservingExpandedElements();
-        // });
-        // });
-        // }
-        // };
-        // new Timer().schedule(task, 200);
     }
 
     public static boolean validate() {
@@ -159,7 +127,6 @@ public class CommitMessageUtil {
             Collection<EntityModel> results = entityService.findEntities(Entity.TASK, idQuery, storyField);
             if (!results.isEmpty()) {
                 parentStory = (EntityModel) results.iterator().next().getValue("story").getValue();
-                System.out.println(" >> parentId = " + parentStory.getValue("id").getValue());
             }
         }
 
