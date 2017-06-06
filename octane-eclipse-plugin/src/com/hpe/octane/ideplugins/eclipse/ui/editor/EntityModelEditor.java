@@ -192,7 +192,7 @@ public class EntityModelEditor extends EditorPart {
         formGenerator = new FormToolkit(parent.getDisplay());
 
         Composite entityDetailsAndCommentsComposite = new Composite(headerAndEntityDetailsParent, SWT.NONE);
-        entityDetailsAndCommentsComposite.setForeground(org.eclipse.wb.swt.SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+        entityDetailsAndCommentsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
         entityDetailsAndCommentsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         formGenerator.adapt(entityDetailsAndCommentsComposite);
         formGenerator.paintBordersFor(entityDetailsAndCommentsComposite);
@@ -209,7 +209,7 @@ public class EntityModelEditor extends EditorPart {
 
         if (shouldCommentsBeShown) {
             Label commentsSeparator = new Label(entityDetailsAndCommentsComposite, SWT.SEPARATOR | SWT.SHADOW_IN);
-            commentsSeparator.setForeground(org.eclipse.wb.swt.SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
+            commentsSeparator.setForeground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
             commentsSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
             formGenerator.adapt(commentsSeparator, true, true);
 
@@ -508,6 +508,7 @@ public class EntityModelEditor extends EditorPart {
     private class LinkInterceptListener implements LocationListener {
         // method called when the user clicks a link but before the link is
         // opened.
+        @Override
         public void changing(LocationEvent event) {
             URI externalUrl = null;
             try {
@@ -526,6 +527,7 @@ public class EntityModelEditor extends EditorPart {
         }
 
         // method called after the link has been opened in place.
+        @Override
         public void changed(LocationEvent event) {
             // Not used in this example
         }

@@ -199,7 +199,7 @@ public class DetailsView {
         formGenerator = new FormToolkit(shell.getDisplay());
 
         Composite entityDetailsAndCommentsComposite = new Composite(headerAndEntityDetailsParent, SWT.NONE);
-        entityDetailsAndCommentsComposite.setForeground(org.eclipse.wb.swt.SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+        entityDetailsAndCommentsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
         entityDetailsAndCommentsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         formGenerator.adapt(entityDetailsAndCommentsComposite);
         formGenerator.paintBordersFor(entityDetailsAndCommentsComposite);
@@ -215,7 +215,7 @@ public class DetailsView {
         sectionsParentForm.getBody().setLayout(new GridLayout(1, false));
 
         Label commentsSeparator = new Label(entityDetailsAndCommentsComposite, SWT.SEPARATOR | SWT.SHADOW_IN);
-        commentsSeparator.setForeground(org.eclipse.wb.swt.SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
+        commentsSeparator.setForeground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
         commentsSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
         formGenerator.adapt(commentsSeparator, true, true);
 
