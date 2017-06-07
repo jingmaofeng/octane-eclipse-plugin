@@ -10,12 +10,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.egit.ui.internal.staging.StagingView;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.query.Query;
@@ -29,40 +27,6 @@ import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 public class CommitMessageUtil {
 
     private static EntityModel parentStory;
-
-    public static IPartListener stagingViewListener = new IPartListener() {
-
-        @Override
-        public void partOpened(IWorkbenchPart part) {
-            setCommitMessage(part);
-        }
-
-        @Override
-        public void partDeactivated(IWorkbenchPart part) {
-            // setCommitMessage(part);
-        }
-
-        @Override
-        public void partClosed(IWorkbenchPart part) {
-            // setCommitMessage(part);
-        }
-
-        @Override
-        public void partBroughtToTop(IWorkbenchPart part) {
-            setCommitMessage(part);
-        }
-
-        @Override
-        public void partActivated(IWorkbenchPart part) {
-            setCommitMessage(part);
-        }
-
-        private void setCommitMessage(IWorkbenchPart part) {
-            if (part instanceof StagingView && Activator.getActiveItem() != null) {
-                changeMessageIfValid((StagingView) part);
-            }
-        }
-    };
 
     public static String getCommitMessageForActiveItem() {
         EntityModelEditorInput activeItem = Activator.getActiveItem();
@@ -84,8 +48,7 @@ public class CommitMessageUtil {
         }
     }
 
-    public static void changeMessageIfValid(StagingView stagingView) {
-
+    public static void copyMessageIfValid() {
         Display display = Display.getCurrent();
         new Job("Validating commit message ...") {
 
@@ -96,21 +59,29 @@ public class CommitMessageUtil {
                 final boolean valid = validate();
                 monitor.done();
                 display.asyncExec(() -> {
-                    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                    if (page.findView(StagingView.VIEW_ID) != null) {
-                        if (valid) {
-                            String message = getCommitMessageForActiveItem();
-                            stagingView.setCommitMessage(message);
-                        } else {
-                            stagingView.setCommitMessage("");
-                            String patterns = Activator.getInstance(CommitMessageService.class).getCommitPatternsForStoryType(
-                                    Activator.getActiveItem().getEntityType()).stream().collect(Collectors.joining(", "));
-                            new InfoPopup("Commit message", "Please make sure your commit message " +
-                                    "matches one of the following patterns: " +
-                                    patterns, 400, 70).open();
-                        }
-                        // stagingView.resetCommitMessageComponent();
-                        stagingView.refreshViewersPreservingExpandedElements();
+                    if (valid) {
+                        Clipboard cp = new Clipboard(display);
+                        TextTransfer textTransfer = TextTransfer.getInstance();
+                        cp.setContents(new Object[] { getCommitMessageForActiveItem() }, new Transfer[] { textTransfer });
+                    } else {
+                        new Job("Getting commit patterns ...") {
+
+                            @Override
+                            protected IStatus run(IProgressMonitor monitor) {
+                                monitor.beginTask("Getting commit patterns ...", IProgressMonitor.UNKNOWN);
+
+                                String patterns = Activator.getInstance(CommitMessageService.class).getCommitPatternsForStoryType(
+                                        Activator.getActiveItem().getEntityType()).stream().collect(Collectors.joining(", "));
+                                monitor.done();
+                                display.asyncExec(() -> {
+                                    new InfoPopup("Commit message", "Please make sure your commit message " +
+                                            "matches one of the following patterns: " +
+                                            patterns, 400, 70).open();
+                                });
+
+                                return Status.OK_STATUS;
+                            }
+                        }.schedule();
                     }
                 });
                 return Status.OK_STATUS;

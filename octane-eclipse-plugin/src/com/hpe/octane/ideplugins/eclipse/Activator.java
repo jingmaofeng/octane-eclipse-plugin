@@ -10,14 +10,12 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.egit.ui.internal.staging.StagingView;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -169,14 +167,6 @@ public class Activator extends AbstractUIPlugin {
         plugin = this;
 
         IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-
-        if (Activator.getActiveItem() != null) {
-            page.addPartListener(CommitMessageUtil.stagingViewListener);
-            IViewPart viewPart = page.findView(StagingView.VIEW_ID);
-            if (viewPart != null && viewPart instanceof StagingView) {
-                CommitMessageUtil.changeMessageIfValid((StagingView) viewPart);
-            }
-        }
 
         try {
             ISecurePreferences securePrefs = getSecurePrefs();

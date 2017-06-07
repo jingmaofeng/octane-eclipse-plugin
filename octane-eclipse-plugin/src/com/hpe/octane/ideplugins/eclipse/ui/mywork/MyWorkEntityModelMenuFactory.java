@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.egit.ui.internal.staging.StagingView;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -38,7 +37,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IFileEditorMapping;
-import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -208,11 +207,6 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     });
         }
 
-        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-        if (Activator.getActiveItem() != null) {
-            page.addPartListener(CommitMessageUtil.stagingViewListener);
-        }
-
         if (entityType == Entity.DEFECT ||
                 entityType == Entity.USER_STORY ||
                 entityType == Entity.QUALITY_STORY ||
@@ -226,11 +220,6 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     ImageResources.START_TIMER_16X16.getImage(),
                     () -> {
                         Activator.setActiveItem(new EntityModelEditorInput(entityModel));
-                        page.addPartListener(CommitMessageUtil.stagingViewListener);
-                        IViewPart viewPart = page.findView(StagingView.VIEW_ID);
-                        if (viewPart != null && viewPart instanceof StagingView) {
-                            CommitMessageUtil.changeMessageIfValid((StagingView) viewPart);
-                        }
                     });
 
             MenuItem stopWork = addMenuItem(
@@ -239,7 +228,6 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     ImageResources.STOP_TIMER_16X16.getImage(),
                     () -> {
                         Activator.setActiveItem(null);
-                        page.removePartListener(CommitMessageUtil.stagingViewListener);
                     });
 
             if (!new EntityModelEditorInput(entityModel).equals(Activator.getActiveItem())) {
@@ -248,6 +236,11 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
             } else {
                 startWork.setEnabled(false);
                 stopWork.setEnabled(true);
+                addMenuItem(
+                        menu,
+                        "Copy commit message to clipboard",
+                        PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY).createImage(),
+                        () -> CommitMessageUtil.copyMessageIfValid());
             }
         }
 
