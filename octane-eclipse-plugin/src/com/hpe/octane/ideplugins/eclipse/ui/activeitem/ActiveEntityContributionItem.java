@@ -17,15 +17,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -56,14 +51,6 @@ public class ActiveEntityContributionItem extends WorkbenchWindowControlContribu
                 page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
             } catch (PartInitException ex) {
             }
-        }
-    };
-    private static Action commitMessageAction = new Action() {
-        @Override
-        public void run() {
-            Clipboard cp = new Clipboard(Display.getCurrent());
-            TextTransfer textTransfer = TextTransfer.getInstance();
-            cp.setContents(new Object[] { "KILL ME PLEASE" }, new Transfer[] { textTransfer });
         }
     };
 
@@ -111,24 +98,16 @@ public class ActiveEntityContributionItem extends WorkbenchWindowControlContribu
             openAction.setImageDescriptor(
                     new ImageDataImageDescriptor(img.getImageData()));
             openAction.setEnabled(true);
-
-            commitMessageAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
-            commitMessageAction.setToolTipText("Generate and copy commit message to clipboard");
-            commitMessageAction.setEnabled(true);
-
         } else {
             openAction.setImageDescriptor(
                     new ImageDataImageDescriptor(ImageResources.DISMISS.getImage().getImageData()));
             openAction.setText("No active item");
             openAction.setEnabled(false);
-            commitMessageAction.setEnabled(false);
         }
 
-        // Add contribution items
         ActionContributionItem contributionItem = new ActionContributionItem(openAction);
         contributionItem.setMode(ActionContributionItem.MODE_FORCE_TEXT);
         manager.add(contributionItem);
-        manager.add(new ActionContributionItem(commitMessageAction));
         manager.update(true);
 
         // Just perfect
