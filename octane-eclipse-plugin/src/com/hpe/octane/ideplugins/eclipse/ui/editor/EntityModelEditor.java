@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright 2017 Hewlett-Packard Enterprise Development Company, L.P.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.editor;
 
 import java.awt.Desktop;
@@ -180,7 +192,7 @@ public class EntityModelEditor extends EditorPart {
         formGenerator = new FormToolkit(parent.getDisplay());
 
         Composite entityDetailsAndCommentsComposite = new Composite(headerAndEntityDetailsParent, SWT.NONE);
-        entityDetailsAndCommentsComposite.setForeground(org.eclipse.wb.swt.SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+        entityDetailsAndCommentsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
         entityDetailsAndCommentsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         formGenerator.adapt(entityDetailsAndCommentsComposite);
         formGenerator.paintBordersFor(entityDetailsAndCommentsComposite);
@@ -197,7 +209,7 @@ public class EntityModelEditor extends EditorPart {
 
         if (shouldCommentsBeShown) {
             Label commentsSeparator = new Label(entityDetailsAndCommentsComposite, SWT.SEPARATOR | SWT.SHADOW_IN);
-            commentsSeparator.setForeground(org.eclipse.wb.swt.SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
+            commentsSeparator.setForeground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
             commentsSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
             formGenerator.adapt(commentsSeparator, true, true);
 
@@ -496,6 +508,7 @@ public class EntityModelEditor extends EditorPart {
     private class LinkInterceptListener implements LocationListener {
         // method called when the user clicks a link but before the link is
         // opened.
+        @Override
         public void changing(LocationEvent event) {
             URI externalUrl = null;
             try {
@@ -514,6 +527,7 @@ public class EntityModelEditor extends EditorPart {
         }
 
         // method called after the link has been opened in place.
+        @Override
         public void changed(LocationEvent event) {
             // Not used in this example
         }
