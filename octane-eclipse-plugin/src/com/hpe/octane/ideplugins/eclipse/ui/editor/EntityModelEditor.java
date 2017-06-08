@@ -236,6 +236,13 @@ public class EntityModelEditor extends EditorPart {
             inputComments = new Text(inputCommentAndSendButtonComposite, SWT.NONE);
             inputComments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
             inputComments.setToolTipText("Add new comment");
+            inputComments.setEnabled(true);
+            inputComments.addListener(SWT.Traverse, (Event event) -> {
+                if (event.detail == SWT.TRAVERSE_RETURN && inputComments.isEnabled()) {
+                    postComment(inputComments.getText());
+                    inputComments.setEnabled(false);
+                }
+            });
             formGenerator.adapt(inputComments, true, true);
 
             Button postCommentBtn = new Button(inputCommentAndSendButtonComposite, SWT.NONE);
@@ -243,7 +250,10 @@ public class EntityModelEditor extends EditorPart {
             postCommentBtn.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    postComment(inputComments.getText());
+                    if (inputComments.isEnabled()) {
+                        postComment(inputComments.getText());
+                        inputComments.setEnabled(false);
+                    }
                 }
             });
             formGenerator.adapt(postCommentBtn, true, true);
