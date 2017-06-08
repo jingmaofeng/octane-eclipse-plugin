@@ -54,6 +54,7 @@ public class SearchEditor extends EditorPart {
             Entity.USER_STORY,
             Entity.DEFECT,
             Entity.TASK,
+            Entity.TEST_SUITE,
             Entity.MANUAL_TEST,
             Entity.AUTOMATED_TEST,
             Entity.GHERKIN_TEST));
