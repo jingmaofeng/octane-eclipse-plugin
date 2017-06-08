@@ -13,7 +13,9 @@
 package com.hpe.octane.ideplugins.eclipse.ui.editor.job;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -34,8 +36,11 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class GetEntityDetailsJob extends Job {
 
+    private static final List<Entity> noPhaseEntites = Arrays.asList(Entity.MANUAL_TEST_RUN, Entity.TEST_SUITE_RUN, Entity.TEST_SUITE);
+    private static final List<Entity> noCommentsEntites = Arrays.asList(Entity.TASK, Entity.MANUAL_TEST_RUN, Entity.TEST_SUITE_RUN);
+
     private long entityId;
-    private boolean shoulShowPhase = false;
+    private boolean shouldShowPhase = false;
     private boolean areCommentsLoaded = false;
     private boolean areCommentsShown = false;
     private boolean wasEntityRetrived = false;
@@ -74,20 +79,18 @@ public class GetEntityDetailsJob extends Job {
     }
 
     private void getPhaseAndPossibleTransitions() {
-        if (Entity.MANUAL_TEST_RUN.equals(Entity.getEntityType(retrivedEntity))
-                || Entity.TEST_SUITE_RUN.equals(Entity.getEntityType(retrivedEntity))) {
-            shoulShowPhase = false;
+        if (noPhaseEntites.contains(Entity.getEntityType(retrivedEntity))) {
+            shouldShowPhase = false;
         } else {
-            shoulShowPhase = true;
-            currentPhase = retrivedEntity.getValue("phase");
-            String currentPhaseId = Util.getUiDataFromModel(currentPhase, "id");
+            shouldShowPhase = true;
+            currentPhase = retrivedEntity.getValue(EntityFieldsConstants.FIELD_PHASE);
+            String currentPhaseId = Util.getUiDataFromModel(currentPhase, EntityFieldsConstants.FIELD_PHASE);
             possibleTransitions = entityService.findPossibleTransitionFromCurrentPhase(Entity.getEntityType(retrivedEntity), currentPhaseId);
         }
     }
 
     private void getComments() {
-        if (Entity.TASK.equals(Entity.getEntityType(retrivedEntity)) || Entity.MANUAL_TEST_RUN.equals(Entity.getEntityType(retrivedEntity))
-                || Entity.TEST_SUITE_RUN.equals(Entity.getEntityType(retrivedEntity))) {
+        if (noCommentsEntites.contains(Entity.getEntityType(retrivedEntity))) {
             areCommentsShown = false;
         } else {
             areCommentsShown = true;
@@ -142,7 +145,7 @@ public class GetEntityDetailsJob extends Job {
     }
 
     public boolean shouldShowPhase() {
-        return shoulShowPhase;
+        return shouldShowPhase;
     }
 
 }
