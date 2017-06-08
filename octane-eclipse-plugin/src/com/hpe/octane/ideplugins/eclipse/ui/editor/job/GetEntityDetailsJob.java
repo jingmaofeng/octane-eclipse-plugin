@@ -80,7 +80,7 @@ public class GetEntityDetailsJob extends Job {
         } else {
             shoulShowPhase = true;
             currentPhase = retrivedEntity.getValue("phase");
-            Long currentPhaseId = Long.valueOf(Util.getUiDataFromModel(currentPhase, "id"));
+            String currentPhaseId = Util.getUiDataFromModel(currentPhase, "id");
             possibleTransitions = entityService.findPossibleTransitionFromCurrentPhase(Entity.getEntityType(retrivedEntity), currentPhaseId);
         }
     }
