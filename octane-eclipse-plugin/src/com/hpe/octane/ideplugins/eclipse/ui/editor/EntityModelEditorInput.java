@@ -31,7 +31,7 @@ public class EntityModelEditorInput implements IElementFactory, IEditorInput {
 
     private long id;
     private Entity entityType;
-    private String title;
+    private String title = "";
 
     // Default constructor needed because of IElementFactory
     public EntityModelEditorInput() {
@@ -39,7 +39,10 @@ public class EntityModelEditorInput implements IElementFactory, IEditorInput {
 
     public EntityModelEditorInput(EntityModel entityModel) {
         this.id = Long.parseLong(entityModel.getValue("id").getValue().toString());
-        this.title = entityModel.getValue("name").getValue().toString();
+        // Not all entities have a name, this field is optional
+        if (entityModel.getValue("name") != null) {
+            this.title = entityModel.getValue("name").getValue().toString();
+        }
         this.entityType = Entity.getEntityType(entityModel);
     }
 
