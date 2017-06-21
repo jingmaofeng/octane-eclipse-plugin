@@ -103,7 +103,7 @@ public class EntityModelEditor extends EditorPart {
     private FormToolkit formGenerator;
     private Composite headerAndEntityDetailsParent;
     private ScrolledComposite headerAndEntityDetailsScrollComposite;
-    private final String GO_TO_BROWSER_DIALOG_MESSAGE = "\nYou can only provide a value for this field using ALM Octane in a browser."
+    private final String GO_TO_BROWSER_DIALOG_MESSAGE = "You can try to change the phase using ALM Octane in a browser."
             + "\nDo you want to do this now? ";
 
     public EntityModelEditor() {
@@ -468,7 +468,7 @@ public class EntityModelEditor extends EditorPart {
                             detailedErrorMessage = changePhaseJob.getFailedReason();
                         }
                         boolean shouldGoToBroeser = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(), "Business rule violation",
-                                "Phase changed failed \n " + detailedErrorMessage + "\n" + GO_TO_BROWSER_DIALOG_MESSAGE);
+                                "Phase changed failed \n" + GO_TO_BROWSER_DIALOG_MESSAGE);
                         if (shouldGoToBroeser) {
                             entityService.openInBrowser(entityModel);
                         }
