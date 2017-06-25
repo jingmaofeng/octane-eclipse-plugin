@@ -77,8 +77,9 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
     private EntityModelMenuFactory entityModelMenuFactory;
     private List<EntityMouseListener> entityMouseListeners = new ArrayList<>();
 
-    DelayedRunnable resizeOnParent = new DelayedRunnable(() -> placeRows(), 10);
-    DelayedRunnable resizeOnScroll = new DelayedRunnable(() -> placeRows(), 50);
+    // DelayedRunnable resizeOnParent = new DelayedRunnable(() -> placeRows(),
+    // 5);
+    DelayedRunnable resizeOnScroll = new DelayedRunnable(() -> placeRows(), 20);
 
     private Listener displayListener = new Listener() {
         @Override
@@ -107,7 +108,12 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             public Control getRow(int index, Composite parent) {
                 Control row = entityModelRenderer.createRow(parent, entityList.get(index));
                 if (entityModelMenuFactory != null) {
-                    row.addMenuDetectListener(new EntityModelRowMenuDetectListener(row, entityList.get(index), entityModelMenuFactory));
+
+                    row.addMenuDetectListener(new EntityModelRowMenuDetectListener(
+                            row,
+                            entityList.get(index),
+                            AbsoluteLayoutEntityListViewer.this.entityModelMenuFactory));
+
                 }
                 return row;
             }
@@ -127,6 +133,7 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
         addControlListener(new ControlAdapter() {
             @Override
             public void controlResized(ControlEvent e) {
+
                 Rectangle rect = getBounds();
                 rect.height = ROW_HEIGHT * rowProvider.getRowCount();
                 if (getVerticalBar().isVisible()) {
@@ -135,15 +142,11 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
                 if (rect.width < ROW_MIN_WIDTH) {
                     rect.width = ROW_MIN_WIDTH;
                 }
-
                 rowComposite.setBounds(rect);
-            }
-        });
 
-        rowComposite.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(ControlEvent e) {
-                resizeOnParent.execute();
+                // Calling resize here won't work, it's very weird, the scroll
+                // event changes something inside the ScrolledComposite
+                getVerticalBar().notifyListeners(SWT.Selection, null);
             }
         });
 
@@ -198,7 +201,10 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
                 int index = (int) control.getData();
                 int rowY = index * ROW_HEIGHT;
                 Rectangle rect = new Rectangle(0, rowY, compositeWidth, ROW_HEIGHT);
-                control.setBounds(rect);
+
+                if (!control.getBounds().equals(rect)) {
+                    control.setBounds(rect);
+                }
             }
         });
     }
