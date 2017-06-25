@@ -61,7 +61,7 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
     private static final int ROW_CREATE_THRESHOLD = 20;
     private static final int ROW_DISPOSE_THRESHOLD = 20;
     private static final int ROW_HEIGHT = 50;
-    private static final int ROW_MIN_WIDTH = 500;
+    private static final int ROW_MIN_WIDTH = 800;
 
     private RowProvider rowProvider;
     private Composite rowComposite;
@@ -74,8 +74,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
     private EntityModelMenuFactory entityModelMenuFactory;
     private List<EntityMouseListener> entityMouseListeners = new ArrayList<>();
 
-    // DelayedRunnable resizeOnParent = new DelayedRunnable(() -> placeRows(),
-    // 5);
     DelayedRunnable resizeOnScroll = new DelayedRunnable(() -> placeRows(), 20);
 
     private Listener displayListener = new Listener() {
