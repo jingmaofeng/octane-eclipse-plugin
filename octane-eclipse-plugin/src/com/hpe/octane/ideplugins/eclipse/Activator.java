@@ -221,8 +221,13 @@ public class Activator extends AbstractUIPlugin {
         // Easter egg
         KonamiCodeListener konamiCodeListener = new KonamiCodeListener(() -> {
             try {
-                IWorkbenchPage currentPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                currentPage.openEditor(SnakeEditor.snakeEditorInput, SnakeEditor.ID);
+                // Unfortunately the game explodes on mac os, causing the ide to
+                // not respond, don't have time to fix now
+                String os = System.getProperty("os.name").toLowerCase();
+                if (os != null && os.indexOf("win") >= 0) {
+                    IWorkbenchPage currentPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                    currentPage.openEditor(SnakeEditor.snakeEditorInput, SnakeEditor.ID);
+                }
             } catch (PartInitException ignored) {
             }
         });
