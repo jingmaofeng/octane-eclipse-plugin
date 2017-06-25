@@ -136,7 +136,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
                     rect.width = ROW_MIN_WIDTH;
                 }
 
-                System.out.println("setting bounds " + rect);
                 rowComposite.setBounds(rect);
             }
         });
@@ -183,7 +182,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             if (!isRowCreated(i)) {
                 Control row = rowProvider.getRow(i, rowComposite);
                 row.setData(i);
-                System.out.println("creating " + i);
 
                 if (i == selectedIndex) {
                     paintSelected();
@@ -200,7 +198,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
                 int index = (int) control.getData();
                 int rowY = index * ROW_HEIGHT;
                 Rectangle rect = new Rectangle(0, rowY, compositeWidth, ROW_HEIGHT);
-                System.out.println("resizing row: " + rect);
                 control.setBounds(rect);
             }
         });
@@ -215,7 +212,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
                 int currentIndex = (int) control.getData();
                 if (currentIndex < indexRange.first || currentIndex > indexRange.second) {
                     control.dispose();
-                    System.out.println("disposing " + currentIndex);
                 }
             }
         }
@@ -248,8 +244,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             secondIndex = rowProvider.getRowCount() - 1;
         }
 
-        System.out.println("Vis range: " + firstIndex + " " + secondIndex);
-
         return new Pair<Integer, Integer>(firstIndex, secondIndex);
     }
 
@@ -278,7 +272,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             row.setFocus();
 
             // Selection
-            System.out.println(row.getData());
             changeSelection(rowIndex);
 
             // Fire listeners

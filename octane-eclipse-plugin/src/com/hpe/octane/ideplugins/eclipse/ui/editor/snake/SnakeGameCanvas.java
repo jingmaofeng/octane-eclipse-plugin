@@ -539,7 +539,6 @@ public class SnakeGameCanvas extends Canvas {
         }
 
         if (imageData == null) {
-            System.out.println("Failed to get image " + spriteName);
             Color color = createColor(COLOR_OCTANE_GREEN);
             Color black = createColor(SWT.COLOR_BLACK);
             Image img = new Image(Display.getDefault(), new Rectangle(0, 0, 30, 30));
