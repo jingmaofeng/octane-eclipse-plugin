@@ -33,6 +33,7 @@ import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
 import com.hpe.octane.ideplugins.eclipse.util.ControlProvider;
 import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
 import com.hpe.octane.ideplugins.eclipse.util.PredefinedEntityComparator;
+import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class EntityListComposite extends Composite {
 
@@ -93,6 +94,8 @@ public class EntityListComposite extends Composite {
     }
 
     private void init() {
+        setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+        setBackgroundMode(SWT.INHERIT_FORCE);
 
         entityTypeSelectorComposite = new EntityTypeSelectorComposite(this, SWT.NONE, filterTypes.toArray(new Entity[] {}));
         entityTypeSelectorComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
