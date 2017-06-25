@@ -53,10 +53,14 @@ public class EntityModelRow extends Composite {
      * @param style
      */
     public EntityModelRow(Composite parent, int style) {
-        super(parent, style);
-        setLayout(new BorderLayout(0, 0));
+        super(parent, SWT.NONE);
+
+        BorderLayout layout = new BorderLayout(0, 0);
+        layout.setMargins(0, 5, 0, 5);
+        setLayout(layout);
 
         lblEntityIcon = new Label(this, SWT.NONE);
+        lblEntityIcon.setAlignment(SWT.CENTER);
         lblEntityIcon.setLayoutData(BorderLayout.WEST);
 
         Composite compositeTitles = new Composite(this, SWT.NONE);
