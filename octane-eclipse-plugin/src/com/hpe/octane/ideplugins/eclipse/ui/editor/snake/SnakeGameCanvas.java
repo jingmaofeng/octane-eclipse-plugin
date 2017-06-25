@@ -173,10 +173,6 @@ public class SnakeGameCanvas extends Canvas {
         }
     }
 
-    private void callGameLoop() {
-        restartGameLoop();
-    }
-
     public SnakeGameCanvas(Composite parent) {
         super(parent, SWT.NO_BACKGROUND | SWT.NO_REDRAW_RESIZE |
                 SWT.NO_MERGE_PAINTS);
