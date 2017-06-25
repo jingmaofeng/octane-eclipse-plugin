@@ -13,7 +13,6 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -62,6 +61,7 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
     private static final int ROW_DISPOSE_THRESHOLD = 20;
     private static final int ROW_HEIGHT = 50;
     private static final int ROW_MIN_WIDTH = 800;
+    private static final int MARGINS = 10;
 
     private RowProvider rowProvider;
     private Composite rowComposite;
@@ -187,17 +187,16 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
     private void resizeRowsIfNeeded() {
 
         int compositeWidth = rowComposite.getBounds().width;
-        Arrays.stream(rowComposite.getChildren()).forEach(control -> {
-            if (control.getData() != null) {
-                int index = (int) control.getData();
-                int rowY = index * ROW_HEIGHT;
-                Rectangle rect = new Rectangle(0, rowY, compositeWidth, ROW_HEIGHT);
 
-                if (!control.getBounds().equals(rect)) {
-                    control.setBounds(rect);
-                }
+        for (Control control : rowComposite.getChildren()) {
+            int index = (int) control.getData();
+            int rowY = index * ROW_HEIGHT;
+            Rectangle rect = new Rectangle(0, rowY, compositeWidth, ROW_HEIGHT);
+            if (!control.getBounds().equals(rect)) {
+                control.setBounds(rect);
             }
-        });
+        }
+
     }
 
     private void disposeRowsIfNeeded() {
@@ -205,11 +204,9 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
 
         // Dispose rows that are not in the visible range
         for (Control control : rowComposite.getChildren()) {
-            if (control.getData() != null) {
-                int currentIndex = (int) control.getData();
-                if (currentIndex < indexRange.first || currentIndex > indexRange.second) {
-                    control.dispose();
-                }
+            int currentIndex = (int) control.getData();
+            if (currentIndex < indexRange.first || currentIndex > indexRange.second) {
+                control.dispose();
             }
         }
     }
