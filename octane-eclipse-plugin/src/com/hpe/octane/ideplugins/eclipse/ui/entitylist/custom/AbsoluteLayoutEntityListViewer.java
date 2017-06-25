@@ -61,7 +61,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
     private static final int ROW_DISPOSE_THRESHOLD = 20;
     private static final int ROW_HEIGHT = 50;
     private static final int ROW_MIN_WIDTH = 800;
-    private static final int MARGINS = 10;
 
     private RowProvider rowProvider;
     private Composite rowComposite;

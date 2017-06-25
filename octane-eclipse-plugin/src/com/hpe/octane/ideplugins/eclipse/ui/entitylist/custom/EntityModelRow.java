@@ -18,14 +18,20 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ToolTip;
 
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
@@ -34,6 +40,40 @@ import swing2swt.layout.FlowLayout;
 
 public class EntityModelRow extends Composite {
 
+    private class ToolTipMouseAdapter extends MouseTrackAdapter {
+
+        private StyledText text;
+        private ToolTip tip;
+
+        public ToolTipMouseAdapter(StyledText text, ToolTip tip) {
+            this.text = text;
+            this.tip = tip;
+        }
+
+        @Override
+        public void mouseHover(MouseEvent e) {
+            try {
+                GC gc = new GC(text);
+                int stringWidth = gc.stringExtent(text.getText()).x;
+
+                if (stringWidth > text.getSize().x) {
+                    Point cursorLocation = Display.getCurrent().getCursorLocation();
+                    cursorLocation.x += 5;
+                    cursorLocation.y += 5;
+                    tip.setLocation(cursorLocation);
+                    tip.setMessage(text.getText());
+                    tip.setVisible(true);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        @Override
+        public void mouseExit(MouseEvent e) {
+            tip.setVisible(false);
+        }
+    }
+
     public enum DetailsPosition {
         TOP, BOTTOM
     }
@@ -41,19 +81,17 @@ public class EntityModelRow extends Composite {
     private static StyleRange[] emptyRange;
     private StyledText lblEntityTitle;
     private StyledText lblEntitySubtitle;
+
     private Composite compositeTopDetails;
     private Composite compositeBottomDetails;
     private Label lblEntityIcon;
-    private Label label;
 
-    /**
-     * Create the composite.
-     * 
-     * @param parent
-     * @param style
-     */
+    private ToolTip tip;
+
     public EntityModelRow(Composite parent, int style) {
         super(parent, SWT.NONE);
+
+        tip = new ToolTip(getShell(), SWT.ICON_INFORMATION);
 
         BorderLayout layout = new BorderLayout(0, 0);
         layout.setMargins(0, 5, 0, 5);
@@ -69,24 +107,21 @@ public class EntityModelRow extends Composite {
         gl_compositeTitles.marginTop = 2;
         compositeTitles.setLayout(gl_compositeTitles);
 
-        lblEntityTitle = new StyledText(compositeTitles, SWT.READ_ONLY | SWT.WRAP | SWT.SINGLE);
-        lblEntityTitle.setToolTipText(
-                "weqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqw");
-        lblEntityTitle.setEnabled(false);
+        lblEntityTitle = new StyledText(compositeTitles, SWT.SINGLE);
+        lblEntityTitle.setEnabled(true);
         lblEntityTitle.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-        lblEntityTitle.setText(
-                "weqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqw");
         lblEntityTitle.setAlwaysShowScrollBars(false);
         lblEntityTitle.setDoubleClickEnabled(false);
         lblEntityTitle.setEditable(false);
+        lblEntityTitle.addMouseTrackListener(new ToolTipMouseAdapter(lblEntityTitle, tip));
 
         lblEntitySubtitle = new StyledText(compositeTitles, SWT.READ_ONLY | SWT.WRAP | SWT.SINGLE);
         lblEntitySubtitle.setEnabled(false);
         lblEntitySubtitle.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-        lblEntitySubtitle.setText("ewqeqw");
         lblEntitySubtitle.setAlwaysShowScrollBars(false);
         lblEntitySubtitle.setDoubleClickEnabled(false);
         lblEntitySubtitle.setEditable(false);
+        lblEntitySubtitle.addMouseTrackListener(new ToolTipMouseAdapter(lblEntitySubtitle, tip));
 
         Composite compositeDetails = new Composite(this, SWT.NONE);
         compositeDetails.setLayoutData(BorderLayout.EAST);
@@ -103,9 +138,8 @@ public class EntityModelRow extends Composite {
         compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1));
         compositeBottomDetails.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
 
-        label = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
+        Label label = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
         label.setLayoutData(BorderLayout.SOUTH);
-
     }
 
     public void setBackgroundColor(Color color) {
@@ -136,7 +170,6 @@ public class EntityModelRow extends Composite {
         styleRange.fontStyle = SWT.BOLD;
 
         lblEntityTitle.setText(title);
-        lblEntityTitle.setToolTipText(title);
         lblEntityTitle.setStyleRanges(new StyleRange[] { styleRange });
     }
 
@@ -155,7 +188,6 @@ public class EntityModelRow extends Composite {
     public void setEntitySubTitle(String subtitle, StyleRange[] styleRanges) {
         subtitle = checkEmptyValue(subtitle);
         lblEntitySubtitle.setText(subtitle);
-        lblEntitySubtitle.setToolTipText(subtitle);
         try {
             if (styleRanges != null) {
                 lblEntitySubtitle.setStyleRanges(styleRanges);
@@ -237,8 +269,4 @@ public class EntityModelRow extends Composite {
         return fieldValue;
     }
 
-    @Override
-    protected void checkSubclass() {
-        // Disable the check that prevents subclassing of SWT components
-    }
 }
