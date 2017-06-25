@@ -30,7 +30,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 
 import com.google.gson.internal.Pair;
@@ -63,8 +62,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
     private static final int ROW_DISPOSE_THRESHOLD = 20;
     private static final int ROW_HEIGHT = 50;
     private static final int ROW_MIN_WIDTH = 500;
-
-    private Label spacer;
 
     private RowProvider rowProvider;
     private Composite rowComposite;
@@ -124,25 +121,13 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
 
         rowComposite = new Composite(this, SWT.NO_MERGE_PAINTS);
 
-        spacer = new Label(rowComposite, SWT.SEPARATOR | SWT.SHADOW_NONE);
-        spacer.setEnabled(false);
-
         setContent(rowComposite);
         setMinSize(rowComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
         addControlListener(new ControlAdapter() {
             @Override
             public void controlResized(ControlEvent e) {
-
-                Rectangle rect = getBounds();
-                rect.height = ROW_HEIGHT * rowProvider.getRowCount();
-                if (getVerticalBar().isVisible()) {
-                    rect.width -= getVerticalBar().getThumbBounds().width;
-                }
-                if (rect.width < ROW_MIN_WIDTH) {
-                    rect.width = ROW_MIN_WIDTH;
-                }
-                rowComposite.setBounds(rect);
+                adjustContainerSize();
 
                 // Calling resize here won't work, it's very weird, the scroll
                 // event changes something inside the ScrolledComposite
@@ -167,8 +152,16 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
         });
     }
 
-    private void adjustContainerHeight() {
-        spacer.setBounds(0, 0, 0, ROW_HEIGHT * rowProvider.getRowCount());
+    private void adjustContainerSize() {
+        Rectangle rect = getBounds();
+        rect.height = ROW_HEIGHT * rowProvider.getRowCount();
+        if (getVerticalBar().isVisible()) {
+            rect.width -= getVerticalBar().getThumbBounds().width;
+        }
+        if (rect.width < ROW_MIN_WIDTH) {
+            rect.width = ROW_MIN_WIDTH;
+        }
+        rowComposite.setBounds(rect);
     }
 
     private void placeRows() {
@@ -351,7 +344,7 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
     @Override
     public void setEntityModels(Collection<EntityModel> entityModels) {
         this.entityList = new ArrayList<>(entityModels);
-        adjustContainerHeight();
+        adjustContainerSize();
         placeRows();
         selectedIndex = -1;
         prevSelectedIndex = -1;
