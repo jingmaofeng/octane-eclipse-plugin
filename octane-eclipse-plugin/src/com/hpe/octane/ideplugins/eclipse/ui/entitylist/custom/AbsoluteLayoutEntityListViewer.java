@@ -13,6 +13,7 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -159,6 +160,12 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             rect.width = ROW_MIN_WIDTH;
         }
         rowComposite.setBounds(rect);
+    }
+
+    public void forceRedrawRows() {
+        Arrays.stream(rowComposite.getChildren()).forEach(control -> control.dispose());
+        createRowsIfNeeded();
+        resizeRowsIfNeeded();
     }
 
     private void placeRows() {
@@ -337,6 +344,7 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
 
     @Override
     public void setEntityModels(Collection<EntityModel> entityModels) {
+        Arrays.stream(rowComposite.getChildren()).forEach(control -> control.dispose());
         this.entityList = new ArrayList<>(entityModels);
         adjustContainerSize();
         placeRows();

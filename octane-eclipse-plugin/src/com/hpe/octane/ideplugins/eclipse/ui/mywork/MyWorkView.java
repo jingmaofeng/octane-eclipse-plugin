@@ -41,7 +41,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
-import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.AbsoluteLayoutEntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer.MyWorkEntityModelRowRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
@@ -114,10 +113,16 @@ public class MyWorkView extends OctaneViewPart {
                 SWT.NONE,
                 entityData,
                 (viewerParent) -> {
-                    EntityListViewer viewer = new AbsoluteLayoutEntityListViewer((Composite) viewerParent,
+                    AbsoluteLayoutEntityListViewer viewer = new AbsoluteLayoutEntityListViewer((Composite) viewerParent,
                             SWT.NONE,
                             new MyWorkEntityModelRowRenderer(),
                             new MyWorkEntityModelMenuFactory(entityData));
+                    // nasty workaround, will force the view to refresh all the
+                    // rows,
+                    // drawing the green thingy on the icons
+                    Activator.addActiveItemChangedHandler(() -> {
+                        viewer.forceRedrawRows();
+                    });
 
                     return viewer;
                 });
