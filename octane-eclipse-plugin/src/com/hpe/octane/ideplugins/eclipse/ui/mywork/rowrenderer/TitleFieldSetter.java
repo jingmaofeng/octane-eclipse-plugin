@@ -16,18 +16,22 @@ import static com.hpe.adm.octane.services.util.Util.getUiDataFromModel;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
+import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
-class IdFieldSetter implements RowFieldSetter {
+class TitleFieldSetter implements RowFieldSetter {
 
-    private static String fieldName = "id";
+    private static String fieldName = EntityFieldsConstants.FIELD_NAME;
+    private static String fieldId = EntityFieldsConstants.FIELD_ID;
 
     @Override
     public void setField(EntityModelRow row, EntityModel entityModel) {
-        row.setEntityId(Integer.valueOf(getUiDataFromModel(entityModel.getValue(fieldName))));
+        Integer id = Integer.valueOf(getUiDataFromModel(entityModel.getValue(fieldId)));
+        String name = getUiDataFromModel(entityModel.getValue(fieldName));
+        row.setEntityTitle(id, name);
     }
 
     @Override
     public String[] getFieldNames() {
-        return new String[] { fieldName };
+        return new String[] { fieldId, fieldName };
     }
 }

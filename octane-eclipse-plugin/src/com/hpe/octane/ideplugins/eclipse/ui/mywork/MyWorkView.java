@@ -41,7 +41,8 @@ import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
-import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.AbsoluteLayoutEntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer.MyWorkEntityModelRowRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditorInput;
@@ -113,14 +114,10 @@ public class MyWorkView extends OctaneViewPart {
                 SWT.NONE,
                 entityData,
                 (viewerParent) -> {
-                    FatlineEntityListViewer viewer = new FatlineEntityListViewer((Composite) viewerParent,
+                    EntityListViewer viewer = new AbsoluteLayoutEntityListViewer((Composite) viewerParent,
                             SWT.NONE,
-                            new MyWorkEntityModelMenuFactory(entityData),
-                            new MyWorkEntityModelRowRenderer());
-
-                    Activator.addActiveItemChangedHandler(() -> {
-                        viewer.recreateRows();
-                    });
+                            new MyWorkEntityModelRowRenderer(),
+                            new MyWorkEntityModelMenuFactory(entityData));
 
                     return viewer;
                 });

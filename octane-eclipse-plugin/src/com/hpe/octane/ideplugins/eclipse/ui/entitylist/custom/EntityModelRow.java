@@ -21,15 +21,16 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
+
+import swing2swt.layout.BorderLayout;
+import swing2swt.layout.FlowLayout;
 
 public class EntityModelRow extends Composite {
 
@@ -37,17 +38,13 @@ public class EntityModelRow extends Composite {
         TOP, BOTTOM
     }
 
-    private StyledText lblEntityDetails;
-    private Label lblEntityName;
-    private Label lblEntityId;
-    private Label lblEntityIcon;
+    private static StyleRange[] emptyRange;
+    private StyledText lblEntityTitle;
+    private StyledText lblEntitySubtitle;
     private Composite compositeTopDetails;
     private Composite compositeBottomDetails;
-    private Label labelTopSpacer;
-    private Label labelBottomSpacer;
-    private static StyleRange[] emptyRange;
-    private Label lblNewLabel;
-    private Composite iconComposite;
+    private Label lblEntityIcon;
+    private Label label;
 
     /**
      * Create the composite.
@@ -57,51 +54,54 @@ public class EntityModelRow extends Composite {
      */
     public EntityModelRow(Composite parent, int style) {
         super(parent, style);
-        GridLayout gridLayout = new GridLayout(5, false);
-        gridLayout.marginBottom = 0;
-        gridLayout.verticalSpacing = 0;
-        gridLayout.marginHeight = 0;
-        setLayout(gridLayout);
+        setLayout(new BorderLayout(0, 0));
 
-        iconComposite = new Composite(this, SWT.NONE);
-        FillLayout fl_iconComposite = new FillLayout(SWT.HORIZONTAL);
-        fl_iconComposite.marginWidth = 3;
-        fl_iconComposite.marginHeight = 3;
-        iconComposite.setLayout(fl_iconComposite);
-        iconComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 2));
+        lblEntityIcon = new Label(this, SWT.NONE);
+        lblEntityIcon.setLayoutData(BorderLayout.WEST);
 
-        lblEntityIcon = new Label(iconComposite, SWT.CENTER);
-        lblEntityIcon.setAlignment(SWT.CENTER);
+        Composite compositeTitles = new Composite(this, SWT.NONE);
+        compositeTitles.setLayoutData(BorderLayout.CENTER);
+        GridLayout gl_compositeTitles = new GridLayout(1, false);
+        gl_compositeTitles.marginTop = 2;
+        compositeTitles.setLayout(gl_compositeTitles);
 
-        lblEntityId = new Label(this, SWT.NONE);
-        lblEntityId.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
-        lblEntityId.setFont(SWTResourceManager.getBoldFont(lblEntityId.getFont()));
+        lblEntityTitle = new StyledText(compositeTitles, SWT.READ_ONLY | SWT.WRAP | SWT.SINGLE);
+        lblEntityTitle.setToolTipText(
+                "weqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqw");
+        lblEntityTitle.setEnabled(false);
+        lblEntityTitle.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        lblEntityTitle.setText(
+                "weqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqwweqeqweqw");
+        lblEntityTitle.setAlwaysShowScrollBars(false);
+        lblEntityTitle.setDoubleClickEnabled(false);
+        lblEntityTitle.setEditable(false);
 
-        lblEntityName = new Label(this, SWT.NONE);
-        lblEntityName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+        lblEntitySubtitle = new StyledText(compositeTitles, SWT.READ_ONLY | SWT.WRAP | SWT.SINGLE);
+        lblEntitySubtitle.setEnabled(false);
+        lblEntitySubtitle.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        lblEntitySubtitle.setText("ewqeqw");
+        lblEntitySubtitle.setAlwaysShowScrollBars(false);
+        lblEntitySubtitle.setDoubleClickEnabled(false);
+        lblEntitySubtitle.setEditable(false);
 
-        labelTopSpacer = new Label(this, SWT.NONE);
-        labelTopSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+        Composite compositeDetails = new Composite(this, SWT.NONE);
+        compositeDetails.setLayoutData(BorderLayout.EAST);
+        GridLayout gl_compositeDetails = new GridLayout(1, false);
+        gl_compositeDetails.marginTop = 5;
+        gl_compositeDetails.marginHeight = 0;
+        compositeDetails.setLayout(gl_compositeDetails);
 
-        compositeTopDetails = new Composite(this, SWT.NONE);
-        RowLayout rl_compositeTopDetails = new RowLayout(SWT.HORIZONTAL);
-        compositeTopDetails.setLayout(rl_compositeTopDetails);
-        compositeTopDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true, 1, 1));
+        compositeTopDetails = new Composite(compositeDetails, SWT.NONE);
+        compositeTopDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1));
+        compositeTopDetails.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
 
-        lblEntityDetails = new StyledText(this, SWT.NONE);
-        lblEntityDetails.setEnabled(false);
-        lblEntityDetails.setEditable(false);
-        lblEntityDetails.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 2, 1));
+        compositeBottomDetails = new Composite(compositeDetails, SWT.NONE);
+        compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1));
+        compositeBottomDetails.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
 
-        labelBottomSpacer = new Label(this, SWT.NONE);
-        labelBottomSpacer.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+        label = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
+        label.setLayoutData(BorderLayout.SOUTH);
 
-        compositeBottomDetails = new Composite(this, SWT.NONE);
-        compositeBottomDetails.setLayout(new RowLayout(SWT.HORIZONTAL));
-        compositeBottomDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true, 1, 1));
-
-        lblNewLabel = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL | SWT.CENTER);
-        lblNewLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
     }
 
     public void setBackgroundColor(Color color) {
@@ -112,13 +112,28 @@ public class EntityModelRow extends Composite {
         lblEntityIcon.setImage(entityIconImage);
     }
 
-    public void setEntityName(String entityName) {
-        entityName = checkEmptyValue(entityName);
-        lblEntityName.setText(entityName);
-    }
+    public void setEntityTitle(Integer id, String entityName) {
 
-    public void setEntityId(Integer id) {
-        lblEntityId.setText(id + "");
+        entityName = checkEmptyValue(entityName);
+
+        String idString;
+
+        if (id != null) {
+            idString = String.valueOf(id);
+        } else {
+            idString = "";
+        }
+
+        String title = idString + " " + entityName;
+
+        StyleRange styleRange = new StyleRange();
+        styleRange.start = title.indexOf(idString);
+        styleRange.length = idString.length();
+        styleRange.fontStyle = SWT.BOLD;
+
+        lblEntityTitle.setText(title);
+        lblEntityTitle.setToolTipText(title);
+        lblEntityTitle.setStyleRanges(new StyleRange[] { styleRange });
     }
 
     public void setEntitySubTitle(String subtitle) {
@@ -134,18 +149,19 @@ public class EntityModelRow extends Composite {
     }
 
     public void setEntitySubTitle(String subtitle, StyleRange[] styleRanges) {
+        subtitle = checkEmptyValue(subtitle);
+        lblEntitySubtitle.setText(subtitle);
+        lblEntitySubtitle.setToolTipText(subtitle);
         try {
-            subtitle = checkEmptyValue(subtitle);
-            lblEntityDetails.setText(subtitle);
             if (styleRanges != null) {
-                lblEntityDetails.setStyleRanges(styleRanges);
+                lblEntitySubtitle.setStyleRanges(styleRanges);
             }
         } catch (Exception ex) {
-
         }
     }
 
     public void addDetails(String fieldName, String fieldValue, DetailsPosition position) {
+
         Composite parent;
         if (DetailsPosition.TOP == position) {
             parent = compositeTopDetails;
@@ -181,6 +197,7 @@ public class EntityModelRow extends Composite {
 
         fieldValue = checkEmptyValue(fieldValue);
         lblValue.setText(fieldValue);
+
     }
 
     public void setLabelFontColor(Color color) {

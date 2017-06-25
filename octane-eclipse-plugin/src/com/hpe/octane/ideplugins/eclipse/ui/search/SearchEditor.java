@@ -36,7 +36,7 @@ import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.filter.ArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
-import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.FatlineEntityListViewer;
+import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.AbsoluteLayoutEntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.OpenDetailTabEntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
@@ -100,10 +100,10 @@ public class SearchEditor extends EditorPart {
                 SWT.NONE,
                 entityData,
                 (parentControl) -> {
-                    return new FatlineEntityListViewer((Composite) parentControl,
+                    return new AbsoluteLayoutEntityListViewer((Composite) parentControl,
                             SWT.NONE,
-                            new SearchEntityModelMenuFactory(),
-                            new SearchResultRowRenderer());
+                            new SearchResultRowRenderer(),
+                            new SearchEntityModelMenuFactory());
                 },
                 searchEntityTypes,
                 searchEntityFilterFields);

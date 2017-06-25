@@ -51,8 +51,8 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
     private static final EntityIconFactory entityIconFactory = new EntityIconFactory(40, 40, 14);
 
     // Re-usable field setters
-    static IdFieldSetter fsId = new IdFieldSetter();
-    static NameFieldSetter fsName = new NameFieldSetter();
+    static TitleFieldSetter titleFieldSetter = new TitleFieldSetter();
+    static TitleFieldSetter fsName = new TitleFieldSetter();
 
     // Top
     static RowFieldSetter fsStoryPoints = new GenericFieldSetter(FIELD_STORYPOINTS, "SP", DetailsPosition.TOP);
@@ -182,8 +182,7 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
         fieldSetterMap.forEach((entityType, fieldSetters) -> {
             // Add ID and Name field setters for everything except the COMMENT
             if (entityType != Entity.COMMENT) {
-                fieldSetters.add(fsId);
-                fieldSetters.add(fsName);
+                fieldSetters.add(titleFieldSetter);
             }
         });
     }
@@ -203,7 +202,14 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
             rowComposite.addDetails("", "Dismissible", DetailsPosition.BOTTOM);
         }
 
-        if (new EntityModelEditorInput(entityModel).equals(Activator.getActiveItem())) {
+        EntityModelEditorInput activeItem = null;
+        try {
+            activeItem = Activator.getActiveItem();
+        } catch (Exception ignored) {
+            // this won't work when debugging w/o starting the whole IDE
+        }
+
+        if (new EntityModelEditorInput(entityModel).equals(activeItem)) {
             rowComposite.setEntityIcon(entityIconFactory.getImageIcon(entityType, true));
         } else {
             rowComposite.setEntityIcon(entityIconFactory.getImageIcon(entityType, false));

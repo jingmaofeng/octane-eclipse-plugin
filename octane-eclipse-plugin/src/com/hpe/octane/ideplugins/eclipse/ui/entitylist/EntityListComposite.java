@@ -114,7 +114,7 @@ public class EntityListComposite extends Composite {
         // Just a placeholder for the viewer
         Composite compositeEntityList = new Composite(this, SWT.NONE);
         compositeEntityList.setLayout(new FillLayout(SWT.HORIZONTAL));
-        compositeEntityList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+        compositeEntityList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
         entityListViewer = controlProvider.createControl(compositeEntityList);
         entityListData.addDataChangedHandler(entityList -> entityListViewer.setEntityModels(entityList));

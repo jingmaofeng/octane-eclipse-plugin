@@ -40,12 +40,11 @@ public class SearchResultRowRenderer implements EntityModelRenderer {
         row.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         row.setBackgroundMode(SWT.INHERIT_FORCE);
 
-        row.setEntityId(entityId);
         row.setEntityIcon(entityIconFactory.getImageIcon(entityType));
 
         String name = Util.getUiDataFromModel(entityModel.getValue("name"));
         name = Util.stripHtml(name);
-        row.setEntityName(name);
+        row.setEntityTitle(entityId, name);
 
         String description = Util.getUiDataFromModel(entityModel.getValue(FIELD_DESCRIPTION));
         description = Util.stripHtml(description);

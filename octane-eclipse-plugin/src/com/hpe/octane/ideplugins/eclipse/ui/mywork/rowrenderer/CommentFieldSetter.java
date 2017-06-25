@@ -37,8 +37,10 @@ public class CommentFieldSetter implements RowFieldSetter {
             String ownerSubtype = getEntityDisplayName(Entity.getEntityType(owner.getValue())).toLowerCase();
 
             String entityName = "Comment on " + ownerSubtype + ": " + ownerId + " " + ownerName;
-            row.setEntityName(entityName);
+            row.setEntityTitle(null, entityName);
             row.setEntitySubTitle(text);
+
+            row.setEntityTitle(null, entityName);
         } catch (Exception e) {
             e.printStackTrace();
         }
