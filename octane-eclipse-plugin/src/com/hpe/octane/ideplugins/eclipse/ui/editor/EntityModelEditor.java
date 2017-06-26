@@ -12,10 +12,6 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.editor;
 
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,8 +23,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.browser.LocationEvent;
-import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
@@ -84,6 +78,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
+import com.hpe.octane.ideplugins.eclipse.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
@@ -110,7 +105,7 @@ public class EntityModelEditor extends EditorPart {
     private String comments;
 
     private StackLayoutComposite rootComposite;
-
+    private ScrolledComposite headerAndEntityDetailsScrollComposite;
     private Composite entityDetailsParentComposite;
     private LoadingComposite loadingComposite;
     private FormLayout octaneEntityForm;
@@ -118,10 +113,7 @@ public class EntityModelEditor extends EditorPart {
     private FormToolkit formGenerator;
     private Composite headerAndEntityDetailsParent;
 
-    // /private ScrolledComposite headerAndEntityDetailsScrollComposite;
-
     private ToolTip truncatedLabelTooltip;
-    private ScrolledComposite headerAndEntityDetailsScrollComposite;
 
     public EntityModelEditor() {
     }
@@ -541,34 +533,6 @@ public class EntityModelEditor extends EditorPart {
             }
         });
 
-    }
-
-    private class LinkInterceptListener implements LocationListener {
-        // method called when the user clicks a link but before the link is
-        // opened.
-        @Override
-        public void changing(LocationEvent event) {
-            URI externalUrl = null;
-            try {
-                externalUrl = new URI(event.location);
-            } catch (URISyntaxException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            try {
-                Desktop.getDesktop().browse(externalUrl);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            event.doit = false;
-        }
-
-        // method called after the link has been opened in place.
-        @Override
-        public void changed(LocationEvent event) {
-            // Not used in this example
-        }
     }
 
     private static void resizeScrollContent(ScrolledComposite scrolledComposite) {
