@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -30,20 +31,27 @@ import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.ISharedImages;
@@ -60,6 +68,7 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.services.EntityService;
 import com.hpe.adm.octane.services.filtering.Entity;
+import com.hpe.adm.octane.services.ui.FormField;
 import com.hpe.adm.octane.services.ui.FormLayout;
 import com.hpe.adm.octane.services.ui.FormLayoutSection;
 import com.hpe.adm.octane.services.util.Util;
@@ -71,6 +80,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetEntityDetailsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.SendCommentJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
@@ -80,7 +90,10 @@ import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 public class EntityModelEditor extends EditorPart {
 
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.EntityModelEditor"; //$NON-NLS-1$
-    private static final String DESCRIPTION_FIELD = "description";
+    private static final String GO_TO_BROWSER_DIALOG_MESSAGE = "You can try to change the phase using ALM Octane in a browser."
+            + "\nDo you want to do this now?";
+    private static final int MIN_WIDTH = 800;
+
     private static EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
     private static EntityIconFactory entityIconFactory = new EntityIconFactory(25, 25, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
@@ -96,15 +109,19 @@ public class EntityModelEditor extends EditorPart {
     private Text inputComments;
     private String comments;
 
+    private StackLayoutComposite rootComposite;
+
     private Composite entityDetailsParentComposite;
     private LoadingComposite loadingComposite;
     private FormLayout octaneEntityForm;
     private Form sectionsParentForm;
     private FormToolkit formGenerator;
     private Composite headerAndEntityDetailsParent;
+
+    // /private ScrolledComposite headerAndEntityDetailsScrollComposite;
+
+    private ToolTip truncatedLabelTooltip;
     private ScrolledComposite headerAndEntityDetailsScrollComposite;
-    private final String GO_TO_BROWSER_DIALOG_MESSAGE = "You can try to change the phase using ALM Octane in a browser."
-            + "\nDo you want to do this now? ";
 
     public EntityModelEditor() {
     }
@@ -131,10 +148,12 @@ public class EntityModelEditor extends EditorPart {
         parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
-        StackLayoutComposite stackContainer = new StackLayoutComposite(parent, SWT.NONE);
+        truncatedLabelTooltip = new ToolTip(parent.getShell(), SWT.ICON_INFORMATION);
+
+        rootComposite = new StackLayoutComposite(parent, SWT.NONE);
         // set loading GIF until the data is loaded
-        loadingComposite = new LoadingComposite(stackContainer, SWT.NONE);
-        stackContainer.showControl(loadingComposite);
+        loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
+        rootComposite.showControl(loadingComposite);
 
         // This job retrieves the necessary data for the details view
         getEntiyJob = new GetEntityDetailsJob("Retiving entity details", this.input.getEntityType(), this.input.getId());
@@ -144,7 +163,7 @@ public class EntityModelEditor extends EditorPart {
             @Override
             public void scheduled(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
-                    stackContainer.showControl(loadingComposite);
+                    rootComposite.showControl(loadingComposite);
                 });
             }
 
@@ -169,9 +188,9 @@ public class EntityModelEditor extends EditorPart {
                             shouldCommentsBeShown = false;
                         }
                         // After the data is loaded the UI is created
-                        createEntityDetailsView(stackContainer);
+                        createEntityDetailsView(rootComposite);
                         // After the UI is created it gets displayed
-                        stackContainer.showControl(headerAndEntityDetailsScrollComposite);
+                        rootComposite.showControl(headerAndEntityDetailsScrollComposite);
                     });
                 }
             }
@@ -180,14 +199,13 @@ public class EntityModelEditor extends EditorPart {
 
     private void createEntityDetailsView(Composite parent) {
         headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-        headerAndEntityDetailsScrollComposite.setExpandHorizontal(true);
-        headerAndEntityDetailsScrollComposite.setExpandVertical(true);
 
         headerAndEntityDetailsParent = new Composite(headerAndEntityDetailsScrollComposite, SWT.NONE);
         headerAndEntityDetailsParent.setLayout(new FillLayout(SWT.HORIZONTAL));
         headerAndEntityDetailsParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
-
         createHeaderPanel(headerAndEntityDetailsParent);
+
+        headerAndEntityDetailsScrollComposite.setContent(headerAndEntityDetailsParent);
 
         formGenerator = new FormToolkit(parent.getDisplay());
 
@@ -277,8 +295,17 @@ public class EntityModelEditor extends EditorPart {
             createDescriptionFormSection();
         }
 
-        headerAndEntityDetailsScrollComposite.setContent(headerAndEntityDetailsParent);
-        headerAndEntityDetailsScrollComposite.setMinSize(headerAndEntityDetailsParent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        // Make scroll force child into submission (width)
+        headerAndEntityDetailsScrollComposite.setExpandHorizontal(false);
+        headerAndEntityDetailsScrollComposite.setExpandVertical(false);
+        headerAndEntityDetailsScrollComposite.addControlListener(new ControlAdapter() {
+            @Override
+            public void controlResized(ControlEvent e) {
+                resizeScrollContent(headerAndEntityDetailsScrollComposite);
+            }
+        });
+        // for init load
+        resizeScrollContent(headerAndEntityDetailsScrollComposite);
     }
 
     private void createHeaderPanel(Composite parent) {
@@ -371,6 +398,7 @@ public class EntityModelEditor extends EditorPart {
     private void createSectionsWithEntityData(FormLayoutSection formSection) {
         Section section = formGenerator.createSection(sectionsParentForm.getBody(),
                 Section.DESCRIPTION | Section.TREE_NODE | Section.EXPANDED);
+
         section.setText(formSection.getSectionTitle());
         section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
         section.setExpanded(true);
@@ -383,51 +411,51 @@ public class EntityModelEditor extends EditorPart {
         sectionClientLeft.setLayout(new GridLayout(2, false));
         Composite sectionClientRight = new Composite(sectionClient, SWT.NONE);
         sectionClientRight.setLayout(new GridLayout(2, false));
-        for (int i = 0; i <= formSection.getFields().size() - 1; i += 2) {
-            if (!DESCRIPTION_FIELD.equals(formSection.getFields().get(i).getName())) {
-                String fieldName = formSection.getFields().get(i).getName();
-                String fielValue = "";
 
-                if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName) || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
-                        || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
-                        || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
-                    fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName), "full_name");
-                } else {
-                    fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
-                }
+        List<FormField> formFields = formSection.getFields();
 
-                CLabel tempLabelLeft = new CLabel(sectionClientLeft, SWT.NONE);
-                tempLabelLeft.setText(prettifyLabels(fieldName));
-                tempLabelLeft.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
-                tempLabelLeft.setMargins(5, 2, 5, 2);
+        for (int i = 0; i < formFields.size(); i++) {
 
-                CLabel tempValuesLabelLeft = new CLabel(sectionClientLeft, SWT.NONE);
-                tempValuesLabelLeft.setText(fielValue);
-                tempValuesLabelLeft.setMargins(5, 2, 5, 2);
+            String fieldName = formFields.get(i).getName();
+
+            String fielValue;
+            if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
+                    || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
+                    || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
+                    || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
+                fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName), EntityFieldsConstants.FIELD_FULL_NAME);
+            } else {
+                fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
             }
-            if (formSection.getFields().size() > i + 1 && null != formSection.getFields().get(i + 1)
-                    && !DESCRIPTION_FIELD.equals(formSection.getFields().get(i + 1).getName())) {
-                String fieldName = formSection.getFields().get(i + 1).getName();
-                String fielValue = "";
 
-                if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName) || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
-                        || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
-                        || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
-                    fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName), "full_name");
-                } else {
-                    fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
-                }
-
-                CLabel tempLabelRight = new CLabel(sectionClientRight, SWT.NONE);
-                tempLabelRight.setText(prettifyLabels(fieldName));
-                tempLabelRight.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
-                tempLabelRight.setMargins(5, 2, 5, 2);
-
-                CLabel tempValuesLabelRight = new CLabel(sectionClientRight, SWT.NONE);
-                tempValuesLabelRight.setText(fielValue);
-                tempValuesLabelRight.setMargins(5, 2, 5, 2);
+            // Skip the description fields as it's set into another ui component
+            // below this one
+            if (EntityFieldsConstants.FIELD_DESCRIPTION.equals(fieldName)) {
+                formFields.remove(i);
+                i--;
+                continue;
             }
+
+            // Determine if we put the label pair in the left or right container
+            Composite parent;
+            if (i % 2 == 0) {
+                parent = sectionClientLeft;
+            } else {
+                parent = sectionClientRight;
+            }
+
+            // Add the pair of labels for field and value
+
+            CLabel labelFieldName = new CLabel(parent, SWT.NONE);
+            labelFieldName.setText(prettifyLabels(fieldName));
+            labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
+            labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+
+            TruncatingStyledText labelValue = new TruncatingStyledText(parent, SWT.NONE, truncatedLabelTooltip);
+            labelValue.setText(fielValue);
+            labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         }
+
         section.setClient(sectionClient);
     }
 
@@ -543,19 +571,43 @@ public class EntityModelEditor extends EditorPart {
         }
     }
 
+    private static void resizeScrollContent(ScrolledComposite scrolledComposite) {
+
+        Control content = scrolledComposite.getContent();
+        if (content == null || content.isDisposed()) {
+            return;
+        }
+
+        Rectangle size = scrolledComposite.getBounds();
+        ScrollBar scrollbar = scrolledComposite.getVerticalBar();
+
+        size.width -= 10;
+
+        if (scrollbar.isVisible()) {
+            size.width -= (scrollbar.getThumbBounds().width);
+        }
+        if (size.width < MIN_WIDTH) {
+            size.width = MIN_WIDTH;
+        }
+
+        Point contentSize = content.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        contentSize.x = size.width;
+        content.setSize(contentSize);
+    }
+
     @Override
     public void setFocus() {
-        // Set the focus
+        rootComposite.setFocus();
     }
 
     @Override
     public void doSave(IProgressMonitor monitor) {
-        // Do the Save operation
+        // Not supported
     }
 
     @Override
     public void doSaveAs() {
-        // Do the Save As operation
+        // Not supported
     }
 
     @Override
