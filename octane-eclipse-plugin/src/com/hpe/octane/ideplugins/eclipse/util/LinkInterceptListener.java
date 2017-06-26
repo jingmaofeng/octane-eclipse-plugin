@@ -23,11 +23,12 @@ public class LinkInterceptListener implements LocationListener {
         try {
             externalUrl = new URI(event.location);
             Desktop.getDesktop().browse(externalUrl);
+            event.doit = false; // stop propagation
         } catch (URISyntaxException | IOException e) {
-
+            // tough luck, continue propagation, it's better than nothing
+            event.doit = true;
         }
-        // stop propagation
-        event.doit = false;
+
     }
 
     // method called after the link has been opened in place.
