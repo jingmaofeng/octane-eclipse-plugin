@@ -530,6 +530,8 @@ public class EntityModelEditor extends EditorPart {
         Rectangle size = scrolledComposite.getBounds();
         ScrollBar scrollbar = scrolledComposite.getVerticalBar();
 
+        // TODO: I really don't know what's causing the extra space to be
+        // there, besides the scroll width
         size.width -= 10;
 
         if (scrollbar.isVisible()) {

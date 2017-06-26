@@ -36,6 +36,11 @@ public class TruncatingStyledText extends StyledText {
                     tip.setVisible(true);
                 }
             }
+
+            @Override
+            public void mouseExit(MouseEvent e) {
+                tip.setVisible(false);
+            }
         });
 
         addControlListener(new ControlAdapter() {
