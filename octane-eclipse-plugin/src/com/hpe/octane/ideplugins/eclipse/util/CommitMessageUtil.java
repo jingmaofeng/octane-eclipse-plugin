@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse;
+package com.hpe.octane.ideplugins.eclipse.util;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,8 +33,8 @@ import com.hpe.adm.nga.sdk.query.QueryMethod;
 import com.hpe.adm.octane.services.EntityService;
 import com.hpe.adm.octane.services.filtering.Entity;
 import com.hpe.adm.octane.services.nonentity.CommitMessageService;
+import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
-import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 
 public class CommitMessageUtil {
 
