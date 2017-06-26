@@ -101,16 +101,28 @@ public class GetEntityDetailsJob extends Job {
 
     public String getCommentsForCurrentEntity() {
         StringBuilder commentsBuilder = new StringBuilder();
+
+        commentsBuilder.append("<html><body style='overflow:hidden'>");
         if (!comments.isEmpty()) {
             for (EntityModel comment : comments) {
                 String commentsPostTime = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_CREATION_TIME));
                 String userName = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_AUTHOR), "full_name");
                 String commentLine = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_COMMENT_TEXT));
+                commentLine = removeHtmlBaseTags(commentLine);
                 String currentText = commentsPostTime + " <b>" + userName + ":</b> <br>" + commentLine + "<hr>";
                 commentsBuilder.append(currentText);
             }
         }
+        commentsBuilder.append("</body></html>");
         return commentsBuilder.toString();
+    }
+
+    private static String removeHtmlBaseTags(String htmlString) {
+        htmlString = htmlString.replace("<html>", "");
+        htmlString = htmlString.replace("<body>", "");
+        htmlString = htmlString.replace("</html>", "");
+        htmlString = htmlString.replace("</body>", "");
+        return htmlString;
     }
 
     public boolean areCommentsLoaded() {
