@@ -500,21 +500,6 @@ public class EntityModelEditor extends EditorPart {
         });
     }
 
-    private void setEntiyData() {
-        GetEntityDetailsJob getEntiyJob = new GetEntityDetailsJob("Retiving entity details", this.input.getEntityType(), this.input.getId());
-        getEntiyJob.schedule();
-        getEntiyJob.addJobChangeListener(new JobChangeAdapter() {
-            @Override
-            public void done(IJobChangeEvent event) {
-                Display.getDefault().asyncExec(() -> {
-                    if (getEntiyJob.wasEntityRetrived()) {
-                        entityModel = getEntiyJob.getEntiyData();
-                    }
-                });
-            }
-        });
-    }
-
     private void postComment(String text) {
         SendCommentJob sendCommentJob = new SendCommentJob("Sending Comments", entityModel, text);
         sendCommentJob.schedule();
