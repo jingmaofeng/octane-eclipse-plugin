@@ -56,8 +56,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.part.EditorPart;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.services.EntityService;
@@ -473,20 +471,6 @@ public class EntityModelEditor extends EditorPart {
                     if (changePhaseJob.isPhaseChanged()) {
                         new InfoPopup("Phase Transition", "Phase was changed").open();
                     } else {
-                        String errorMessage = changePhaseJob.getFailedReason();
-                        String detailedErrorMessage = "";
-                        if (errorMessage.contains("400")) {
-                            try {
-                                JsonParser jsonParser = new JsonParser();
-                                JsonObject jsonObject = (JsonObject) jsonParser.parse(errorMessage.substring(errorMessage.indexOf("{")));
-                                detailedErrorMessage = jsonObject.get("description_translated").getAsString();
-                            } catch (Exception e1) {
-                                // logger.debug("Failed to get JSON message from
-                                // Octane Server" + e1.getMessage());
-                            }
-                        } else {
-                            detailedErrorMessage = changePhaseJob.getFailedReason();
-                        }
                         boolean shouldGoToBroeser = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(), "Business rule violation",
                                 "Phase changed failed \n" + GO_TO_BROWSER_DIALOG_MESSAGE);
                         if (shouldGoToBroeser) {
