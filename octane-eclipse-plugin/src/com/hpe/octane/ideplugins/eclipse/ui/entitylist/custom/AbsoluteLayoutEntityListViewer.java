@@ -60,7 +60,7 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
 
     private static final int ROW_CREATE_THRESHOLD = 20;
     private static final int ROW_DISPOSE_THRESHOLD = 20;
-    private static final int ROW_HEIGHT = 50;
+    private static final int ROW_HEIGHT = 60;
     private static final int ROW_MIN_WIDTH = 800;
 
     private RowProvider rowProvider;
@@ -197,6 +197,7 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
         for (Control control : rowComposite.getChildren()) {
             int index = (int) control.getData();
             int rowY = index * ROW_HEIGHT;
+
             Rectangle rect = new Rectangle(0, rowY, compositeWidth, ROW_HEIGHT);
             if (!control.getBounds().equals(rect)) {
                 control.setBounds(rect);

@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.ToolTip;
 
 public class TruncatingStyledText extends StyledText {
 
-    private String originalText;
+    private String originalText = "";
     private GC gc;
 
     public TruncatingStyledText(Composite parent, int style, ToolTip tip) {

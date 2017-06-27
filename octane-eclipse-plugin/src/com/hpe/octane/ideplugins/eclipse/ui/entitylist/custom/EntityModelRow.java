@@ -50,6 +50,8 @@ public class EntityModelRow extends Composite {
 
     private ToolTip tip;
 
+    private static final Font font = SWTResourceManager.getFont("Segoe UI", 9, SWT.NORMAL);
+
     public EntityModelRow(Composite parent, int style) {
         super(parent, SWT.NONE);
 
@@ -70,12 +72,16 @@ public class EntityModelRow extends Composite {
         compositeTitles.setLayout(gl_compositeTitles);
 
         lblEntityTitle = new TruncatingStyledText(compositeTitles, SWT.SINGLE, tip);
+        lblEntityTitle.setText("test here");
+        lblEntityTitle.setFont(font);
         lblEntityTitle.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
         lblEntityTitle.setAlwaysShowScrollBars(false);
         lblEntityTitle.setDoubleClickEnabled(false);
         lblEntityTitle.setEditable(false);
 
         lblEntitySubtitle = new TruncatingStyledText(compositeTitles, SWT.READ_ONLY | SWT.WRAP | SWT.SINGLE, tip);
+        lblEntitySubtitle.setFont(font);
+        lblEntitySubtitle.setText("test here too");
         lblEntitySubtitle.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
         lblEntitySubtitle.setAlwaysShowScrollBars(false);
         lblEntitySubtitle.setDoubleClickEnabled(false);
@@ -177,6 +183,7 @@ public class EntityModelRow extends Composite {
 
         if (StringUtils.isNotEmpty(fieldName)) {
             Label lblKey = new Label(composite, SWT.NONE);
+            lblKey.setFont(font);
             GridData gd_lblKey = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
             gd_lblKey.verticalIndent = 2;
             lblKey.setLayoutData(gd_lblKey);
@@ -186,7 +193,7 @@ public class EntityModelRow extends Composite {
 
         Label lblValue = new Label(composite, SWT.NONE);
         lblValue.setForeground(SWTResourceManager.getColor(0, 0, 0));
-        Font font = lblValue.getFont();
+        lblValue.setFont(font);
         lblValue.setFont(SWTResourceManager.getBiggerFont(font, font.getFontData()[0].getHeight() + 1));
 
         fieldValue = checkEmptyValue(fieldValue);
