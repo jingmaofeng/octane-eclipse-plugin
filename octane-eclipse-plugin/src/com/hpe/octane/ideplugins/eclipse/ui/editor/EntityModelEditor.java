@@ -31,7 +31,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -43,7 +42,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.ui.IEditorInput;
@@ -188,7 +186,7 @@ public class EntityModelEditor extends EditorPart {
     }
 
     private void createEntityDetailsView(Composite parent) {
-        headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL);
 
         headerAndEntityDetailsParent = new Composite(headerAndEntityDetailsScrollComposite, SWT.NONE);
         headerAndEntityDetailsParent.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -512,22 +510,18 @@ public class EntityModelEditor extends EditorPart {
         }
 
         Rectangle size = scrolledComposite.getBounds();
-        ScrollBar scrollbar = scrolledComposite.getVerticalBar();
 
         // TODO: I really don't know what's causing the extra space to be
         // there, besides the scroll width
         size.width -= 10;
 
-        if (scrollbar.isVisible()) {
-            size.width -= (scrollbar.getThumbBounds().width);
-        }
         if (size.width < MIN_WIDTH) {
             size.width = MIN_WIDTH;
         }
+        // Point contentSize = content.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        // contentSize.x = size.width;
 
-        Point contentSize = content.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-        contentSize.x = size.width;
-        content.setSize(contentSize);
+        content.setBounds(size);
     }
 
     @Override

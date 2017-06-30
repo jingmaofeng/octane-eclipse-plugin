@@ -102,7 +102,7 @@ public class GetEntityDetailsJob extends Job {
     public String getCommentsForCurrentEntity() {
         StringBuilder commentsBuilder = new StringBuilder();
 
-        commentsBuilder.append("<html><body style='overflow:hidden'>");
+        commentsBuilder.append("<html><body>");
         if (!comments.isEmpty()) {
             for (EntityModel comment : comments) {
                 String commentsPostTime = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_CREATION_TIME));
