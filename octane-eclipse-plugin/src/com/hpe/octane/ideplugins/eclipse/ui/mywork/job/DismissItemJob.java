@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.octane.services.mywork.MyWorkService;
+import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class DismissItemJob extends Job {

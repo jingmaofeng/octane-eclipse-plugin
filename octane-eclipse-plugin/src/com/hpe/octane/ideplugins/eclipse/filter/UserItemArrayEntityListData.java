@@ -15,8 +15,8 @@ package com.hpe.octane.ideplugins.eclipse.filter;
 import java.util.Set;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.octane.services.filtering.Entity;
-import com.hpe.adm.octane.services.mywork.MyWorkUtil;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
+import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 
 /**
  * Util class for client side filtering of user item entities

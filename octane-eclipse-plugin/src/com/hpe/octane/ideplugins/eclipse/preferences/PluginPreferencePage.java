@@ -37,10 +37,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import com.hpe.adm.octane.services.TestService;
-import com.hpe.adm.octane.services.connection.ConnectionSettings;
-import com.hpe.adm.octane.services.exception.ServiceException;
-import com.hpe.adm.octane.services.util.UrlParser;
+import com.hpe.adm.octane.ideplugins.services.TestService;
+import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettings;
+import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
+import com.hpe.adm.octane.ideplugins.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class PluginPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {

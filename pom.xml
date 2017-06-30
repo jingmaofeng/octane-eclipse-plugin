@@ -19,7 +19,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	
 		<tycho-version>0.26.0</tycho-version>
-		<octane.common.version>1.3.2</octane.common.version>
+		<octane.common.version>1.4</octane.common.version>
 		<java.version>1.8</java.version>
 		<signhp.version>15.0</signhp.version>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -38,7 +38,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.hpe.adm.plugins</groupId>
+			<groupId>com.hpe.adm.octane.ideplugins</groupId>
 			<artifactId>octane-plugin-common</artifactId>
 			<version>${octane.common.version}</version>
 		</dependency>
@@ -69,7 +69,7 @@
 				<configuration>
 					<artifactItems>
 						<artifactItem>
-							<groupId>com.hpe.adm.plugins</groupId>
+							<groupId>com.hpe.adm.plugins.ideplugins</groupId>
 							<artifactId>octane-plugin-common</artifactId>
 							<version>${octane.common.version}</version>
 							<overWrite>true</overWrite>

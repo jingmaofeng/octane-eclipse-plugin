@@ -12,7 +12,7 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer;
 
-import static com.hpe.adm.octane.services.util.Util.getUiDataFromModel;
+import static com.hpe.adm.octane.ideplugins.services.util.Util.getUiDataFromModel;
 import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_AUTHOR;
 import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_FULL_NAME;
 import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_OWNER;

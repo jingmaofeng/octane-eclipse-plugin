@@ -15,7 +15,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer;
 import static com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields.getEntityDisplayName;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.octane.services.filtering.Entity;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
 
 public class TaskSubtitleRowFieldSetter implements RowFieldSetter {

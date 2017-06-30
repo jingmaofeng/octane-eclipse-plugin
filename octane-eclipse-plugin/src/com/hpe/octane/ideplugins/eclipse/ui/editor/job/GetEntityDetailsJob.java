@@ -24,13 +24,13 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
-import com.hpe.adm.octane.services.CommentService;
-import com.hpe.adm.octane.services.EntityService;
-import com.hpe.adm.octane.services.MetadataService;
-import com.hpe.adm.octane.services.exception.ServiceException;
-import com.hpe.adm.octane.services.filtering.Entity;
-import com.hpe.adm.octane.services.ui.FormLayout;
-import com.hpe.adm.octane.services.util.Util;
+import com.hpe.adm.octane.ideplugins.services.CommentService;
+import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.MetadataService;
+import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
+import com.hpe.adm.octane.ideplugins.services.ui.FormLayout;
+import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 

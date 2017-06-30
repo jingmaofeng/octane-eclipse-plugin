@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import com.hpe.adm.octane.services.filtering.Entity;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 
 public class PredefinedEntityComparator implements Comparator<Entity> {
 

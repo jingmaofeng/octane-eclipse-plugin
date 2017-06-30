@@ -34,12 +34,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.hpe.adm.octane.services.connection.BasicConnectionSettingProvider;
-import com.hpe.adm.octane.services.connection.ConnectionSettings;
-import com.hpe.adm.octane.services.connection.HttpClientProvider;
-import com.hpe.adm.octane.services.di.ServiceModule;
-import com.hpe.adm.octane.services.filtering.Entity;
-import com.hpe.adm.octane.services.util.UrlParser;
+import com.hpe.adm.octane.ideplugins.services.connection.BasicConnectionSettingProvider;
+import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettings;
+import com.hpe.adm.octane.ideplugins.services.connection.HttpClientProvider;
+import com.hpe.adm.octane.ideplugins.services.di.ServiceModule;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
+import com.hpe.adm.octane.ideplugins.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.preferences.PreferenceConstants;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;

@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.octane.services.filtering.Entity;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.filter.ArrayEntityListData.DataChangedHandler;
 
 public interface EntityListData {

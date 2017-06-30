@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.hpe.adm.nga.sdk.exception.OctaneException;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
-import com.hpe.adm.octane.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class ChangePhaseJob extends Job {

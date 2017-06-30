@@ -56,12 +56,12 @@ import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
-import com.hpe.adm.octane.services.EntityService;
-import com.hpe.adm.octane.services.filtering.Entity;
-import com.hpe.adm.octane.services.ui.FormField;
-import com.hpe.adm.octane.services.ui.FormLayout;
-import com.hpe.adm.octane.services.ui.FormLayoutSection;
-import com.hpe.adm.octane.services.util.Util;
+import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
+import com.hpe.adm.octane.ideplugins.services.ui.FormField;
+import com.hpe.adm.octane.ideplugins.services.ui.FormLayout;
+import com.hpe.adm.octane.ideplugins.services.ui.FormLayoutSection;
+import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;

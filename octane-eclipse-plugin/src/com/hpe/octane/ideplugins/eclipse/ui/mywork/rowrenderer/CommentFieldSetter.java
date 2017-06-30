@@ -12,14 +12,14 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer;
 
-import static com.hpe.adm.octane.services.util.Util.getContainerItemForCommentModel;
-import static com.hpe.adm.octane.services.util.Util.getUiDataFromModel;
+import static com.hpe.adm.octane.ideplugins.services.util.Util.getContainerItemForCommentModel;
+import static com.hpe.adm.octane.ideplugins.services.util.Util.getUiDataFromModel;
 import static com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields.getEntityDisplayName;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
-import com.hpe.adm.octane.services.filtering.Entity;
-import com.hpe.adm.octane.services.util.Util;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
+import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
 
 public class CommentFieldSetter implements RowFieldSetter {

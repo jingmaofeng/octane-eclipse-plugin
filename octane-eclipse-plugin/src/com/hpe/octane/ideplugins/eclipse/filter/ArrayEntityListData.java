@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.octane.services.filtering.Entity;
-import com.hpe.adm.octane.services.util.Util;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
+import com.hpe.adm.octane.ideplugins.services.util.Util;
 
 /**
  * Util class for client side filtering of the data
