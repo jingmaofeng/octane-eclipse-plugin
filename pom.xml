@@ -46,6 +46,13 @@
 
 	<build>
 		<plugins>
+			<!-- 		
+			Unfortunately we rely on maven dependencies for the plugin.
+			You need to maven install octane-eclipse-parent, before development on the plugin in the IDE.
+			Plugins below will add the needed jars from maven central to a lib folder.
+			Doing maven clean will delete the lib folder.
+			Updating maven dependencies will require a clean install, and potentially manually editing the plugin.xml, build.properties, MANIFEST.MF
+			 -->
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
 				<version>3.0.0</version>

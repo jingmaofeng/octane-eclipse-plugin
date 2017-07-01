@@ -15,6 +15,7 @@
 	<profiles>
         <profile>
 			<!-- Used for signing built jars -->
+			<!-- This profile is not needed development, should only be run by the CI-->
             <id>signhp</id>
             <build>
                 <defaultGoal>install</defaultGoal>
