@@ -40,8 +40,11 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import com.hpe.adm.octane.ideplugins.services.TestService;
 import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettings;
 import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
+import com.hpe.adm.octane.ideplugins.services.nonentity.OctaneVersionService;
+import com.hpe.adm.octane.ideplugins.services.util.OctaneVersion;
 import com.hpe.adm.octane.ideplugins.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 
 public class PluginPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
@@ -291,6 +294,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 
         try {
             testService.testConnection(newConnectionSettings);
+            testOctaneVersion(newConnectionSettings);
             setConnectionStatus(true, null);
         } catch (ServiceException e) {
             setConnectionStatus(false, e.getMessage());
@@ -298,6 +302,30 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
         }
 
         return newConnectionSettings;
+    }
+
+    private void testOctaneVersion(ConnectionSettings connectionSettings) {
+        OctaneVersion version;
+        try {
+            version = OctaneVersionService.getOctaneVersion(connectionSettings);
+            version.discardBuildNumber();
+            if (version.compareTo(OctaneVersion.DYNAMO) < 0) {
+                new InfoPopup("ALM Octane Settings",
+                        "Octane version not supported. This plugin works with Octane versions starting " + OctaneVersion.DYNAMO.getVersionString(),
+                        550, 100).open();
+            }
+        } catch (Exception ex) {
+            version = OctaneVersionService.fallbackVersion;
+
+            StringBuilder message = new StringBuilder();
+
+            message.append("Failed to determine Octane server version, http call to ")
+                    .append(OctaneVersionService.getServerVersionUrl(connectionSettings))
+                    .append(" failed. Assuming server version is higher or equal to: ")
+                    .append(version.getVersionString());
+
+            new InfoPopup("ALM Octane Settings", message.toString(), 550, 100).open();
+        }
     }
 
     private void validateUsernameAndPassword(String username, String password) throws ServiceException {
