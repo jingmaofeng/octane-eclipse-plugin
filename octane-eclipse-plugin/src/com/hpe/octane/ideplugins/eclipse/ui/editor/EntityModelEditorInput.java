@@ -20,6 +20,7 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.nga.sdk.model.StringFieldModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.ui.activeitem.ImageDataImageDescriptor;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
@@ -94,6 +95,21 @@ public class EntityModelEditorInput implements IElementFactory, IEditorInput {
     @Override
     public String getToolTipText() {
         return String.valueOf(id);
+    }
+
+    public EntityModel toEntityModel() {
+        EntityModel entityModel = new EntityModel();
+        entityModel.setValue(new StringFieldModel("id", String.valueOf(id)));
+        entityModel.setValue(new StringFieldModel("name", title));
+
+        if (entityType.isSubtype()) {
+            entityModel.setValue(new StringFieldModel("type", entityType.getSubtypeOf().getTypeName()));
+            entityModel.setValue(new StringFieldModel("subtype", entityType.getSubtypeName()));
+        } else {
+            entityModel.setValue(new StringFieldModel("type", entityType.getTypeName()));
+        }
+
+        return entityModel;
     }
 
     @Override

@@ -12,12 +12,10 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.util;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.SystemUtils;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -27,10 +25,11 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
 
+import com.google.common.collect.Sets;
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.nga.sdk.query.Query;
-import com.hpe.adm.nga.sdk.query.QueryMethod;
+import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.nonentity.CommitMessageService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -38,90 +37,136 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 
 public class CommitMessageUtil {
 
-    private static EntityModel parentStory;
-
-    public static String getCommitMessageForActiveItem() {
-        EntityModelEditorInput activeItem = Activator.getActiveItem();
-        if (activeItem == null) {
-            return null;
-        } else {
-            StringBuilder messageBuilder = new StringBuilder();
-            if (activeItem.getEntityType() == Entity.TASK) {
-                messageBuilder.append(Entity.getEntityType(parentStory).toString().toLowerCase().replace("_", " "));
-                messageBuilder.append(" #" + parentStory.getValue("id").getValue() + ": ");
-                messageBuilder.append(parentStory.getValue("name").getValue() + "\n");
-            }
-
-            messageBuilder.append(activeItem.getEntityType().toString().toLowerCase().replace("_", " "));
-            messageBuilder.append(" #" + activeItem.getId() + ": ");
-            messageBuilder.append(activeItem.getTitle());
-
-            return messageBuilder.toString();
-        }
-    }
+    private static final ILog logger = Activator.getDefault().getLog();
 
     public static void copyMessageIfValid() {
-        Display display = Display.getCurrent();
-        new Job("Validating commit message ...") {
+        new Job("Generating commit message ...") {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                monitor.beginTask("Validating commit message ...", IProgressMonitor.UNKNOWN);
 
-                final boolean valid = validate();
-                monitor.done();
-                display.asyncExec(() -> {
-                    if (valid) {
-                        Clipboard cp = new Clipboard(display);
-                        TextTransfer textTransfer = TextTransfer.getInstance();
-                        cp.setContents(new Object[] { getCommitMessageForActiveItem() }, new Transfer[] { textTransfer });
-                    } else {
-                        new Job("Getting commit patterns ...") {
+                monitor.beginTask("Generating commit message ...", IProgressMonitor.UNKNOWN);
 
-                            @Override
-                            protected IStatus run(IProgressMonitor monitor) {
-                                monitor.beginTask("Getting commit patterns ...", IProgressMonitor.UNKNOWN);
+                EntityModelEditorInput activeItem = Activator.getActiveItem();
 
-                                String patterns = Activator.getInstance(CommitMessageService.class).getCommitPatternsForStoryType(
-                                        Activator.getActiveItem().getEntityType()).stream().collect(Collectors.joining(", "));
-                                monitor.done();
-                                display.asyncExec(() -> {
-                                    new InfoPopup("Commit message", "Please make sure your commit message " +
-                                            "matches one of the following patterns: " +
-                                            patterns, 400, 70).open();
-                                });
+                // Convert to partial entity model
+                EntityModel activeEntityModel;
+                if (Entity.TASK == activeItem.getEntityType()) {
+                    // load task entity, for story field
+                    EntityService entityService = Activator.getInstance(EntityService.class);
+                    try {
+                        activeEntityModel = entityService.findEntity(Entity.TASK, activeItem.getId(), Sets.newHashSet("story", "name"));
+                    } catch (ServiceException e) {
+                        logger.log(new Status(
+                                Status.ERROR,
+                                Activator.PLUGIN_ID,
+                                Status.OK,
+                                "Failed to fetch parent story of task: " + activeItem.getId(),
+                                null));
 
-                                return Status.OK_STATUS;
-                            }
-                        }.schedule();
+                        return new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "Failed to generate commit message", e);
                     }
-                });
+                } else {
+                    activeEntityModel = activeItem.toEntityModel();
+                }
+
+                String commitMessage = generateClientSideCommitMessage(activeEntityModel);
+
+                // Validate against server side patterns, since generation based
+                // on a regex with no params is not possible
+
+                // Task are validated against their parent, since Octane has no
+                // support for task commits, convert the entity to it's parent
+                // from here on
+                if (Entity.TASK == Entity.getEntityType(activeEntityModel)) {
+                    activeEntityModel = ((ReferenceFieldModel) activeEntityModel.getValue("story")).getValue();
+                }
+
+                CommitMessageService commitService = Activator.getInstance(CommitMessageService.class);
+                if (commitService.validateCommitMessage(
+                        commitMessage,
+                        Entity.getEntityType(activeEntityModel),
+                        Long.parseLong(activeEntityModel.getValue("id").getValue().toString()))) {
+
+                    Display.getDefault().asyncExec(() -> {
+                        Clipboard cp = new Clipboard(Display.getDefault());
+                        TextTransfer textTransfer = TextTransfer.getInstance();
+                        cp.setContents(new Object[] { commitMessage }, new Transfer[] { textTransfer });
+                        new InfoPopup("Commit message copied to clipboard", commitMessage, 550, 100).open();
+                    });
+
+                } else {
+
+                    CommitMessageService commitMessageService = Activator.getInstance(CommitMessageService.class);
+
+                    // Make sure you use the parent of the task here, since
+                    // server doesn't have scm patterns for tasks
+                    Entity activeItemType = Entity.getEntityType(activeEntityModel);
+
+                    String patterns = commitMessageService.getCommitPatternsForStoryType(activeItemType)
+                            .stream()
+                            .collect(Collectors.joining(SystemUtils.LINE_SEPARATOR));
+
+                    StringBuilder messageBuilder = new StringBuilder();
+
+                    messageBuilder
+                            .append("Failed to generate commit message for ")
+                            .append(getEntityStringFromType(activeItemType))
+                            .append(" ,server side patters are different from the default.")
+                            .append(SystemUtils.LINE_SEPARATOR)
+                            .append("Please make sure your commit message matches one of the following patterns: ")
+                            .append(SystemUtils.LINE_SEPARATOR)
+                            .append(patterns);
+
+                    if (activeItem.getEntityType() == Entity.TASK) {
+                        messageBuilder
+                                .append(SystemUtils.LINE_SEPARATOR)
+                                .append("For tasks, use the parent backlog item's commit pattern.");
+                    }
+
+                    Display.getDefault().asyncExec(() -> {
+                        new InfoPopup("Failed to generate commit message", messageBuilder.toString(), 550, 100).open();
+                    });
+                }
+
+                monitor.done();
                 return Status.OK_STATUS;
             }
+
         }.schedule();
+
     }
 
-    public static boolean validate() {
-        EntityModelEditorInput activeItem = Activator.getActiveItem();
-        if (activeItem.getEntityType() == Entity.TASK) {
-            Set<String> storyField = new HashSet<>(Arrays.asList("story"));
-            Query.QueryBuilder idQuery = Query.statement("id", QueryMethod.EqualTo, activeItem.getId());
-            EntityService entityService = Activator.getInstance(EntityService.class);
-            Collection<EntityModel> results = entityService.findEntities(Entity.TASK, idQuery, storyField);
-            if (!results.isEmpty()) {
-                parentStory = (EntityModel) results.iterator().next().getValue("story").getValue();
-            }
+    /*
+     * Task requires story field to be loaded
+     */
+    private static String generateClientSideCommitMessage(EntityModel entityModel) {
+
+        StringBuilder messageBuilder = new StringBuilder();
+
+        String entityId = String.valueOf(entityModel.getValue("id").getValue());
+        String entityName = String.valueOf(entityModel.getValue("name").getValue());
+
+        if (Entity.TASK == Entity.getEntityType(entityModel)) {
+            // Tasks include parent commit message info
+            EntityModel taskParent = ((ReferenceFieldModel) entityModel.getValue("story")).getValue();
+            messageBuilder
+                    .append(generateClientSideCommitMessage(taskParent))
+                    .append("\n");
         }
 
-        CommitMessageService commitService = Activator.getInstance(CommitMessageService.class);
-        String commitMessage = getCommitMessageForActiveItem();
-        if (activeItem.getEntityType() == Entity.TASK) {
-            return commitService.validateCommitMessage(commitMessage, Entity.getEntityType(parentStory),
-                    Long.parseLong(parentStory.getValue("id").getValue().toString()));
-        } else {
-            return commitService.validateCommitMessage(commitMessage, activeItem.getEntityType(),
-                    activeItem.getId());
-        }
+        messageBuilder
+                .append(getEntityStringFromType(Entity.getEntityType(entityModel)))
+                .append(" #")
+                .append(entityId)
+                .append(": ")
+                .append(entityName);
+
+        return messageBuilder.toString();
+    }
+
+    private static String getEntityStringFromType(Entity entity) {
+        return entity.toString().toLowerCase().replace("_", " ");
     }
 
 }
