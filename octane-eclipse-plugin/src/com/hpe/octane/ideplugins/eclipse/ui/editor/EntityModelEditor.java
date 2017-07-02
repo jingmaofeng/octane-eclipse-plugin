@@ -31,6 +31,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -75,6 +76,7 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.util.LinkInterceptListener;
+import com.hpe.octane.ideplugins.eclipse.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
@@ -186,7 +188,7 @@ public class EntityModelEditor extends EditorPart {
     }
 
     private void createEntityDetailsView(Composite parent) {
-        headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL);
+        headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 
         headerAndEntityDetailsParent = new Composite(headerAndEntityDetailsScrollComposite, SWT.NONE);
         headerAndEntityDetailsParent.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -265,7 +267,8 @@ public class EntityModelEditor extends EditorPart {
             formGenerator.adapt(postCommentBtn, true, true);
             postCommentBtn.setText("Send");
 
-            Browser commentsPanel = new Browser(commentsParentComposite, SWT.NONE);
+            PropagateScrollBrowserFactory fac = new PropagateScrollBrowserFactory();
+            Browser commentsPanel = fac.createBrowser(commentsParentComposite, SWT.NONE);
             commentsPanel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
             formGenerator.adapt(commentsPanel);
             formGenerator.paintBordersFor(commentsPanel);
@@ -364,13 +367,18 @@ public class EntityModelEditor extends EditorPart {
 
     // STEP 3
     private void createDescriptionFormSection() {
-        Section section = formGenerator.createSection(sectionsParentForm.getBody(),
-                Section.DESCRIPTION | Section.TREE_NODE | Section.EXPANDED);
-        section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        Section section = formGenerator.createSection(sectionsParentForm.getBody(), Section.TREE_NODE | Section.EXPANDED);
+        formGenerator.createCompositeSeparator(section);
+
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+        gd.minimumHeight = 400;
+        section.setLayoutData(gd);
         section.setLayout(new FillLayout(SWT.HORIZONTAL));
         section.setText("Description");
 
-        Browser descriptionPanel = new Browser(section, SWT.NONE);
+        PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
+        Browser descriptionPanel = factory.createBrowser(section, SWT.NONE);
+
         String descriptionText = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION));
         if (descriptionText.isEmpty()) {
             descriptionPanel.setText("No description");
@@ -378,14 +386,13 @@ public class EntityModelEditor extends EditorPart {
             descriptionPanel.setText(descriptionText);
         }
         descriptionPanel.addLocationListener(new LinkInterceptListener());
-        formGenerator.createCompositeSeparator(section);
+
         section.setClient(descriptionPanel);
     }
 
     // STEP 4
     private void createSectionsWithEntityData(FormLayoutSection formSection) {
-        Section section = formGenerator.createSection(sectionsParentForm.getBody(),
-                Section.DESCRIPTION | Section.TREE_NODE | Section.EXPANDED);
+        Section section = formGenerator.createSection(sectionsParentForm.getBody(), Section.TREE_NODE | Section.EXPANDED);
 
         section.setText(formSection.getSectionTitle());
         section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
@@ -511,15 +518,25 @@ public class EntityModelEditor extends EditorPart {
 
         Rectangle size = scrolledComposite.getBounds();
 
-        // TODO: I really don't know what's causing the extra space to be
-        // there, besides the scroll width
-        size.width -= 10;
-
         if (size.width < MIN_WIDTH) {
             size.width = MIN_WIDTH;
+            if (scrolledComposite.getHorizontalBar() != null) {
+                scrolledComposite.getHorizontalBar().setVisible(true);
+            }
+        } else {
+            if (scrolledComposite.getVerticalBar() != null) {
+                size.width -= scrolledComposite.getVerticalBar().getThumbBounds().width;
+            }
+            if (scrolledComposite.getHorizontalBar() != null) {
+                scrolledComposite.getHorizontalBar().setVisible(false);
+            }
         }
-        // Point contentSize = content.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-        // contentSize.x = size.width;
+
+        Point contentSize = content.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+
+        if (size.height < contentSize.y) {
+            size.height = contentSize.y;
+        }
 
         content.setBounds(size);
     }
