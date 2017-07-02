@@ -12,11 +12,10 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer;
 
-import static com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields.getEntityDisplayName;
-
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
+import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
 
 public class TaskSubtitleRowFieldSetter implements RowFieldSetter {
 
@@ -27,7 +26,7 @@ public class TaskSubtitleRowFieldSetter implements RowFieldSetter {
 
         StringBuilder parentInfoSb = new StringBuilder();
         parentInfoSb.append("Task of ");
-        parentInfoSb.append(getEntityDisplayName(Entity.getEntityType(storyEntityModel)).toLowerCase());
+        parentInfoSb.append(CommitMessageUtil.getEntityStringFromType(Entity.getEntityType(entityModel)));
         parentInfoSb.append(" " + storyEntityModel.getValue("id").getValue().toString() + ": ");
         parentInfoSb.append(storyEntityModel.getValue("name").getValue().toString());
 

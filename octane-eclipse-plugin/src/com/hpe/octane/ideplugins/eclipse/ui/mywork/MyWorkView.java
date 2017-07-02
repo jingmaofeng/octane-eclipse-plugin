@@ -14,6 +14,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.mywork;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -39,7 +40,6 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
-import com.hpe.octane.ideplugins.eclipse.ui.entitylist.DefaultRowEntityFields;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.AbsoluteLayoutEntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer.MyWorkEntityModelRowRenderer;
@@ -70,7 +70,7 @@ public class MyWorkView extends OctaneViewPart {
                 monitor.beginTask(LOADING_MESSAGE, IProgressMonitor.UNKNOWN);
                 Collection<EntityModel> entities;
                 try {
-                    entities = myWorkService.getMyWork(DefaultRowEntityFields.entityFields);
+                    entities = myWorkService.getMyWork(MyWorkEntityModelRowRenderer.getRequiredFields());
                     Display.getDefault().asyncExec(() -> {
                         entityData.setEntityList(entities);
                         if (entities.size() == 0) {
@@ -125,7 +125,13 @@ public class MyWorkView extends OctaneViewPart {
                     });
 
                     return viewer;
-                });
+                },
+                MyWorkEntityModelRowRenderer.getRequiredFields().keySet(),
+                MyWorkEntityModelRowRenderer.getRequiredFields()
+                        .values()
+                        .stream()
+                        .flatMap(col -> col.stream())
+                        .collect(Collectors.toSet()));
 
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE, new Runnable() {
             @Override

@@ -222,6 +222,15 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
         return rowComposite;
     }
 
+    /**
+     * Create an object to use for server side call when deciding what fields
+     * are needed for every entity. This is based on the field setters described
+     * in this class, in this way, changing the field setters will also change
+     * the data that is retrieved from the server
+     * 
+     * @return map where the key is the enity type, and the value is a set of
+     *         field names
+     */
     public static Map<Entity, Set<String>> getRequiredFields() {
 
         Map<Entity, Set<String>> result = new HashMap<>();

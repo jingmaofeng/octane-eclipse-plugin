@@ -165,7 +165,7 @@ public class CommitMessageUtil {
         return messageBuilder.toString();
     }
 
-    private static String getEntityStringFromType(Entity entity) {
+    public static String getEntityStringFromType(Entity entity) {
         return entity.toString().toLowerCase().replace("_", " ");
     }
 

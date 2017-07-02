@@ -14,10 +14,8 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitylist;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -32,7 +30,6 @@ import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
 import com.hpe.octane.ideplugins.eclipse.util.ControlProvider;
 import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
-import com.hpe.octane.ideplugins.eclipse.util.PredefinedEntityComparator;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class EntityListComposite extends Composite {
@@ -41,33 +38,11 @@ public class EntityListComposite extends Composite {
     private Text textFilter;
     private EntityTypeSelectorComposite entityTypeSelectorComposite;
 
-    private static final Set<Entity> defaultFilterTypes = new LinkedHashSet<>(DefaultRowEntityFields.entityFields
-            .keySet()
-            .stream()
-            .sorted(new PredefinedEntityComparator())
-            .collect(Collectors.toList()));
-
-    private static final Set<String> defaultClientSideQueryFields = DefaultRowEntityFields.entityFields
-            .values()
-            .stream()
-            .flatMap(coll -> coll.stream())
-            .collect(Collectors.toSet());
-
     private Set<Entity> filterTypes;
-    private Set<String> clientSideQueryFields;
 
     // Currently only fatlines
     private EntityListViewer entityListViewer;
     private ControlProvider<EntityListViewer> controlProvider;
-
-    public EntityListComposite(
-            Composite parent,
-            int style,
-            EntityListData entityListData,
-            ControlProvider<EntityListViewer> controlProvider) {
-
-        this(parent, style, entityListData, controlProvider, defaultFilterTypes, defaultClientSideQueryFields);
-    }
 
     public EntityListComposite(
             Composite parent,
@@ -84,7 +59,6 @@ public class EntityListComposite extends Composite {
         this.controlProvider = controlProvider;
 
         this.filterTypes = filterTypes;
-        this.clientSideQueryFields = clientSideQueryFields;
 
         entityListData.setTypeFilter(filterTypes);
         entityListData.setStringFilterFields(clientSideQueryFields);
