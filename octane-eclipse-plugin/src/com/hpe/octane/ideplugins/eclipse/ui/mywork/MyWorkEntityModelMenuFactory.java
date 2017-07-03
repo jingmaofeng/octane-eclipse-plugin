@@ -270,6 +270,10 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                                 menuParent.getDisplay().asyncExec(() -> {
                                     if (job.wasRemoved()) {
                                         entityListData.remove(userItem);
+                                        if (Activator.getActiveItem() != null
+                                                && !MyWorkView.userItemsContainsActiveItem(entityListData.getEntityList())) {
+                                            Activator.setActiveItem(null);
+                                        }
                                         new InfoPopup("My Work", "Item removed.").open();
                                     } else {
                                         new InfoPopup("My Work", "Failed to remove item.").open();

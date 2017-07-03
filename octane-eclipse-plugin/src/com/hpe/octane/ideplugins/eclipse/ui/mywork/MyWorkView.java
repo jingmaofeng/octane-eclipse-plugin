@@ -36,9 +36,12 @@ import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkService;
+import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
+import com.hpe.adm.octane.ideplugins.services.util.EntityUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.AbsoluteLayoutEntityListViewer;
@@ -49,6 +52,8 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.ErrorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.OpenDetailTabEntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.SeparatorControlContribution;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TextContributionItem;
+import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
+import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class MyWorkView extends OctaneViewPart {
@@ -71,6 +76,24 @@ public class MyWorkView extends OctaneViewPart {
                 Collection<EntityModel> entities;
                 try {
                     entities = myWorkService.getMyWork(MyWorkEntityModelRowRenderer.getRequiredFields());
+                    // Remove active item if it's no longer in "My Work"
+
+                    EntityModelEditorInput activeItem = Activator.getActiveItem();
+                    if (activeItem != null && !userItemsContainsActiveItem(entities)) {
+                        Display.getDefault().asyncExec(() -> {
+                            Activator.setActiveItem(null);
+                            new InfoPopup(
+                                    "Active item cleared, no longer part of \"My Work\"",
+                                    "Active item: \""
+                                            + CommitMessageUtil.getEntityStringFromType(activeItem.getEntityType())
+                                            + " " + activeItem.getId() + ": "
+                                            + " " + activeItem.getTitle()
+                                            + "\" has been removed, it is no longer part of \"My Work\"",
+                                    400,
+                                    100).open();
+                        });
+                    }
+
                     Display.getDefault().asyncExec(() -> {
                         entityData.setEntityList(entities);
                         if (entities.size() == 0) {
@@ -223,6 +246,25 @@ public class MyWorkView extends OctaneViewPart {
     @Override
     public void setFocus() {
         // TODO Auto-generated method stub
+    }
+
+    /**
+     * Check if the provided list of Entity.USER_ITEM contains the current
+     * active item
+     * 
+     * @param entityModels
+     */
+    public static boolean userItemsContainsActiveItem(Collection<EntityModel> entityModels) {
+        Collection<EntityModel> entities = MyWorkUtil.getEntityModelsFromUserItems(entityModels);
+        EntityModelEditorInput activeItem = Activator.getActiveItem();
+
+        if (activeItem == null) {
+            return false;
+        }
+
+        return entities
+                .stream()
+                .anyMatch(entity -> EntityUtil.areEqual(entity, activeItem.toEntityModel()));
     }
 
 }
