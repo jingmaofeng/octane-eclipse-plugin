@@ -126,10 +126,7 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             @Override
             public void controlResized(ControlEvent e) {
                 adjustContainerSize();
-
-                // Calling resize here won't work, it's very weird, the scroll
-                // event changes something inside the ScrolledComposite
-                getVerticalBar().notifyListeners(SWT.Selection, null);
+                resizeOnScroll.execute();
             }
         });
 
@@ -151,15 +148,18 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
     }
 
     private void adjustContainerSize() {
-        Rectangle rect = getBounds();
-        rect.height = ROW_HEIGHT * rowProvider.getRowCount();
-        if (getVerticalBar().isVisible()) {
-            rect.width -= getVerticalBar().getThumbBounds().width;
-        }
-        if (rect.width < ROW_MIN_WIDTH) {
-            rect.width = ROW_MIN_WIDTH;
-        }
-        rowComposite.setBounds(rect);
+        Display.getDefault().syncExec(() -> {
+            Rectangle rect = getBounds();
+            int containerHeight = ROW_HEIGHT * rowProvider.getRowCount();
+            if (rect.height < containerHeight) {
+                rect.width -= getVerticalBar().getSize().x;
+            }
+            if (rect.width < ROW_MIN_WIDTH) {
+                rect.width = ROW_MIN_WIDTH;
+            }
+            rect.height = containerHeight;
+            rowComposite.setBounds(rect);
+        });
     }
 
     public void forceRedrawRows() {
