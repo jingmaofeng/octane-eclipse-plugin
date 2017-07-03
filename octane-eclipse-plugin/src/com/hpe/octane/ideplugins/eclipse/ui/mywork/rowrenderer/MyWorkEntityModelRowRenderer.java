@@ -20,6 +20,7 @@ import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD
 import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_REMAINING_HOURS;
 import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_SEVERITY;
 import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_STORYPOINTS;
+import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_SUBTYPE;
 import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_TEST_TYPE;
 
 import java.util.ArrayList;
@@ -185,6 +186,7 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
                 fieldSetters.add(titleFieldSetter);
             }
         });
+
     }
 
     @Override
@@ -240,6 +242,13 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
                     key,
                     fieldSetters.stream().flatMap(fs -> Arrays.stream(fs.getFieldNames())).collect(Collectors.toSet()));
         });
+
+        // Not shown fields
+        result
+                .keySet()
+                .stream()
+                .filter(key -> key.isSubtype())
+                .forEach(key -> result.get(key).add(FIELD_SUBTYPE));
 
         return result;
     }

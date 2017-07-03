@@ -106,7 +106,6 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
         }
     }
 
-    @SuppressWarnings("restriction")
     @Override
     public Menu createMenu(EntityModel userItem, Control menuParent) {
 
