@@ -26,7 +26,7 @@ public class TaskSubtitleRowFieldSetter implements RowFieldSetter {
 
         StringBuilder parentInfoSb = new StringBuilder();
         parentInfoSb.append("Task of ");
-        parentInfoSb.append(CommitMessageUtil.getEntityStringFromType(Entity.getEntityType(entityModel)));
+        parentInfoSb.append(CommitMessageUtil.getEntityStringFromType(Entity.getEntityType(storyEntityModel)));
         parentInfoSb.append(" " + storyEntityModel.getValue("id").getValue().toString() + ": ");
         parentInfoSb.append(storyEntityModel.getValue("name").getValue().toString());
 
