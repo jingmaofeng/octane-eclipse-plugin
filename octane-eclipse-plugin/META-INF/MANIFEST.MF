@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: ALM Octane IDE Plugin
 Bundle-SymbolicName: octane.eclipse.plugin;singleton:=true
 Bundle-Version: 12.55.4
+Bundle-Vendor: Hewlett-Packard Enterprise Development Company
 Bundle-Activator: com.hpe.octane.ideplugins.eclipse.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
@@ -51,4 +52,5 @@ Bundle-ClassPath: .,
  lib/sdk-src.jar,
  lib/velocity.jar,
  lib/sdk-extension-src.jar
+
 

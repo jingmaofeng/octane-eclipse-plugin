@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
+   <description name="ALM Octane IDE Integration Update Site" url="http://hpsoftware.github.io/octane-eclipse-plugin/update-site/">
+      Install the latest verison of the ALM Octane IDE Integration
+   </description>
    <feature url="features/octane.eclipse.feature_12.55.4.jar" id="octane.eclipse.feature" version="12.55.4">
       <category name="alm.octane"/>
    </feature>

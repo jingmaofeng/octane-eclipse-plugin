@@ -2,7 +2,8 @@
 <feature
       id="octane.eclipse.feature"
       label="ALM Octane IDE Integration"
-      version="12.55.4">
+      version="12.55.4"
+      provider-name="Hewlett-Packard Enterprise Development Company">
 
    <description url="https://saas.hpe.com/en-us/software/alm-octane">
       Enables integration with ALM Octane
@@ -27,6 +28,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
    </license>
+
+   <url>
+      <update label="ALM Octane IDE Integration Update Site" url="http://hpsoftware.github.io/octane-eclipse-plugin/update-site/"/>
+   </url>
 
    <plugin
          id="octane.eclipse.plugin"
