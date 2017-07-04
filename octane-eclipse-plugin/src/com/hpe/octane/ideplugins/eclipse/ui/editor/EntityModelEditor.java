@@ -25,20 +25,16 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -72,7 +68,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.job.SendCommentJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
-import com.hpe.octane.ideplugins.eclipse.util.DelayedRunnable;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
@@ -93,6 +88,7 @@ public class EntityModelEditor extends EditorPart {
     private static EntityService entityService = Activator.getInstance(EntityService.class);
 
     private EntityModel entityModel;
+    @SuppressWarnings("rawtypes")
     private FieldModel currentPhase;
     private EntityModel selectedPhase;
     private EntityModelEditorInput input;
@@ -288,23 +284,11 @@ public class EntityModelEditor extends EditorPart {
         }
 
         // Make scroll force child into submission (width)
-        headerAndEntityDetailsScrollComposite.setExpandHorizontal(false);
-        headerAndEntityDetailsScrollComposite.setExpandVertical(false);
-
-        DelayedRunnable dResize = new DelayedRunnable(() -> {
-            Display.getDefault().asyncExec(() -> {
-                resizeScrollContent(headerAndEntityDetailsScrollComposite);
-            });
-        }, 50);
-
-        headerAndEntityDetailsScrollComposite.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(ControlEvent e) {
-                dResize.execute();
-            }
-        });
-        // for init load
-        resizeScrollContent(headerAndEntityDetailsScrollComposite);
+        Point childSize = headerAndEntityDetailsScrollComposite.getContent().computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+        headerAndEntityDetailsScrollComposite.setMinHeight(childSize.y);
+        headerAndEntityDetailsScrollComposite.setMinWidth(MIN_WIDTH);
+        headerAndEntityDetailsScrollComposite.setExpandHorizontal(true);
+        headerAndEntityDetailsScrollComposite.setExpandVertical(true);
     }
 
     private void createHeaderPanel(Composite parent) {
@@ -515,30 +499,6 @@ public class EntityModelEditor extends EditorPart {
             }
         });
 
-    }
-
-    private static void resizeScrollContent(ScrolledComposite scrolledComposite) {
-        Control content = scrolledComposite.getContent();
-        if (content == null || content.isDisposed()) {
-            return;
-        }
-
-        Rectangle size = scrolledComposite.getBounds();
-
-        if (size.width < MIN_WIDTH) {
-            size.width = MIN_WIDTH;
-
-        } else {
-            size.width -= 50;
-        }
-
-        Point contentSize = content.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-
-        if (size.height < contentSize.y) {
-            size.height = contentSize.y - 50;
-        }
-
-        content.setBounds(size);
     }
 
     @Override
