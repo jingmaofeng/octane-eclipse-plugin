@@ -20,18 +20,48 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="*">
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
                id="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
-               ratio="0.5"
+               ratio="1"
                relationship="stack"
                relative="org.eclipse.ui.views.ProblemView">
          </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.ui.resourcePerspective">
          <view
-               id="com.hpe.octane.ideplugins.eclipse.ui.search.SearchView"
-               ratio="0.5"
+               id="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
+               ratio="1"
                relationship="stack"
-               relative="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView">
+               relative="org.eclipse.ui.views.TaskList">
+         </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.mylyn.tasks.ui.perspectives.planning">
+         <view
+               id="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
+               ratio="1"
+               relationship="stack"
+               relative="org.eclipse.mylyn.tasks.ui.views.tasks">
+         </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.team.ui.TeamSynchronizingPerspective">
+         <view
+               id="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
+               ratio="1"
+               relationship="stack"
+               relative="org.eclipse.ui.views.ProblemView">
+         </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.team.ui.TeamSynchronizingPerspective">
+         <view
+               id="com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView"
+               ratio="1"
+               relationship="stack"
+               relative="org.eclipse.mylyn.tasks.ui.views.tasks">
          </view>
       </perspectiveExtension>
    </extension>
@@ -76,12 +106,6 @@
             id="com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage"
             name="ALM Octane Settings">
       </page>
-   </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="com.hpe.octane.ideplugins.eclipse.preferences.PreferenceInitializer">
-      </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
