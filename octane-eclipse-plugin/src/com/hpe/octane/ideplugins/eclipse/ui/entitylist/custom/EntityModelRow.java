@@ -74,7 +74,7 @@ public class EntityModelRow extends Composite {
         lblEntityTitle = new TruncatingStyledText(compositeTitles, SWT.SINGLE, tip);
         lblEntityTitle.setText("test here");
         lblEntityTitle.setFont(font);
-        lblEntityTitle.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        lblEntityTitle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         lblEntityTitle.setAlwaysShowScrollBars(false);
         lblEntityTitle.setDoubleClickEnabled(false);
         lblEntityTitle.setEditable(false);
@@ -82,7 +82,7 @@ public class EntityModelRow extends Composite {
         lblEntitySubtitle = new TruncatingStyledText(compositeTitles, SWT.READ_ONLY | SWT.WRAP | SWT.SINGLE, tip);
         lblEntitySubtitle.setFont(font);
         lblEntitySubtitle.setText("test here too");
-        lblEntitySubtitle.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        lblEntitySubtitle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         lblEntitySubtitle.setAlwaysShowScrollBars(false);
         lblEntitySubtitle.setDoubleClickEnabled(false);
         lblEntitySubtitle.setEditable(false);
