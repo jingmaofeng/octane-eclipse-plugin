@@ -196,8 +196,9 @@ public class LoadingComposite extends Composite {
                         if (imageDataIndex == imageDataArray.length - 1)
                             repeatCount--;
                     }
-                } catch (SWTException ex) {
-                    System.out.println("There was an error animating the GIF");
+                } catch (SWTException ignored) {
+                    // Assuming thread was stopped because component was
+                    // disposed
                 } finally {
                     if (offScreenImage != null && !offScreenImage.isDisposed())
                         offScreenImage.dispose();
