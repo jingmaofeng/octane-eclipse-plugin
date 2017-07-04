@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolTip;
@@ -302,12 +303,19 @@ public class EntityModelEditor extends EditorPart {
         entityIcon.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         entityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
 
-        Label lblEntityName = new Label(headerComposite, SWT.NONE);
-        lblEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-        lblEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        lblEntityName.setText(Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME)));
-        Font boldFont = new Font(lblEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
-        lblEntityName.setFont(boldFont);
+        Link linkEntityName = new Link(headerComposite, SWT.NONE);
+        linkEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        Font boldFont = new Font(linkEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
+        linkEntityName.setFont(boldFont);
+        linkEntityName.setText("<A>" + Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME)) + "</A>");
+        linkEntityName.addListener(SWT.Selection, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                Activator.getInstance(EntityService.class).openInBrowser(entityModel);
+            }
+        });
+        linkEntityName.setLinkForeground(linkEntityName.getForeground());
 
         if (shouldShowPhase) {
             Label lblCurrentPhase = new Label(headerComposite, SWT.NONE);
