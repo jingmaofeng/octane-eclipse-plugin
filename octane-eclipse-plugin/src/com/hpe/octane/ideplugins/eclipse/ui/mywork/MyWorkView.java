@@ -159,10 +159,15 @@ public class MyWorkView extends OctaneViewPart {
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE, new Runnable() {
             @Override
             public void run() {
-                IWorkbenchPage currentPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                try {
-                    currentPage.openEditor(SnakeEditor.snakeEditorInput, SnakeEditor.ID);
-                } catch (PartInitException ignored) {
+                // Unfortunately the game explodes on mac os, causing the ide to
+                // not respond, don't have time to fix now
+                String os = System.getProperty("os.name").toLowerCase();
+                if (os != null && os.indexOf("win") >= 0) {
+                    IWorkbenchPage currentPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                    try {
+                        currentPage.openEditor(SnakeEditor.snakeEditorInput, SnakeEditor.ID);
+                    } catch (PartInitException ignored) {
+                    }
                 }
             }
         });
