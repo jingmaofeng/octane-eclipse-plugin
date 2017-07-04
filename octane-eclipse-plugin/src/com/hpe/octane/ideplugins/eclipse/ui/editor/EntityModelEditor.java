@@ -72,6 +72,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.job.SendCommentJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
+import com.hpe.octane.ideplugins.eclipse.util.DelayedRunnable;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
@@ -289,10 +290,17 @@ public class EntityModelEditor extends EditorPart {
         // Make scroll force child into submission (width)
         headerAndEntityDetailsScrollComposite.setExpandHorizontal(false);
         headerAndEntityDetailsScrollComposite.setExpandVertical(false);
+
+        DelayedRunnable dResize = new DelayedRunnable(() -> {
+            Display.getDefault().asyncExec(() -> {
+                resizeScrollContent(headerAndEntityDetailsScrollComposite);
+            });
+        }, 50);
+
         headerAndEntityDetailsScrollComposite.addControlListener(new ControlAdapter() {
             @Override
             public void controlResized(ControlEvent e) {
-                resizeScrollContent(headerAndEntityDetailsScrollComposite);
+                dResize.execute();
             }
         });
         // for init load
@@ -510,7 +518,6 @@ public class EntityModelEditor extends EditorPart {
     }
 
     private static void resizeScrollContent(ScrolledComposite scrolledComposite) {
-
         Control content = scrolledComposite.getContent();
         if (content == null || content.isDisposed()) {
             return;
@@ -520,22 +527,15 @@ public class EntityModelEditor extends EditorPart {
 
         if (size.width < MIN_WIDTH) {
             size.width = MIN_WIDTH;
-            if (scrolledComposite.getHorizontalBar() != null) {
-                scrolledComposite.getHorizontalBar().setVisible(true);
-            }
+
         } else {
-            if (scrolledComposite.getVerticalBar() != null) {
-                size.width -= scrolledComposite.getVerticalBar().getThumbBounds().width;
-            }
-            if (scrolledComposite.getHorizontalBar() != null) {
-                scrolledComposite.getHorizontalBar().setVisible(false);
-            }
+            size.width -= 50;
         }
 
         Point contentSize = content.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 
         if (size.height < contentSize.y) {
-            size.height = contentSize.y;
+            size.height = contentSize.y - 50;
         }
 
         content.setBounds(size);
