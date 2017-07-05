@@ -156,6 +156,10 @@ public class ArrayEntityListData implements EntityListData {
         for (String field : affectedFields) {
             if (entityModel.getValue(field) != null) {
                 String fieldValue = Util.getUiDataFromModel(entityModel.getValue(field));
+                fieldValue = fieldValue.replaceAll("\\s+", "");
+                fieldValue = fieldValue.toLowerCase();
+                queryString = queryString.toLowerCase();
+                queryString = queryString.replaceAll("\\s+", "");
                 if (fieldValue.contains(queryString)) {
                     return true;
                 }
