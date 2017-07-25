@@ -159,8 +159,7 @@ public class CommitMessageUtil {
                 .append(getEntityStringFromType(Entity.getEntityType(entityModel)))
                 .append(" #")
                 .append(entityId)
-                .append(": ")
-                .append(entityName);
+                .append(": ");
 
         return messageBuilder.toString();
     }
