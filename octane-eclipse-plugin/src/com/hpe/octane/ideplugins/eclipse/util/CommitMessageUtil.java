@@ -144,21 +144,20 @@ public class CommitMessageUtil {
 
         StringBuilder messageBuilder = new StringBuilder();
 
-        String entityId = String.valueOf(entityModel.getValue("id").getValue());
-        String entityName = String.valueOf(entityModel.getValue("name").getValue());
-
         if (Entity.TASK == Entity.getEntityType(entityModel)) {
             // Tasks include parent commit message info
             EntityModel taskParent = ((ReferenceFieldModel) entityModel.getValue("story")).getValue();
             messageBuilder
-                    .append(generateClientSideCommitMessage(taskParent))
+                    .append(getEntityStringFromType(Entity.getEntityType(taskParent)))
+                    .append(" #")
+                    .append(String.valueOf(taskParent.getValue("id").getValue())) 
                     .append("\n");
         }
 
         messageBuilder
                 .append(getEntityStringFromType(Entity.getEntityType(entityModel)))
                 .append(" #")
-                .append(entityId)
+                .append(String.valueOf(entityModel.getValue("id").getValue()))   
                 .append(": ");
 
         return messageBuilder.toString();

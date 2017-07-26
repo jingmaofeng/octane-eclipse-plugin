@@ -2,7 +2,7 @@
 <feature
       id="octane.eclipse.feature"
       label="ALM Octane IDE Integration"
-      version="12.55.4"
+      version="12.55.6"
       provider-name="Hewlett-Packard Enterprise Development Company">
 
    <description url="https://saas.hpe.com/en-us/software/alm-octane">

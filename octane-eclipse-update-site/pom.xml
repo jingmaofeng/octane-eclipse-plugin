@@ -2,17 +2,17 @@
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	
+
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<relativePath>..</relativePath>
 		<groupId>com.hpe.adm.octane.ideplugins</groupId>
 		<artifactId>octane-eclipse-parent</artifactId>
-		<version>12.55.4</version>
+		<version>12.55.6</version>
 	</parent>
 	<artifactId>octane-eclispse-update-site</artifactId>
 	<packaging>eclipse-update-site</packaging>
-	
+
 	<build>
 		<plugins>
 			<plugin>
