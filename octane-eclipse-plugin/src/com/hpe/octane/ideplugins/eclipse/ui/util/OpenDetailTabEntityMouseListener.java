@@ -22,6 +22,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
@@ -49,15 +50,21 @@ public class OpenDetailTabEntityMouseListener implements EntityMouseListener {
             if (Entity.COMMENT == Entity.getEntityType(entityModel)) {
                 entityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
             }
-
-            Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
-            EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));
-            try {
-                logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
-                page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
-            } catch (PartInitException ex) {
-                logger.log(
-                        new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "An exception has occured when opening the editor", ex));
+            
+            if (Entity.REQUIREMENT == Entity.getEntityType(entityModel)) {
+                EntityService entityService = Activator.getInstance(EntityService.class);
+                entityService.openInBrowser(entityModel);
+            }
+            else {
+                Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
+                EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));
+                try {
+                    logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
+                    page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
+                } catch (PartInitException ex) {
+                    logger.log(
+                            new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "An exception has occured when opening the editor", ex));
+                }
             }
         }
     }

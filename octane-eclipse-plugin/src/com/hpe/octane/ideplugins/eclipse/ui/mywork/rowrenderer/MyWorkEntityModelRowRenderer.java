@@ -178,6 +178,11 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
         fieldSetterMap.put(Entity.COMMENT, asList(
                 new CommentFieldSetter(), // sets the name and subtitle
                 fsAuthor));
+        
+        fieldSetterMap.put(Entity.REQUIREMENT, asList(
+                // top
+                fsOwner,
+                fsPhase));
 
         // Add common details
         fieldSetterMap.forEach((entityType, fieldSetters) -> {

@@ -150,13 +150,14 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
         new MenuItem(menu, SWT.SEPARATOR);
 
-        if (entityType != Entity.COMMENT) {
+        if (entityType != Entity.COMMENT && entityType != Entity.REQUIREMENT) {
             addMenuItem(
                     menu,
                     "View details",
                     entityIconFactory.getImageIcon(entityType),
                     () -> openDetailTab(entityId, entityType));
         }
+        
 
         if (entityType == Entity.TASK || entityType == Entity.COMMENT) {
             // Get parent info
