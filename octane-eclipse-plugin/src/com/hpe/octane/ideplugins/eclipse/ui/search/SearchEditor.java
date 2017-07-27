@@ -57,7 +57,8 @@ public class SearchEditor extends EditorPart {
             Entity.TEST_SUITE,
             Entity.MANUAL_TEST,
             Entity.AUTOMATED_TEST,
-            Entity.GHERKIN_TEST));
+            Entity.GHERKIN_TEST,
+            Entity.REQUIREMENT));
 
     private static final Set<String> searchEntityFilterFields = new HashSet<>(Arrays.asList(FIELD_ID, FIELD_NAME, FIELD_DESCRIPTION));
 
