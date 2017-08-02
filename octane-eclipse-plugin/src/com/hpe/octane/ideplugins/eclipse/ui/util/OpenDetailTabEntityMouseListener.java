@@ -50,11 +50,6 @@ public class OpenDetailTabEntityMouseListener implements EntityMouseListener {
             if (Entity.COMMENT == Entity.getEntityType(entityModel)) {
                 entityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
             }
-            
-            if (Entity.REQUIREMENT == Entity.getEntityType(entityModel)) {
-                EntityService entityService = Activator.getInstance(EntityService.class);
-                entityService.openInBrowser(entityModel);
-            }
             else {
                 Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
                 EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));
