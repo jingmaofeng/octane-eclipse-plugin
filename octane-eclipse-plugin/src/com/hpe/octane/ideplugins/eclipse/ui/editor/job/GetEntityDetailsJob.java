@@ -15,10 +15,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.editor.job;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -32,9 +29,7 @@ import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.MetadataService;
 import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
-import com.hpe.adm.octane.ideplugins.services.ui.FormField;
 import com.hpe.adm.octane.ideplugins.services.ui.FormLayout;
-import com.hpe.adm.octane.ideplugins.services.ui.FormLayoutSection;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
@@ -70,17 +65,8 @@ public class GetEntityDetailsJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
-            
-            octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(this.entityType);
-            
-            Set<String> fields = new HashSet<String>();
-            
-            List<FormField> formFields = octaneEntityForm.getFormLayoutSections().stream().collect(Collectors.toList()).get(0).getFields();
-            for(FormField formField: formFields) {
-            	fields.add(formField.getName());
-            }
-            
-            retrivedEntity = entityService.findEntity(this.entityType, this.entityId, fields);
+            retrivedEntity = entityService.findEntity(this.entityType, this.entityId);
+            octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(Entity.getEntityType(retrivedEntity));
             getPhaseAndPossibleTransitions();
             getComments();
             wasEntityRetrived = true;
