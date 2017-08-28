@@ -103,6 +103,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
         try {
             page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
         } catch (PartInitException ex) {
+        	System.out.println(ex.getMessage());
         }
     }
 
