@@ -24,6 +24,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.JFacePreferences;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
@@ -69,15 +72,9 @@ public class GetEntityDetailsJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
-        	octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(this.entityType);
-        	           
-            Set<String> fields = new HashSet<String>();
-            
-            List<FormField> formFields = octaneEntityForm.getFormLayoutSections().stream().collect(Collectors.toList()).get(0).getFields();
-            for(FormField formField: formFields) {
-            	fields.add(formField.getName());
-            }
-             
+        	octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(this.entityType);      	                     
+            List<FormField> formFields = octaneEntityForm.getFormLayoutSections().stream().collect(Collectors.toList()).get(0).getFields();          
+            Set<String> fields = formFields.stream().map(FormField::getName).collect(Collectors.toSet());                       
             retrivedEntity = entityService.findEntity(this.entityType, this.entityId, fields);
             getPhaseAndPossibleTransitions();
             getComments();
@@ -113,8 +110,10 @@ public class GetEntityDetailsJob extends Job {
 
     public String getCommentsForCurrentEntity() {
         StringBuilder commentsBuilder = new StringBuilder();
-
-        commentsBuilder.append("<html><body>");
+        Color color = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
+        String colorString = "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")" ;
+        commentsBuilder.append("<html><body bgcolor =" + colorString +">");
+        
         if (!comments.isEmpty()) {
             for (EntityModel comment : comments) {
                 String commentsPostTime = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_CREATION_TIME));

@@ -233,7 +233,6 @@ public class EntityModelEditor extends EditorPart {
             formGenerator.adapt(commentsTitleLabel, true, true);
             commentsTitleLabel.setText("Comments");
             commentsTitleLabel.setMargins(5, 0, 0, 0);
-               commentsTitleLabel.setForeground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
 
             Composite inputCommentAndSendButtonComposite = new Composite(commentsParentComposite, SWT.NONE);
             inputCommentAndSendButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
