@@ -28,6 +28,7 @@ import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
@@ -379,10 +380,14 @@ public class EntityModelEditor extends EditorPart {
 
         PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
         Browser descriptionPanel = factory.createBrowser(section, SWT.NONE);
-
-        String descriptionText = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION));
-        if (descriptionText.isEmpty()) {
-            descriptionPanel.setText("No description");
+        Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
+        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;
+        Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+        String foregroundColorString = "rgb(" + foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")" ;
+        String descriptionText = "<html><body bgcolor =" + backgroundColorString +">" + "<font color =" + foregroundColorString +">" +
+        						  Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION)) + "</font></body></html>";
+        if (descriptionText.equals("<html><body bgcolor =" + backgroundColorString +">" + "<font color =" + foregroundColorString +">"+ "</font></body></html>")) {
+            descriptionPanel.setText("<html><body bgcolor =" + backgroundColorString +">" + "<font color =" + foregroundColorString +">"+"No description"+ "</font></body></html>");
         } else {
             descriptionPanel.setText(descriptionText);
         }
