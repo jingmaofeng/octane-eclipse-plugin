@@ -32,8 +32,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
@@ -201,8 +203,9 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
         Entity entityType = Entity.getEntityType(entityModel);
 
         final EntityModelRow rowComposite = new EntityModelRow(parent, SWT.NONE);
-        rowComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-        rowComposite.setBackgroundMode(SWT.INHERIT_FORCE);
+        rowComposite.setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
+        //rowComposite.setBackgroundMode(SWT.INHERIT_FORCE);
+  
 
         // Show dismissible if needed
         if (MyWorkUtil.isUserItemDismissible(userItem)) {

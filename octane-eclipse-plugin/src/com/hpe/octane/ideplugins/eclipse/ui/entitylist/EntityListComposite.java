@@ -17,12 +17,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
@@ -68,7 +70,7 @@ public class EntityListComposite extends Composite {
     }
 
     private void init() {
-        setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+        setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
         setBackgroundMode(SWT.INHERIT_FORCE);
 
         entityTypeSelectorComposite = new EntityTypeSelectorComposite(this, SWT.NONE, filterTypes.toArray(new Entity[] {}));
@@ -92,6 +94,7 @@ public class EntityListComposite extends Composite {
         Composite compositeEntityList = new Composite(this, SWT.NONE);
         compositeEntityList.setLayout(new FillLayout(SWT.HORIZONTAL));
         compositeEntityList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        
 
         entityListViewer = controlProvider.createControl(compositeEntityList);
         entityListData.addDataChangedHandler(entityList -> entityListViewer.setEntityModels(entityList));

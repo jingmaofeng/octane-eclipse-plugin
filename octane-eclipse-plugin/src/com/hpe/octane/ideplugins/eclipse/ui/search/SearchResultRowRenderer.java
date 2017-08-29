@@ -24,7 +24,6 @@ import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class SearchResultRowRenderer implements EntityModelRenderer {
 
@@ -37,7 +36,6 @@ public class SearchResultRowRenderer implements EntityModelRenderer {
         Entity entityType = Entity.getEntityType(entityModel);
 
         EntityModelRow row = new EntityModelRow(parent, SWT.NONE);
-        row.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         row.setBackgroundMode(SWT.INHERIT_FORCE);
 
         row.setEntityIcon(entityIconFactory.getImageIcon(entityType));

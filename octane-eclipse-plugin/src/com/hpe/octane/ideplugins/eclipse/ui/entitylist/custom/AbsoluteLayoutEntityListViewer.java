@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
@@ -31,6 +32,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.PlatformUI;
 
 import com.google.gson.internal.Pair;
 import com.hpe.adm.nga.sdk.model.EntityModel;
@@ -118,7 +120,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
         setExpandHorizontal(false);
 
         rowComposite = new Composite(this, SWT.NO_MERGE_PAINTS);
-
         setContent(rowComposite);
         setMinSize(rowComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 

@@ -15,6 +15,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom;
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -27,6 +28,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolTip;
+import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
@@ -54,13 +56,13 @@ public class EntityModelRow extends Composite {
 
     public EntityModelRow(Composite parent, int style) {
         super(parent, SWT.NONE);
-
         tip = new ToolTip(getShell(), SWT.ICON_INFORMATION);
 
         BorderLayout layout = new BorderLayout(0, 0);
         layout.setMargins(0, 5, 0, 5);
         setLayout(layout);
-
+        
+        
         lblEntityIcon = new Label(this, SWT.NONE);
         lblEntityIcon.setAlignment(SWT.CENTER);
         lblEntityIcon.setLayoutData(BorderLayout.WEST);
@@ -195,6 +197,7 @@ public class EntityModelRow extends Composite {
         lblValue.setForeground(SWTResourceManager.getColor(0, 0, 0));
         lblValue.setFont(font);
         lblValue.setFont(SWTResourceManager.getBiggerFont(font, font.getFontData()[0].getHeight() + 1));
+        
 
         fieldValue = checkEmptyValue(fieldValue);
         lblValue.setText(fieldValue);

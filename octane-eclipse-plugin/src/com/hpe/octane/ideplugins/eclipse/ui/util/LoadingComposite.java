@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.graphics.Color;
@@ -29,6 +30,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
@@ -49,8 +51,7 @@ public class LoadingComposite extends Composite {
      */
     public LoadingComposite(Composite parent, int style) {
         super(parent, style);
-
-        setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+        setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
         Display display = parent.getDisplay();
         GC shellGC = new GC(this);
         Color shellBackground = getBackground();

@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -133,7 +134,7 @@ public class EntityModelEditor extends EditorPart {
      */
     @Override
     public void createPartControl(Composite parent) {
-        parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+        //parent.setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
         parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
         truncatedLabelTooltip = new ToolTip(parent.getShell(), SWT.ICON_INFORMATION);
@@ -192,7 +193,7 @@ public class EntityModelEditor extends EditorPart {
         headerAndEntityDetailsParent.setLayout(new FillLayout(SWT.HORIZONTAL));
         headerAndEntityDetailsParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
         createHeaderPanel(headerAndEntityDetailsParent);
-
+    
         headerAndEntityDetailsScrollComposite.setContent(headerAndEntityDetailsParent);
 
         formGenerator = new FormToolkit(parent.getDisplay());
@@ -232,6 +233,7 @@ public class EntityModelEditor extends EditorPart {
             formGenerator.adapt(commentsTitleLabel, true, true);
             commentsTitleLabel.setText("Comments");
             commentsTitleLabel.setMargins(5, 0, 0, 0);
+               commentsTitleLabel.setForeground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
 
             Composite inputCommentAndSendButtonComposite = new Composite(commentsParentComposite, SWT.NONE);
             inputCommentAndSendButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
@@ -295,7 +297,7 @@ public class EntityModelEditor extends EditorPart {
     private void createHeaderPanel(Composite parent) {
         headerAndEntityDetailsParent.setLayout(new GridLayout(1, false));
         Composite headerComposite = new Composite(parent, SWT.NONE);
-        headerComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        headerComposite.setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
         headerComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         headerComposite.setLayout(new GridLayout(6, false));
 
