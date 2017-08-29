@@ -110,9 +110,13 @@ public class GetEntityDetailsJob extends Job {
 
     public String getCommentsForCurrentEntity() {
         StringBuilder commentsBuilder = new StringBuilder();
-        Color color = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
-        String colorString = "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")" ;
-        commentsBuilder.append("<html><body bgcolor =" + colorString +">");
+        Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
+        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;
+        
+        Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+        String foregroundColorString = "rgb(" + foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")" ;
+        commentsBuilder.append("<html><body bgcolor =" + backgroundColorString +">");
+        commentsBuilder.append("<font color =" + foregroundColorString +">");
         
         if (!comments.isEmpty()) {
             for (EntityModel comment : comments) {
