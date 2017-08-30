@@ -57,7 +57,7 @@ public class EntityModelRow extends Composite {
     public EntityModelRow(Composite parent, int style) {
         super(parent, SWT.NONE);
         tip = new ToolTip(getShell(), SWT.ICON_INFORMATION);
-
+        
         BorderLayout layout = new BorderLayout(0, 0);
         layout.setMargins(0, 5, 0, 5);
         setLayout(layout);
@@ -69,6 +69,7 @@ public class EntityModelRow extends Composite {
 
         Composite compositeTitles = new Composite(this, SWT.NONE);
         compositeTitles.setLayoutData(BorderLayout.CENTER);
+       
         GridLayout gl_compositeTitles = new GridLayout(1, false);
         gl_compositeTitles.marginTop = 2;
         compositeTitles.setLayout(gl_compositeTitles);
@@ -95,7 +96,7 @@ public class EntityModelRow extends Composite {
         gl_compositeDetails.marginTop = 5;
         gl_compositeDetails.marginHeight = 0;
         compositeDetails.setLayout(gl_compositeDetails);
-
+        
         compositeTopDetails = new Composite(compositeDetails, SWT.NONE);
         compositeTopDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1));
         compositeTopDetails.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
@@ -106,8 +107,9 @@ public class EntityModelRow extends Composite {
 
         Label label = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
         label.setLayoutData(BorderLayout.SOUTH);
+        
     }
-
+    
     public void setBackgroundColor(Color color) {
         this.setBackground(color);
     }

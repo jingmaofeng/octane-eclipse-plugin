@@ -51,9 +51,9 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
     private static final Color selectionBackgroundColor = SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION);
     private static final Color selectionForegroundColor = SWTResourceManager.getColor(255, 255, 255);
 
-    private static final Color backgroundColor = SWTResourceManager.getColor(255, 255, 255);
-    private static final Color foregroundColor = SWTResourceManager.getColor(0, 0, 0);
-
+    private static final Color backgroundColor =  SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
+    private static final Color foregroundColor =  PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+   
     private interface RowProvider {
         Control getRow(int index, Composite parent);
 
@@ -104,6 +104,7 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             @Override
             public Control getRow(int index, Composite parent) {
                 Control row = entityModelRenderer.createRow(parent, entityList.get(index));
+                
                 if (entityModelMenuFactory != null) {
 
                     row.addMenuDetectListener(new EntityModelRowMenuDetectListener(
@@ -272,7 +273,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             EntityModel entityModel = entityList.get((int) row.getData());
 
             row.setFocus();
-
             // Selection
             changeSelection(rowIndex);
 
@@ -283,6 +283,7 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             }
         } else {
             changeSelection(-1);
+            forceRedrawRows();
         }
 
     }
@@ -316,18 +317,21 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             this.prevSelectedIndex = selectedIndex;
             this.selectedIndex = index;
             paintSelected();
+        } else {
+        	
         }
     }
 
     private void paintSelected() {
-        Control row = findRowByIndex(selectedIndex);
+        
+        EntityModelRow row = (EntityModelRow) findRowByIndex(selectedIndex);
         if (row != null && !row.isDisposed()) {
-            row.setBackground(selectionBackgroundColor);
+            row.setBackgroundColor(selectionBackgroundColor);
             row.setForeground(selectionForegroundColor);
         }
-        row = findRowByIndex(prevSelectedIndex);
+        row = (EntityModelRow) findRowByIndex(prevSelectedIndex);
         if (row != null && !row.isDisposed()) {
-            row.setBackground(backgroundColor);
+            row.setBackgroundColor(backgroundColor);
             row.setForeground(foregroundColor);
         }
     }

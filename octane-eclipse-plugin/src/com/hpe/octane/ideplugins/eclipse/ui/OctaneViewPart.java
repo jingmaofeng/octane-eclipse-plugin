@@ -12,10 +12,12 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui;
 
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
 
@@ -24,6 +26,7 @@ import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.WelcomeComposite;
+import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 /**
  * ViewPart intended for controls for the Octane plugin <br>
@@ -41,7 +44,7 @@ public abstract class OctaneViewPart extends ViewPart {
     @Override
     public void createPartControl(Composite parent) {
         rootContainer = new StackLayoutComposite(parent, SWT.NONE);
-
+        
         welcomeComposite = new WelcomeComposite(rootContainer, SWT.NONE, () -> {
             PreferencesUtil.createPreferenceDialogOn(parent.getShell(),
                     PluginPreferencePage.ID,

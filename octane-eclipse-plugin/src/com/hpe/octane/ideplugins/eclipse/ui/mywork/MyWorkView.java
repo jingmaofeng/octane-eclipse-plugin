@@ -158,7 +158,8 @@ public class MyWorkView extends OctaneViewPart {
                         .stream()
                         .flatMap(col -> col.stream())
                         .collect(Collectors.toSet()));
-
+        entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE, new Runnable() {
             @Override
             public void run() {

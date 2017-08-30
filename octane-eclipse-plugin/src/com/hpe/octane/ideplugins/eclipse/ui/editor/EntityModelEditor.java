@@ -134,13 +134,12 @@ public class EntityModelEditor extends EditorPart {
      * @param parent
      */
     @Override
-    public void createPartControl(Composite parent) {
-        //parent.setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
-        parent.setBackgroundMode(SWT.INHERIT_FORCE);
-
+    public void createPartControl(Composite parent) {               
         truncatedLabelTooltip = new ToolTip(parent.getShell(), SWT.ICON_INFORMATION);
-
+        
+        
         rootComposite = new StackLayoutComposite(parent, SWT.NONE);
+        
         // set loading GIF until the data is loaded
         loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
         rootComposite.showControl(loadingComposite);
@@ -189,7 +188,7 @@ public class EntityModelEditor extends EditorPart {
 
     private void createEntityDetailsView(Composite parent) {
         headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-
+        
         headerAndEntityDetailsParent = new Composite(headerAndEntityDetailsScrollComposite, SWT.NONE);
         headerAndEntityDetailsParent.setLayout(new FillLayout(SWT.HORIZONTAL));
         headerAndEntityDetailsParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
@@ -200,7 +199,7 @@ public class EntityModelEditor extends EditorPart {
         formGenerator = new FormToolkit(parent.getDisplay());
 
         Composite entityDetailsAndCommentsComposite = new Composite(headerAndEntityDetailsParent, SWT.NONE);
-        entityDetailsAndCommentsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+        entityDetailsAndCommentsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));        
         entityDetailsAndCommentsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         formGenerator.adapt(entityDetailsAndCommentsComposite);
         formGenerator.paintBordersFor(entityDetailsAndCommentsComposite);
@@ -297,7 +296,6 @@ public class EntityModelEditor extends EditorPart {
     private void createHeaderPanel(Composite parent) {
         headerAndEntityDetailsParent.setLayout(new GridLayout(1, false));
         Composite headerComposite = new Composite(parent, SWT.NONE);
-        headerComposite.setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
         headerComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         headerComposite.setLayout(new GridLayout(6, false));
 
@@ -377,6 +375,7 @@ public class EntityModelEditor extends EditorPart {
         section.setLayoutData(gd);
         section.setLayout(new FillLayout(SWT.HORIZONTAL));
         section.setText("Description");
+        
 
         PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
         Browser descriptionPanel = factory.createBrowser(section, SWT.NONE);
@@ -403,17 +402,18 @@ public class EntityModelEditor extends EditorPart {
         section.setText(formSection.getSectionTitle());
         section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
         section.setExpanded(true);
+        
         formGenerator.createCompositeSeparator(section);
 
         Composite sectionClient = new Composite(section, SWT.NONE);
         sectionClient.setLayout(new FillLayout(SWT.HORIZONTAL));
-       
+        
         Composite sectionClientLeft = new Composite(sectionClient, SWT.NONE);
         sectionClientLeft.setLayout(new GridLayout(2, false));
-       
+        sectionClientLeft.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         Composite sectionClientRight = new Composite(sectionClient, SWT.NONE);
         sectionClientRight.setLayout(new GridLayout(2, false));
-
+        sectionClientRight.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         List<FormField> formFields = formSection.getFields();
 
         for (int i = 0; i < formFields.size(); i++) {
@@ -452,6 +452,7 @@ public class EntityModelEditor extends EditorPart {
             labelFieldName.setText(prettifyLabels(fieldName));
             labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
             labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+            labelFieldName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
             
             TruncatingStyledText labelValue = new TruncatingStyledText(parent, SWT.NONE, truncatedLabelTooltip);
             labelValue.setText(fielValue);
