@@ -203,9 +203,9 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
         Entity entityType = Entity.getEntityType(entityModel);
 
         final EntityModelRow rowComposite = new EntityModelRow(parent, SWT.NONE);
-        rowComposite.setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
-        //rowComposite.setBackgroundMode(SWT.INHERIT_FORCE);
-  
+        rowComposite.setForeground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
+        rowComposite.setBackgroundMode(SWT.INHERIT_FORCE);
+        
 
         // Show dismissible if needed
         if (MyWorkUtil.isUserItemDismissible(userItem)) {

@@ -407,9 +407,10 @@ public class EntityModelEditor extends EditorPart {
 
         Composite sectionClient = new Composite(section, SWT.NONE);
         sectionClient.setLayout(new FillLayout(SWT.HORIZONTAL));
-
+       
         Composite sectionClientLeft = new Composite(sectionClient, SWT.NONE);
         sectionClientLeft.setLayout(new GridLayout(2, false));
+       
         Composite sectionClientRight = new Composite(sectionClient, SWT.NONE);
         sectionClientRight.setLayout(new GridLayout(2, false));
 
@@ -451,10 +452,11 @@ public class EntityModelEditor extends EditorPart {
             labelFieldName.setText(prettifyLabels(fieldName));
             labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
             labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-
+            
             TruncatingStyledText labelValue = new TruncatingStyledText(parent, SWT.NONE, truncatedLabelTooltip);
             labelValue.setText(fielValue);
             labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+            labelValue.setForeground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
         }
 
         section.setClient(sectionClient);
