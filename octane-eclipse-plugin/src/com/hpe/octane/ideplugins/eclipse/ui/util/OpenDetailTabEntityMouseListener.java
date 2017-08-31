@@ -54,8 +54,8 @@ public class OpenDetailTabEntityMouseListener implements EntityMouseListener {
                 Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
                 EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));
                 try {
-                    logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
-                    page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
+                    logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));                
+                    page.openEditor(entityModelEditorInput, EntityModelEditor.ID);                                      
                 } catch (PartInitException ex) {
                     logger.log(
                             new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "An exception has occured when opening the editor", ex));

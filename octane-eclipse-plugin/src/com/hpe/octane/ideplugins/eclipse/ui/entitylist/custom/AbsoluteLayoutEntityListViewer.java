@@ -271,11 +271,15 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
         if (row != null) {
             int rowIndex = (int) row.getData();
             EntityModel entityModel = entityList.get((int) row.getData());
-
+           
             row.setFocus();
             // Selection
             changeSelection(rowIndex);
-
+            
+            if(event.count == 2) {
+            	changeSelection(-1);
+            	forceRedrawRows();
+            }
             // Fire listeners
             MouseEvent mouseEvent = new MouseEvent(event);
             for (EntityMouseListener listener : entityMouseListeners) {

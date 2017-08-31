@@ -26,11 +26,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -188,8 +191,8 @@ public class EntityModelEditor extends EditorPart {
 
     private void createEntityDetailsView(Composite parent) {
         headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-        
         headerAndEntityDetailsParent = new Composite(headerAndEntityDetailsScrollComposite, SWT.NONE);
+        headerAndEntityDetailsParent.setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
         headerAndEntityDetailsParent.setLayout(new FillLayout(SWT.HORIZONTAL));
         headerAndEntityDetailsParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
         createHeaderPanel(headerAndEntityDetailsParent);
@@ -229,20 +232,24 @@ public class EntityModelEditor extends EditorPart {
             formGenerator.paintBordersFor(commentsParentComposite);
             commentsParentComposite.setLayout(new GridLayout(1, false));
 
-            CLabel commentsTitleLabel = new CLabel(commentsParentComposite, SWT.NONE);
+            Label commentsTitleLabel = new Label(commentsParentComposite, SWT.NONE);
             formGenerator.adapt(commentsTitleLabel, true, true);
             commentsTitleLabel.setText("Comments");
-            commentsTitleLabel.setMargins(5, 0, 0, 0);
-
+            commentsTitleLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
+            //commentsTitleLabel.setMargins(5, 0, 0, 0);
+            commentsTitleLabel.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+            commentsTitleLabel.setForeground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
+            
             Composite inputCommentAndSendButtonComposite = new Composite(commentsParentComposite, SWT.NONE);
             inputCommentAndSendButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+            
             formGenerator.adapt(inputCommentAndSendButtonComposite);
             formGenerator.paintBordersFor(inputCommentAndSendButtonComposite);
             inputCommentAndSendButtonComposite.setLayout(new GridLayout(2, false));
-
-            inputComments = new Text(inputCommentAndSendButtonComposite, SWT.NONE);
+            
+            inputComments = new Text(inputCommentAndSendButtonComposite, SWT.BORDER);
             inputComments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
-            inputComments.setToolTipText("Add new comment");
+            inputComments.setToolTipText("Add new comment");          
             inputComments.setEnabled(true);
             inputComments.addListener(SWT.Traverse, (Event event) -> {
                 if (event.detail == SWT.TRAVERSE_RETURN && inputComments.isEnabled()) {
@@ -253,7 +260,7 @@ public class EntityModelEditor extends EditorPart {
             formGenerator.adapt(inputComments, true, true);
 
             Button postCommentBtn = new Button(inputCommentAndSendButtonComposite, SWT.NONE);
-            postCommentBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
+            postCommentBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));          
             postCommentBtn.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -296,6 +303,7 @@ public class EntityModelEditor extends EditorPart {
     private void createHeaderPanel(Composite parent) {
         headerAndEntityDetailsParent.setLayout(new GridLayout(1, false));
         Composite headerComposite = new Composite(parent, SWT.NONE);
+        headerComposite.setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
         headerComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         headerComposite.setLayout(new GridLayout(6, false));
 
@@ -446,13 +454,25 @@ public class EntityModelEditor extends EditorPart {
                 parent = sectionClientRight;
             }
 
-            // Add the pair of labels for field and value
-
+            // Add the pair of labels for field and value                        
             CLabel labelFieldName = new CLabel(parent, SWT.NONE);
             labelFieldName.setText(prettifyLabels(fieldName));
             labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
-            labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-            labelFieldName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+            labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));  
+        
+            labelFieldName.addPaintListener(new PaintListener() {
+            	@Override
+            	    public void paintControl(PaintEvent arg0) {
+            	    // TODO Auto-generated method stub
+            	    labelFieldName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+            	    Pattern pattern;
+            	    pattern = new Pattern(arg0.gc.getDevice(), 0,0,0,100, arg0.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230, arg0.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230);
+            	    arg0.gc.setBackgroundPattern(pattern);
+            	    //arg0.gc.fillGradientRectangle(0, 0, labelFieldName.getBounds().width, labelFieldName.getBounds().height, true);
+            	    }
+
+				
+            });
             
             TruncatingStyledText labelValue = new TruncatingStyledText(parent, SWT.NONE, truncatedLabelTooltip);
             labelValue.setText(fielValue);
