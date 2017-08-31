@@ -224,7 +224,7 @@ public class MyWorkView extends OctaneViewPart {
         ActionContributionItem refreshActionItem = new ActionContributionItem(refreshAction);
         refreshActionItem.setMode(ActionContributionItem.MODE_FORCE_TEXT);
         viewToolbar.getToolBarManager().add(refreshActionItem);
-
+       
         // Mouse handlers
         entityListComposite.addEntityMouseListener(new OpenDetailTabEntityMouseListener());
 

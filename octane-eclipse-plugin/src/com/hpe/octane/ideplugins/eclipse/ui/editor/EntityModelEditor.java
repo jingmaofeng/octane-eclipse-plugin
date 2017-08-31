@@ -115,6 +115,9 @@ public class EntityModelEditor extends EditorPart {
     private Composite headerAndEntityDetailsParent;
 
     private ToolTip truncatedLabelTooltip;
+    
+    private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
+    private Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
 
     public EntityModelEditor() {
     }
@@ -192,7 +195,7 @@ public class EntityModelEditor extends EditorPart {
     private void createEntityDetailsView(Composite parent) {
         headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         headerAndEntityDetailsParent = new Composite(headerAndEntityDetailsScrollComposite, SWT.NONE);
-        headerAndEntityDetailsParent.setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
+        headerAndEntityDetailsParent.setBackground(backgroundColor);
         headerAndEntityDetailsParent.setLayout(new FillLayout(SWT.HORIZONTAL));
         headerAndEntityDetailsParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
         createHeaderPanel(headerAndEntityDetailsParent);
@@ -238,7 +241,7 @@ public class EntityModelEditor extends EditorPart {
             commentsTitleLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
             //commentsTitleLabel.setMargins(5, 0, 0, 0);
             commentsTitleLabel.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-            commentsTitleLabel.setForeground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
+            commentsTitleLabel.setForeground(foregroundColor);
             
             Composite inputCommentAndSendButtonComposite = new Composite(commentsParentComposite, SWT.NONE);
             inputCommentAndSendButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
@@ -303,7 +306,7 @@ public class EntityModelEditor extends EditorPart {
     private void createHeaderPanel(Composite parent) {
         headerAndEntityDetailsParent.setLayout(new GridLayout(1, false));
         Composite headerComposite = new Composite(parent, SWT.NONE);
-        headerComposite.setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
+        headerComposite.setBackground(backgroundColor);
         headerComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         headerComposite.setLayout(new GridLayout(6, false));
 
@@ -384,12 +387,9 @@ public class EntityModelEditor extends EditorPart {
         section.setLayout(new FillLayout(SWT.HORIZONTAL));
         section.setText("Description");
         
-
         PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
-        Browser descriptionPanel = factory.createBrowser(section, SWT.NONE);
-        Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
-        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;
-        Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+        Browser descriptionPanel = factory.createBrowser(section, SWT.NONE);       
+        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;       
         String foregroundColorString = "rgb(" + foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")" ;
         String descriptionText = "<html><body bgcolor =" + backgroundColorString +">" + "<font color =" + foregroundColorString +">" +
         						  Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION)) + "</font></body></html>";
@@ -406,6 +406,7 @@ public class EntityModelEditor extends EditorPart {
     // STEP 4
     private void createSectionsWithEntityData(FormLayoutSection formSection) {
         Section section = formGenerator.createSection(sectionsParentForm.getBody(), Section.TREE_NODE | Section.EXPANDED);
+        section.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
 
         section.setText(formSection.getSectionTitle());
         section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
@@ -413,7 +414,7 @@ public class EntityModelEditor extends EditorPart {
         
         formGenerator.createCompositeSeparator(section);
 
-        Composite sectionClient = new Composite(section, SWT.NONE);
+        Composite sectionClient = new Composite(section, SWT.BACKGROUND);
         sectionClient.setLayout(new FillLayout(SWT.HORIZONTAL));
         
         Composite sectionClientLeft = new Composite(sectionClient, SWT.NONE);
@@ -455,20 +456,20 @@ public class EntityModelEditor extends EditorPart {
             }
 
             // Add the pair of labels for field and value                        
-            CLabel labelFieldName = new CLabel(parent, SWT.NONE);
+            CLabel labelFieldName = new CLabel(parent, SWT.TRANSPARENT);
             labelFieldName.setText(prettifyLabels(fieldName));
             labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
-            labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));  
-        
+            labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+            
+            //the good ol' razzle dazzle way
             labelFieldName.addPaintListener(new PaintListener() {
             	@Override
-            	    public void paintControl(PaintEvent arg0) {
+            	    public void paintControl(PaintEvent paintEvent) {
             	    // TODO Auto-generated method stub
             	    labelFieldName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
             	    Pattern pattern;
-            	    pattern = new Pattern(arg0.gc.getDevice(), 0,0,0,100, arg0.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230, arg0.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230);
-            	    arg0.gc.setBackgroundPattern(pattern);
-            	    //arg0.gc.fillGradientRectangle(0, 0, labelFieldName.getBounds().width, labelFieldName.getBounds().height, true);
+            	    pattern = new Pattern(paintEvent.gc.getDevice(), 0,0,0,100, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230);
+            	    paintEvent.gc.setBackgroundPattern(pattern);
             	    }
 
 				
@@ -477,7 +478,7 @@ public class EntityModelEditor extends EditorPart {
             TruncatingStyledText labelValue = new TruncatingStyledText(parent, SWT.NONE, truncatedLabelTooltip);
             labelValue.setText(fielValue);
             labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-            labelValue.setForeground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
+            labelValue.setForeground(foregroundColor);
         }
 
         section.setClient(sectionClient);
@@ -564,5 +565,5 @@ public class EntityModelEditor extends EditorPart {
     public boolean isSaveAsAllowed() {
         return false;
     }
-
+    
 }

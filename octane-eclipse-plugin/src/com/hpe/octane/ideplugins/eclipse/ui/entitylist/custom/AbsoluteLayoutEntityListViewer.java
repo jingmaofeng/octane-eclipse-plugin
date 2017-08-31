@@ -321,8 +321,6 @@ public class AbsoluteLayoutEntityListViewer extends ScrolledComposite implements
             this.prevSelectedIndex = selectedIndex;
             this.selectedIndex = index;
             paintSelected();
-        } else {
-        	
         }
     }
 
