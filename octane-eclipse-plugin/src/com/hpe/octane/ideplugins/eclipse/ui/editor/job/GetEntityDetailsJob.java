@@ -45,6 +45,7 @@ public class GetEntityDetailsJob extends Job {
 
     private static final List<Entity> noPhaseEntites = Arrays.asList(Entity.MANUAL_TEST_RUN, Entity.TEST_SUITE_RUN, Entity.TEST_SUITE);
     private static final List<Entity> noCommentsEntites = Arrays.asList(Entity.TASK, Entity.MANUAL_TEST_RUN, Entity.TEST_SUITE_RUN);
+	
 
     private long entityId;
     private boolean shouldShowPhase = false;
@@ -53,6 +54,7 @@ public class GetEntityDetailsJob extends Job {
     private boolean wasEntityRetrived = false;
     private Entity entityType;
     private EntityModel retrivedEntity;
+    @SuppressWarnings("rawtypes")
     private FieldModel currentPhase;
     private FormLayout octaneEntityForm;
     private Collection<EntityModel> possibleTransitions;
@@ -74,8 +76,10 @@ public class GetEntityDetailsJob extends Job {
         try {
         	octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(this.entityType);      	                     
             List<FormField> formFields = octaneEntityForm.getFormLayoutSections().stream().collect(Collectors.toList()).get(0).getFields();          
-            Set<String> fields = formFields.stream().map(FormField::getName).collect(Collectors.toSet());                       
-            retrivedEntity = entityService.findEntity(this.entityType, this.entityId, fields);
+            Set<String> fields = formFields.stream().map(FormField::getName).collect(Collectors.toSet());
+            Set<String> ffields = new HashSet<>(fields);
+            ffields.add("name");
+            retrivedEntity = entityService.findEntity(this.entityType, this.entityId, ffields);
             getPhaseAndPossibleTransitions();
             getComments();
             wasEntityRetrived = true;
@@ -156,7 +160,8 @@ public class GetEntityDetailsJob extends Job {
         return retrivedEntity;
     }
 
-    public FieldModel getCurrentPhase() {
+    @SuppressWarnings("rawtypes")
+	public FieldModel getCurrentPhase() {
         return currentPhase;
     }
 

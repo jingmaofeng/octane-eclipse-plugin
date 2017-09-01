@@ -83,16 +83,14 @@ import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class EntityModelEditor extends EditorPart {
-
+	
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.EntityModelEditor"; //$NON-NLS-1$
     private static final String GO_TO_BROWSER_DIALOG_MESSAGE = "You can try to change the phase using ALM Octane in a browser."
             + "\nDo you want to do this now?";
     private static final int MIN_WIDTH = 800;
-
     private static EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
     private static EntityIconFactory entityIconFactory = new EntityIconFactory(25, 25, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
-
     private EntityModel entityModel;
     @SuppressWarnings("rawtypes")
     private FieldModel currentPhase;
@@ -104,7 +102,6 @@ public class EntityModelEditor extends EditorPart {
     private GetEntityDetailsJob getEntiyJob;
     private Text inputComments;
     private String comments;
-
     private StackLayoutComposite rootComposite;
     private ScrolledComposite headerAndEntityDetailsScrollComposite;
     private Composite entityDetailsParentComposite;
@@ -113,12 +110,10 @@ public class EntityModelEditor extends EditorPart {
     private Form sectionsParentForm;
     private FormToolkit formGenerator;
     private Composite headerAndEntityDetailsParent;
-
-    private ToolTip truncatedLabelTooltip;
-    
+    private ToolTip truncatedLabelTooltip;  
     private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
     private Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
-
+   
     public EntityModelEditor() {
     }
 
@@ -141,27 +136,21 @@ public class EntityModelEditor extends EditorPart {
      */
     @Override
     public void createPartControl(Composite parent) {               
-        truncatedLabelTooltip = new ToolTip(parent.getShell(), SWT.ICON_INFORMATION);
-        
-        
-        rootComposite = new StackLayoutComposite(parent, SWT.NONE);
-        
+        truncatedLabelTooltip = new ToolTip(parent.getShell(), SWT.ICON_INFORMATION);               
+        rootComposite = new StackLayoutComposite(parent, SWT.NONE);     
         // set loading GIF until the data is loaded
         loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
         rootComposite.showControl(loadingComposite);
-
         // This job retrieves the necessary data for the details view
         getEntiyJob = new GetEntityDetailsJob("Retiving entity details", this.input.getEntityType(), this.input.getId());
         getEntiyJob.schedule();
         getEntiyJob.addJobChangeListener(new JobChangeAdapter() {
-
             @Override
             public void scheduled(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
                     rootComposite.showControl(loadingComposite);
                 });
             }
-
             @Override
             public void done(IJobChangeEvent event) {
                 if (getEntiyJob.wasEntityRetrived()) {
@@ -198,10 +187,8 @@ public class EntityModelEditor extends EditorPart {
         headerAndEntityDetailsParent.setBackground(backgroundColor);
         headerAndEntityDetailsParent.setLayout(new FillLayout(SWT.HORIZONTAL));
         headerAndEntityDetailsParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
-        createHeaderPanel(headerAndEntityDetailsParent);
-    
+        createHeaderPanel(headerAndEntityDetailsParent);    
         headerAndEntityDetailsScrollComposite.setContent(headerAndEntityDetailsParent);
-
         formGenerator = new FormToolkit(parent.getDisplay());
 
         Composite entityDetailsAndCommentsComposite = new Composite(headerAndEntityDetailsParent, SWT.NONE);
@@ -210,22 +197,19 @@ public class EntityModelEditor extends EditorPart {
         formGenerator.adapt(entityDetailsAndCommentsComposite);
         formGenerator.paintBordersFor(entityDetailsAndCommentsComposite);
         entityDetailsAndCommentsComposite.setLayout(new GridLayout(3, false));
-
         entityDetailsParentComposite = new Composite(entityDetailsAndCommentsComposite, SWT.NONE);
         entityDetailsParentComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         entityDetailsParentComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
         formGenerator.adapt(entityDetailsParentComposite);
         formGenerator.paintBordersFor(entityDetailsParentComposite);
-
         sectionsParentForm = formGenerator.createForm(entityDetailsParentComposite);
         sectionsParentForm.getBody().setLayout(new GridLayout(1, false));
-
+        
         if (shouldCommentsBeShown) {
             Label commentsSeparator = new Label(entityDetailsAndCommentsComposite, SWT.SEPARATOR | SWT.SHADOW_IN);
             commentsSeparator.setForeground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));
             commentsSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
             formGenerator.adapt(commentsSeparator, true, true);
-
             Composite commentsParentComposite = new Composite(entityDetailsAndCommentsComposite, SWT.NONE);
             GridData gd_commentsParentComposite = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
             gd_commentsParentComposite.widthHint = 300;
@@ -234,22 +218,18 @@ public class EntityModelEditor extends EditorPart {
             formGenerator.adapt(commentsParentComposite);
             formGenerator.paintBordersFor(commentsParentComposite);
             commentsParentComposite.setLayout(new GridLayout(1, false));
-
             Label commentsTitleLabel = new Label(commentsParentComposite, SWT.NONE);
             formGenerator.adapt(commentsTitleLabel, true, true);
             commentsTitleLabel.setText("Comments");
             commentsTitleLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
             //commentsTitleLabel.setMargins(5, 0, 0, 0);
             commentsTitleLabel.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-            commentsTitleLabel.setForeground(foregroundColor);
-            
+            commentsTitleLabel.setForeground(foregroundColor);          
             Composite inputCommentAndSendButtonComposite = new Composite(commentsParentComposite, SWT.NONE);
-            inputCommentAndSendButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-            
+            inputCommentAndSendButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));       
             formGenerator.adapt(inputCommentAndSendButtonComposite);
             formGenerator.paintBordersFor(inputCommentAndSendButtonComposite);
-            inputCommentAndSendButtonComposite.setLayout(new GridLayout(2, false));
-            
+            inputCommentAndSendButtonComposite.setLayout(new GridLayout(2, false));         
             inputComments = new Text(inputCommentAndSendButtonComposite, SWT.BORDER);
             inputComments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
             inputComments.setToolTipText("Add new comment");          
@@ -261,7 +241,6 @@ public class EntityModelEditor extends EditorPart {
                 }
             });
             formGenerator.adapt(inputComments, true, true);
-
             Button postCommentBtn = new Button(inputCommentAndSendButtonComposite, SWT.NONE);
             postCommentBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));          
             postCommentBtn.addSelectionListener(new SelectionAdapter() {
@@ -275,18 +254,15 @@ public class EntityModelEditor extends EditorPart {
             });
             formGenerator.adapt(postCommentBtn, true, true);
             postCommentBtn.setText("Send");
-
             PropagateScrollBrowserFactory fac = new PropagateScrollBrowserFactory();
             Browser commentsPanel = fac.createBrowser(commentsParentComposite, SWT.NONE);
             commentsPanel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
             formGenerator.adapt(commentsPanel);
             formGenerator.paintBordersFor(commentsPanel);
             commentsPanel.setText(comments);
-
             commentsPanel.addLocationListener(new LinkInterceptListener());
         }
         if (entityModel != null) {
-
             // create other Sections
             for (FormLayoutSection formSection : octaneEntityForm.getFormLayoutSections()) {
                 createSectionsWithEntityData(formSection);
@@ -294,7 +270,6 @@ public class EntityModelEditor extends EditorPart {
             // Create Description Section
             createDescriptionFormSection();
         }
-
         // Make scroll force child into submission (width)
         Point childSize = headerAndEntityDetailsScrollComposite.getContent().computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
         headerAndEntityDetailsScrollComposite.setMinHeight(childSize.y);
@@ -306,18 +281,16 @@ public class EntityModelEditor extends EditorPart {
     private void createHeaderPanel(Composite parent) {
         headerAndEntityDetailsParent.setLayout(new GridLayout(1, false));
         Composite headerComposite = new Composite(parent, SWT.NONE);
-        headerComposite.setBackground(backgroundColor);
+        headerComposite.setBackground(backgroundColor);   
         headerComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         headerComposite.setLayout(new GridLayout(6, false));
-
         Label entityIcon = new Label(headerComposite, SWT.NONE);
         entityIcon.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         entityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
-
         Link linkEntityName = new Link(headerComposite, SWT.NONE);
-        linkEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        Font boldFont = new Font(linkEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
+        Font boldFont = new Font(linkEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD ));
+        linkEntityName.setForeground(foregroundColor);
         linkEntityName.setFont(boldFont);
         linkEntityName.setText("<A>" + Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME)) + "</A>");
         linkEntityName.addListener(SWT.Selection, new Listener() {
@@ -327,33 +300,26 @@ public class EntityModelEditor extends EditorPart {
             }
         });
         linkEntityName.setLinkForeground(linkEntityName.getForeground());
-
         if (shouldShowPhase) {
             Label lblCurrentPhase = new Label(headerComposite, SWT.NONE);
             lblCurrentPhase.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
             lblCurrentPhase.setText(Util.getUiDataFromModel(currentPhase, EntityFieldsConstants.FIELD_NAME));
-
             CustomEntityComboBox<EntityModel> nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(headerComposite);
             nextPhasesComboBox.addSelectionListener((phaseEntityModel, newSelection) -> {
                 selectedPhase = newSelection;
             });
             nextPhasesComboBox.setLabelProvider(new CustomEntityComboBoxLabelProvider<EntityModel>() {
-
                 @Override
                 public String getSelectedLabel(EntityModel entityModelElement) {
                     return Util.getUiDataFromModel(entityModelElement.getValue("target_phase"), "name");
                 }
-
                 @Override
                 public String getListLabel(EntityModel entityModelElement) {
                     return Util.getUiDataFromModel(entityModelElement.getValue("target_phase"), "name");
                 }
             });
-
             nextPhasesComboBox.setContent(new ArrayList<>(possibleTransitions));
-
             nextPhasesComboBox.selectFirstItem();
-
             Button savePhase = new Button(headerComposite, SWT.NONE);
             savePhase.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
             savePhase.addListener(SWT.Selection, new Listener() {
@@ -367,12 +333,10 @@ public class EntityModelEditor extends EditorPart {
         Button refresh = new Button(headerComposite, SWT.NONE);
         refresh.setImage(ImageResources.REFRESH_16X16.getImage());
         refresh.addListener(SWT.Selection, new Listener() {
-
             @Override
             public void handleEvent(Event event) {
                 getEntiyJob.schedule();
             }
-
         });
     }
 
@@ -380,13 +344,11 @@ public class EntityModelEditor extends EditorPart {
     private void createDescriptionFormSection() {
         Section section = formGenerator.createSection(sectionsParentForm.getBody(), Section.TREE_NODE | Section.EXPANDED);
         formGenerator.createCompositeSeparator(section);
-
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
         gd.minimumHeight = 400;
         section.setLayoutData(gd);
         section.setLayout(new FillLayout(SWT.HORIZONTAL));
-        section.setText("Description");
-        
+        section.setText("Description");       
         PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
         Browser descriptionPanel = factory.createBrowser(section, SWT.NONE);       
         String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;       
@@ -399,24 +361,19 @@ public class EntityModelEditor extends EditorPart {
             descriptionPanel.setText(descriptionText);
         }
         descriptionPanel.addLocationListener(new LinkInterceptListener());
-
         section.setClient(descriptionPanel);
     }
 
     // STEP 4
     private void createSectionsWithEntityData(FormLayoutSection formSection) {
-        Section section = formGenerator.createSection(sectionsParentForm.getBody(), Section.TREE_NODE | Section.EXPANDED);
-        section.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
-
+        Section section = formGenerator.createSection(sectionsParentForm.getBody(), Section.TREE_NODE | Section.EXPANDED);              
+        section.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
         section.setText(formSection.getSectionTitle());
         section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-        section.setExpanded(true);
-        
+        section.setExpanded(true);       
         formGenerator.createCompositeSeparator(section);
-
-        Composite sectionClient = new Composite(section, SWT.BACKGROUND);
-        sectionClient.setLayout(new FillLayout(SWT.HORIZONTAL));
-        
+        Composite sectionClient = new Composite(section, SWT.NONE);
+        sectionClient.setLayout(new FillLayout(SWT.HORIZONTAL));     
         Composite sectionClientLeft = new Composite(sectionClient, SWT.NONE);
         sectionClientLeft.setLayout(new GridLayout(2, false));
         sectionClientLeft.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
@@ -426,9 +383,7 @@ public class EntityModelEditor extends EditorPart {
         List<FormField> formFields = formSection.getFields();
 
         for (int i = 0; i < formFields.size(); i++) {
-
             String fieldName = formFields.get(i).getName();
-
             String fielValue;
             if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
                     || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
@@ -438,7 +393,6 @@ public class EntityModelEditor extends EditorPart {
             } else {
                 fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
             }
-
             // Skip the description fields as it's set into another ui component
             // below this one
             if (EntityFieldsConstants.FIELD_DESCRIPTION.equals(fieldName)) {
@@ -446,7 +400,6 @@ public class EntityModelEditor extends EditorPart {
                 i--;
                 continue;
             }
-
             // Determine if we put the label pair in the left or right container
             Composite parent;
             if (i % 2 == 0) {
@@ -454,33 +407,25 @@ public class EntityModelEditor extends EditorPart {
             } else {
                 parent = sectionClientRight;
             }
-
             // Add the pair of labels for field and value                        
             CLabel labelFieldName = new CLabel(parent, SWT.TRANSPARENT);
             labelFieldName.setText(prettifyLabels(fieldName));
             labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
             labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-            
-            //the good ol' razzle dazzle way
             labelFieldName.addPaintListener(new PaintListener() {
-            	@Override
-            	    public void paintControl(PaintEvent paintEvent) {
-            	    // TODO Auto-generated method stub
-            	    labelFieldName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-            	    Pattern pattern;
-            	    pattern = new Pattern(paintEvent.gc.getDevice(), 0,0,0,100, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230);
-            	    paintEvent.gc.setBackgroundPattern(pattern);
+            		@Override
+            	    public void paintControl(PaintEvent paintEvent) {        
+	            	    labelFieldName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+	            	    Pattern pattern;
+	            	    pattern = new Pattern(paintEvent.gc.getDevice(), 0,0,0,100, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230);
+	            	    paintEvent.gc.setBackgroundPattern(pattern);
             	    }
-
-				
-            });
-            
+            });            
             TruncatingStyledText labelValue = new TruncatingStyledText(parent, SWT.NONE, truncatedLabelTooltip);
             labelValue.setText(fielValue);
             labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
             labelValue.setForeground(foregroundColor);
         }
-
         section.setClient(sectionClient);
     }
 
@@ -513,7 +458,6 @@ public class EntityModelEditor extends EditorPart {
                         if (shouldGoToBroeser) {
                             entityService.openInBrowser(entityModel);
                         }
-
                     }
                     getEntiyJob.schedule();
                 });
