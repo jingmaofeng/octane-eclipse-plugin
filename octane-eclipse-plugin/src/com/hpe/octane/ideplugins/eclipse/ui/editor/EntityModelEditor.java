@@ -292,7 +292,7 @@ public class EntityModelEditor extends EditorPart {
         Font boldFont = new Font(linkEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD ));
         linkEntityName.setForeground(foregroundColor);
         linkEntityName.setFont(boldFont);
-        linkEntityName.setText("<A>" + Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME)) + "</A>");
+        linkEntityName.setText("<A>" + entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue() + "</A>");
         linkEntityName.addListener(SWT.Selection, new Listener() {
             @Override
             public void handleEvent(Event event) {
