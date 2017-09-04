@@ -76,7 +76,7 @@ public class GetEntityDetailsJob extends Job {
         try {
         	octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(this.entityType);      	                     
             List<FormField> formFields = octaneEntityForm.getFormLayoutSections().stream().collect(Collectors.toList()).get(0).getFields();          
-            Set<String> fields = formFields.stream().map(FormField::getName).collect(Collectors.toSet());
+            Set<String> fields = formFields.stream().map(FormField::getName).collect(Collectors.toSet());            
             retrivedEntity = entityService.findEntity(this.entityType, this.entityId,fields);
             getPhaseAndPossibleTransitions();
             getComments();

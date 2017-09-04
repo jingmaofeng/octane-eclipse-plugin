@@ -60,6 +60,7 @@ import org.eclipse.ui.part.EditorPart;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.ui.FormField;
 import com.hpe.adm.octane.ideplugins.services.ui.FormLayout;
@@ -292,7 +293,11 @@ public class EntityModelEditor extends EditorPart {
         Font boldFont = new Font(linkEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD ));
         linkEntityName.setForeground(foregroundColor);
         linkEntityName.setFont(boldFont);
-        linkEntityName.setText("<A>" + entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue() + "</A>");
+        try {
+			linkEntityName.setText("<A>" + entityService.findEntity(Entity.getEntityType(entityModel),Long.parseLong((String) entityModel.getValue(EntityFieldsConstants.FIELD_ID).getValue())).getValue(EntityFieldsConstants.FIELD_NAME).getValue() + "</A>");
+		} catch (ServiceException e) {
+			e.printStackTrace();
+		}
         linkEntityName.addListener(SWT.Selection, new Listener() {
             @Override
             public void handleEvent(Event event) {
