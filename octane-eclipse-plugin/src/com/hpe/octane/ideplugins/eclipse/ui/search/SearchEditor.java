@@ -24,12 +24,15 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
@@ -71,6 +74,9 @@ public class SearchEditor extends EditorPart {
     private StackLayoutComposite container;
 
     private SearchJob searchJob;
+    
+    private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
+    private Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
 
     @Override
     public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -94,7 +100,8 @@ public class SearchEditor extends EditorPart {
     public void createPartControl(Composite parent) {
 
         container = new StackLayoutComposite(parent, SWT.NONE);
-        container.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+        container.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        container.setForeground(foregroundColor);
 
         entityListComposite = new EntityListComposite(
                 container,
@@ -113,7 +120,7 @@ public class SearchEditor extends EditorPart {
         loadingComposite = new LoadingComposite(container, SWT.NONE);
 
         entityListComposite.addEntityMouseListener(new OpenDetailTabEntityMouseListener());
-
+        entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         searchJob = new SearchJob(
                 "Searching Octane for: \"" + searchEditorInput.getQuery() + "\"",
                 searchEditorInput.getQuery(),
