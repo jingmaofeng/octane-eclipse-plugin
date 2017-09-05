@@ -14,9 +14,12 @@ package com.hpe.octane.ideplugins.eclipse.ui.search;
 
 import static com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants.FIELD_DESCRIPTION;
 
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
@@ -24,10 +27,13 @@ import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class SearchResultRowRenderer implements EntityModelRenderer {
-
-    private static final EntityIconFactory entityIconFactory = new EntityIconFactory(40, 40, 14);
+	
+	private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
+	private Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+	private static final EntityIconFactory entityIconFactory = new EntityIconFactory(40, 40, 14);
 
     @Override
     public Control createRow(Composite parent, EntityModel entityModel) {
@@ -36,8 +42,9 @@ public class SearchResultRowRenderer implements EntityModelRenderer {
         Entity entityType = Entity.getEntityType(entityModel);
 
         EntityModelRow row = new EntityModelRow(parent, SWT.NONE);
-        row.setBackgroundMode(SWT.INHERIT_FORCE);
-
+        row.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        row.setForeground(foregroundColor);
+        
         row.setEntityIcon(entityIconFactory.getImageIcon(entityType));
 
         String name = Util.getUiDataFromModel(entityModel.getValue("name"));
