@@ -29,7 +29,7 @@ import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class NoSearchResultsComposite extends Composite {
 	
-	private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
+	private Color backgroundColor = SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
 	
     public NoSearchResultsComposite(Composite parent, int style) {
         super(parent, style);
