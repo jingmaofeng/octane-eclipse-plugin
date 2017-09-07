@@ -436,7 +436,10 @@ public class EntityModelEditor extends EditorPart {
 
     private String prettifyLabels(String str1) {
         //for udfs
-        str1 = str1.replaceAll("_udf", "");
+        if(str1.contains("_udf")) {
+        	str1 = getEntiyJob.getUdfLabel(str1);
+        }
+    	str1 = str1.replaceAll("_udf", "");
         str1 = str1.replaceAll("_", " ");
         char[] chars = str1.toCharArray();
         chars[0] = Character.toUpperCase(chars[0]);

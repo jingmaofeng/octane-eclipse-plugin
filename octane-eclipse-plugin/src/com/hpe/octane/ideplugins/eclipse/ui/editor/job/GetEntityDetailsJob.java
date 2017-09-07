@@ -109,6 +109,10 @@ public class GetEntityDetailsJob extends Job {
             areCommentsLoaded = true;
         }
     }
+    
+    public String getUdfLabel(String udfName) {
+    	return metadataService.getUdfLabel(udfName);
+    }
 
     public String getCommentsForCurrentEntity() {
         StringBuilder commentsBuilder = new StringBuilder();
