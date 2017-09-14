@@ -304,7 +304,7 @@ public class EntityModelEditor extends EditorPart {
                 Activator.getInstance(EntityService.class).openInBrowser(entityModel);
             }
         });
-        linkEntityName.setLinkForeground(linkEntityName.getForeground());
+        //linkEntityName.setLinkForeground(linkEntityName.getForeground());
         if (shouldShowPhase) {
             Label lblCurrentPhase = new Label(headerComposite, SWT.NONE);
             lblCurrentPhase.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));

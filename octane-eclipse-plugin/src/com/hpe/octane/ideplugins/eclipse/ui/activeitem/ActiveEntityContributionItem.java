@@ -88,6 +88,7 @@ public class ActiveEntityContributionItem extends WorkbenchWindowControlContribu
         }
         return null;
     }
+    
 
     private static void addAction() {
         manager.removeAll();

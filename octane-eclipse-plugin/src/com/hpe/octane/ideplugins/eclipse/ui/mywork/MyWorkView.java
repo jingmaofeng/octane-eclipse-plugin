@@ -41,6 +41,7 @@ import com.hpe.adm.octane.ideplugins.services.util.EntityUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
+import com.hpe.octane.ideplugins.eclipse.ui.activeitem.ActiveEntityContributionItem;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
@@ -143,8 +144,7 @@ public class MyWorkView extends OctaneViewPart {
                     // drawing the green thingy on the icons
                     Activator.addActiveItemChangedHandler(() -> {
                         viewer.forceRedrawRows();
-                    });
-
+                    });                   
                     return viewer;
                 },
                 MyWorkEntityModelRowRenderer.getRequiredFields().keySet(),
