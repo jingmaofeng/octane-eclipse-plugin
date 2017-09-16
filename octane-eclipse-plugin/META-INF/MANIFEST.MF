@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.ide;bundle-version="3.11.0",
  org.apache.commons.lang
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: javax.inject;version="1.0.0"
+Import-Package: javax.inject;version="1.0.0",
+ org.slf4j;version="1.7.2"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/aopalliance.jar,
@@ -49,9 +50,11 @@ Bundle-ClassPath: .,
  lib/jsr305.jar,
  lib/log4j-api.jar,
  lib/log4j-core.jar,
- lib/octane-plugin-common.jar,
  lib/sdk-src.jar,
  lib/velocity.jar,
- lib/sdk-extension-src.jar
+ target/,
+ lib/sdk-extension-src.jar,
+ lib/slf4j-api.jar,
+ lib/octane-plugin-common.jar
 
 
