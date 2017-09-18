@@ -15,10 +15,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.editor.job;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -35,7 +32,6 @@ import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.MetadataService;
 import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
-import com.hpe.adm.octane.ideplugins.services.ui.FormField;
 import com.hpe.adm.octane.ideplugins.services.ui.FormLayout;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -46,16 +42,18 @@ public class GetEntityDetailsJob extends Job {
     private static final List<Entity> noPhaseEntites = Arrays.asList(Entity.MANUAL_TEST_RUN, Entity.TEST_SUITE_RUN, Entity.TEST_SUITE);
     private static final List<Entity> noCommentsEntites = Arrays.asList(Entity.TASK, Entity.MANUAL_TEST_RUN, Entity.TEST_SUITE_RUN);
 	
-
     private long entityId;
+    
     private boolean shouldShowPhase = false;
     private boolean areCommentsLoaded = false;
     private boolean areCommentsShown = false;
     private boolean wasEntityRetrived = false;
     private Entity entityType;
     private EntityModel retrivedEntity;
+    
     @SuppressWarnings("rawtypes")
     private FieldModel currentPhase;
+    
     private FormLayout octaneEntityForm;
     private Collection<EntityModel> possibleTransitions;
     private Collection<EntityModel> comments;
@@ -74,10 +72,8 @@ public class GetEntityDetailsJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
-        	octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(this.entityType);      	                     
-            List<FormField> formFields = octaneEntityForm.getFormLayoutSections().stream().collect(Collectors.toList()).get(0).getFields();          
-            Set<String> fields = formFields.stream().map(FormField::getName).collect(Collectors.toSet());            
-            retrivedEntity = entityService.findEntity(this.entityType, this.entityId,fields);
+        	octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(this.entityType);      	   
+            retrivedEntity = entityService.findEntity(this.entityType, this.entityId,  metadataService.getFields(entityType));
             getPhaseAndPossibleTransitions();
             getComments();
             wasEntityRetrived = true;
