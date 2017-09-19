@@ -15,7 +15,9 @@ package com.hpe.octane.ideplugins.eclipse.ui.editor.job;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -73,7 +75,13 @@ public class GetEntityDetailsJob extends Job {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
         	octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(this.entityType);      	   
-            retrivedEntity = entityService.findEntity(this.entityType, this.entityId,  metadataService.getFields(entityType));
+        	Set<String> fields;
+        	if(entityType.isSubtype()) {
+        		fields	= new HashSet<>(metadataService.getFields(entityType.getSubtypeOf()));
+        	} else {
+        		fields	= new HashSet<>(metadataService.getFields(entityType));
+        	}
+        	retrivedEntity = entityService.findEntity(this.entityType, this.entityId);
             getPhaseAndPossibleTransitions();
             getComments();
             wasEntityRetrived = true;
