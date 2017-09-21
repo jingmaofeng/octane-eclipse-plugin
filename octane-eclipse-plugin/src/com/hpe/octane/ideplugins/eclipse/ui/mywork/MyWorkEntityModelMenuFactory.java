@@ -174,7 +174,11 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 					() -> {
 						Integer parentId = Integer.valueOf(parentEntityModel.getValue("id").getValue().toString());
 						Entity parentEntityType = Entity.getEntityType(parentEntityModel);
-						openDetailTab(parentId, parentEntityType);
+						if(Entity.FEATURE == Entity.getEntityType(entityModel) || Entity.EPIC == Entity.getEntityType(entityModel)) {
+			            	entityService.openInBrowser(entityModel);
+			            } else {
+			            	openDetailTab(parentId, parentEntityType);
+			            }
 					});
 		}
 
