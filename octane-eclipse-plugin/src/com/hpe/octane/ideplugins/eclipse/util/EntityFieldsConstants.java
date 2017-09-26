@@ -15,6 +15,8 @@ package com.hpe.octane.ideplugins.eclipse.util;
 public class EntityFieldsConstants {
 	
 	public static final String FIELD_ID = "id";
+	public static final String FIELD_TYPE = "type";
+	public static final String FIELD_SUBTYPE = "subtype";
 	
     public static final String FIELD_DEFECT_TYPE = "defect_type";
     public static final String FIELD_DESCRIPTION = "description";
@@ -42,7 +44,6 @@ public class EntityFieldsConstants {
     public static final String FIELD_IS_MANUAL = "manual";
     public static final String FIELD_RUNS_IN_RELEASES = "run_in_releases";
     public static final String FIELD_TEST_SUBTYPE = "subtype";
-    public static final String FIELD_SUBTYPE = "subtype";
     public static final String FIELD_TEST_TYPE = "test_type";
     public static final String FIELD_TESTING_TOOL_TYPE = "testing_tool_type";
     public static final String FIELD_LAST_RUNS = "last_runs";
