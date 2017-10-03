@@ -290,6 +290,7 @@ public class EntityModelEditor extends EditorPart {
         entityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
         Link linkEntityName = new Link(headerComposite, SWT.NONE);
         linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        linkEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         Font boldFont = new Font(linkEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD ));
         linkEntityName.setForeground(foregroundColor);
         linkEntityName.setFont(boldFont);

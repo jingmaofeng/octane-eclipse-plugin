@@ -21,6 +21,7 @@ import java.util.Set;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -36,6 +37,7 @@ public class EntityTypeSelectorComposite extends Composite {
     private List<Button> checkBoxes = new ArrayList<>();
     private List<Runnable> selectionListeners = new ArrayList<>();
     private Label totalCountLbl;
+    private Color backgroundColor = SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
 
     /**
      * Create the composite.
@@ -49,10 +51,9 @@ public class EntityTypeSelectorComposite extends Composite {
         rowLayout.center = true;
         rowLayout.spacing = 7;
         setLayout(rowLayout);
-
         for (Entity entity : supportedEntityTypes) {
             Button btnCheckButton = new Button(this, SWT.CHECK);
-
+            btnCheckButton.setBackground(backgroundColor);
             btnCheckButton.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -65,14 +66,16 @@ public class EntityTypeSelectorComposite extends Composite {
             btnCheckButton.setImage(entityIconFactory.getImageIcon(entity));
             checkBoxes.add(btnCheckButton);
         }
-
+        
         totalCountLbl = new Label(this, SWT.NONE);
         totalCountLbl.setFont(SWTResourceManager.getBoldFont(totalCountLbl.getFont()));
+        totalCountLbl.setBackground(backgroundColor);
     }
 
     public void setEntityTypeCount(Map<Entity, Integer> entityTypeCount) {
         checkBoxes.forEach(checkBox -> {
-            Integer count = entityTypeCount.get(checkBox.getData());
+            checkBox.setBackground(backgroundColor);
+        	Integer count = entityTypeCount.get(checkBox.getData());
             if (count != null) {
                 checkBox.setText("" + count);
             } else {

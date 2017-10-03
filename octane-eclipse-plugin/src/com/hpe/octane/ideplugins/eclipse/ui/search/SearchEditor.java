@@ -115,12 +115,13 @@ public class SearchEditor extends EditorPart {
                 },
                 searchEntityTypes,
                 searchEntityFilterFields);
-
+        entityListComposite.setBackground(backgroundColor);
+        
         noSearchResultsComposite = new NoSearchResultsComposite(container, SWT.NONE);
         loadingComposite = new LoadingComposite(container, SWT.NONE);
 
         entityListComposite.addEntityMouseListener(new OpenDetailTabEntityMouseListener());
-        entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        
         searchJob = new SearchJob(
                 "Searching Octane for: \"" + searchEditorInput.getQuery() + "\"",
                 searchEditorInput.getQuery(),
