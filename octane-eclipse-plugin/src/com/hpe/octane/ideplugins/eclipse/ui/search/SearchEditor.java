@@ -50,7 +50,8 @@ public class SearchEditor extends EditorPart {
     // private static final ILog logger = Activator.getDefault().getLog();
 
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor";
-
+    private String darkBackgroundColorString = "rgb(52,57,61)"; 
+    
     static final Set<Entity> searchEntityTypes = new LinkedHashSet<>(Arrays.asList(
             Entity.EPIC,
             Entity.FEATURE,
@@ -116,12 +117,18 @@ public class SearchEditor extends EditorPart {
                 searchEntityTypes,
                 searchEntityFilterFields);
         entityListComposite.setBackground(backgroundColor);
+        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;
         
+        if(backgroundColorString.equals(darkBackgroundColorString)) {
+        	entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        } else {
+        	entityListComposite.setBackground(backgroundColor);
+        }
         noSearchResultsComposite = new NoSearchResultsComposite(container, SWT.NONE);
         loadingComposite = new LoadingComposite(container, SWT.NONE);
 
         entityListComposite.addEntityMouseListener(new OpenDetailTabEntityMouseListener());
-        
+        entityListComposite.setBackgroundMode(SWT.INHERIT_FORCE);
         searchJob = new SearchJob(
                 "Searching Octane for: \"" + searchEditorInput.getQuery() + "\"",
                 searchEditorInput.getQuery(),

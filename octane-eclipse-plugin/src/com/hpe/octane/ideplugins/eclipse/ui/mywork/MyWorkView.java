@@ -28,6 +28,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -67,7 +68,7 @@ public class MyWorkView extends OctaneViewPart {
     private static final String LOADING_MESSAGE = "Loading \"My Work\"";
     
     private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);;
-    
+    private String darkBackgroundColorString = "rgb(52,57,61)";
     private MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
     private UserItemArrayEntityListData entityData = new UserItemArrayEntityListData();
     private EntityListComposite entityListComposite;
@@ -157,7 +158,13 @@ public class MyWorkView extends OctaneViewPart {
                         .stream()
                         .flatMap(col -> col.stream())
                         .collect(Collectors.toSet()));   
-        entityListComposite.setBackground(backgroundColor);
+        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;
+        
+        if(backgroundColorString.equals(darkBackgroundColorString)) {
+        	entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        } else {
+        	entityListComposite.setBackground(backgroundColor);
+        }
         
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE, new Runnable() {
             @Override

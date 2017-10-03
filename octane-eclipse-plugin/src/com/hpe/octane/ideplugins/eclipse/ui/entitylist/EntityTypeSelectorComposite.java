@@ -51,6 +51,7 @@ public class EntityTypeSelectorComposite extends Composite {
         rowLayout.center = true;
         rowLayout.spacing = 7;
         setLayout(rowLayout);
+        
         for (Entity entity : supportedEntityTypes) {
             Button btnCheckButton = new Button(this, SWT.CHECK);
             btnCheckButton.setBackground(backgroundColor);
