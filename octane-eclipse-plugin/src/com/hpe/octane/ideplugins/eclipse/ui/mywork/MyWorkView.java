@@ -114,15 +114,19 @@ public class MyWorkView extends OctaneViewPart {
                     });
                 } catch (Exception e) {
                     Display.getDefault().asyncExec(() -> {
-                        errorComposite.setErrorMessage("Error while loading \"My Work\": " + e.getMessage());
+                        if(e.getMessage().equals("null")) {
+                        	errorComposite.setErrorMessage("Error while loading \"My Work\"");
+                        } else {
+                        	errorComposite.setErrorMessage("Error while loading \"My Work\": " + e.getMessage());
+                        }
                         showControl(errorComposite);
                         entityData.setEntityList(Collections.emptyList());
                         
                         Display.getDefault().asyncExec(() -> {
                             Activator.setActiveItem(null);
                             new InfoPopup(
-                                    "My work failed to load",
-                                    "The connection settings changed",
+                                    "Your Previously saved connection settings do not seem to work",
+                                    "Please go to settings and test your connection to Octane",
                                     400,
                                     100,
                                     false,

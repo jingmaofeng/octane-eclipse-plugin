@@ -132,10 +132,7 @@ public final class InfoPopup extends PopupDialog {
     @Override
     protected Control createDialogArea(Composite parent) {
     	text = new Text(parent, SWT.MULTI | SWT.READ_ONLY | SWT.WRAP | SWT.NO_FOCUS);
-        text.setText(content);
-        
-        
-        
+        text.setText(content);       
         return text;
     }
     
