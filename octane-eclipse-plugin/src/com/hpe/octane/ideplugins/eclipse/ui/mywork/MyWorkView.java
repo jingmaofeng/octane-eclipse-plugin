@@ -23,16 +23,25 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.dialogs.PopupDialog;
+import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkService;
@@ -40,6 +49,7 @@ import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 import com.hpe.adm.octane.ideplugins.services.util.EntityUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
@@ -104,10 +114,25 @@ public class MyWorkView extends OctaneViewPart {
                     });
                 } catch (Exception e) {
                     Display.getDefault().asyncExec(() -> {
-                        errorComposite.setErrorMessage("Error while loading \"My Work\": " + e.getMessage());
+                        if(e.getMessage().equals("null")) {
+                        	errorComposite.setErrorMessage("Error while loading \"My Work\"");
+                        } else {
+                        	errorComposite.setErrorMessage("Error while loading \"My Work\": " + e.getMessage());
+                        }
                         showControl(errorComposite);
                         entityData.setEntityList(Collections.emptyList());
-                    });
+                        
+                        Display.getDefault().asyncExec(() -> {
+                            Activator.setActiveItem(null);
+                            new InfoPopup(
+                                    "Your Previously saved connection settings do not seem to work",
+                                    "Please go to settings and test your connection to Octane",
+                                    400,
+                                    100,
+                                    false,
+                                    true).open();
+                        });                                                                       
+                     });
                 }
                 monitor.done();
                 return Status.OK_STATUS;

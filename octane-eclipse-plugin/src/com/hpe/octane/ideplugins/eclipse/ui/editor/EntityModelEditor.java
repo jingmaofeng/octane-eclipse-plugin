@@ -143,7 +143,7 @@ public class EntityModelEditor extends EditorPart {
         loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
         rootComposite.showControl(loadingComposite);
         // This job retrieves the necessary data for the details view
-        getEntiyJob = new GetEntityDetailsJob("Retiving entity details", this.input.getEntityType(), this.input.getId());
+        getEntiyJob = new GetEntityDetailsJob("Retrieving entity details", this.input.getEntityType(), this.input.getId());
         getEntiyJob.schedule();
         getEntiyJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
