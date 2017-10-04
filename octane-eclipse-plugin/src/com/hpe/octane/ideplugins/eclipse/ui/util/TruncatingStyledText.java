@@ -9,6 +9,8 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Caret;
@@ -119,5 +121,9 @@ public class TruncatingStyledText extends StyledText {
     @Override
     public void setCaret(Caret caret) {
     }
-
+    @Override
+    public void setFont(Font font) {
+    	super.setFont(font);
+    	gc.setFont(font);
+    }
 }
