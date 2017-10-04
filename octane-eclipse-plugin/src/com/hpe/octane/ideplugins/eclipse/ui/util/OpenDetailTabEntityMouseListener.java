@@ -53,7 +53,6 @@ public class OpenDetailTabEntityMouseListener implements EntityMouseListener {
             }
             
             if(Entity.FEATURE == Entity.getEntityType(entityModel) || Entity.EPIC == Entity.getEntityType(entityModel)) {
-            	//TODO open in browser
             	entityService.openInBrowser(entityModel);
             } else {
 	            Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
