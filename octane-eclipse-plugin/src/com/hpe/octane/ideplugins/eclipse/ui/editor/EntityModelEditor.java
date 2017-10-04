@@ -288,7 +288,6 @@ public class EntityModelEditor extends EditorPart {
         Label entityIcon = new Label(headerComposite, SWT.NONE);
         entityIcon.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         entityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
-        //Link linkEntityName = new Link(headerComposite, SWT.NONE);
         TruncatingStyledText linkEntityName = new TruncatingStyledText(headerComposite, SWT.NONE,truncatedLabelTooltip);
         linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         Font boldFont = new Font(linkEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD ));
