@@ -51,7 +51,6 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
-import com.hpe.octane.ideplugins.eclipse.ui.activeitem.ActiveEntityContributionItem;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
@@ -64,6 +63,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.OpenDetailTabEntityMouseListene
 import com.hpe.octane.ideplugins.eclipse.ui.util.SeparatorControlContribution;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TextContributionItem;
 import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
+import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
@@ -177,6 +177,7 @@ public class MyWorkView extends OctaneViewPart {
                         .values()
                         .stream()
                         .flatMap(col -> col.stream())
+                        .filter(field -> !field.equals(EntityFieldsConstants.FIELD_TYPE) && !field.equals(EntityFieldsConstants.FIELD_SUBTYPE)) //type filter should be done by the checkboxes, not by this
                         .collect(Collectors.toSet()));
         entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         
