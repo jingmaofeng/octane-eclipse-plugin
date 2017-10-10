@@ -23,25 +23,18 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.dialogs.PopupDialog;
-import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkService;
@@ -49,7 +42,6 @@ import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 import com.hpe.adm.octane.ideplugins.services.util.EntityUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
-import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
@@ -73,7 +65,9 @@ public class MyWorkView extends OctaneViewPart {
 
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView";
     private static final String LOADING_MESSAGE = "Loading \"My Work\"";
-
+    
+    private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);;
+    private String darkBackgroundColorString = "rgb(52,57,61)";
     private MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
     private UserItemArrayEntityListData entityData = new UserItemArrayEntityListData();
     private EntityListComposite entityListComposite;
@@ -179,8 +173,14 @@ public class MyWorkView extends OctaneViewPart {
                         .flatMap(col -> col.stream())
                         .filter(field -> !field.equals(EntityFieldsConstants.FIELD_TYPE) && !field.equals(EntityFieldsConstants.FIELD_SUBTYPE)) //type filter should be done by the checkboxes, not by this
                         .collect(Collectors.toSet()));
-        entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+   
+        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;
         
+        if(backgroundColorString.equals(darkBackgroundColorString)) {
+        	entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        } else {
+        	entityListComposite.setBackground(backgroundColor);
+        }        
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE, new Runnable() {
             @Override
             public void run() {

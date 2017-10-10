@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -32,13 +33,14 @@ import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
 import com.hpe.octane.ideplugins.eclipse.util.ControlProvider;
 import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
+import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class EntityListComposite extends Composite {
 
     private EntityListData entityListData;
     private Text textFilter;
     private EntityTypeSelectorComposite entityTypeSelectorComposite;
-
+    private Color backgroundColor = SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
     private Set<Entity> filterTypes;
 
     // Currently only fatlines
@@ -69,12 +71,13 @@ public class EntityListComposite extends Composite {
     }
 
     private void init() {
-        setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
+        setBackground(backgroundColor);
         setBackgroundMode(SWT.INHERIT_FORCE);
 
         entityTypeSelectorComposite = new EntityTypeSelectorComposite(this, SWT.NONE, filterTypes.toArray(new Entity[] {}));
         entityTypeSelectorComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         entityTypeSelectorComposite.checkAll();
+        entityTypeSelectorComposite.setBackground(backgroundColor);
         entityTypeSelectorComposite.addSelectionListener(() -> {
             entityListData.setTypeFilter(entityTypeSelectorComposite.getCheckedEntityTypes());
         });
