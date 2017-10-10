@@ -28,7 +28,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -44,7 +43,6 @@ import com.hpe.adm.octane.ideplugins.services.util.EntityUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
-import com.hpe.octane.ideplugins.eclipse.ui.activeitem.ActiveEntityContributionItem;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListComposite;
@@ -57,6 +55,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.OpenDetailTabEntityMouseListene
 import com.hpe.octane.ideplugins.eclipse.ui.util.SeparatorControlContribution;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TextContributionItem;
 import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
+import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
@@ -109,10 +108,25 @@ public class MyWorkView extends OctaneViewPart {
                     });
                 } catch (Exception e) {
                     Display.getDefault().asyncExec(() -> {
-                        errorComposite.setErrorMessage("Error while loading \"My Work\": " + e.getMessage());
+                        if(e.getMessage().equals("null")) {
+                        	errorComposite.setErrorMessage("Error while loading \"My Work\"");
+                        } else {
+                        	errorComposite.setErrorMessage("Error while loading \"My Work\": " + e.getMessage());
+                        }
                         showControl(errorComposite);
                         entityData.setEntityList(Collections.emptyList());
-                    });
+                        
+                        Display.getDefault().asyncExec(() -> {
+                            Activator.setActiveItem(null);
+                            new InfoPopup(
+                                    "Your Previously saved connection settings do not seem to work",
+                                    "Please go to settings and test your connection to Octane",
+                                    400,
+                                    100,
+                                    false,
+                                    true).open();
+                        });                                                                       
+                     });
                 }
                 monitor.done();
                 return Status.OK_STATUS;
@@ -157,15 +171,16 @@ public class MyWorkView extends OctaneViewPart {
                         .values()
                         .stream()
                         .flatMap(col -> col.stream())
-                        .collect(Collectors.toSet()));   
+                        .filter(field -> !field.equals(EntityFieldsConstants.FIELD_TYPE) && !field.equals(EntityFieldsConstants.FIELD_SUBTYPE)) //type filter should be done by the checkboxes, not by this
+                        .collect(Collectors.toSet()));
+   
         String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;
         
         if(backgroundColorString.equals(darkBackgroundColorString)) {
         	entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         } else {
         	entityListComposite.setBackground(backgroundColor);
-        }
-        
+        }        
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE, new Runnable() {
             @Override
             public void run() {
