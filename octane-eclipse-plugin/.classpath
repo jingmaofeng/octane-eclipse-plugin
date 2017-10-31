@@ -28,8 +28,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/json.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jsoup.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jsr305.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/log4j-api.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/log4j-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/sdk-src.jar" sourcepath="/octane-plugin-common/src"/>
 	<classpathentry exported="true" kind="lib" path="lib/velocity.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/sdk-extension-src.jar"/>
