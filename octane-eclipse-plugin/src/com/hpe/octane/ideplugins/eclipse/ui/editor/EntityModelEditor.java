@@ -143,7 +143,7 @@ public class EntityModelEditor extends EditorPart {
         loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
         rootComposite.showControl(loadingComposite);
         // This job retrieves the necessary data for the details view
-        getEntiyJob = new GetEntityDetailsJob("Retiving entity details", this.input.getEntityType(), this.input.getId());
+        getEntiyJob = new GetEntityDetailsJob("Retrieving entity details", this.input.getEntityType(), this.input.getId());
         getEntiyJob.schedule();
         getEntiyJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
@@ -288,23 +288,22 @@ public class EntityModelEditor extends EditorPart {
         Label entityIcon = new Label(headerComposite, SWT.NONE);
         entityIcon.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         entityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
-        Link linkEntityName = new Link(headerComposite, SWT.NONE);
+        TruncatingStyledText linkEntityName = new TruncatingStyledText(headerComposite, SWT.NONE,truncatedLabelTooltip);
         linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        linkEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         Font boldFont = new Font(linkEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD ));
-        linkEntityName.setForeground(foregroundColor);
+        linkEntityName.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
         linkEntityName.setFont(boldFont);
-        try {
-			linkEntityName.setText("<A>" + entityService.findEntity(Entity.getEntityType(entityModel),Long.parseLong((String) entityModel.getValue(EntityFieldsConstants.FIELD_ID).getValue())).getValue(EntityFieldsConstants.FIELD_NAME).getValue() + "</A>");
-		} catch (ServiceException e) {
-			e.printStackTrace();
-		}
-        linkEntityName.addListener(SWT.Selection, new Listener() {
+        linkEntityName.setBackground(backgroundColor);
+        linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
+        linkEntityName.addListener(SWT.MouseDown, new Listener() {
             @Override
             public void handleEvent(Event event) {
                 Activator.getInstance(EntityService.class).openInBrowser(entityModel);
             }
         });
-        //linkEntityName.setLinkForeground(linkEntityName.getForeground());
+        
+        
         if (shouldShowPhase) {
             Label lblCurrentPhase = new Label(headerComposite, SWT.NONE);
             lblCurrentPhase.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));

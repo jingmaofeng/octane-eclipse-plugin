@@ -35,7 +35,7 @@ public abstract class OctaneViewPart extends ViewPart {
     private WelcomeComposite welcomeComposite;
     private LoadingComposite loadingComposite;
     private Control octaneViewControl;
-
+    
     private StackLayoutComposite rootContainer;
 
     @Override
@@ -82,5 +82,4 @@ public abstract class OctaneViewPart extends ViewPart {
     public void showControl(Control control) {
         Display.getDefault().asyncExec(() -> rootContainer.showControl(control));
     }
-
 }
