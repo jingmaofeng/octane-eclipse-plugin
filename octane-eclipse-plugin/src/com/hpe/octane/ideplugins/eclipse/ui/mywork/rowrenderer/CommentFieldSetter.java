@@ -15,9 +15,6 @@ package com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer;
 import static com.hpe.adm.octane.ideplugins.services.util.Util.getContainerItemForCommentModel;
 import static com.hpe.adm.octane.ideplugins.services.util.Util.getUiDataFromModel;
 
-import org.eclipse.jface.preference.JFacePreferences;
-import org.eclipse.ui.PlatformUI;
-
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
