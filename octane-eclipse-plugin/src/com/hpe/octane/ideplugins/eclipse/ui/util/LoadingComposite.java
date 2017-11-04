@@ -34,7 +34,6 @@ import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class LoadingComposite extends Composite {
 
@@ -51,7 +50,8 @@ public class LoadingComposite extends Composite {
      */
     public LoadingComposite(Composite parent, int style) {
         super(parent, style);
-        setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
+        setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
+                .get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
         Display display = parent.getDisplay();
         GC shellGC = new GC(this);
         Color shellBackground = getBackground();

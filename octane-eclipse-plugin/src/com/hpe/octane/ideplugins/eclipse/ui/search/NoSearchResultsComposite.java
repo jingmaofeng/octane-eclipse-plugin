@@ -12,7 +12,6 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.search;
 
-import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -22,15 +21,14 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class NoSearchResultsComposite extends Composite {
-	
-	private Color backgroundColor = SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
-	
+
+    private Color backgroundColor = SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
+
     public NoSearchResultsComposite(Composite parent, int style) {
         super(parent, style);
         setLayout(new GridLayout(1, false));
@@ -40,28 +38,30 @@ public class NoSearchResultsComposite extends Composite {
 
         Label lblUnidragon = new Label(this, SWT.NONE);
         lblUnidragon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
-        lblUnidragon.setImage(ImageResources.UNIDRAG_SMALL_SAD.getImage());        
+        lblUnidragon.setImage(ImageResources.UNIDRAG_SMALL_SAD.getImage());
         lblUnidragon.addPaintListener(new PaintListener() {
-    		@Override
-    	    public void paintControl(PaintEvent paintEvent) {        
-        	    lblUnidragon.setBackground(backgroundColor);
-        	    Pattern pattern;
-        	    pattern = new Pattern(paintEvent.gc.getDevice(), 0,0,0,100, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230);
-        	    paintEvent.gc.setBackgroundPattern(pattern);
-    	    }
-        });  
+            @Override
+            public void paintControl(PaintEvent paintEvent) {
+                lblUnidragon.setBackground(backgroundColor);
+                Pattern pattern;
+                pattern = new Pattern(paintEvent.gc.getDevice(), 0, 0, 0, 100, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT), 230,
+                        paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT), 230);
+                paintEvent.gc.setBackgroundPattern(pattern);
+            }
+        });
         Label lblNoResults = new Label(this, SWT.NONE);
         lblNoResults.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true, true, 1, 1));
         lblNoResults.setText("No results");
         lblNoResults.addPaintListener(new PaintListener() {
-    		@Override
-    	    public void paintControl(PaintEvent paintEvent) {        
-        	    lblNoResults.setBackground(backgroundColor);
-        	    Pattern pattern;
-        	    pattern = new Pattern(paintEvent.gc.getDevice(), 0,0,0,100, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),230);
-        	    paintEvent.gc.setBackgroundPattern(pattern);
-    	    }
-        });  
+            @Override
+            public void paintControl(PaintEvent paintEvent) {
+                lblNoResults.setBackground(backgroundColor);
+                Pattern pattern;
+                pattern = new Pattern(paintEvent.gc.getDevice(), 0, 0, 0, 100, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT), 230,
+                        paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT), 230);
+                paintEvent.gc.setBackgroundPattern(pattern);
+            }
+        });
     }
 
 }

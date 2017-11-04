@@ -15,9 +15,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.editor.job;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -43,19 +41,19 @@ public class GetEntityDetailsJob extends Job {
 
     private static final List<Entity> noPhaseEntites = Arrays.asList(Entity.MANUAL_TEST_RUN, Entity.TEST_SUITE_RUN, Entity.TEST_SUITE);
     private static final List<Entity> noCommentsEntites = Arrays.asList(Entity.TASK, Entity.MANUAL_TEST_RUN, Entity.TEST_SUITE_RUN);
-	
+
     private long entityId;
-    
+
     private boolean shouldShowPhase = false;
     private boolean areCommentsLoaded = false;
     private boolean areCommentsShown = false;
     private boolean wasEntityRetrived = false;
     private Entity entityType;
     private EntityModel retrivedEntity;
-    
+
     @SuppressWarnings("rawtypes")
     private FieldModel currentPhase;
-    
+
     private FormLayout octaneEntityForm;
     private Collection<EntityModel> possibleTransitions;
     private Collection<EntityModel> comments;
@@ -74,20 +72,13 @@ public class GetEntityDetailsJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
-        	octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(this.entityType);      	   
-        	Set<String> fields;
-        	if(entityType.isSubtype()) {
-        		fields	= new HashSet<>(metadataService.getFields(entityType.getSubtypeOf()));
-        	} else {
-        		fields	= new HashSet<>(metadataService.getFields(entityType));
-        	}
-        	retrivedEntity = entityService.findEntity(this.entityType, this.entityId);
+            octaneEntityForm = metadataService.getFormLayoutForSpecificEntityType(this.entityType);
+            retrivedEntity = entityService.findEntity(this.entityType, this.entityId);
             getPhaseAndPossibleTransitions();
             getComments();
             wasEntityRetrived = true;
         } catch (ServiceException | UnsupportedEncodingException e) {
             wasEntityRetrived = false;
-            e.printStackTrace();
         }
         monitor.done();
         return Status.OK_STATUS;
@@ -113,21 +104,23 @@ public class GetEntityDetailsJob extends Job {
             areCommentsLoaded = true;
         }
     }
-    
+
     public String getUdfLabel(String udfName) {
-    	return metadataService.getUdfLabel(udfName);
+        return metadataService.getUdfLabel(udfName);
     }
 
     public String getCommentsForCurrentEntity() {
         StringBuilder commentsBuilder = new StringBuilder();
-        Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
-        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;
-        
-        Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
-        String foregroundColorString = "rgb(" + foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")" ;
-        commentsBuilder.append("<html><body bgcolor =" + backgroundColorString +">");
-        commentsBuilder.append("<font color =" + foregroundColorString +">");
-        
+        Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
+                .get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
+        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")";
+
+        Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
+                .get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+        String foregroundColorString = "rgb(" + foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")";
+        commentsBuilder.append("<html><body bgcolor =" + backgroundColorString + ">");
+        commentsBuilder.append("<font color =" + foregroundColorString + ">");
+
         if (!comments.isEmpty()) {
             for (EntityModel comment : comments) {
                 String commentsPostTime = Util.getUiDataFromModel(comment.getValue(EntityFieldsConstants.FIELD_CREATION_TIME));
@@ -167,7 +160,7 @@ public class GetEntityDetailsJob extends Job {
     }
 
     @SuppressWarnings("rawtypes")
-	public FieldModel getCurrentPhase() {
+    public FieldModel getCurrentPhase() {
         return currentPhase;
     }
 

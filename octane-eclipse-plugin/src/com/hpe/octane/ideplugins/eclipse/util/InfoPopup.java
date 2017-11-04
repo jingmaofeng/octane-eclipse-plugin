@@ -20,9 +20,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -46,8 +43,7 @@ public final class InfoPopup extends PopupDialog {
     private boolean createLink;
     private long timeToClose = 3000;
     private Link openConnectionSettings;
-    
-    
+
     public InfoPopup(String headerString, String content) {
         this(headerString, null, content);
     }
@@ -77,9 +73,9 @@ public final class InfoPopup extends PopupDialog {
         this.content = content;
         this.autoClose = autoclose;
     }
-    
-    public InfoPopup(String headerString, String content, int width, int height,boolean autoClose, boolean createLink) {
-    	super(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+
+    public InfoPopup(String headerString, String content, int width, int height, boolean autoClose, boolean createLink) {
+        super(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
                 PopupDialog.HOVER_SHELLSTYLE,
                 false,
                 false,
@@ -88,9 +84,9 @@ public final class InfoPopup extends PopupDialog {
                 false,
                 headerString,
                 "");
-    	this.content = content;
-    	this.autoClose = autoClose;
-    	this.createLink = createLink;
+        this.content = content;
+        this.autoClose = autoClose;
+        this.createLink = createLink;
     }
 
     private void scheduleClose() {
@@ -116,7 +112,7 @@ public final class InfoPopup extends PopupDialog {
 
     @Override
     protected Control createTitleMenuArea(Composite arg0) {
-        return super.createTitleMenuArea(arg0);    
+        return super.createTitleMenuArea(arg0);
     }
 
     @Override
@@ -131,31 +127,31 @@ public final class InfoPopup extends PopupDialog {
 
     @Override
     protected Control createDialogArea(Composite parent) {
-    	text = new Text(parent, SWT.MULTI | SWT.READ_ONLY | SWT.WRAP | SWT.NO_FOCUS);
-        text.setText(content);       
+        text = new Text(parent, SWT.MULTI | SWT.READ_ONLY | SWT.WRAP | SWT.NO_FOCUS);
+        text.setText(content);
         return text;
     }
-    
+
     @Override
     protected Control createInfoTextArea(Composite parent) {
-    	if(createLink) {
-	       	 openConnectionSettings = new Link(parent, SWT.NONE);
-	       	 openConnectionSettings.setText("<A>" + "Connection Settings" + "</A>");
-	       	 openConnectionSettings.addListener(SWT.Selection, new Listener() {
-	       	            @Override
-	       	            public void handleEvent(Event event) {
-	       	             PreferencesUtil.createPreferenceDialogOn(parent.getShell(),
-	       	                    PluginPreferencePage.ID,
-	       	                    null,
-	       	                    null).open();
-	       	             scheduleClose();
-	       	            }
-	       	 });
-	       	return openConnectionSettings;
-    	} else {
-    		return super.createInfoTextArea(parent);
-    	}
-    	
+        if (createLink) {
+            openConnectionSettings = new Link(parent, SWT.NONE);
+            openConnectionSettings.setText("<A>" + "Connection Settings" + "</A>");
+            openConnectionSettings.addListener(SWT.Selection, new Listener() {
+                @Override
+                public void handleEvent(Event event) {
+                    PreferencesUtil.createPreferenceDialogOn(parent.getShell(),
+                            PluginPreferencePage.ID,
+                            null,
+                            null).open();
+                    scheduleClose();
+                }
+            });
+            return openConnectionSettings;
+        } else {
+            return super.createInfoTextArea(parent);
+        }
+
     }
 
     /**

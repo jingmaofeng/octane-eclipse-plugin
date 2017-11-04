@@ -30,10 +30,10 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class SearchResultRowRenderer implements EntityModelRenderer {
-	
-	private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
-	private Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
-	private static final EntityIconFactory entityIconFactory = new EntityIconFactory(40, 40, 14);
+
+    private Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
+            .get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+    private static final EntityIconFactory entityIconFactory = new EntityIconFactory(40, 40, 14);
 
     @Override
     public Control createRow(Composite parent, EntityModel entityModel) {
@@ -44,7 +44,7 @@ public class SearchResultRowRenderer implements EntityModelRenderer {
         EntityModelRow row = new EntityModelRow(parent, SWT.NONE);
         row.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         row.setForeground(foregroundColor);
-        
+
         row.setEntityIcon(entityIconFactory.getImageIcon(entityType));
 
         String name = Util.getUiDataFromModel(entityModel.getValue("name"));

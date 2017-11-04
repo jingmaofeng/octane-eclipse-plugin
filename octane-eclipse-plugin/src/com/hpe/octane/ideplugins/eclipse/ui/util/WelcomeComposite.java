@@ -12,7 +12,6 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.util;
 
-import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -21,10 +20,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class WelcomeComposite extends Composite {
 
@@ -39,21 +36,19 @@ public class WelcomeComposite extends Composite {
      */
     public WelcomeComposite(Composite parent, int style, Runnable settingsLinkClicked) {
         super(parent, style);
-        
+
         setLayout(new GridLayout(3, false));
         Label lblPlaceholder = new Label(this, SWT.NONE);
         lblPlaceholder.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 3, 1));
-        
 
         Label lblCompanyLogo = new Label(this, SWT.NONE);
         lblCompanyLogo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true, 1, 1));
         lblCompanyLogo.setImage(ImageResources.HPE_LOGO.getImage());
-        
 
         Label lblProductLogo = new Label(this, SWT.NONE);
         lblProductLogo.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
         lblProductLogo.setImage(ImageResources.OCTANE_LOGO.getImage());
-    
+
         Label lblWelcome = new Label(this, SWT.NONE);
         lblWelcome.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 3, 1));
         lblWelcome.setText(WELCOME_TEXT);

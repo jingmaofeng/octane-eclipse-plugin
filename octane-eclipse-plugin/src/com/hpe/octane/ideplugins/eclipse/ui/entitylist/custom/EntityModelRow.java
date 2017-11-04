@@ -15,7 +15,6 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom;
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -28,7 +27,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolTip;
-import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
@@ -57,19 +55,18 @@ public class EntityModelRow extends Composite {
     public EntityModelRow(Composite parent, int style) {
         super(parent, SWT.NONE);
         tip = new ToolTip(getShell(), SWT.ICON_INFORMATION);
-        
+
         BorderLayout layout = new BorderLayout(0, 0);
         layout.setMargins(0, 5, 0, 5);
         setLayout(layout);
-        
-        
+
         lblEntityIcon = new Label(this, SWT.NONE);
         lblEntityIcon.setAlignment(SWT.CENTER);
         lblEntityIcon.setLayoutData(BorderLayout.WEST);
 
         Composite compositeTitles = new Composite(this, SWT.NONE);
         compositeTitles.setLayoutData(BorderLayout.CENTER);
-       
+
         GridLayout gl_compositeTitles = new GridLayout(1, false);
         gl_compositeTitles.marginTop = 2;
         compositeTitles.setLayout(gl_compositeTitles);
@@ -84,7 +81,7 @@ public class EntityModelRow extends Composite {
 
         lblEntitySubtitle = new TruncatingStyledText(compositeTitles, SWT.READ_ONLY | SWT.WRAP | SWT.SINGLE, tip);
         lblEntitySubtitle.setFont(font);
-        //lblEntitySubtitle.setText("test here too");
+        // lblEntitySubtitle.setText("test here too");
         lblEntitySubtitle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         lblEntitySubtitle.setAlwaysShowScrollBars(false);
         lblEntitySubtitle.setDoubleClickEnabled(false);
@@ -96,7 +93,7 @@ public class EntityModelRow extends Composite {
         gl_compositeDetails.marginTop = 5;
         gl_compositeDetails.marginHeight = 0;
         compositeDetails.setLayout(gl_compositeDetails);
-        
+
         compositeTopDetails = new Composite(compositeDetails, SWT.NONE);
         compositeTopDetails.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1));
         compositeTopDetails.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
@@ -107,9 +104,9 @@ public class EntityModelRow extends Composite {
 
         Label label = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
         label.setLayoutData(BorderLayout.SOUTH);
-        
+
     }
-    
+
     public void setBackgroundColor(Color color) {
         this.setBackground(color);
     }
@@ -199,7 +196,6 @@ public class EntityModelRow extends Composite {
         lblValue.setForeground(SWTResourceManager.getColor(0, 0, 0));
         lblValue.setFont(font);
         lblValue.setFont(SWTResourceManager.getBiggerFont(font, font.getFontData()[0].getHeight() + 1));
-        
 
         fieldValue = checkEmptyValue(fieldValue);
         lblValue.setText(fieldValue);
