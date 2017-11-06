@@ -15,6 +15,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.editor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -59,12 +60,14 @@ import org.eclipse.ui.part.EditorPart;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.MetadataService;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.ui.FormField;
 import com.hpe.adm.octane.ideplugins.services.ui.FormLayout;
 import com.hpe.adm.octane.ideplugins.services.ui.FormLayoutSection;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.dev.MultiSelectComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.ChangePhaseJob;
@@ -84,18 +87,25 @@ import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 public class EntityModelEditor extends EditorPart {
 
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.EntityModelEditor"; //$NON-NLS-1$
+
     private static final String GO_TO_BROWSER_DIALOG_MESSAGE = "You can try to change the phase using ALM Octane in a browser."
             + "\nDo you want to do this now?";
+
     private static final int MIN_WIDTH = 800;
+
     private static EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
     private static EntityIconFactory entityIconFactory = new EntityIconFactory(25, 25, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
+    private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
+
     private EntityModel entityModel;
+
     @SuppressWarnings("rawtypes")
     private FieldModel currentPhase;
     private EntityModel selectedPhase;
     private EntityModelEditorInput input;
     private Collection<EntityModel> possibleTransitions;
+
     private boolean shouldShowPhase = true;
     private boolean shouldCommentsBeShown;
     private GetEntityDetailsJob getEntiyJob;
@@ -110,6 +120,7 @@ public class EntityModelEditor extends EditorPart {
     private FormToolkit formGenerator;
     private Composite headerAndEntityDetailsParent;
     private ToolTip truncatedLabelTooltip;
+
     private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
             .get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
     private Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
@@ -285,7 +296,7 @@ public class EntityModelEditor extends EditorPart {
         Composite headerComposite = new Composite(parent, SWT.NONE);
         headerComposite.setBackground(backgroundColor);
         headerComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        headerComposite.setLayout(new GridLayout(6, false));
+        headerComposite.setLayout(new GridLayout(7, false));
         Label entityIcon = new Label(headerComposite, SWT.NONE);
         entityIcon.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         entityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
@@ -343,6 +354,11 @@ public class EntityModelEditor extends EditorPart {
                 getEntiyJob.schedule();
             }
         });
+
+        MultiSelectComboBox fieldCombo = new MultiSelectComboBox(headerComposite, SWT.NONE, "fields");
+        Set<String> fields = metadataService.getFields(Entity.getEntityType(entityModel));
+        fields.forEach(field -> fieldCombo.add(field));
+        System.out.println("Adding fields " + fields);
     }
 
     // STEP 3
