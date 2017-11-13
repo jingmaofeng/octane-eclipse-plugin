@@ -3,6 +3,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.editor;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -52,7 +53,14 @@ public class TestWindow {
 		shell.setText("SWT Application");
 		shell.setLayout(new GridLayout(1, false));
 
-		MultiSelectComboBox fieldCombo = new MultiSelectComboBox(shell, SWT.NONE, "fields");
+		MultiSelectComboBox<String> fieldCombo = new MultiSelectComboBox<String>(shell, SWT.NONE, new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return element.toString();
+			}
+		});
+		
+		
 		IntStream.range(0, 100).forEach(i -> fieldCombo.add(i + ""));
 	}
 

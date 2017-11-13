@@ -355,10 +355,10 @@ public class EntityModelEditor extends EditorPart {
             }
         });
 
-        MultiSelectComboBox fieldCombo = new MultiSelectComboBox(headerComposite, SWT.NONE, "fields");
-        Set<String> fields = metadataService.getFields(Entity.getEntityType(entityModel));
-        fields.forEach(field -> fieldCombo.add(field));
-        System.out.println("Adding fields " + fields);
+        //MultiSelectComboBox fieldCombo = new MultiSelectComboBox(headerComposite, SWT.NONE, "fields");
+//        Set<String> fields = metadataService.getFields(Entity.getEntityType(entityModel));
+//        fields.forEach(field -> fieldCombo.add(field));
+//        System.out.println("Adding fields " + fields);
     }
 
     // STEP 3
@@ -384,7 +384,6 @@ public class EntityModelEditor extends EditorPart {
             descriptionPanel.setText(descriptionText);
         }
         descriptionPanel.addLocationListener(new LinkInterceptListener());
-        section.setClient(descriptionPanel);
     }
 
     // STEP 4
