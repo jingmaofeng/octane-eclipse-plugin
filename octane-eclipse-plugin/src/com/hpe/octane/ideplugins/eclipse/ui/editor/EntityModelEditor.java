@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.CLabel;
@@ -355,10 +356,14 @@ public class EntityModelEditor extends EditorPart {
             }
         });
 
-        //MultiSelectComboBox fieldCombo = new MultiSelectComboBox(headerComposite, SWT.NONE, "fields");
-//        Set<String> fields = metadataService.getFields(Entity.getEntityType(entityModel));
-//        fields.forEach(field -> fieldCombo.add(field));
-//        System.out.println("Adding fields " + fields);
+        MultiSelectComboBox<String> fieldCombo = new MultiSelectComboBox<>(headerComposite, SWT.NONE, new LabelProvider() {
+            @Override
+            public String getText(Object element) {
+                return element.toString();
+            }
+        });
+        Set<String> fields = metadataService.getFields(Entity.getEntityType(entityModel));
+        fields.forEach(field -> fieldCombo.add(field));
     }
 
     // STEP 3

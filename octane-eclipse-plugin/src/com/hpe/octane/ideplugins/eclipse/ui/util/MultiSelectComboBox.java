@@ -3,6 +3,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
@@ -27,222 +28,260 @@ import org.eclipse.swt.widgets.Text;
 import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
 
 public class MultiSelectComboBox<T> extends Composite {
-	
-	private List<T> options = new ArrayList<>();
-	private List<T> selection = new ArrayList<>();
-	private LabelProvider labelProvider;
-	
-	private List<Button> buttons;
-	
-	private List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
-	private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
-	private List<VerifyListener> verifyListeners = new ArrayList<VerifyListener>();
 
-	private String defaultText = "options";
-	private Button display;
-	private Shell floatShell;
+    private static final String BTN_DATA_CONSTANT = "option";
+    private static final int MAX_HEIGHT = 300;
 
-	public MultiSelectComboBox(Composite parent, int style, LabelProvider labelProvider) {
-		super(parent, style);
-		init();
-		this.labelProvider = labelProvider;
-	}
+    private List<T> options = new ArrayList<>();
+    private List<T> selection = new ArrayList<>();
+    private LabelProvider labelProvider;
 
-	private void init() {
-		GridLayout layout = new GridLayout();
-		layout.marginBottom = 0;
-		layout.marginTop = 0;
-		layout.marginLeft = 0;
-		layout.marginRight = 0;
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		setLayout(layout);
-		display = new Button(this, SWT.NONE);
-		display.setLayoutData(new GridData(GridData.FILL_BOTH));
-		display.setText(defaultText);
-		display.addListener(SWT.MouseDown, e -> {
-			showFloatShell(display);
-		});
-	}
+    private List<Button> buttons;
 
-	private void showFloatShell(Button display) {
+    private List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
+    private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
+    private List<VerifyListener> verifyListeners = new ArrayList<VerifyListener>();
 
-		Point p = display.getParent().toDisplay(display.getLocation());
-		Point size = display.getSize();
+    private String defaultText = "options";
+    private Button parentButton;
+    private Shell floatShell;
 
-		floatShell = new Shell(MultiSelectComboBox.this.getShell(), SWT.BORDER);
-		floatShell.setLayout(new FillLayout());
+    public MultiSelectComboBox(Composite parent, int style, LabelProvider labelProvider) {
+        super(parent, style);
+        init();
+        this.labelProvider = labelProvider;
+    }
 
-		ScrolledComposite scrolledComposite = new ScrolledComposite(floatShell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		scrolledComposite.setExpandHorizontal(true);
+    private void init() {
+        GridLayout layout = new GridLayout();
+        layout.marginBottom = 0;
+        layout.marginTop = 0;
+        layout.marginLeft = 0;
+        layout.marginRight = 0;
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        setLayout(layout);
+        parentButton = new Button(this, SWT.NONE);
+        parentButton.setLayoutData(new GridData(GridData.FILL_BOTH));
+        parentButton.setText(defaultText);
 
-		Composite composite = new Composite(scrolledComposite, SWT.NONE);
-		composite.setLayout(new GridLayout());
-		scrolledComposite.setContent(composite);
+        parentButton.addListener(SWT.MouseDown, e -> {
+            showFloatShell(parentButton);
+        });
+    }
 
-		Text text = new Text(composite, SWT.BORDER);
-		text.setMessage("Filter");
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+    @SuppressWarnings("unchecked")
+    private void showFloatShell(Button parentButton) {
 
-		text.addModifyListener(new DelayedModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				Arrays.stream(composite.getChildren())
-				.filter(child -> child.getData("combo") != null)
-				.forEach(child -> {
-					if (child.getData("combo").toString().contains(text.getText())) {
-						child.setVisible(true);
-						((GridData) child.getLayoutData()).exclude = false;
-					} else {
-						child.setVisible(false);
-						((GridData) child.getLayoutData()).exclude = true;
-					}
-				});
+        buttons = new ArrayList<>();
 
-				// sizing
-				Point contentSize = composite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-				composite.setSize(contentSize);
-				int shellHeight = contentSize.y > 500 ? 500 : contentSize.y;
-				Rectangle shellRect = new Rectangle(p.x, p.y + size.y, scrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x + 10, shellHeight);
-				floatShell.setBounds(shellRect);
-				floatShell.open();
-			}
-		}));
+        Point p = parentButton.getParent().toDisplay(parentButton.getLocation());
+        Point size = parentButton.getSize();
 
-		Button toggle = new Button(composite, SWT.BUTTON1);
-		toggle.setText("Reset");
-		toggle.addListener(SWT.MouseDown, e -> {
-		});
+        floatShell = new Shell(MultiSelectComboBox.this.getShell(), SWT.BORDER);
+        floatShell.setLayout(new FillLayout());
 
-		buttons = new ArrayList<>();
-		
-		for(T option : options) {
-			Button button = new Button(composite, SWT.CHECK);
-			button.setText(labelProvider.getText(option));
-			button.setData("combo", labelProvider.getText(option));
-			
-			button.addListener(SWT.Selection, e -> {
+        ScrolledComposite scrolledComposite = new ScrolledComposite(floatShell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        scrolledComposite.setExpandHorizontal(true);
 
-				if(button.getSelection()) {
-					selection.add(option);
-				} else {
-					selection.remove(option);
-				}
-				
-				for (SelectionListener l : selectionListeners) {
-					l.widgetSelected(new SelectionEvent(e));
-				}
-			});
-			button.pack();
-			buttons.add(button);
-		}
-	
-		floatShell.addListener(SWT.Deactivate, e -> {
-			if (floatShell != null && !floatShell.isDisposed()) {
-				floatShell.setVisible(false);
-				
-				for (SelectionListener l : selectionListeners) {
-					l.widgetDefaultSelected(new SelectionEvent(e));
-				}
+        Composite composite = new Composite(scrolledComposite, SWT.NONE);
+        composite.setLayout(new GridLayout());
+        scrolledComposite.setContent(composite);
 
-				for (VerifyListener l : verifyListeners) {
-					VerifyEvent v = new VerifyEvent(e);
-					l.verifyText(v);
-				}
+        Text text = new Text(composite, SWT.BORDER);
+        text.setMessage("Filter");
+        text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-				for (ModifyListener l : modifyListeners) {
-					l.modifyText(new ModifyEvent(e));
-				}
-				
-				if (buttons != null) {
-					for (Button b : buttons) {
-						if (b != null) {
-							b.dispose();
-						}
-					}
-				}
-				buttons = null;
-				floatShell.dispose();
-			}
-		});
+        text.addModifyListener(new DelayedModifyListener(new ModifyListener() {
+            @Override
+            public void modifyText(ModifyEvent e) {
+                Arrays.stream(composite.getChildren())
+                        .filter(child -> child.getData(BTN_DATA_CONSTANT) != null)
+                        .forEach(child -> {
+                            if (labelProvider.getText(child.getData(BTN_DATA_CONSTANT)).contains(text.getText())) {
+                                child.setVisible(true);
+                                ((GridData) child.getLayoutData()).exclude = false;
+                            } else {
+                                child.setVisible(false);
+                                ((GridData) child.getLayoutData()).exclude = true;
+                            }
+                        });
 
+                // sizing
+                Point contentSize = composite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+                composite.setSize(contentSize);
+                int shellHeight = contentSize.y > MAX_HEIGHT ? MAX_HEIGHT : contentSize.y;
+                Rectangle shellRect = new Rectangle(p.x, p.y + size.y, scrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x + 10, shellHeight);
+                floatShell.setBounds(shellRect);
+                floatShell.open();
+            }
+        }));
 
-		// sizing
-		Point contentSize = composite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		composite.setSize(contentSize);
-		int shellHeight = contentSize.y > 500 ? 500 : contentSize.y;
-		Rectangle shellRect = new Rectangle(p.x, p.y + size.y, scrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x + 10, shellHeight);
-		floatShell.setBounds(shellRect);
-		floatShell.open();
-	}
+        Composite ctrlComposite = new Composite(composite, SWT.NONE);
+        ctrlComposite.setLayout(new FillLayout());
 
-	public void add(T t) {
-		options.add(t);
-	}
+        Button all = new Button(ctrlComposite, SWT.BUTTON1);
+        all.setText("All");
+        all.addListener(SWT.MouseDown,
+                event -> buttons.stream().filter(btn -> btn.getVisible()).forEach(btn -> setSelected((T) btn.getData(BTN_DATA_CONSTANT), true)));
+        Button none = new Button(ctrlComposite, SWT.BUTTON1);
+        none.setText("None");
+        none.addListener(SWT.MouseDown,
+                event -> buttons.stream().filter(btn -> btn.getVisible()).forEach(btn -> setSelected((T) btn.getData(BTN_DATA_CONSTANT), false)));
 
-	public void add(int index, T t) {
-		options.add(index, t);
-	}
+        for (T option : options) {
+            Button button = new Button(composite, SWT.CHECK);
+            button.setText(labelProvider.getText(option));
+            button.setSelection(selection.contains(option));
+            button.setData(BTN_DATA_CONSTANT, option);
+            button.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
 
-	public void add(int index, T t, boolean isSelected) {
-		options.add(index, t);
-		if(isSelected) {
-			
-		}
-	}
+            button.addListener(SWT.Selection, e -> {
+                if (button.getSelection()) {
+                    selection.add(option);
+                } else {
+                    selection.remove(option);
+                }
 
-	@Override
-	public Point computeSize(int wHint, int hHint, boolean changed) {
-		return display.computeSize(wHint, hHint);
-	}
+                for (SelectionListener l : selectionListeners) {
+                    l.widgetSelected(new SelectionEvent(e));
+                }
+            });
+            button.pack();
+            buttons.add(button);
+        }
 
-	public int getItemCount() {
-		return options.size();
-	}
+        floatShell.addListener(SWT.Deactivate, e -> {
+            if (floatShell != null && !floatShell.isDisposed()) {
+                floatShell.setVisible(false);
 
-	public List<T> getSelections() {
-		return selection;
-	}
+                for (SelectionListener l : selectionListeners) {
+                    l.widgetDefaultSelected(new SelectionEvent(e));
+                }
 
-	public String getText() {
-		return display.getText();
-	}
+                for (VerifyListener l : verifyListeners) {
+                    VerifyEvent v = new VerifyEvent(e);
+                    l.verifyText(v);
+                }
 
-	public int getTextHeight() {
-		return 20;
-	}
+                for (ModifyListener l : modifyListeners) {
+                    l.modifyText(new ModifyEvent(e));
+                }
 
-	public int getTextLimit() {
-		return 20;
-	}
-	
-	@Override
-	public void setFont(Font font) {
-		display.setFont(font);
-	}
-	
-	public void addModifyListener(ModifyListener listener) {
-		modifyListeners.add(listener);
-	}
+                if (buttons != null) {
+                    for (Button b : buttons) {
+                        if (b != null) {
+                            b.dispose();
+                        }
+                    }
+                }
+                buttons = null;
+                floatShell.dispose();
+            }
+        });
 
-	public void addSelectionListener(SelectionListener listener) {
-		selectionListeners.add(listener);
-	}
+        // sizing
+        Point contentSize = composite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        composite.setSize(contentSize);
+        int shellHeight = contentSize.y > MAX_HEIGHT ? MAX_HEIGHT : contentSize.y;
+        Rectangle shellRect = new Rectangle(p.x, p.y + size.y, scrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x + 10, shellHeight);
+        floatShell.setBounds(shellRect);
+        floatShell.open();
+    }
 
-	public void addVerifyListener(VerifyListener listener) {
-		verifyListeners.add(listener);
-	}
+    public void setSelected(T option) {
+        setSelected(option, true);
+    }
 
-	public void removeSelectionListener(SelectionListener listener) {
-		selectionListeners.remove(listener);
-	}
+    public void setSelected(T option, boolean isSelected) {
+        if (isSelected) {
+            if (!selection.contains(option)) {
+                selection.add(option);
+                Button btn = findButton(option);
+                if (btn != null && !btn.isDisposed()) {
+                    btn.setSelection(true);
+                }
+            }
+        } else {
+            if (selection.contains(option)) {
+                selection.remove(option);
+                Button btn = findButton(option);
+                if (btn != null && !btn.isDisposed()) {
+                    btn.setSelection(false);
+                }
+            }
+        }
+    }
 
-	public void removeVerifyListener(VerifyListener listener) {
-		verifyListeners.remove(listener);
-	}
+    private Button findButton(T option) {
+        return buttons
+                .stream()
+                .filter(btn -> option.equals(btn.getData(BTN_DATA_CONSTANT)))
+                .findFirst()
+                .get();
+    }
 
-	public void removeModifyListener(ModifyListener listener) {
-		modifyListeners.remove(listener);
-	}
+    public void add(T t) {
+        options.add(t);
+    }
+
+    public void add(int index, T t, boolean isSelected) {
+        options.add(index, t);
+        setSelected(t, isSelected);
+    }
+
+    @Override
+    public Point computeSize(int wHint, int hHint, boolean changed) {
+        return parentButton.computeSize(wHint, hHint);
+    }
+
+    public int getItemCount() {
+        return options.size();
+    }
+
+    public List<T> getSelections() {
+        return options.stream().filter(op -> selection.contains(op)).collect(Collectors.toList());
+    }
+
+    public String getText() {
+        return parentButton.getText();
+    }
+
+    public int getTextHeight() {
+        return 20;
+    }
+
+    public int getTextLimit() {
+        return 20;
+    }
+
+    @Override
+    public void setFont(Font font) {
+        parentButton.setFont(font);
+    }
+
+    public void addModifyListener(ModifyListener listener) {
+        modifyListeners.add(listener);
+    }
+
+    public void addSelectionListener(SelectionListener listener) {
+        selectionListeners.add(listener);
+    }
+
+    public void addVerifyListener(VerifyListener listener) {
+        verifyListeners.add(listener);
+    }
+
+    public void removeSelectionListener(SelectionListener listener) {
+        selectionListeners.remove(listener);
+    }
+
+    public void removeVerifyListener(VerifyListener listener) {
+        verifyListeners.remove(listener);
+    }
+
+    public void removeModifyListener(ModifyListener listener) {
+        modifyListeners.remove(listener);
+    }
 
 }
