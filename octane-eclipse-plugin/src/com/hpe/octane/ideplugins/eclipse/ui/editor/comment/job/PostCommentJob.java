@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.ui.editor.job;
+package com.hpe.octane.ideplugins.eclipse.ui.editor.comment.job;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -21,13 +21,13 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.CommentService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
-public class SendCommentJob extends Job {
+public class PostCommentJob extends Job {
     private EntityModel commentParentEntity;
     private String commentText;
     private CommentService commentService = Activator.getInstance(CommentService.class);
     private boolean isCommentSaved = false;
 
-    public SendCommentJob(String name, EntityModel entityModel, String commentText) {
+    public PostCommentJob(String name, EntityModel entityModel, String commentText) {
         super(name);
         this.commentParentEntity = entityModel;
         this.commentText = commentText;

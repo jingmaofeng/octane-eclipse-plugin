@@ -2,7 +2,9 @@ package com.hpe.octane.ideplugins.eclipse.ui.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.viewers.LabelProvider;
@@ -36,7 +38,7 @@ public class MultiSelectComboBox<T> extends Composite {
     private List<T> selection = new ArrayList<>();
     private LabelProvider labelProvider;
 
-    private List<Button> buttons;
+    private List<Button> buttons = new ArrayList<>();
 
     private List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
     private List<SelectionListener> selectionListeners = new ArrayList<SelectionListener>();
@@ -193,6 +195,14 @@ public class MultiSelectComboBox<T> extends Composite {
         setSelected(option, true);
     }
 
+    public void setSelected(Collection<T> selectOptions) {
+        for (T selectOption : selectOptions) {
+            if (options.contains(selectOption)) {
+                setSelected(selectOption, true);
+            }
+        }
+    }
+
     public void setSelected(T option, boolean isSelected) {
         if (isSelected) {
             if (!selection.contains(option)) {
@@ -214,15 +224,25 @@ public class MultiSelectComboBox<T> extends Composite {
     }
 
     private Button findButton(T option) {
-        return buttons
-                .stream()
+        Optional<Button> button;
+
+        button = buttons.stream()
                 .filter(btn -> option.equals(btn.getData(BTN_DATA_CONSTANT)))
-                .findFirst()
-                .get();
+                .findFirst();
+
+        if (button.isPresent()) {
+            return button.get();
+        } else {
+            return null;
+        }
     }
 
-    public void add(T t) {
-        options.add(t);
+    public void add(T option) {
+        options.add(option);
+    }
+
+    public void addAll(Collection<T> options) {
+        this.options.addAll(options);
     }
 
     public void add(int index, T t, boolean isSelected) {

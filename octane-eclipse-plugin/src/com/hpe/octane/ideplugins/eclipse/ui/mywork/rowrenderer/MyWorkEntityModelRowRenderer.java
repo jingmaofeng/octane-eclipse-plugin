@@ -40,7 +40,7 @@ import org.eclipse.ui.PlatformUI;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
-import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
@@ -179,7 +179,7 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
         fieldSetterMap.put(Entity.COMMENT, asList(
                 new CommentFieldSetter(), // sets the name and subtitle
                 fsAuthor));
-        
+
         fieldSetterMap.put(Entity.REQUIREMENT, asList(
                 // top
                 fsOwner,
@@ -202,8 +202,9 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
         Entity entityType = Entity.getEntityType(entityModel);
 
         final EntityModelRow rowComposite = new EntityModelRow(parent, SWT.NONE);
-        rowComposite.setForeground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
-        
+        rowComposite.setForeground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
+                .get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR));
+
         // Show dismissible if needed
         if (MyWorkUtil.isUserItemDismissible(userItem)) {
             rowComposite.addDetails("", "Dismissible", DetailsPosition.BOTTOM);
@@ -211,7 +212,7 @@ public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
 
         EntityModelEditorInput activeItem = null;
         try {
-            activeItem = Activator.getActiveItem();
+            activeItem = PluginPreferenceStorage.getActiveItem();
         } catch (Exception ignored) {
             // this won't work when debugging w/o starting the whole IDE
         }

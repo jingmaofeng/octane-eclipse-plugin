@@ -42,6 +42,7 @@ import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 import com.hpe.adm.octane.ideplugins.services.util.EntityUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.UserItemArrayEntityListData;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.OctaneViewPart;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
@@ -65,8 +66,9 @@ public class MyWorkView extends OctaneViewPart {
 
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView";
     private static final String LOADING_MESSAGE = "Loading \"My Work\"";
-    
-    private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);;
+
+    private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
+            .get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);;
     private String darkBackgroundColorString = "rgb(52,57,61)";
     private MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
     private UserItemArrayEntityListData entityData = new UserItemArrayEntityListData();
@@ -83,10 +85,10 @@ public class MyWorkView extends OctaneViewPart {
                     entities = myWorkService.getMyWork(MyWorkEntityModelRowRenderer.getRequiredFields());
                     // Remove active item if it's no longer in "My Work"
 
-                    EntityModelEditorInput activeItem = Activator.getActiveItem();
+                    EntityModelEditorInput activeItem = PluginPreferenceStorage.getActiveItem();
                     if (activeItem != null && !userItemsContainsActiveItem(entities)) {
                         Display.getDefault().asyncExec(() -> {
-                            Activator.setActiveItem(null);
+                            PluginPreferenceStorage.setActiveItem(null);
                             new InfoPopup(
                                     "Active item cleared, no longer part of \"My Work\"",
                                     "Active item: \""
@@ -108,16 +110,16 @@ public class MyWorkView extends OctaneViewPart {
                     });
                 } catch (Exception e) {
                     Display.getDefault().asyncExec(() -> {
-                        if(e.getMessage().equals("null")) {
-                        	errorComposite.setErrorMessage("Error while loading \"My Work\"");
+                        if (e.getMessage().equals("null")) {
+                            errorComposite.setErrorMessage("Error while loading \"My Work\"");
                         } else {
-                        	errorComposite.setErrorMessage("Error while loading \"My Work\": " + e.getMessage());
+                            errorComposite.setErrorMessage("Error while loading \"My Work\": " + e.getMessage());
                         }
                         showControl(errorComposite);
                         entityData.setEntityList(Collections.emptyList());
-                        
+
                         Display.getDefault().asyncExec(() -> {
-                            Activator.setActiveItem(null);
+                            PluginPreferenceStorage.setActiveItem(null);
                             new InfoPopup(
                                     "Your Previously saved connection settings do not seem to work",
                                     "Please go to settings and test your connection to Octane",
@@ -125,8 +127,8 @@ public class MyWorkView extends OctaneViewPart {
                                     100,
                                     false,
                                     true).open();
-                        });                                                                       
-                     });
+                        });
+                    });
                 }
                 monitor.done();
                 return Status.OK_STATUS;
@@ -161,9 +163,9 @@ public class MyWorkView extends OctaneViewPart {
                     // nasty workaround, will force the view to refresh all the
                     // rows,
                     // drawing the green thingy on the icons
-                    Activator.addActiveItemChangedHandler(() -> {
+                    PluginPreferenceStorage.addPrefenceChangeHandler(PluginPreferenceStorage.PreferenceConstants.ACTIVE_ITEM_ID, (() -> {
                         viewer.forceRedrawRows();
-                    });                   
+                    }));
                     return viewer;
                 },
                 MyWorkEntityModelRowRenderer.getRequiredFields().keySet(),
@@ -171,16 +173,26 @@ public class MyWorkView extends OctaneViewPart {
                         .values()
                         .stream()
                         .flatMap(col -> col.stream())
-                        .filter(field -> !field.equals(EntityFieldsConstants.FIELD_TYPE) && !field.equals(EntityFieldsConstants.FIELD_SUBTYPE)) //type filter should be done by the checkboxes, not by this
+                        .filter(field -> !field.equals(EntityFieldsConstants.FIELD_TYPE) && !field.equals(EntityFieldsConstants.FIELD_SUBTYPE)) // type
+                                                                                                                                                // filter
+                                                                                                                                                // should
+                                                                                                                                                // be
+                                                                                                                                                // done
+                                                                                                                                                // by
+                                                                                                                                                // the
+                                                                                                                                                // checkboxes,
+                                                                                                                                                // not
+                                                                                                                                                // by
+                                                                                                                                                // this
                         .collect(Collectors.toSet()));
-   
-        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")" ;
-        
-        if(backgroundColorString.equals(darkBackgroundColorString)) {
-        	entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+
+        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")";
+
+        if (backgroundColorString.equals(darkBackgroundColorString)) {
+            entityListComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
         } else {
-        	entityListComposite.setBackground(backgroundColor);
-        }        
+            entityListComposite.setBackground(backgroundColor);
+        }
         noWorkComposite = new NoWorkComposite(parent, SWT.NONE, new Runnable() {
             @Override
             public void run() {
@@ -245,7 +257,7 @@ public class MyWorkView extends OctaneViewPart {
         ActionContributionItem refreshActionItem = new ActionContributionItem(refreshAction);
         refreshActionItem.setMode(ActionContributionItem.MODE_FORCE_TEXT);
         viewToolbar.getToolBarManager().add(refreshActionItem);
-       
+
         // Mouse handlers
         entityListComposite.addEntityMouseListener(new OpenDetailTabEntityMouseListener());
 
@@ -286,7 +298,7 @@ public class MyWorkView extends OctaneViewPart {
      */
     public static boolean userItemsContainsActiveItem(Collection<EntityModel> entityModels) {
         Collection<EntityModel> entities = MyWorkUtil.getEntityModelsFromUserItems(entityModels);
-        EntityModelEditorInput activeItem = Activator.getActiveItem();
+        EntityModelEditorInput activeItem = PluginPreferenceStorage.getActiveItem();
 
         if (activeItem == null) {
             return false;

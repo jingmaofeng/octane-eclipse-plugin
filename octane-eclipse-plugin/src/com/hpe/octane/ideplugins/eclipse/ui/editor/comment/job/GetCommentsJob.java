@@ -10,9 +10,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.ui.editor.job;
+package com.hpe.octane.ideplugins.eclipse.ui.editor.comment.job;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -21,14 +24,16 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.CommentService;
-import com.hpe.adm.octane.ideplugins.services.exception.ServiceRuntimeException;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class GetCommentsJob extends Job {
+
+    private static final List<Entity> noCommentsEntites = Arrays.asList(Entity.TASK, Entity.MANUAL_TEST_RUN, Entity.TEST_SUITE_RUN);
+
     private CommentService commentService = Activator.getInstance(CommentService.class);
-    private Collection<EntityModel> comments;
+    private Collection<EntityModel> comments = new ArrayList<>();
     private EntityModel parentEntiy;
-    private boolean areCommentsLoaded = false;
 
     public GetCommentsJob(String name, EntityModel parentEntiy) {
         super(name);
@@ -38,24 +43,16 @@ public class GetCommentsJob extends Job {
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
-        try {
-            comments = commentService.getComments(parentEntiy);
-            areCommentsLoaded = true;
-        } catch (ServiceRuntimeException e) {
-            areCommentsLoaded = false;
-        }
+        comments = commentService.getComments(parentEntiy);
         monitor.done();
         return Status.OK_STATUS;
     }
 
-    public Collection<EntityModel> getCoomentsForCurrentEntity() {
-        if (comments.isEmpty()) {
-            comments.add(new EntityModel("target_phase", "No comments"));
-        }
+    public Collection<EntityModel> getComents() {
         return comments;
     }
 
-    public boolean areCommentsLoaded() {
-        return areCommentsLoaded;
+    public static boolean hasCommentSupport(Entity entity) {
+        return !noCommentsEntites.contains(entity);
     }
 }

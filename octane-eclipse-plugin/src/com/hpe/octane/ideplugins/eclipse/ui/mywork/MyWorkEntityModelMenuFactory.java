@@ -72,6 +72,7 @@ import com.hpe.adm.octane.ideplugins.services.util.UrlParser;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
@@ -83,302 +84,301 @@ import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 
 public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
-	private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
-	private static EntityService entityService = Activator.getInstance(EntityService.class);
-	private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
-	private static DownloadScriptService scriptService = Activator.getInstance(DownloadScriptService.class);
-	private EntityListData entityListData;
+    private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
+    private static EntityService entityService = Activator.getInstance(EntityService.class);
+    private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
+    private static DownloadScriptService scriptService = Activator.getInstance(DownloadScriptService.class);
+    private EntityListData entityListData;
 
-	public MyWorkEntityModelMenuFactory(EntityListData entityListData) {
-		this.entityListData = entityListData;
-	}
+    public MyWorkEntityModelMenuFactory(EntityListData entityListData) {
+        this.entityListData = entityListData;
+    }
 
-	private void openDetailTab(Integer entityId, Entity entityType) {
-		IWorkbench wb = PlatformUI.getWorkbench();
-		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-		IWorkbenchPage page = win.getActivePage();
+    private void openDetailTab(Integer entityId, Entity entityType) {
+        IWorkbench wb = PlatformUI.getWorkbench();
+        IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+        IWorkbenchPage page = win.getActivePage();
 
-		EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(entityId, entityType);
-		try {
-			page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
-		} catch (PartInitException ex) {
-		}
-	}
+        EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(entityId, entityType);
+        try {
+            page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
+        } catch (PartInitException ex) {
+        }
+    }
 
-	@Override
-	public Menu createMenu(EntityModel userItem, Control menuParent) {
+    @Override
+    public Menu createMenu(EntityModel userItem, Control menuParent) {
 
-		Menu menu = new Menu(menuParent);
+        Menu menu = new Menu(menuParent);
 
-		EntityModel entityModel = MyWorkUtil.getEntityModelFromUserItem(userItem);
-		Entity entityType = Entity.getEntityType(entityModel);
-		// String entityName =
-		// Util.getUiDataFromModel(entityModel.getValue("name"));
-		Integer entityId = Integer.valueOf(getUiDataFromModel(entityModel.getValue("id")));
+        EntityModel entityModel = MyWorkUtil.getEntityModelFromUserItem(userItem);
+        Entity entityType = Entity.getEntityType(entityModel);
+        // String entityName =
+        // Util.getUiDataFromModel(entityModel.getValue("name"));
+        Integer entityId = Integer.valueOf(getUiDataFromModel(entityModel.getValue("id")));
 
-		addMenuItem(
-				menu,
-				"View in browser (System)",
-				ImageResources.BROWSER_16X16.getImage(),
-				() -> entityService.openInBrowser(entityModel));
+        addMenuItem(
+                menu,
+                "View in browser (System)",
+                ImageResources.BROWSER_16X16.getImage(),
+                () -> entityService.openInBrowser(entityModel));
 
-		if (PlatformUI.getWorkbench().getBrowserSupport().isInternalWebBrowserAvailable()) {
-			addMenuItem(
-					menu,
-					"View in browser (Eclipse)",
-					ImageResources.BROWSER_16X16.getImage(),
-					() -> {
-						Entity ownerEntityType = null;
-						Integer ownerEntityId = null;
-						if (entityType == Entity.COMMENT) {
-							ReferenceFieldModel owner = (ReferenceFieldModel) Util.getContainerItemForCommentModel(entityModel);
-							ownerEntityType = Entity.getEntityType(owner.getValue());
-							ownerEntityId = Integer.valueOf(Util.getUiDataFromModel(owner, "id"));
-						}
-						URI uri = UrlParser.createEntityWebURI(
-								Activator.getConnectionSettings(),
-								entityType == Entity.COMMENT ? ownerEntityType : entityType,
-										entityType == Entity.COMMENT ? ownerEntityId : entityId);
-						try {
-							PlatformUI.getWorkbench().getBrowserSupport().createBrowser(uri.toString()).openURL((uri.toURL()));
-						} catch (PartInitException | MalformedURLException e) {
-							e.printStackTrace();
-						}
-					});
-		}
+        if (PlatformUI.getWorkbench().getBrowserSupport().isInternalWebBrowserAvailable()) {
+            addMenuItem(
+                    menu,
+                    "View in browser (Eclipse)",
+                    ImageResources.BROWSER_16X16.getImage(),
+                    () -> {
+                        Entity ownerEntityType = null;
+                        Integer ownerEntityId = null;
+                        if (entityType == Entity.COMMENT) {
+                            ReferenceFieldModel owner = (ReferenceFieldModel) Util.getContainerItemForCommentModel(entityModel);
+                            ownerEntityType = Entity.getEntityType(owner.getValue());
+                            ownerEntityId = Integer.valueOf(Util.getUiDataFromModel(owner, "id"));
+                        }
+                        URI uri = UrlParser.createEntityWebURI(
+                                Activator.getConnectionSettings(),
+                                entityType == Entity.COMMENT ? ownerEntityType : entityType,
+                                entityType == Entity.COMMENT ? ownerEntityId : entityId);
+                        try {
+                            PlatformUI.getWorkbench().getBrowserSupport().createBrowser(uri.toString()).openURL((uri.toURL()));
+                        } catch (PartInitException | MalformedURLException e) {
+                            e.printStackTrace();
+                        }
+                    });
+        }
 
-		new MenuItem(menu, SWT.SEPARATOR);
+        new MenuItem(menu, SWT.SEPARATOR);
 
-		if (entityType != Entity.COMMENT && entityType != Entity.REQUIREMENT) {
-			addMenuItem(
-					menu,
-					"View details",
-					entityIconFactory.getImageIcon(entityType),
-					() -> openDetailTab(entityId, entityType));
-		}
+        if (entityType != Entity.COMMENT && entityType != Entity.REQUIREMENT) {
+            addMenuItem(
+                    menu,
+                    "View details",
+                    entityIconFactory.getImageIcon(entityType),
+                    () -> openDetailTab(entityId, entityType));
+        }
 
+        if (entityType == Entity.TASK || entityType == Entity.COMMENT) {
+            // Get parent info
+            EntityModel parentEntityModel;
+            if (entityType == Entity.TASK) {
+                parentEntityModel = (EntityModel) entityModel.getValue("story").getValue();
+            } else {
+                parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
+            }
 
-		if (entityType == Entity.TASK || entityType == Entity.COMMENT) {
-			// Get parent info
-			EntityModel parentEntityModel;
-			if (entityType == Entity.TASK) {
-				parentEntityModel = (EntityModel) entityModel.getValue("story").getValue();
-			} else {
-				parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
-			}
+            addMenuItem(
+                    menu,
+                    "View parent details",
+                    entityIconFactory.getImageIcon(Entity.getEntityType(parentEntityModel)),
+                    () -> {
+                        Integer parentId = Integer.valueOf(parentEntityModel.getValue("id").getValue().toString());
+                        Entity parentEntityType = Entity.getEntityType(parentEntityModel);
+                        if (Entity.FEATURE == Entity.getEntityType(parentEntityModel) || Entity.EPIC == Entity.getEntityType(parentEntityModel)) {
+                            entityService.openInBrowser(parentEntityModel);
+                        } else {
+                            openDetailTab(parentId, parentEntityType);
+                        }
+                    });
+        }
 
-			addMenuItem(
-					menu,
-					"View parent details",
-					entityIconFactory.getImageIcon(Entity.getEntityType(parentEntityModel)),
-					() -> {
-						Integer parentId = Integer.valueOf(parentEntityModel.getValue("id").getValue().toString());
-						Entity parentEntityType = Entity.getEntityType(parentEntityModel);
-						if(Entity.FEATURE == Entity.getEntityType(parentEntityModel) || Entity.EPIC == Entity.getEntityType(parentEntityModel)) {
-							entityService.openInBrowser(parentEntityModel);
-						} else {
-							openDetailTab(parentId, parentEntityType);
-						}
-					});
-		}
+        if (entityType == Entity.GHERKIN_TEST) {
+            addMenuItem(
+                    menu,
+                    "Download script",
+                    ImageResources.DOWNLOAD.getImage(),
+                    () -> {
+                        File parentFolder = chooseParentFolder();
 
-		if (entityType == Entity.GHERKIN_TEST) {
-			addMenuItem(
-					menu,
-					"Download script",
-					ImageResources.DOWNLOAD.getImage(),
-					() -> {
-						File parentFolder = chooseParentFolder();
+                        if (parentFolder != null) {
+                            long gherkinTestId = Long.parseLong(entityModel.getValue("id").getValue().toString());
+                            String gherkinTestName = entityModel.getValue("name").getValue().toString();
+                            String scriptFileName = gherkinTestName + "-" +
+                                    gherkinTestId + ".feature";
+                            File scriptFile = new File(parentFolder.getPath() + File.separator +
+                                    scriptFileName);
+                            boolean shouldDownloadScript = true;
 
-						if (parentFolder != null) {
-							long gherkinTestId = Long.parseLong(entityModel.getValue("id").getValue().toString());
-							String gherkinTestName = entityModel.getValue("name").getValue().toString();
-							String scriptFileName = gherkinTestName + "-" +
-									gherkinTestId + ".feature";
-							File scriptFile = new File(parentFolder.getPath() + File.separator +
-									scriptFileName);
-							boolean shouldDownloadScript = true;
+                            if (scriptFile.exists()) {
+                                MessageBox messageBox = new MessageBox(menu.getShell(), SWT.ICON_QUESTION |
+                                        SWT.YES | SWT.NO);
+                                messageBox.setMessage("Selected destination folder already contains a file named \"" +
+                                        scriptFileName + "\". Do you want to overwrite this file?");
+                                messageBox.setText("Confirm file overwrite");
+                                shouldDownloadScript = messageBox.open() == SWT.YES;
+                            }
 
-							if (scriptFile.exists()) {
-								MessageBox messageBox = new MessageBox(menu.getShell(), SWT.ICON_QUESTION |
-										SWT.YES | SWT.NO);
-								messageBox.setMessage("Selected destination folder already contains a file named \"" +
-										scriptFileName + "\". Do you want to overwrite this file?");
-								messageBox.setText("Confirm file overwrite");
-								shouldDownloadScript = messageBox.open() == SWT.YES;
-							}
+                            if (shouldDownloadScript) {
+                                BusyIndicator.showWhile(Display.getCurrent(), () -> {
+                                    String content = scriptService.getGherkinTestScriptContent(gherkinTestId);
+                                    createTestScriptFile(parentFolder.getPath(), scriptFileName,
+                                            content);
 
-							if (shouldDownloadScript) {
-								BusyIndicator.showWhile(Display.getCurrent(), () -> {
-									String content = scriptService.getGherkinTestScriptContent(gherkinTestId);
-									createTestScriptFile(parentFolder.getPath(), scriptFileName,
-											content);
+                                    associateTextEditorToScriptFile(scriptFile);
+                                    openInEditor(scriptFile);
+                                });
+                            }
+                        }
+                    });
+        }
 
-									associateTextEditorToScriptFile(scriptFile);
-									openInEditor(scriptFile);
-								});
-							}
-						}
-					});
-		}
+        if (entityType == Entity.DEFECT ||
+                entityType == Entity.USER_STORY ||
+                entityType == Entity.QUALITY_STORY ||
+                entityType == Entity.TASK) {
 
-		if (entityType == Entity.DEFECT ||
-				entityType == Entity.USER_STORY ||
-				entityType == Entity.QUALITY_STORY ||
-				entityType == Entity.TASK) {
+            new MenuItem(menu, SWT.SEPARATOR);
 
-			new MenuItem(menu, SWT.SEPARATOR);
+            MenuItem startWork = addMenuItem(
+                    menu,
+                    "Start work",
+                    ImageResources.START_TIMER_16X16.getImage(),
+                    () -> {
+                        PluginPreferenceStorage.setActiveItem(new EntityModelEditorInput(entityModel));
+                    });
 
-			MenuItem startWork = addMenuItem(
-					menu,
-					"Start work",
-					ImageResources.START_TIMER_16X16.getImage(),
-					() -> {
-						Activator.setActiveItem(new EntityModelEditorInput(entityModel));
-					});
+            MenuItem stopWork = addMenuItem(
+                    menu,
+                    "Stop work",
+                    ImageResources.STOP_TIMER_16X16.getImage(),
+                    () -> {
+                        PluginPreferenceStorage.setActiveItem(null);
+                    });
 
-			MenuItem stopWork = addMenuItem(
-					menu,
-					"Stop work",
-					ImageResources.STOP_TIMER_16X16.getImage(),
-					() -> {
-						Activator.setActiveItem(null);
-					});
+            if (!new EntityModelEditorInput(entityModel).equals(PluginPreferenceStorage.getActiveItem())) {
+                startWork.setEnabled(true);
+                stopWork.setEnabled(false);
+            } else {
+                startWork.setEnabled(false);
+                stopWork.setEnabled(true);
+                addMenuItem(
+                        menu,
+                        "Copy commit message to clipboard",
+                        PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY).createImage(),
+                        () -> CommitMessageUtil.copyMessageIfValid());
+            }
+        }
 
-			if (!new EntityModelEditorInput(entityModel).equals(Activator.getActiveItem())) {
-				startWork.setEnabled(true);
-				stopWork.setEnabled(false);
-			} else {
-				startWork.setEnabled(false);
-				stopWork.setEnabled(true);
-				addMenuItem(
-						menu,
-						"Copy commit message to clipboard",
-						PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY).createImage(),
-						() -> CommitMessageUtil.copyMessageIfValid());
-			}
-		}
+        if (myWorkService.isAddingToMyWorkSupported(entityType) && MyWorkUtil.isUserItemDismissible(userItem)) {
+            new MenuItem(menu, SWT.SEPARATOR);
+            addMenuItem(
+                    menu,
+                    "Dismiss",
+                    ImageResources.DISMISS.getImage(),
+                    () -> {
+                        DismissItemJob job = new DismissItemJob("Dismissing item from \"My Work...\"", entityModel);
+                        job.schedule();
+                        job.addJobChangeListener(new JobChangeAdapter() {
+                            @Override
+                            public void done(IJobChangeEvent event) {
+                                menuParent.getDisplay().asyncExec(() -> {
+                                    if (job.wasRemoved()) {
+                                        entityListData.remove(userItem);
+                                        if (PluginPreferenceStorage.getActiveItem() != null
+                                                && !MyWorkView.userItemsContainsActiveItem(entityListData.getEntityList())) {
+                                            PluginPreferenceStorage.setActiveItem(null);
+                                        }
+                                        new InfoPopup("My Work", "Item removed.").open();
+                                    } else {
+                                        new InfoPopup("My Work", "Failed to remove item.").open();
+                                    }
+                                });
+                            }
+                        });
+                    });
+        }
+        return menu;
+    }
 
-		if (myWorkService.isAddingToMyWorkSupported(entityType) && MyWorkUtil.isUserItemDismissible(userItem)) {
-			new MenuItem(menu, SWT.SEPARATOR);
-			addMenuItem(
-					menu,
-					"Dismiss",
-					ImageResources.DISMISS.getImage(),
-					() -> {
-						DismissItemJob job = new DismissItemJob("Dismissing item from \"My Work...\"", entityModel);
-						job.schedule();
-						job.addJobChangeListener(new JobChangeAdapter() {
-							@Override
-							public void done(IJobChangeEvent event) {
-								menuParent.getDisplay().asyncExec(() -> {
-									if (job.wasRemoved()) {
-										entityListData.remove(userItem);
-										if (Activator.getActiveItem() != null
-												&& !MyWorkView.userItemsContainsActiveItem(entityListData.getEntityList())) {
-											Activator.setActiveItem(null);
-										}
-										new InfoPopup("My Work", "Item removed.").open();
-									} else {
-										new InfoPopup("My Work", "Failed to remove item.").open();
-									}
-								});
-							}
-						});
-					});
-		}
-		return menu;
-	}
+    private void associateTextEditorToScriptFile(File file) {
+        EditorRegistry editorRegistry = (EditorRegistry) PlatformUI.getWorkbench().getEditorRegistry();
+        IEditorDescriptor editorDescriptor = editorRegistry.getDefaultEditor(file.getName());
+        if (editorDescriptor == null) {
+            String extension = "feature";
+            String editorId = EditorsUI.DEFAULT_TEXT_EDITOR_ID;
 
-	private void associateTextEditorToScriptFile(File file) {
-		EditorRegistry editorRegistry = (EditorRegistry) PlatformUI.getWorkbench().getEditorRegistry();
-		IEditorDescriptor editorDescriptor = editorRegistry.getDefaultEditor(file.getName());
-		if (editorDescriptor == null) {
-			String extension = "feature";
-			String editorId = EditorsUI.DEFAULT_TEXT_EDITOR_ID;
+            EditorDescriptor editor = (EditorDescriptor) editorRegistry.findEditor(editorId);
+            FileEditorMapping mapping = new FileEditorMapping(extension);
+            mapping.addEditor(editor);
+            mapping.setDefaultEditor(editor);
 
-			EditorDescriptor editor = (EditorDescriptor) editorRegistry.findEditor(editorId);
-			FileEditorMapping mapping = new FileEditorMapping(extension);
-			mapping.addEditor(editor);
-			mapping.setDefaultEditor(editor);
+            IFileEditorMapping[] mappings = editorRegistry.getFileEditorMappings();
+            FileEditorMapping[] newMappings = new FileEditorMapping[mappings.length + 1];
+            for (int i = 0; i < mappings.length; i++) {
+                newMappings[i] = (FileEditorMapping) mappings[i];
+            }
+            newMappings[mappings.length] = mapping;
+            editorRegistry.setFileEditorMappings(newMappings);
+        }
+    }
 
-			IFileEditorMapping[] mappings = editorRegistry.getFileEditorMappings();
-			FileEditorMapping[] newMappings = new FileEditorMapping[mappings.length + 1];
-			for (int i = 0; i < mappings.length; i++) {
-				newMappings[i] = (FileEditorMapping) mappings[i];
-			}
-			newMappings[mappings.length] = mapping;
-			editorRegistry.setFileEditorMappings(newMappings);
-		}
-	}
+    private void openInEditor(File file) {
+        IPath path = new Path(file.getPath());
+        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 
-	private void openInEditor(File file) {
-		IPath path = new Path(file.getPath());
-		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
+        try {
+            // open as external file
+            IDE.openEditorOnFileStore(page, fileStore);
+            refreshFile(file);
+        } catch (PartInitException e) {
+            Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
+                    Status.ERROR, "Script file could not be opened in the editor", e));
+        }
+    }
 
-		IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
-		try {
-			// open as external file
-			IDE.openEditorOnFileStore(page, fileStore);
-			refreshFile(file);
-		} catch (PartInitException e) {
-			Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
-					Status.ERROR, "Script file could not be opened in the editor", e));
-		}
-	}
+    private void refreshFile(File file) {
+        IPath path = new Path(file.getPath());
+        IFile eclipseFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
+        if (eclipseFile != null) {
+            try {
+                eclipseFile.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+            } catch (CoreException e) {
+                Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
+                        Status.ERROR, "Script file could not be refreshed", e));
+            }
+        }
+    }
 
-	private void refreshFile(File file) {
-		IPath path = new Path(file.getPath());
-		IFile eclipseFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
-		if (eclipseFile != null) {
-			try {
-				eclipseFile.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-			} catch (CoreException e) {
-				Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
-						Status.ERROR, "Script file could not be refreshed", e));
-			}
-		}
-	}
+    private File chooseParentFolder() {
+        DirectoryDialog dialog = new DirectoryDialog(Display.getDefault().getActiveShell(), SWT.OPEN);
+        dialog.setText("Parent folder selection");
+        dialog.setMessage("Select the folder where the script file should be downloaded");
+        dialog.setFilterPath(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString());
+        String result = dialog.open();
+        return result == null ? null : new File(result);
+    }
 
-	private File chooseParentFolder() {
-		DirectoryDialog dialog = new DirectoryDialog(Display.getDefault().getActiveShell(), SWT.OPEN);
-		dialog.setText("Parent folder selection");
-		dialog.setMessage("Select the folder where the script file should be downloaded");
-		dialog.setFilterPath(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()); 
-		String result = dialog.open();
-		return result == null ? null : new File(result);
-	}
+    private File createTestScriptFile(String path, String fileName, String script) {
+        File f = new File(path + "/" + fileName.replaceAll("[\\\\/:?*\"<>|]", ""));
+        try {
+            f.createNewFile();
+            if (script != null) {
+                Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8));
+                out.append(script);
+                out.flush();
+                out.close();
+            }
+        } catch (IOException e) {
+            Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
+                    Status.ERROR, "Could not create or write script file in " + path, e));
+        }
+        return f;
+    }
 
-	private File createTestScriptFile(String path, String fileName, String script) {
-		File f = new File(path + "/" + fileName.replaceAll("[\\\\/:?*\"<>|]", ""));
-		try {
-			f.createNewFile();
-			if (script != null) {
-				Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8));
-				out.append(script);
-				out.flush();
-				out.close();
-			}
-		} catch (IOException e) {
-			Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
-					Status.ERROR, "Could not create or write script file in " + path, e));
-		}
-		return f;
-	}
-
-	private static MenuItem addMenuItem(Menu menu, String text, Image image, Runnable selectAction) {
-		MenuItem menuItem = new MenuItem(menu, SWT.NONE);
-		if (image != null) {
-			menuItem.setImage(image);
-		}
-		menuItem.setText(text);
-		menuItem.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectAction.run();
-			}
-		});
-		return menuItem;
-	}
+    private static MenuItem addMenuItem(Menu menu, String text, Image image, Runnable selectAction) {
+        MenuItem menuItem = new MenuItem(menu, SWT.NONE);
+        if (image != null) {
+            menuItem.setImage(image);
+        }
+        menuItem.setText(text);
+        menuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                selectAction.run();
+            }
+        });
+        return menuItem;
+    }
 
 }

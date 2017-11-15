@@ -29,6 +29,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
@@ -55,20 +56,20 @@ public class ActiveEntityContributionItem extends WorkbenchWindowControlContribu
     };
 
     public ActiveEntityContributionItem() {
-        Activator.addActiveItemChangedHandler(() -> {
-            entityModelEditorInput = Activator.getActiveItem();
+        PluginPreferenceStorage.addPrefenceChangeHandler(PluginPreferenceStorage.PreferenceConstants.ACTIVE_ITEM_ID, (() -> {
+            entityModelEditorInput = PluginPreferenceStorage.getActiveItem();
             addAction();
-        });
-        entityModelEditorInput = Activator.getActiveItem();
+        }));
+        entityModelEditorInput = PluginPreferenceStorage.getActiveItem();
     }
 
     public ActiveEntityContributionItem(String id) {
         super(id);
-        Activator.addActiveItemChangedHandler(() -> {
-            entityModelEditorInput = Activator.getActiveItem();
+        PluginPreferenceStorage.addPrefenceChangeHandler(PluginPreferenceStorage.PreferenceConstants.ACTIVE_ITEM_ID, (() -> {
+            entityModelEditorInput = PluginPreferenceStorage.getActiveItem();
             addAction();
-        });
-        entityModelEditorInput = Activator.getActiveItem();
+        }));
+        entityModelEditorInput = PluginPreferenceStorage.getActiveItem();
     }
 
     @Override
@@ -88,7 +89,6 @@ public class ActiveEntityContributionItem extends WorkbenchWindowControlContribu
         }
         return null;
     }
-    
 
     private static void addAction() {
         manager.removeAll();

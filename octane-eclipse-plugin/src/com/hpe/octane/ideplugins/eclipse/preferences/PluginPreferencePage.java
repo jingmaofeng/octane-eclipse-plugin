@@ -44,6 +44,7 @@ import com.hpe.adm.octane.ideplugins.services.nonentity.OctaneVersionService;
 import com.hpe.adm.octane.ideplugins.services.util.OctaneVersion;
 import com.hpe.adm.octane.ideplugins.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PreferenceConstants;
 import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
 
 public class PluginPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
@@ -59,7 +60,7 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
     private Label labelConnectionStatus;
     private Button buttonTestConnection;
 
-    private ISecurePreferences securePrefs = Activator.getSecurePrefs();
+    private ISecurePreferences securePrefs = PluginPreferenceStorage.getSecurePrefs();
     private TestService testService = Activator.getInstance(TestService.class);
 
     private ILog logger = Activator.getDefault().getLog();
@@ -212,9 +213,9 @@ public class PluginPreferencePage extends PreferencePage implements IWorkbenchPr
 
     private void loadSavedValues() {
         try {
-            textServerUrl.setText(securePrefs.get(PreferenceConstants.OCTANE_SERVER_URL, ""));
-            textUsername.setText(securePrefs.get(PreferenceConstants.USERNAME, ""));
-            textPassword.setText(securePrefs.get(PreferenceConstants.PASSWORD, ""));
+            textServerUrl.setText(securePrefs.get(PluginPreferenceStorage.PreferenceConstants.OCTANE_SERVER_URL, ""));
+            textUsername.setText(securePrefs.get(PluginPreferenceStorage.PreferenceConstants.USERNAME, ""));
+            textPassword.setText(securePrefs.get(PluginPreferenceStorage.PreferenceConstants.PASSWORD, ""));
         } catch (StorageException e) {
             logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
                     "An exception has occured when loading the Octane connection details", e));

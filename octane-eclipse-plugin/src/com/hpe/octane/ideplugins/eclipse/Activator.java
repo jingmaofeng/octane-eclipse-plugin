@@ -12,19 +12,9 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IEditorReference;
@@ -39,9 +29,9 @@ import com.hpe.adm.octane.ideplugins.services.connection.BasicConnectionSettingP
 import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettings;
 import com.hpe.adm.octane.ideplugins.services.connection.HttpClientProvider;
 import com.hpe.adm.octane.ideplugins.services.di.ServiceModule;
-import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.UrlParser;
-import com.hpe.octane.ideplugins.eclipse.preferences.PreferenceConstants;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PreferenceConstants;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.KonamiCodeListener;
@@ -61,7 +51,6 @@ public class Activator extends AbstractUIPlugin {
 
     private static BasicConnectionSettingProvider settingsProviderInstance = new BasicConnectionSettingProvider();
     private static ServiceModule serviceModuleInstance = new ServiceModule(settingsProviderInstance);
-    private static List<Runnable> activeItemChangedHandler = new ArrayList<Runnable>();
 
     /**
      * The constructor
@@ -89,85 +78,6 @@ public class Activator extends AbstractUIPlugin {
         return serviceModuleInstance.getInstance(type);
     }
 
-    public static void setActiveItem(EntityModelEditorInput entityModelEditorInput) {
-        ISecurePreferences securePrefs = getSecurePrefs();
-
-        if (entityModelEditorInput == null) {
-            securePrefs.remove(PreferenceConstants.ACTIVE_ITEM_ID);
-            securePrefs.remove(PreferenceConstants.ACTIVE_ITEM_ENTITY);
-            securePrefs.remove(PreferenceConstants.ACTIVE_ITEM_TITLE);
-        } else {
-            try {
-                securePrefs.putLong(
-                        PreferenceConstants.ACTIVE_ITEM_ID,
-                        entityModelEditorInput.getId(),
-                        false);
-                securePrefs.put(
-                        PreferenceConstants.ACTIVE_ITEM_ENTITY,
-                        entityModelEditorInput.getEntityType().name(),
-                        false);
-                securePrefs.put(
-                        PreferenceConstants.ACTIVE_ITEM_TITLE,
-                        entityModelEditorInput.getTitle(),
-                        false);
-            } catch (StorageException e) {
-                Activator.getDefault().getLog().log(
-                        new Status(
-                                Status.ERROR,
-                                Activator.PLUGIN_ID,
-                                Status.ERROR,
-                                "An exception has occured while saving active item",
-                                e));
-            }
-        }
-        activeItemChangedHandler.forEach(runnable -> runnable.run());
-    }
-
-    public static EntityModelEditorInput getActiveItem() {
-        EntityModelEditorInput editorInput = null;
-        ISecurePreferences securePrefs = getSecurePrefs();
-        try {
-            Long id = securePrefs.getLong(PreferenceConstants.ACTIVE_ITEM_ID, -1);
-            Entity entityType = Entity.valueOf(securePrefs.get(PreferenceConstants.ACTIVE_ITEM_ENTITY, Entity.DEFECT.name()));
-            String title = securePrefs.get(PreferenceConstants.ACTIVE_ITEM_TITLE, null);
-            editorInput = new EntityModelEditorInput(id, entityType, title);
-        } catch (Exception ex) {
-            Activator.getDefault().getLog().log(
-                    new Status(
-                            Status.ERROR,
-                            Activator.PLUGIN_ID,
-                            Status.ERROR,
-                            "An exception has occured while fetching active item",
-                            ex));
-            return null;
-        }
-
-        return (editorInput.getId() != -1) ? editorInput : null;
-    }
-
-    public static void addActiveItemChangedHandler(Runnable activeItemChanged) {
-        activeItemChangedHandler.add(activeItemChanged);
-    }
-
-    public static ISecurePreferences getSecurePrefs() {
-
-        QualifiedName qualifiedName = new QualifiedName(PLUGIN_ID, "workspaceId");
-        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-        try {
-            String workspaceId = root.getPersistentProperty(qualifiedName);
-            if (workspaceId == null) {
-                workspaceId = UUID.randomUUID().toString();
-                root.setPersistentProperty(qualifiedName, workspaceId);
-            }
-            return SecurePreferencesFactory.getDefault().node(workspaceId);
-        } catch (CoreException e) {
-            getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
-                    "An exception has occured when trying to access the Octane connection details", e));
-            String workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
-            return SecurePreferencesFactory.getDefault().node(workspacePath);
-        }
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -185,7 +95,7 @@ public class Activator extends AbstractUIPlugin {
         IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 
         try {
-            ISecurePreferences securePrefs = getSecurePrefs();
+            ISecurePreferences securePrefs = PluginPreferenceStorage.getSecurePrefs();
             String baseUrl = securePrefs.get(PreferenceConstants.OCTANE_SERVER_URL, "");
             String username = securePrefs.get(PreferenceConstants.USERNAME, "");
             String password = securePrefs.get(PreferenceConstants.PASSWORD, "");
@@ -203,7 +113,7 @@ public class Activator extends AbstractUIPlugin {
 
         settingsProviderInstance.addChangeHandler(() -> {
             // Clear active item
-            setActiveItem(null);
+            PluginPreferenceStorage.setActiveItem(null);
 
             // Close active entity editors and search editors
             for (IEditorReference editor : page.getEditorReferences()) {

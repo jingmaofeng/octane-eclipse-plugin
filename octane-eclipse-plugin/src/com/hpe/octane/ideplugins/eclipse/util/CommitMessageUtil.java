@@ -33,6 +33,7 @@ import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.nonentity.CommitMessageService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 
 public class CommitMessageUtil {
@@ -47,7 +48,7 @@ public class CommitMessageUtil {
 
                 monitor.beginTask("Generating commit message ...", IProgressMonitor.UNKNOWN);
 
-                EntityModelEditorInput activeItem = Activator.getActiveItem();
+                EntityModelEditorInput activeItem = PluginPreferenceStorage.getActiveItem();
 
                 // Convert to partial entity model
                 EntityModel activeEntityModel;
