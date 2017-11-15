@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.ui.editor.comment;
+package com.hpe.octane.ideplugins.eclipse.ui.comment;
 
 import java.util.Collection;
 
@@ -37,8 +37,8 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.comment.job.GetCommentsJob;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.comment.job.PostCommentJob;
+import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
+import com.hpe.octane.ideplugins.eclipse.ui.comment.job.PostCommentJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;

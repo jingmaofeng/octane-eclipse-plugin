@@ -10,12 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.ui.editor.comment.job;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+package com.hpe.octane.ideplugins.eclipse.ui.comment.job;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -24,35 +19,34 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.CommentService;
-import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
-public class GetCommentsJob extends Job {
-
-    private static final List<Entity> noCommentsEntites = Arrays.asList(Entity.TASK, Entity.MANUAL_TEST_RUN, Entity.TEST_SUITE_RUN);
-
+public class PostCommentJob extends Job {
+    private EntityModel commentParentEntity;
+    private String commentText;
     private CommentService commentService = Activator.getInstance(CommentService.class);
-    private Collection<EntityModel> comments = new ArrayList<>();
-    private EntityModel parentEntiy;
+    private boolean isCommentSaved = false;
 
-    public GetCommentsJob(String name, EntityModel parentEntiy) {
+    public PostCommentJob(String name, EntityModel entityModel, String commentText) {
         super(name);
-        this.parentEntiy = parentEntiy;
+        this.commentParentEntity = entityModel;
+        this.commentText = commentText;
     }
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
-        comments = commentService.getComments(parentEntiy);
+        try {
+            commentService.postComment(commentParentEntity, commentText);
+            isCommentSaved = true;
+        } catch (Exception e) {
+            isCommentSaved = false;
+        }
         monitor.done();
         return Status.OK_STATUS;
     }
 
-    public Collection<EntityModel> getComents() {
-        return comments;
-    }
-
-    public static boolean hasCommentSupport(Entity entity) {
-        return !noCommentsEntites.contains(entity);
+    public boolean isCommentsSaved() {
+        return isCommentSaved;
     }
 }
