@@ -144,6 +144,12 @@ public class PluginPreferenceStorage {
             throw new RuntimeException(e);
         }
     }
+    
+    public static boolean areShownEntityFieldsDefaults(Entity entity) {
+    	Set<String> defaults = DefaultEntityFieldsUtil.getDefaultFields().get(entity);
+    	Set<String> current = getShownEntityFields().get(entity);
+    	return defaults.equals(current);
+    }
 
     /**
      * TODO: atoth, don't allow direct access
@@ -179,6 +185,13 @@ public class PluginPreferenceStorage {
             prefereceChangeHandlerMap.put(preferenceKey, new ArrayList<>());
         }
         prefereceChangeHandlerMap.get(preferenceKey).add(prefereceChangeHandler);
+    }
+    
+    public static void removePrefenceChangeHandler(String preferenceKey, PrefereceChangeHandler prefereceChangeHandler) {
+    	  if (!prefereceChangeHandlerMap.containsKey(preferenceKey)) {
+              prefereceChangeHandlerMap.put(preferenceKey, new ArrayList<>());
+          }
+    	prefereceChangeHandlerMap.get(preferenceKey).remove(prefereceChangeHandler);
     }
 
     private static void fireChangeHandler(String preferenceKey) {
