@@ -24,6 +24,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -173,8 +175,22 @@ public class MultiSelectComboBox<T> {
 		// sizing
 		Point contentSize = composite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		composite.setSize(contentSize);
-		int shellHeight = contentSize.y > MAX_HEIGHT ? MAX_HEIGHT : contentSize.y;
+		int shellHeight = contentSize.y > MAX_HEIGHT ? MAX_HEIGHT : contentSize.y;	
+		
+		int width = floatShell.getDisplay().getBounds().width;
+		System.out.println("Display width " + width);
+		System.out.println("p.x" + p.x);
+		System.out.println("p.x + contentWidth" + (p.x + contentSize.x));
+		
+		Monitor[] monitors = floatShell.getDisplay().getMonitors();		 
+		
 		Rectangle shellRect = new Rectangle(p.x, p.y + size.y, scrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x + 10, shellHeight);
+		for (int i = 0; i < monitors.length; i++) {
+		    if (monitors[i].getBounds().intersects(shellRect)) {
+		        
+		    }
+		}
+
 		floatShell.setBounds(shellRect);
 		floatShell.open();
 	}

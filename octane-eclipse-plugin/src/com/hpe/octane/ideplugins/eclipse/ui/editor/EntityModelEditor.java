@@ -387,7 +387,6 @@ public class EntityModelEditor extends EditorPart {
 		section.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 		section.setText("Fields");
 		section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-		section.setExpanded(true);
 		formGenerator.createCompositeSeparator(section);
 		fieldsSection = new Composite(section, SWT.NONE);
 		drawEntityFields(fieldsSection);
@@ -396,26 +395,28 @@ public class EntityModelEditor extends EditorPart {
 
 	private Section createDescriptionFormSection() {
 		Section section = formGenerator.createSection(sectionsParentForm.getBody(), Section.TREE_NODE | Section.EXPANDED);
-		formGenerator.createCompositeSeparator(section);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd.minimumHeight = 400;
 		section.setLayoutData(gd);
-		section.setLayout(new FillLayout(SWT.HORIZONTAL));
+		formGenerator.createCompositeSeparator(section);
 		section.setText("Description");
-		PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
-		Browser descriptionPanel = factory.createBrowser(section, SWT.NONE);
-		String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")";
-		String foregroundColorString = "rgb(" + foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")";
-		String descriptionText = "<html><body bgcolor =" + backgroundColorString + ">" + "<font color =" + foregroundColorString + ">" +
+	
+		PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();	
+		Browser descBrowser = factory.createBrowser(section, SWT.NONE);
+		descBrowser.setLayoutData(gd);
+		
+		String descriptionText = "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color =" + getRgbString(foregroundColor) + ">" +
 				Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION)) + "</font></body></html>";
 		if (descriptionText.equals(
-				"<html><body bgcolor =" + backgroundColorString + ">" + "<font color =" + foregroundColorString + ">" + "</font></body></html>")) {
-			descriptionPanel.setText("<html><body bgcolor =" + backgroundColorString + ">" + "<font color =" + foregroundColorString + ">"
+				"<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color =" + getRgbString(foregroundColor) + ">" + "</font></body></html>")) {
+			descBrowser.setText("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color =" + getRgbString(foregroundColor) + ">"
 					+ "No description" + "</font></body></html>");
 		} else {
-			descriptionPanel.setText(descriptionText);
+			descBrowser.setText(descriptionText);
 		}
-		descriptionPanel.addLocationListener(new LinkInterceptListener());
+		
+		descBrowser.addLocationListener(new LinkInterceptListener());
+		section.setClient(descBrowser);
 		return section;
 	}
 	
@@ -531,6 +532,10 @@ public class EntityModelEditor extends EditorPart {
 			}
 		}
 		return new String(chars);
+	}
+	
+	private static String getRgbString(Color color) {
+		return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
 	}
 
 	@Override
