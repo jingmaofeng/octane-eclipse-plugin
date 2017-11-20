@@ -31,14 +31,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -243,6 +240,8 @@ public class EntityModelEditor extends EditorPart {
 		formGenerator = new FormToolkit(parent.getDisplay());
 
 		headerAndEntityDetailsScrollComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		headerAndEntityDetailsScrollComposite.setBackgroundMode(SWT.INHERIT_FORCE);
+		
 		headerAndEntityDetailsParent = new Composite(headerAndEntityDetailsScrollComposite, SWT.NONE);
 		headerAndEntityDetailsParent.setBackground(backgroundColor);
 		headerAndEntityDetailsParent.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -294,8 +293,9 @@ public class EntityModelEditor extends EditorPart {
 		headerAndEntityDetailsParent.setLayout(new GridLayout(1, false));
 		Composite headerComposite = new Composite(parent, SWT.NONE);
 		headerComposite.setBackground(backgroundColor);
+		
 		headerComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		headerComposite.setLayout(new GridLayout(7, false));
+		headerComposite.setLayout(new GridLayout(6, false));
 
 		Label entityIcon = new Label(headerComposite, SWT.NONE);
 		entityIcon.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
@@ -307,15 +307,29 @@ public class EntityModelEditor extends EditorPart {
 		Font boldFont = new Font(linkEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
 		linkEntityName.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
 		linkEntityName.setFont(boldFont);
-		linkEntityName.setBackground(backgroundColor);
 		linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
 		linkEntityName.addListener(SWT.MouseDown, event -> Activator.getInstance(EntityService.class).openInBrowser(entityModel));
 
+		
+		Composite phaseComposite = new Composite(headerComposite, SWT.NONE);
+		phaseComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		phaseComposite.setLayout(new GridLayout(5, false));
 		if (shouldShowPhase) {
-			Label lblCurrentPhase = new Label(headerComposite, SWT.NONE);
+			Label lblPhase = new Label(phaseComposite, SWT.NONE);
+			lblPhase.setText("Current phase:");
+			lblPhase.setFont(SWTResourceManager.getBoldFont(lblPhase.getFont()));
+			lblPhase.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+			
+			Label lblCurrentPhase = new Label(phaseComposite, SWT.NONE);
 			lblCurrentPhase.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 			lblCurrentPhase.setText(Util.getUiDataFromModel(currentPhase, EntityFieldsConstants.FIELD_NAME));
-			CustomEntityComboBox<EntityModel> nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(headerComposite);
+			
+			Label lblNextPhase = new Label(phaseComposite, SWT.NONE);
+			lblNextPhase.setText("Move to:");
+			lblNextPhase.setFont(SWTResourceManager.getBoldFont(lblNextPhase.getFont()));
+			lblNextPhase.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+			
+			CustomEntityComboBox<EntityModel> nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(phaseComposite);
 			nextPhasesComboBox.addSelectionListener((phaseEntityModel, newSelection) -> {
 				selectedPhase = newSelection;
 			});
@@ -332,7 +346,7 @@ public class EntityModelEditor extends EditorPart {
 			});
 			nextPhasesComboBox.setContent(new ArrayList<>(possibleTransitions));
 			nextPhasesComboBox.selectFirstItem();
-			Button savePhase = new Button(headerComposite, SWT.NONE);
+			Button savePhase = new Button(phaseComposite, SWT.NONE);
 			savePhase.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
 			savePhase.addListener(SWT.Selection, event -> saveCurrentPhase());
 		}
@@ -470,19 +484,6 @@ public class EntityModelEditor extends EditorPart {
 			labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER,
 					false, false, 1, 1));
 
-			labelFieldName.addPaintListener(new PaintListener() {
-				@Override
-				public void paintControl(PaintEvent paintEvent) {
-					labelFieldName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-
-					Pattern pattern = new Pattern(paintEvent.gc.getDevice(), 0, 0, 0, 100,
-							paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),
-							230, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT),
-							230);
-
-					paintEvent.gc.setBackgroundPattern(pattern);
-				}
-			});
 			TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE, truncatedLabelTooltip);
 			labelValue.setText(fielValue);
 			labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
