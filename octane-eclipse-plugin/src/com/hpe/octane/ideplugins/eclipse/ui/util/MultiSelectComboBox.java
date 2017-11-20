@@ -30,14 +30,16 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class MultiSelectComboBox<T> {
 
@@ -55,6 +57,7 @@ public class MultiSelectComboBox<T> {
 	private List<VerifyListener> verifyListeners = new ArrayList<VerifyListener>();
 
 	private Shell floatShell;
+	private Label emptyLabel;
 
 	private Runnable resetRunnable;
 
@@ -66,25 +69,75 @@ public class MultiSelectComboBox<T> {
 		floatShell = new Shell(positionControl.getShell(), SWT.BORDER);
 
 		buttons = new ArrayList<>();
+		floatShell.setLayout(new GridLayout());
 
-
-		floatShell.setLayout(new FillLayout());
-
-		ScrolledComposite scrolledComposite = new ScrolledComposite(floatShell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		scrolledComposite.setExpandHorizontal(true);
-
-		Composite composite = new Composite(scrolledComposite, SWT.NONE);
-		composite.setLayout(new GridLayout());
-		scrolledComposite.setContent(composite);
-
-		Text text = new Text(composite, SWT.BORDER);
+		Text text = new Text(floatShell, SWT.BORDER);
 		text.setMessage("Filter");
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		ScrolledComposite scrolledComposite = new ScrolledComposite(floatShell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		scrolledComposite.setExpandHorizontal(true);
+		Composite btnComposite = new Composite(scrolledComposite, SWT.NONE);
+		scrolledComposite.setContent(btnComposite);		
+		btnComposite.setLayout(new GridLayout());
 
+		emptyLabel = new Label(btnComposite, SWT.BOLD);
+		emptyLabel.setText("No results");
+		emptyLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
+		emptyLabel.setLayoutData(new GridData());
+		((GridData) emptyLabel.getLayoutData()).exclude = true;
+		
+		for (T option : options) {
+			Button button = new Button(btnComposite, SWT.CHECK);
+			button.setText(labelProvider.getText(option));
+			button.setSelection(selection.contains(option));
+			button.setData(BTN_DATA_CONSTANT, option);
+			button.addListener(SWT.Selection, e -> {
+				if (button.getSelection()) {
+					selection.add(option);
+				} else {
+					selection.remove(option);
+				}
+				selectionListeners.forEach(l -> l.widgetSelected(new SelectionEvent(e)));
+			});
+			button.pack();
+			buttons.add(button);
+		}
+		btnComposite.setSize(btnComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		
+		Composite ctrlComposite = new Composite(floatShell, SWT.NONE);
+		ctrlComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+		if(resetRunnable != null) {
+			ctrlComposite.setLayout(new GridLayout(3, true));
+		} else {
+			ctrlComposite.setLayout(new GridLayout(2, true));
+		}
+		
+		Button all = new Button(ctrlComposite, SWT.BUTTON1);
+		all.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+		all.setText("All");
+		all.addListener(SWT.MouseDown, event -> selectAll());
+
+		Button none = new Button(ctrlComposite, SWT.BUTTON1);
+		none.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+		none.setText("None");
+		none.addListener(SWT.MouseDown, event -> clearSelection());
+
+		if(resetRunnable != null) {
+			Button reset = new Button(ctrlComposite, SWT.BUTTON1);
+			reset.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+			reset.setText("Reset");
+			reset.addListener(SWT.MouseDown,event -> {
+				resetRunnable.run();
+				selectionListeners.forEach(l -> l.widgetSelected(null));
+			});
+		}
+		
 		text.addModifyListener(new DelayedModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				Arrays.stream(composite.getChildren())
+				Arrays.stream(btnComposite.getChildren())
 				.filter(child -> child.getData(BTN_DATA_CONSTANT) != null)
 				.forEach(child -> {
 					
@@ -103,52 +156,25 @@ public class MultiSelectComboBox<T> {
 						((GridData) child.getLayoutData()).exclude = true;
 					}
 				});
+				
+				long visCount = Arrays.stream(btnComposite.getChildren())
+										.filter(child -> child.getData(BTN_DATA_CONSTANT) != null)
+										.filter(child -> child.isVisible()).count();
+				
+				if(visCount == 0) {
+					emptyLabel.setVisible(true);
+					((GridData) emptyLabel.getLayoutData()).exclude = false;
+				} else {
+					emptyLabel.setVisible(false);
+					((GridData) emptyLabel.getLayoutData()).exclude = true;
+				}
 
 				// sizing
-				setFloatShellBounds(composite, positionControl);
+				btnComposite.setSize(btnComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				setFloatShellBounds(positionControl);
 				floatShell.open();
 			}
 		}));
-
-		Composite ctrlComposite = new Composite(composite, SWT.NONE);
-		ctrlComposite.setLayout(new FillLayout());
-
-		Button all = new Button(ctrlComposite, SWT.BUTTON1);
-		all.setText("All");
-		all.addListener(SWT.MouseDown, event -> selectAll());
-
-		Button none = new Button(ctrlComposite, SWT.BUTTON1);
-		none.setText("None");
-		none.addListener(SWT.MouseDown, event -> clearSelection());
-
-		if(resetRunnable != null) {
-			Button reset = new Button(ctrlComposite, SWT.BUTTON1);
-			reset.setText("Reset");
-			reset.addListener(SWT.MouseDown,event -> {
-				resetRunnable.run();
-				selectionListeners.forEach(l -> l.widgetSelected(null));
-			});
-		}
-
-		for (T option : options) {
-			Button button = new Button(composite, SWT.CHECK);
-			button.setText(labelProvider.getText(option));
-			button.setSelection(selection.contains(option));
-			button.setData(BTN_DATA_CONSTANT, option);
-			button.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
-
-			button.addListener(SWT.Selection, e -> {
-				if (button.getSelection()) {
-					selection.add(option);
-				} else {
-					selection.remove(option);
-				}
-
-				selectionListeners.forEach(l -> l.widgetSelected(new SelectionEvent(e)));
-			});
-			button.pack();
-			buttons.add(button);
-		}
 
 		floatShell.addListener(SWT.Deactivate, e -> {
 			if (floatShell != null && !floatShell.isDisposed()) {
@@ -175,15 +201,11 @@ public class MultiSelectComboBox<T> {
 			}
 		});
 
-		setFloatShellBounds(composite, positionControl);
+		setFloatShellBounds(positionControl);
 		floatShell.open();
 	}
 	
-	private void setFloatShellBounds(Control content, Control positionControl) {
-		
-		Point contentSize = content.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		content.setSize(contentSize);
-		
+	private void setFloatShellBounds(Control positionControl) {
 		Point shellSize = floatShell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		shellSize = limitContentSize(floatShell);
 		floatShell.setSize(shellSize);
