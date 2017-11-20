@@ -191,8 +191,7 @@ public class EntityModelEditor extends EditorPart {
 				if (getEntiyJob.wasEntityRetrived()) {
 
 					entityModel = getEntiyJob.getEntiyData();
-					Display.getDefault().asyncExec(() -> {
-
+					Display.getDefault().asyncExec(() -> {			        	
 						entityModel = getEntiyJob.getEntiyData();
 
 						if (getEntiyJob.shouldShowPhase()) {
