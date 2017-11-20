@@ -89,7 +89,12 @@ public class EntityModelEditor extends EditorPart {
 
 	private static final String GO_TO_BROWSER_DIALOG_MESSAGE = "You can try to change the phase using ALM Octane in a browser."
 			+ "\nDo you want to do this now?";
-
+	
+	private static final String TOOLTIP_PHASE = "Save changes to entity phase";
+	private static final String TOOLTIP_PHASE_COMBO = "Available entity phases";
+	private static final String TOOLTIP_REFRESH = "Refresh entity details";
+	private static final String TOOLTIP_FIELDS = "Customize fields";
+			
 	private static final int MIN_WIDTH = 800;
 	
 	private static final Map<Entity, Set<String>> defaultFields = DefaultEntityFieldsUtil.getDefaultFields();
@@ -345,7 +350,9 @@ public class EntityModelEditor extends EditorPart {
 			});
 			nextPhasesComboBox.setContent(new ArrayList<>(possibleTransitions));
 			nextPhasesComboBox.selectFirstItem();
+			nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
 			Button savePhase = new Button(phaseComposite, SWT.NONE);
+			savePhase.setToolTipText(TOOLTIP_PHASE);
 			savePhase.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
 			savePhase.addListener(SWT.Selection, event -> saveCurrentPhase());
 		}
@@ -353,10 +360,10 @@ public class EntityModelEditor extends EditorPart {
 		Button refresh = new Button(headerComposite, SWT.NONE);
 		refresh.setImage(ImageResources.REFRESH_16X16.getImage());
 		refresh.addListener(SWT.Selection, event -> getEntiyJob.schedule());
-
+		refresh.setToolTipText(TOOLTIP_REFRESH);
 
 		btnFields = new Button(headerComposite, SWT.NONE);
-	
+		btnFields.setToolTipText(TOOLTIP_FIELDS);
 		if(PluginPreferenceStorage.areShownEntityFieldsDefaults(input.getEntityType())){
 			btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
 		} else {

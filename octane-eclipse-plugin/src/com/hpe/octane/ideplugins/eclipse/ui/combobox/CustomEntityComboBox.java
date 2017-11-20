@@ -103,6 +103,10 @@ public class CustomEntityComboBox <T>{
     		CustomEntityComboBoxSelectionListener<T> listener) {
         this.selectionListeners.remove(listener);
     }
+    
+    public void setTooltipText(String string) {
+        viewer.getCombo().setToolTipText(string);
+    }
 
     private T getTypedObject(Object o) {
         if (content.contains(o)) {
