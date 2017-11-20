@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.util;
+package com.hpe.octane.ideplugins.eclipse.ui.util;
 
 import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.widgets.Control;

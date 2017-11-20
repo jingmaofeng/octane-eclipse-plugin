@@ -45,8 +45,8 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow.DetailsPosition;
+import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
-import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
 
 public class MyWorkEntityModelRowRenderer implements EntityModelRenderer {
 

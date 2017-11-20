@@ -39,11 +39,11 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.PostCommentJob;
+import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
-import com.hpe.octane.ideplugins.eclipse.util.LinkInterceptListener;
-import com.hpe.octane.ideplugins.eclipse.util.PropagateScrollBrowserFactory;
 
 public class EntityCommentComposite extends StackLayoutComposite {
 

@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolTip;
 
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 import swing2swt.layout.BorderLayout;
 import swing2swt.layout.FlowLayout;

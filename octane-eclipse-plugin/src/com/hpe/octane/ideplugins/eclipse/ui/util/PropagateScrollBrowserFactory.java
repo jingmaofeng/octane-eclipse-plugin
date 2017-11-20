@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.util;
+package com.hpe.octane.ideplugins.eclipse.ui.util;
 
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.ScrolledComposite;

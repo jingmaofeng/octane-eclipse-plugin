@@ -52,13 +52,13 @@ import com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer.MyWorkEntityModel
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.util.ErrorComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.OpenDetailTabEntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.SeparatorControlContribution;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TextContributionItem;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
-import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class MyWorkView extends OctaneViewPart {
 

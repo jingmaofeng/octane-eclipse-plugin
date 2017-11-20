@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.util.resource;
+package com.hpe.octane.ideplugins.eclipse.ui.util.resource;
 
 import java.io.File;
 import java.util.Arrays;

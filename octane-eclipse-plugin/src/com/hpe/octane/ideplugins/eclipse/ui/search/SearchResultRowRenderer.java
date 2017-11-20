@@ -26,8 +26,8 @@ import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
-import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class SearchResultRowRenderer implements EntityModelRenderer {
 

@@ -77,10 +77,10 @@ import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.job.DismissItemJob;
+import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
+import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
-import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
-import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
-import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
 
 public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 

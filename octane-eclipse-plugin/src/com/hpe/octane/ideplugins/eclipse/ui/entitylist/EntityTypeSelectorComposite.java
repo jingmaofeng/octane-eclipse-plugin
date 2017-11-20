@@ -28,8 +28,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
-import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class EntityTypeSelectorComposite extends Composite {
 

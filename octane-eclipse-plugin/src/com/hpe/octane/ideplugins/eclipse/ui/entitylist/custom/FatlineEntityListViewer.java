@@ -39,7 +39,7 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityListViewer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class FatlineEntityListViewer extends Composite implements EntityListViewer {
 

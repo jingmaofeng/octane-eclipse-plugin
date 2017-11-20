@@ -23,7 +23,7 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.StringFieldModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.ui.activeitem.ImageDataImageDescriptor;
-import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 
 public class EntityModelEditorInput implements IElementFactory, IEditorInput {
 

@@ -22,8 +22,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class NoSearchResultsComposite extends Composite {
 

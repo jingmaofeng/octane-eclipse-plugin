@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.util;
+package com.hpe.octane.ideplugins.eclipse.ui.util;
 
 import java.util.Timer;
 import java.util.TimerTask;

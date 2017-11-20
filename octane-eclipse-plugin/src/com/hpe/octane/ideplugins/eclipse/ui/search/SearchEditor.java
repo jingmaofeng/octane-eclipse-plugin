@@ -43,7 +43,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.AbsoluteLayoutEnti
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.OpenDetailTabEntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class SearchEditor extends EditorPart {
 

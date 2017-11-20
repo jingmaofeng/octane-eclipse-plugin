@@ -74,17 +74,17 @@ import com.hpe.octane.ideplugins.eclipse.ui.comment.EntityCommentComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.ChangePhaseJob;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetEntityDetailsJob;
+import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
+import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.MultiSelectComboBox;
+import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
+import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
-import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
-import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
-import com.hpe.octane.ideplugins.eclipse.util.LinkInterceptListener;
-import com.hpe.octane.ideplugins.eclipse.util.PropagateScrollBrowserFactory;
-import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
 
 public class EntityModelEditor extends EditorPart {
 

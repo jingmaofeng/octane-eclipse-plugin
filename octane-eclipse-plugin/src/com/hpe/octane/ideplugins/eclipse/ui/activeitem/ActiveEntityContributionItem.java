@@ -32,8 +32,8 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
-import com.hpe.octane.ideplugins.eclipse.util.EntityIconFactory;
-import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 
 public class ActiveEntityContributionItem extends WorkbenchWindowControlContribution {
 

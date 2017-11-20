@@ -35,6 +35,7 @@ import com.hpe.adm.octane.ideplugins.services.nonentity.CommitMessageService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
+import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 
 public class CommitMessageUtil {
 

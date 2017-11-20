@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
-import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 
 public class LoadingComposite extends Composite {
 

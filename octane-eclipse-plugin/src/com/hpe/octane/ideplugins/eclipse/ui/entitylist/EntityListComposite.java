@@ -29,9 +29,9 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 import com.hpe.octane.ideplugins.eclipse.filter.EntityListData;
-import com.hpe.octane.ideplugins.eclipse.util.ControlProvider;
-import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
-import com.hpe.octane.ideplugins.eclipse.util.resource.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.ui.util.ControlProvider;
+import com.hpe.octane.ideplugins.eclipse.ui.util.DelayedModifyListener;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class EntityListComposite extends Composite {
 

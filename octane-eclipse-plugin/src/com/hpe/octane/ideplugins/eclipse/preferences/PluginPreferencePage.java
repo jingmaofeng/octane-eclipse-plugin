@@ -45,7 +45,7 @@ import com.hpe.adm.octane.ideplugins.services.util.OctaneVersion;
 import com.hpe.adm.octane.ideplugins.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PreferenceConstants;
-import com.hpe.octane.ideplugins.eclipse.util.InfoPopup;
+import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 
 public class PluginPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 

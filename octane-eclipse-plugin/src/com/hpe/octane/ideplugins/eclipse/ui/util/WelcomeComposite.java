@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 
-import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 
 public class WelcomeComposite extends Composite {
 

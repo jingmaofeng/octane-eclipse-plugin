@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.util;
+package com.hpe.octane.ideplugins.eclipse.ui.util.icon;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
 
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
-import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 
 public class EntityIconFactory {
 

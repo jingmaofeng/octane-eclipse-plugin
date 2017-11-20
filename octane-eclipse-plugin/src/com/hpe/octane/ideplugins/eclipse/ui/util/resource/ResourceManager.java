@@ -8,7 +8,7 @@
  * Contributors:
  *    Google, Inc. - initial API and implementation
  *******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.util.resource;
+package com.hpe.octane.ideplugins.eclipse.ui.util.resource;
 
 import java.io.File;
 import java.io.InputStream;

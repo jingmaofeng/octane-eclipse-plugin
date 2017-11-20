@@ -19,7 +19,7 @@ import org.eclipse.ui.IElementFactory;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
 
-import com.hpe.octane.ideplugins.eclipse.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 
 public class SearchEditorInput implements IElementFactory, IEditorInput {
 

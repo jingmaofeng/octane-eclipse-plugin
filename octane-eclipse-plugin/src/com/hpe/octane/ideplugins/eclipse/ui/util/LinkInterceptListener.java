@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.util;
+package com.hpe.octane.ideplugins.eclipse.ui.util;
 
 import java.awt.Desktop;
 import java.io.IOException;

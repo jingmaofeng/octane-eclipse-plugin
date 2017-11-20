@@ -39,8 +39,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.hpe.octane.ideplugins.eclipse.util.DelayedModifyListener;
-
 public class MultiSelectComboBox<T> {
 
 	private static final String BTN_DATA_CONSTANT = "option";
