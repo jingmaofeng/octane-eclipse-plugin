@@ -326,7 +326,7 @@ public class MultiSelectComboBox<T> {
 	}
 
 	public List<T> getSelections() {
-		return options.stream().filter(op -> selection.contains(op)).collect(Collectors.toList());
+		return selection;
 	}
 
 	public int getTextHeight() {
