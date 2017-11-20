@@ -24,8 +24,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -59,8 +57,7 @@ public class MultiSelectComboBox<T> {
 
 		buttons = new ArrayList<>();
 
-		Point p = positionControl.getParent().toDisplay(positionControl.getLocation());
-		Point size = positionControl.getSize();
+
 		floatShell.setLayout(new FillLayout());
 
 		ScrolledComposite scrolledComposite = new ScrolledComposite(floatShell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -98,11 +95,7 @@ public class MultiSelectComboBox<T> {
 				});
 
 				// sizing
-				Point contentSize = composite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-				composite.setSize(contentSize);
-				int shellHeight = contentSize.y > MAX_HEIGHT ? MAX_HEIGHT : contentSize.y;
-				Rectangle shellRect = new Rectangle(p.x, p.y + size.y, scrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x + 10, shellHeight);
-				floatShell.setBounds(shellRect);
+				setFloatShellBounds(composite, positionControl);
 				floatShell.open();
 			}
 		}));
@@ -172,27 +165,32 @@ public class MultiSelectComboBox<T> {
 			}
 		});
 
-		// sizing
-		Point contentSize = composite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		composite.setSize(contentSize);
-		int shellHeight = contentSize.y > MAX_HEIGHT ? MAX_HEIGHT : contentSize.y;	
-		
-		int width = floatShell.getDisplay().getBounds().width;
-		System.out.println("Display width " + width);
-		System.out.println("p.x" + p.x);
-		System.out.println("p.x + contentWidth" + (p.x + contentSize.x));
-		
-		Monitor[] monitors = floatShell.getDisplay().getMonitors();		 
-		
-		Rectangle shellRect = new Rectangle(p.x, p.y + size.y, scrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x + 10, shellHeight);
-		for (int i = 0; i < monitors.length; i++) {
-		    if (monitors[i].getBounds().intersects(shellRect)) {
-		        
-		    }
-		}
-
-		floatShell.setBounds(shellRect);
+		setFloatShellBounds(composite, positionControl);
 		floatShell.open();
+	}
+	
+
+	
+	private void setFloatShellBounds(Control content, Control positionControl) {
+		
+		Point contentSize = content.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		content.setSize(contentSize);
+		
+		Point shellSize = floatShell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		shellSize = limitContentSize(floatShell);
+		floatShell.setSize(shellSize);
+	
+		Point parentBounds = positionControl.getParent().toDisplay(positionControl.getLocation());
+		Point size = positionControl.getSize();
+		Rectangle shellRect = new Rectangle(parentBounds.x - shellSize.x + size.x, parentBounds.y + size.y, shellSize.x, shellSize.y);
+		floatShell.setBounds(shellRect);
+	}
+	
+	private Point limitContentSize(Control control) {
+		Point contentSize = control.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		int shellHeight = contentSize.y > MAX_HEIGHT ? MAX_HEIGHT : contentSize.y;
+		contentSize.y = shellHeight;
+		return contentSize;	
 	}
 
 	public void setResetRunnable(Runnable r) {
