@@ -528,8 +528,8 @@ public class SnakeGameCanvas extends Canvas {
 
         if (!spriteDataMap.containsKey(spriteName)) {
             ImageDescriptor img = Activator.getImageDescriptor(spriteName);
-            spriteDataMap.put(spriteName, img.getImageData());
-            imageData = img.getImageData();
+            spriteDataMap.put(spriteName, img.getImageData(100));
+            imageData = img.getImageData(100);
         } else {
             imageData = spriteDataMap.get(spriteName);
         }
