@@ -511,7 +511,8 @@ public class SnakeGameCanvas extends Canvas {
 
     private static final Map<String, ImageData> spriteDataMap = new HashMap<>();
 
-    private Image getSprite(SpriteDirection direction, boolean red) {
+    @SuppressWarnings("deprecation")
+	private Image getSprite(SpriteDirection direction, boolean red) {
 
         String spriteName = "icons/snake/octane";
         if (red) {

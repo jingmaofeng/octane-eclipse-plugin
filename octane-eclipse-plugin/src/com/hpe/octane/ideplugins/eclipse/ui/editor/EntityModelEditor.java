@@ -382,7 +382,7 @@ public class EntityModelEditor extends EditorPart {
 		Set<String> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
 		allFields.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
 		fieldCombo.addAll(allFields);	
-		fieldCombo.setSelected(PluginPreferenceStorage.getShownEntityFields().get(input.getEntityType()));
+		fieldCombo.setSelected(PluginPreferenceStorage.getShownEntityFields(input.getEntityType()));
 		
 		fieldCombo.setResetRunnable(()->{
 			fieldCombo.setSelection(defaultFields.get(input.getEntityType()));
@@ -391,9 +391,7 @@ public class EntityModelEditor extends EditorPart {
 		fieldCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Map<Entity, Set<String>> shownFields = PluginPreferenceStorage.getShownEntityFields();
-				shownFields.put(input.getEntityType(), new LinkedHashSet<>(fieldCombo.getSelections()));
-				PluginPreferenceStorage.setShownEntityFields(shownFields);
+				PluginPreferenceStorage.setShownEntityFields(input.getEntityType(), new LinkedHashSet<>(fieldCombo.getSelections()));
 			}
 
 			@Override
@@ -498,7 +496,7 @@ public class EntityModelEditor extends EditorPart {
 	}
 
 	private void drawEntityFields(Composite parent) {
-		Set<String> shownFields = PluginPreferenceStorage.getShownEntityFields().get(input.getEntityType());
+		Set<String> shownFields = PluginPreferenceStorage.getShownEntityFields(input.getEntityType());
 		drawEntityFields(parent, shownFields);
 	}
 
