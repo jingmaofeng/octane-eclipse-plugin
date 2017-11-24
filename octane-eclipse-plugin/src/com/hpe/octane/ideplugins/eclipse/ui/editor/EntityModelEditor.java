@@ -81,6 +81,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.util.DelayedRunnable;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityModelEditor extends EditorPart {
@@ -138,6 +139,10 @@ public class EntityModelEditor extends EditorPart {
 	private PrefereceChangeHandler prefereceChangeHandler = () -> {
 		if (fieldsSection != null && !fieldsSection.isDisposed()) {
 			drawEntityFields(fieldsSection);
+			
+			Point childSize = headerAndEntityDetailsScrollComposite.getContent().computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+			headerAndEntityDetailsScrollComposite.setMinHeight(childSize.y);
+			headerAndEntityDetailsScrollComposite.setMinWidth(MIN_WIDTH);
 		}
 		if(btnFields != null && !btnFields.isDisposed()) {
 			if(PluginPreferenceStorage.areShownEntityFieldsDefaults(input.getEntityType())){
@@ -306,7 +311,7 @@ public class EntityModelEditor extends EditorPart {
 		entityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
 
 		TruncatingStyledText linkEntityName = new TruncatingStyledText(headerComposite, SWT.NONE, truncatedLabelTooltip);
-		linkEntityName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		linkEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		Font boldFont = new Font(linkEntityName.getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
 		linkEntityName.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
@@ -388,11 +393,15 @@ public class EntityModelEditor extends EditorPart {
 			fieldCombo.setSelection(defaultFields.get(input.getEntityType()));
 		});
 
+		DelayedRunnable delayedRunnable = new DelayedRunnable(() -> {
+			Display.getDefault().asyncExec(() -> {
+				PluginPreferenceStorage.setShownEntityFields(input.getEntityType(), new LinkedHashSet<>(fieldCombo.getSelections()));
+			});
+		}, 500);
+		
 		fieldCombo.addSelectionListener(new SelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				PluginPreferenceStorage.setShownEntityFields(input.getEntityType(), new LinkedHashSet<>(fieldCombo.getSelections()));
-			}
+			public void widgetSelected(SelectionEvent e) { delayedRunnable.execute(); }
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
