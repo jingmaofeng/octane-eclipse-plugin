@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -55,6 +56,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.part.EditorPart;
 
+import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
@@ -112,7 +114,9 @@ public class EntityModelEditor extends EditorPart {
 	private FieldModel currentPhase;
 	private EntityModel selectedPhase;
 	private Collection<EntityModel> possibleTransitions;
-
+	
+	private Map<String,String> prettyFieldsMap;
+	
 	private boolean shouldShowPhase;
 	private GetEntityDetailsJob getEntiyJob;
 
@@ -378,20 +382,23 @@ public class EntityModelEditor extends EditorPart {
 		MultiSelectComboBox<String> fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
 			@Override
 			public String getText(Object fieldName) {
-				return prettifyLabels(fieldName.toString());
+				return fieldName.toString();
 			}
 		});
 		
 		btnFields.addListener(SWT.Selection, event -> fieldCombo.showFloatShell(btnFields));
 		
-		Set<String> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
-		allFields.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
-		fieldCombo.addAll(allFields);	
+		Collection<FieldMetadata> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
+		allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
+		fieldCombo.addAll(allFields.stream().map(FieldMetadata::getLabel).collect(Collectors.toList()));	
 		fieldCombo.setSelected(PluginPreferenceStorage.getShownEntityFields(input.getEntityType()));
 		
 		fieldCombo.setResetRunnable(()->{
 			fieldCombo.setSelection(defaultFields.get(input.getEntityType()));
 		});
+		
+		//make a map of the field names and labels
+		prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
 
 		DelayedRunnable delayedRunnable = new DelayedRunnable(() -> {
 			Display.getDefault().asyncExec(() -> {
@@ -490,7 +497,7 @@ public class EntityModelEditor extends EditorPart {
 
 			// Add the pair of labels for field and value
 			CLabel labelFieldName = new CLabel(columnComposite, SWT.TRANSPARENT);
-			labelFieldName.setText(prettifyLabels(fieldName));
+			labelFieldName.setText(prettyFieldsMap.get(fieldName));
 
 			labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 
@@ -529,23 +536,6 @@ public class EntityModelEditor extends EditorPart {
 				});
 			}
 		});
-	}
-
-	private static String prettifyLabels(String entityFieldName) {
-		// for udfs
-		if (entityFieldName.contains("_udf")) {
-			entityFieldName = metadataService.getUdfLabel(entityFieldName);
-		}
-		entityFieldName = entityFieldName.replaceAll("_udf", "");
-		entityFieldName = entityFieldName.replaceAll("_", " ");
-		char[] chars = entityFieldName.toCharArray();
-		chars[0] = Character.toUpperCase(chars[0]);
-		for (int x = 1; x < chars.length; x++) {
-			if (chars[x - 1] == ' ') {
-				chars[x] = Character.toUpperCase(chars[x]);
-			}
-		}
-		return new String(chars);
 	}
 	
 	private static String getRgbString(Color color) {

@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
@@ -47,7 +48,7 @@ public class GetEntityDetailsJob extends Job {
     private FieldModel currentPhase;
 
     private Collection<EntityModel> possibleTransitions;
-    private Set<String> allEntityFields;
+    private Collection<FieldMetadata> allEntityFields;
 
     private MetadataService metadataService = Activator.getInstance(MetadataService.class);
     private EntityService entityService = Activator.getInstance(EntityService.class);
@@ -96,7 +97,7 @@ public class GetEntityDetailsJob extends Job {
         return retrivedEntity;
     }
 
-    public Set<String> getAllEntityFields() {
+    public Collection<FieldMetadata> getAllEntityFields() {
         return allEntityFields;
     }
 
