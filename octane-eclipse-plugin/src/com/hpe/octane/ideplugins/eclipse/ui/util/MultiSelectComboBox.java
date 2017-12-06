@@ -235,21 +235,35 @@ public class MultiSelectComboBox<T> {
 	}
 
 	public void setSelected(Collection<T> selectOptions) {
+		setSelected(selectOptions, true);
+	}
+	
+	public void setSelected(Collection<T> selectOptions, boolean fireSelectionHandlers) {
 		for (T selectOption : selectOptions) {
 			if (options.contains(selectOption)) {
 				setSelected(selectOption, true, false);
 			}
 		}
-		selectionListeners.forEach(l -> l.widgetSelected(null));
+		if(fireSelectionHandlers) {
+			selectionListeners.forEach(l -> l.widgetSelected(null));
+		}
 	}
 	
 	public void setSelection(Collection<T> selectOptions) {
-		clearSelection();
-		setSelected(selectOptions);
+		setSelected(selectOptions, true);
+	}
+	
+	public void setSelection(Collection<T> selectOptions, boolean fireSelectionHandlers) {
+		clearSelection(fireSelectionHandlers);
+		setSelected(selectOptions, fireSelectionHandlers);
+	}
+	
+	public void clearSelection() {
+		clearSelection(true);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void clearSelection() {
+	public void clearSelection(boolean fireSelectionHandlers) {
 		selection.clear();
 		if(buttons != null) {
 			buttons.stream()
@@ -257,7 +271,9 @@ public class MultiSelectComboBox<T> {
 				.filter(btn -> btn.getVisible())
 				.forEach(btn -> setSelected((T) btn.getData(BTN_DATA_CONSTANT), false, false));
 		}
-		selectionListeners.forEach(l -> l.widgetSelected(null));
+		if(fireSelectionHandlers) {
+			selectionListeners.forEach(l -> l.widgetSelected(null));
+		}
 	}
 	
 	@SuppressWarnings("unchecked")

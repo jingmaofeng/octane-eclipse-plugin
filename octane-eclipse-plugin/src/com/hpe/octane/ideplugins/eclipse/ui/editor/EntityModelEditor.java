@@ -382,7 +382,10 @@ public class EntityModelEditor extends EditorPart {
 			}
 		});
 		
-		btnFields.addListener(SWT.Selection, event -> fieldCombo.showFloatShell(btnFields));
+		btnFields.addListener(SWT.Selection, event -> {
+			fieldCombo.showFloatShell(btnFields);
+			fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(input.getEntityType()), false);
+		});
 		
 		Set<String> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
 		allFields.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
