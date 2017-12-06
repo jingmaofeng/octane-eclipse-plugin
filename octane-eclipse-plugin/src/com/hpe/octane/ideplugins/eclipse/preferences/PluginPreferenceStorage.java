@@ -66,16 +66,15 @@ public class PluginPreferenceStorage {
 						entityModelEditorInput.getEntityType().name(), false);
 				securePrefs.put(PluginPreferenceStorage.PreferenceConstants.ACTIVE_ITEM_TITLE,
 						entityModelEditorInput.getTitle(), false);
-
-				fireChangeHandler(PreferenceConstants.ACTIVE_ITEM_ID);
-				fireChangeHandler(PreferenceConstants.ACTIVE_ITEM_ENTITY);
-				fireChangeHandler(PreferenceConstants.ACTIVE_ITEM_TITLE);
-
 			} catch (StorageException e) {
 				Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
 						"An exception has occured while saving active item", e));
 			}
 		}
+		
+		fireChangeHandler(PreferenceConstants.ACTIVE_ITEM_ID);
+		fireChangeHandler(PreferenceConstants.ACTIVE_ITEM_ENTITY);
+		fireChangeHandler(PreferenceConstants.ACTIVE_ITEM_TITLE);
 	}
 
 	public static EntityModelEditorInput getActiveItem() {
