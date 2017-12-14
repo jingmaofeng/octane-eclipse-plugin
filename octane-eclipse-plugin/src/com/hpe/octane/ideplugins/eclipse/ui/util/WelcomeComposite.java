@@ -43,7 +43,7 @@ public class WelcomeComposite extends Composite {
 
         Label lblCompanyLogo = new Label(this, SWT.NONE);
         lblCompanyLogo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true, 1, 1));
-        lblCompanyLogo.setImage(ImageResources.HPE_LOGO.getImage());
+        lblCompanyLogo.setImage(ImageResources.MICROFOCUS_LOGO.getImage());
 
         Label lblProductLogo = new Label(this, SWT.NONE);
         lblProductLogo.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));

@@ -36,7 +36,7 @@ public enum ImageResources {
 	DOWNLOAD("download.png"),
 	FIELDS_OFF("fields-off.png"),
 	FIELDS_ON("fields-on.png"),
-	HPE_LOGO("hpe-logo.png"),
+	MICROFOCUS_LOGO("microfocus-logo.png"),
 	MYWORK("mywork.png"),
 	OCTANE_ICON_13X13("octane-icon-13x13.png"),
 	OCTANE_ICON_RED_13X13("octane-icon-red-13x13.png"),
