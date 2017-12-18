@@ -41,20 +41,17 @@ public class WelcomeComposite extends Composite {
         Label lblPlaceholder = new Label(this, SWT.NONE);
         lblPlaceholder.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 3, 1));
 
-        Label lblCompanyLogo = new Label(this, SWT.NONE);
-        lblCompanyLogo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true, 1, 1));
-        lblCompanyLogo.setImage(ImageResources.MICROFOCUS_LOGO.getImage());
 
         Label lblProductLogo = new Label(this, SWT.NONE);
-        lblProductLogo.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+        lblProductLogo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 2, 1));
         lblProductLogo.setImage(ImageResources.OCTANE_LOGO.getImage());
 
         Label lblWelcome = new Label(this, SWT.NONE);
-        lblWelcome.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 3, 1));
+        lblWelcome.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1));
         lblWelcome.setText(WELCOME_TEXT);
 
         Link link = new Link(this, SWT.NONE);
-        link.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true, true, 3, 1));
+        link.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true, true, 2, 1));
         link.setText("<A>" + OCTANE_SETTINGS_TEXT + "</A>");
         link.addListener(SWT.Selection, new Listener() {
             @Override
@@ -62,6 +59,11 @@ public class WelcomeComposite extends Composite {
                 settingsLinkClicked.run();
             }
         });
+        
+
+        Label lblCompanyLogo = new Label(this, SWT.NONE);
+        lblCompanyLogo.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, true, true, 2, 1));
+        lblCompanyLogo.setImage(ImageResources.MICROFOCUS_LOGO.getImage());
     }
 
     @Override
