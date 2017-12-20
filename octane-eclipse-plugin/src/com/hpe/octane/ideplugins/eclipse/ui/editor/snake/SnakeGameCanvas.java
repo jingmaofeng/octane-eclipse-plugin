@@ -52,9 +52,9 @@ public class SnakeGameCanvas extends Canvas {
     private static int verticalPosCount = 10;
     private static int horizontalPosCount = 20;
 
-    private Color backgroundColor = createColor(COLOR_OCTANE_GREEN);
+    private Color backgroundColor = createColor(COLOR_OCTANE_BLUE);
 
-    private static final int COLOR_OCTANE_GREEN = -1;
+    private static final int COLOR_OCTANE_BLUE = -1;
     private static final int COLOR_OCTANE_GRAY = -2;
 
     private static final FontData defaultFontData = Display.getCurrent().getSystemFont().getFontData()[0];
@@ -156,7 +156,7 @@ public class SnakeGameCanvas extends Canvas {
     private static final Color createColor(int colorCode) {
         switch (colorCode) {
             case -1:
-                return new Color(Display.getDefault(), 0, 179, 141);
+                return new Color(Display.getDefault(), 0, 121, 239);
             case -2:
                 return new Color(Display.getDefault(), 133, 142, 132);
             default:
@@ -217,7 +217,7 @@ public class SnakeGameCanvas extends Canvas {
         speed = INIT_SPEED;
         snakeBody.clear();
 
-        backgroundColor = createColor(COLOR_OCTANE_GREEN);
+        backgroundColor = createColor(COLOR_OCTANE_BLUE);
 
         int initX = horizontalPosCount / 2 - INIT_SIZE;
         int initY = verticalPosCount / 2;
@@ -327,7 +327,7 @@ public class SnakeGameCanvas extends Canvas {
         if (possiblePositions.size() <= 1) {
             applePos = null;
             gameState = GameState.WON; // nice
-            backgroundColor = createColor(COLOR_OCTANE_GREEN);
+            backgroundColor = createColor(COLOR_OCTANE_BLUE);
             return;
         }
 
@@ -381,7 +381,7 @@ public class SnakeGameCanvas extends Canvas {
         // Now draw something on the board depending on the game state
         if (GameState.NOT_STARTED.equals(gameState)) {
             drawGameString(g, x1, y1, horizontalPosCount * spriteSize, verticalPosCount * spriteSize,
-                    createColor(COLOR_OCTANE_GREEN), "OCTANE SNAKE", "Click to start, space/click to pause", "");
+                    createColor(COLOR_OCTANE_BLUE), "OCTANE SNAKE", "Click to start, space/click to pause", "");
 
         } else if (GameState.PAUSED.equals(gameState)) {
             drawGameString(g, x1, y1, horizontalPosCount * spriteSize, verticalPosCount * spriteSize,
@@ -536,7 +536,7 @@ public class SnakeGameCanvas extends Canvas {
         }
 
         if (imageData == null) {
-            Color color = createColor(COLOR_OCTANE_GREEN);
+            Color color = createColor(COLOR_OCTANE_BLUE);
             Color black = createColor(SWT.COLOR_BLACK);
             Image img = new Image(Display.getDefault(), new Rectangle(0, 0, 30, 30));
             GC gc = new GC(img);

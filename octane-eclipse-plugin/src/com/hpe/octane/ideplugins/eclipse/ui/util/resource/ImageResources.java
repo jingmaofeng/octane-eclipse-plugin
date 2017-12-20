@@ -36,7 +36,7 @@ public enum ImageResources {
 	DOWNLOAD("download.png"),
 	FIELDS_OFF("fields-off.png"),
 	FIELDS_ON("fields-on.png"),
-	HPE_LOGO("hpe-logo.png"),
+	MICROFOCUS_LOGO("microfocus-logo.png"),
 	MYWORK("mywork.png"),
 	OCTANE_ICON_13X13("octane-icon-13x13.png"),
 	OCTANE_ICON_RED_13X13("octane-icon-red-13x13.png"),
@@ -47,7 +47,9 @@ public enum ImageResources {
 	START_TIMER_16X16("startTimer-16x16.png"),
 	STOP_TIMER_16X16("stopTimer-16x16.png"),
 	UNIDRAG_SMALL_SAD("unidrag-small-sad.png"),
-	UNIDRAG_SMALL("unidrag-small.png");
+	UNIDRAG_SMALL("unidrag-small.png"),
+	ROCKET("s-rocket.png"),
+	NO_RESULTS_ROBOT("s-no-items-to-display.png");
 	//@formatter:on
 
     private static final String PATH_PREFIX = "icons/";

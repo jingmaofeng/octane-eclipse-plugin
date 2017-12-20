@@ -36,32 +36,14 @@ public class NoSearchResultsComposite extends Composite {
         Label lblPlaceholder = new Label(this, SWT.NONE);
         lblPlaceholder.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
 
-        Label lblUnidragon = new Label(this, SWT.NONE);
-        lblUnidragon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
-        lblUnidragon.setImage(ImageResources.UNIDRAG_SMALL_SAD.getImage());
-        lblUnidragon.addPaintListener(new PaintListener() {
-            @Override
-            public void paintControl(PaintEvent paintEvent) {
-                lblUnidragon.setBackground(backgroundColor);
-                Pattern pattern;
-                pattern = new Pattern(paintEvent.gc.getDevice(), 0, 0, 0, 100, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT), 230,
-                        paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT), 230);
-                paintEvent.gc.setBackgroundPattern(pattern);
-            }
-        });
+        Label lblRobot = new Label(this, SWT.NONE);
+        lblRobot.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+        lblRobot.setImage(ImageResources.UNIDRAG_SMALL_SAD.getImage());
+        
         Label lblNoResults = new Label(this, SWT.NONE);
         lblNoResults.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true, true, 1, 1));
         lblNoResults.setText("No results");
-        lblNoResults.addPaintListener(new PaintListener() {
-            @Override
-            public void paintControl(PaintEvent paintEvent) {
-                lblNoResults.setBackground(backgroundColor);
-                Pattern pattern;
-                pattern = new Pattern(paintEvent.gc.getDevice(), 0, 0, 0, 100, paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT), 230,
-                        paintEvent.gc.getDevice().getSystemColor(SWT.COLOR_TRANSPARENT), 230);
-                paintEvent.gc.setBackgroundPattern(pattern);
-            }
-        });
+        
     }
 
 }
