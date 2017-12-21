@@ -14,6 +14,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.mywork;
 
 import static com.hpe.adm.octane.ideplugins.services.util.Util.getUiDataFromModel;
 
+import java.awt.Event;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,6 +45,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -244,18 +246,23 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     () -> {
                         PluginPreferenceStorage.setActiveItem(null);
                     });
-
+            
+            MenuItem commitMessage = addMenuItem(
+                    menu,
+                    "Copy commit message to clipboard",
+                    PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY).createImage(),
+                    () -> CommitMessageUtil.copyMessageIfValid()
+            		);
+             
             if (!new EntityModelEditorInput(entityModel).equals(PluginPreferenceStorage.getActiveItem())) {
                 startWork.setEnabled(true);
                 stopWork.setEnabled(false);
+                commitMessage.setEnabled(false);
+                commitMessage.setToolTipText("You must start work before copying commit message");
             } else {
                 startWork.setEnabled(false);
                 stopWork.setEnabled(true);
-                addMenuItem(
-                        menu,
-                        "Copy commit message to clipboard",
-                        PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY).createImage(),
-                        () -> CommitMessageUtil.copyMessageIfValid());
+                commitMessage.setEnabled(true);
             }
         }
 
