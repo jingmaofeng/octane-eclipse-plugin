@@ -129,7 +129,6 @@ public class MultiSelectComboBox<T> {
 			reset.setText("Reset");
 			reset.addListener(SWT.MouseDown,event -> {
 				resetRunnable.run();
-				selectionListeners.forEach(l -> l.widgetSelected(null));
 			});
 		}
 		
@@ -250,7 +249,7 @@ public class MultiSelectComboBox<T> {
 	}
 	
 	public void setSelection(Collection<T> selectOptions) {
-		setSelected(selectOptions, true);
+		setSelection(selectOptions, true);
 	}
 	
 	public void setSelection(Collection<T> selectOptions, boolean fireSelectionHandlers) {
