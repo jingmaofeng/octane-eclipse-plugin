@@ -244,18 +244,23 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     () -> {
                         PluginPreferenceStorage.setActiveItem(null);
                     });
-
+            
+            MenuItem commitMessage = addMenuItem(
+                    menu,
+                    "Copy commit message to clipboard",
+                    PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY).createImage(),
+                    () -> CommitMessageUtil.copyMessageIfValid()
+            		);
+             
             if (!new EntityModelEditorInput(entityModel).equals(PluginPreferenceStorage.getActiveItem())) {
                 startWork.setEnabled(true);
                 stopWork.setEnabled(false);
+                commitMessage.setEnabled(false);
+                commitMessage.setToolTipText("You must start work before copying commit message");
             } else {
                 startWork.setEnabled(false);
                 stopWork.setEnabled(true);
-                addMenuItem(
-                        menu,
-                        "Copy commit message to clipboard",
-                        PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY).createImage(),
-                        () -> CommitMessageUtil.copyMessageIfValid());
+                commitMessage.setEnabled(true);
             }
         }
 
