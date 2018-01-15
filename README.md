@@ -5,7 +5,6 @@ The plugin shares a common service layer with: https://github.com/MicroFocus/oct
 Common: https://github.com/MicroFocus/octane-plugin-common <br>
 
 Connection to the server is done using the REST SDK for ALM Octane, see: <br>
-* https://github.com/MicroFocus/sdk-extension
 * https://github.com/MicroFocus/ALMOctaneJavaRESTSDK
 
 ### How to build:
