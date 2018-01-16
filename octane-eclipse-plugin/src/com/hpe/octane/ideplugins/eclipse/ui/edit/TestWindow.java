@@ -1,6 +1,7 @@
 package com.hpe.octane.ideplugins.eclipse.ui.edit;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.swt.SWT;
@@ -31,9 +32,11 @@ public class TestWindow {
 
 	protected Shell shell;
 	private EntityModel entityModel;
+	private Map<String, String> prettyFieldsMap;
 
 	/**
 	 * Launch the application.
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -68,76 +71,77 @@ public class TestWindow {
 		shell.setSize(819, 579);
 		shell.setText("SWT Application");
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
+
 		ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setAlwaysShowScrollBars(true);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
-		
+
 		Composite composite = new Composite(scrolledComposite, SWT.NONE);
 		composite.setLayout(new GridLayout(1, true));
-		
+
 		Button btnSave = new Button(composite, SWT.NONE);
+		GridData gd_btnSave = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnSave.widthHint = 164;
+		btnSave.setLayoutData(gd_btnSave);
 		btnSave.setText("Save");
 
-		
 		ConnectionSettings connectionSettings = new ConnectionSettings(
-				"http://jenkins.sync.octane.work:15024", 
-				1001L, 
-				1002L, 
-				"sa@nga", 
+				"http://myd-vm10632.hpeswlab.net:8081", 
+				1001L,
+				1002L,
+				"sa@nga",
 				"Welcome1");
-		
+
 		ServiceModule serviceModule = new ServiceModule(new BasicConnectionSettingProvider(connectionSettings));
-		
+
 		EntityService entityService = serviceModule.getInstance(EntityService.class);
 		MetadataService metaDataService = serviceModule.getInstance(MetadataService.class);
-		Collection<FieldMetadata> fieldMeta = metaDataService.getFields(Entity.WORK_ITEM);
+		Collection<FieldMetadata> fieldMeta = metaDataService.getFields(Entity.USER_STORY);
 		
-		
+
+
 		try {
-			entityModel = entityService.findEntity(Entity.USER_STORY, 1003L);
+			entityModel = entityService.findEntity(Entity.USER_STORY, 1002L);
 		} catch (ServiceException e) {
 			throw new RuntimeException(e);
 		}
-		
-		for(FieldModel fieldModel : entityModel.getValues()) {
+
+		for ( FieldModel fieldModel : entityModel.getValues()) {
 			FieldMetadata fieldMetadata = getMetaForModel(fieldMeta, fieldModel);
-			
-			if(fieldMetadata == null) {
-				System.out.println("WTF " + fieldModel.getName() +  " has no meta");
+
+			if (fieldMetadata == null) {
+				System.out.println("WTF " + fieldModel.getName() + " has no meta");
 			} else {
-				FieldModelEditor fieldModelEditor = new FieldModelEditor(composite, SWT.NONE, entityModel, fieldModel, getMetaForModel(fieldMeta, fieldModel));
+				FieldModelEditor fieldModelEditor = new FieldModelEditor(composite, SWT.NONE, entityModel, fieldModel,
+						getMetaForModel(fieldMeta, fieldModel));
 				fieldModelEditor.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 			}
 		}
-		
+
 		btnSave.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Octane octane = serviceModule.getOctane().getOctane();
-				octane
-					.entityList(Entity.USER_STORY.getApiEntityName())
-					.at("1003")
-					.update()
-					.entity(entityModel)
-					.execute();
+				octane.entityList(Entity.USER_STORY.getApiEntityName()).at("1002").update().entity(entityModel)
+						.execute();
 			}
 		});
-		
+
 		scrolledComposite.setContent(composite);
 		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
-	
+
 	private static FieldMetadata getMetaForModel(Collection<FieldMetadata> metaList, FieldModel fieldModel) {
-		Optional<FieldMetadata> op =  metaList.stream().filter(meta -> meta.getName().equals(fieldModel.getName())).findFirst();
-		if(op.isPresent()) {
+		Optional<FieldMetadata> op = metaList.stream().filter(meta -> meta.getName().equals(fieldModel.getName()))
+				.findFirst();
+		if (op.isPresent()) {
 			return op.get();
 		} else {
 			System.err.println(fieldModel.getName() + " has no meta");
 			return null;
 		}
-		
+
 	}
-	
+
 }

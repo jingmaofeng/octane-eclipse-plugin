@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -71,6 +72,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.EntityCommentComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
+import com.hpe.octane.ideplugins.eclipse.ui.edit.FieldModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.ChangePhaseJob;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetEntityDetailsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
@@ -114,8 +116,6 @@ public class EntityModelEditor extends EditorPart {
     private FieldModel currentPhase;
     private EntityModel selectedPhase;
     private Collection<EntityModel> possibleTransitions;
-
-    private Map<String, String> prettyFieldsMap;
 
     private boolean shouldShowPhase;
     private GetEntityDetailsJob getEntiyJob;
@@ -375,10 +375,8 @@ public class EntityModelEditor extends EditorPart {
             btnFields.setImage(ImageResources.FIELDS_ON.getImage());
         }
 
-        // make a map of the field names and labels
-        Collection<FieldMetadata> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
-        allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
-        prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
+        Collection<FieldMetadata> fieldMetadata = metadataService.getFields(Entity.getEntityType(entityModel));
+        fieldMetadata.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
 
         // The label providers controls the label text for each entry in the
         // combo box
@@ -389,11 +387,11 @@ public class EntityModelEditor extends EditorPart {
         MultiSelectComboBox<String> fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
             @Override
             public String getText(Object fieldName) {
-                return prettyFieldsMap.get(fieldName);
+                return fieldMetadata.stream().filter(meta -> meta.getName().equals(fieldName)).findFirst().get().getLabel();
             }
         });
 
-        fieldCombo.addAll(prettyFieldsMap.keySet());
+        fieldCombo.addAll(fieldMetadata.stream().map(meta -> meta.getName()).collect(Collectors.toList()));
 
         btnFields.addListener(SWT.Selection, event -> {
             fieldCombo.showFloatShell(btnFields);
@@ -464,6 +462,63 @@ public class EntityModelEditor extends EditorPart {
         return section;
     }
 
+//    private void drawEntityFields(Composite parent, Set<String> shownFields) {
+//        Arrays.stream(parent.getChildren())
+//                .filter(child -> child != null)
+//                .filter(child -> !child.isDisposed())
+//                .forEach(child -> child.dispose());
+//
+//        parent.setLayout(new FillLayout(SWT.HORIZONTAL));
+//        Composite sectionClientLeft = new Composite(parent, SWT.NONE);
+//        sectionClientLeft.setLayout(new GridLayout(2, false));
+//        sectionClientLeft.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+//        Composite sectionClientRight = new Composite(parent, SWT.NONE);
+//        sectionClientRight.setLayout(new GridLayout(2, false));
+//        sectionClientRight.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+//
+//        // Skip the description fields as it's set into another ui component
+//        // below this one
+//        shownFields.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
+//
+//        Iterator<String> iterator = shownFields.iterator();
+//
+//        for (int i = 0; i < shownFields.size(); i++) {
+//            String fieldName = iterator.next();
+//            String fielValue;
+//            if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
+//                    || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
+//                    || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
+//                    || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
+//                fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName),
+//                        EntityFieldsConstants.FIELD_FULL_NAME);
+//            } else {
+//                fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
+//            }
+//
+//            // Determine if we put the label pair in the left or right container
+//            Composite columnComposite;
+//            if (i % 2 == 0) {
+//                columnComposite = sectionClientLeft;
+//            } else {
+//                columnComposite = sectionClientRight;
+//            }
+//
+//            // Add the pair of labels for field and value
+//            CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
+//            labelFieldName.setText(prettyFieldsMap.get(fieldName));
+//
+//            labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
+//
+//            labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER,
+//                    false, false, 1, 1));
+//
+//            TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE, truncatedLabelTooltip);
+//            labelValue.setText(fielValue);
+//            labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+//            labelValue.setForeground(foregroundColor);
+//        }
+//    }
+    
     private void drawEntityFields(Composite parent, Set<String> shownFields) {
         Arrays.stream(parent.getChildren())
                 .filter(child -> child != null)
@@ -478,24 +533,44 @@ public class EntityModelEditor extends EditorPart {
         sectionClientRight.setLayout(new GridLayout(2, false));
         sectionClientRight.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-        // Skip the description fields as it's set into another ui component
+        // Skip the description fields as it's set into another UI component
         // below this one
         shownFields.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
+        
+        Collection<FieldMetadata> fieldMetadataList = metadataService.getFields(Entity.getEntityType(entityModel));
+        fieldMetadataList.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
 
         Iterator<String> iterator = shownFields.iterator();
 
         for (int i = 0; i < shownFields.size(); i++) {
             String fieldName = iterator.next();
-            String fielValue;
-            if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
-                    || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
-                    || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
-                    || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
-                fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName),
-                        EntityFieldsConstants.FIELD_FULL_NAME);
-            } else {
-                fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
+            FieldModel fieldModel = entityModel.getValue(fieldName);
+            
+            if(fieldModel == null) {
+            	System.out.println("field  " + shownFields + " not in entity");
+            	continue;
             }
+            
+            System.out.println("draw " + fieldModel.getName());
+            
+            FieldMetadata fieldMetadata;
+        	Optional<FieldMetadata> op = fieldMetadataList.stream().filter(meta -> fieldModel.getName().equals(meta.getName())).findFirst();
+        	if(op.isPresent()) {
+        		fieldMetadata = op.get();
+        	} else {
+        		continue;
+        	}
+            
+//            String fielValue;
+//            if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
+//                    || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
+//                    || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
+//                    || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
+//                fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName),
+//                        EntityFieldsConstants.FIELD_FULL_NAME);
+//            } else {
+//                fielValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
+//            }
 
             // Determine if we put the label pair in the left or right container
             Composite columnComposite;
@@ -507,21 +582,25 @@ public class EntityModelEditor extends EditorPart {
 
             // Add the pair of labels for field and value
             CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
-            labelFieldName.setText(prettyFieldsMap.get(fieldName));
-
+            labelFieldName.setText(fieldMetadata.getLabel());
             labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
-
             labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER,
                     false, false, 1, 1));
+            
+            FieldModelEditor fieldModelEditor = new FieldModelEditor(columnComposite, SWT.NONE, entityModel, fieldModel, fieldMetadata);
+            fieldModelEditor.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+            fieldModelEditor.setForeground(foregroundColor);
 
-            TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE, truncatedLabelTooltip);
-            labelValue.setText(fielValue);
-            labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-            // labelValue.setForeground(foregroundColor);
+//            TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE, truncatedLabelTooltip);
+//            labelValue.setText(fielValue);
+//            labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+//            labelValue.setForeground(foregroundColor);
         }
     }
+    
 
-    private void drawEntityFields(Composite parent) {
+
+	private void drawEntityFields(Composite parent) {
         Set<String> shownFields = PluginPreferenceStorage.getShownEntityFields(input.getEntityType());
         drawEntityFields(parent, shownFields);
     }
