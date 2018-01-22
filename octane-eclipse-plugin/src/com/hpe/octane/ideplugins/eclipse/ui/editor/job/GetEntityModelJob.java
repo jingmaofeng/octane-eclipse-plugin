@@ -17,45 +17,48 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.hpe.adm.nga.sdk.exception.OctaneException;
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
-public class ChangePhaseJob extends Job {
-    private EntityModel selectedPhase;
-    private EntityModel openedEntity;
-    private EntityService entityService = Activator.getInstance(EntityService.class);
-    private boolean wasChanged = false;
-    private String errorMessage;
+public class GetEntityModelJob extends Job {
 
-    public ChangePhaseJob(String name, EntityModel openedEntity, EntityModel selectedPhase) {
+    private long entityId;
+    private Entity entityType;
+
+    private boolean wasEntityRetrived = false;
+
+    private EntityModel retrivedEntity;    
+
+    private EntityService entityService = Activator.getInstance(EntityService.class);
+
+    public GetEntityModelJob(String name, Entity entityType, long entityId) {
         super(name);
-        this.selectedPhase = selectedPhase;
-        this.openedEntity = openedEntity;
+        this.entityType = entityType;
+        this.entityId = entityId;
     }
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
-            entityService.updateEntityPhase(openedEntity, (ReferenceFieldModel) selectedPhase.getValue("target_phase"));
-            wasChanged = true;
-        } catch (OctaneException ex) {
-            wasChanged = false;
-            errorMessage = ex.getMessage();
+            retrivedEntity = entityService.findEntity(this.entityType, this.entityId);
+            wasEntityRetrived = true;
+        } catch (ServiceException ignored) {
+            wasEntityRetrived = false;
         }
         monitor.done();
         return Status.OK_STATUS;
     }
 
-    public boolean isPhaseChanged() {
-        return wasChanged;
+    public boolean wasEntityRetrived() {
+        return wasEntityRetrived;
     }
 
-    public String getFailedReason() {
-        return errorMessage;
+    public EntityModel getEntiyData() {
+        return retrivedEntity;
     }
 
 }

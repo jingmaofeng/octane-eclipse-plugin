@@ -68,7 +68,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="com.hpe.octane.ideplugins.eclipse.ui.editor2.EntityModelEditorNew"
+            class="com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor"
             id="com.hpe.octane.ideplugins.eclipse.ui.editor2.EntityModelEditorNew"
             name="EntityModelEditorNew">
       </editor>

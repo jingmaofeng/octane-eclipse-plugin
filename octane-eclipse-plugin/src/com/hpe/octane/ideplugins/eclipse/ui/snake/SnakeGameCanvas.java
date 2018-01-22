@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.ui.editor.snake;
+package com.hpe.octane.ideplugins.eclipse.ui.snake;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
