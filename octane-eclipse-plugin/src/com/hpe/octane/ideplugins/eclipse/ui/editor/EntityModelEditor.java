@@ -38,6 +38,8 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class EntityModelEditor extends EditorPart {
+	public EntityModelEditor() {
+	}
 	
     private static final EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
 
@@ -88,7 +90,7 @@ public class EntityModelEditor extends EditorPart {
         	
             @Override
             public void scheduled(IJobChangeEvent event) {
-                //Display.getDefault().asyncExec(() -> rootComposite.showControl(loadingComposite));
+                Display.getDefault().asyncExec(() -> rootComposite.showControl(loadingComposite));
             }
                        
             @Override

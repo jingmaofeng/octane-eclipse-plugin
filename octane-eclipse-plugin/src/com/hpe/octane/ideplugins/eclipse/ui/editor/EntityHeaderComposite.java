@@ -82,8 +82,10 @@ public class EntityHeaderComposite extends Composite {
 		linkEntityName.setText("ENTITY_NAME");
 
 		phaseComposite = new Composite(this, SWT.NONE);
-		phaseComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		phaseComposite.setLayout(new GridLayout(4, false));
+		GridData phaseButtons = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+		phaseButtons.grabExcessVerticalSpace = true;
+		phaseComposite.setLayoutData(phaseButtons);
+		phaseComposite.setLayout(new GridLayout(5, false));
 
 		Label lblPhase = new Label(phaseComposite, SWT.NONE);
 		lblPhase.setText("Phase:");
@@ -96,7 +98,6 @@ public class EntityHeaderComposite extends Composite {
 		lblMoveTo.setText("Move to:");
 
 		nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(phaseComposite);
-		new Label(phaseComposite, SWT.NONE);
 		nextPhasesComboBox.setLabelProvider(new CustomEntityComboBoxLabelProvider<EntityModel>() {
 			@Override
 			public String getSelectedLabel(EntityModel entityModelElement) {
@@ -109,6 +110,7 @@ public class EntityHeaderComposite extends Composite {
 		});
 		nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
 		nextPhasesComboBox.selectFirstItem();
+		
 
 		btnSave = new Button(this, SWT.NONE);
 		btnSave.setToolTipText(TOOLTIP_PHASE);
@@ -117,6 +119,7 @@ public class EntityHeaderComposite extends Composite {
 		btnRefresh = new Button(this, SWT.NONE);
 		btnRefresh.setImage(ImageResources.REFRESH_16X16.getImage());
 		btnRefresh.setToolTipText(TOOLTIP_REFRESH);
+
 	}
 
 	public void setEntityModel(EntityModel entityModel) {
@@ -141,6 +144,7 @@ public class EntityHeaderComposite extends Composite {
         				nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));	
     					nextPhasesComboBox.selectFirstItem();
     					setChildVisibility(phaseComposite, true);
+    					
                 	});
 				}
 			});

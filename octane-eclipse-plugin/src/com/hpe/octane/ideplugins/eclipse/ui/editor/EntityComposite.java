@@ -12,6 +12,10 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.EntityCommentComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.custom.StackLayout;
 
 public class EntityComposite extends Composite {
 	
@@ -34,14 +38,15 @@ public class EntityComposite extends Composite {
 		entityHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		
 		fieldsComposite = new Composite(this, SWT.NONE);
-		fieldsComposite.setLayout(new GridLayout(2, true));
-		fieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		fieldsComposite.setLayout(new GridLayout(2, false));
+		fieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
-		Label lblNewLabel = new Label(fieldsComposite, SWT.NONE);
+		Label lblNewLabel = new Label(fieldsComposite, SWT.CENTER);
+		lblNewLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		lblNewLabel.setText("New Label");
 		
-		Label lblNewLabel_1 = new Label(fieldsComposite, SWT.NONE);
-		lblNewLabel_1.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		Label lblNewLabel_1 = new Label(fieldsComposite, SWT.CENTER);
+		lblNewLabel_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		lblNewLabel_1.setText("New Label");
 		
 		browser = new Browser(fieldsComposite, SWT.NONE);
@@ -49,7 +54,12 @@ public class EntityComposite extends Composite {
 		browser.setUrl("http://google.com");
 		
 		entityCommentComposite = new EntityCommentComposite(this, SWT.NONE);
-		entityCommentComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+		GridData gd_entityCommentComposite = new GridData(300, SWT.CENTER);
+		gd_entityCommentComposite.verticalAlignment = SWT.FILL;
+		gd_entityCommentComposite.grabExcessVerticalSpace = true;
+		gd_entityCommentComposite.grabExcessHorizontalSpace = false;
+		entityCommentComposite.setLayoutData(gd_entityCommentComposite);
+		
 	}
 	
 	public void setEntityModel(EntityModel entityModel) {
