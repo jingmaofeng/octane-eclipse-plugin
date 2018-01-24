@@ -40,6 +40,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 public class EntityModelEditor extends EditorPart {
 	public EntityModelEditor() {
 	}
+	private boolean omgPleaseWorkThisWay = false;
 	
     private static final EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
 
@@ -101,7 +102,12 @@ public class EntityModelEditor extends EditorPart {
                 	Display.getDefault().asyncExec(() -> {
                 		entityComposite.setEntityModel(entityModel);
                 		rootComposite.showControl(entityComposite);
-                	});    
+                	});   
+                if (!omgPleaseWorkThisWay) {
+                	getEntityDetailsJob.schedule(); 
+                	omgPleaseWorkThisWay = true;
+                	               	
+                }
                 } else {
                 	Display.getDefault().asyncExec(() -> {
 //                    	errorLabel.setText(getEntityDetailsJob.wasEntityRetrived().getMessage());

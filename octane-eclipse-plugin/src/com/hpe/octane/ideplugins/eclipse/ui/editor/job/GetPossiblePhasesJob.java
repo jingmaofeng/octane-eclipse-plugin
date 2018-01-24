@@ -50,14 +50,14 @@ public class GetPossiblePhasesJob extends Job {
 		FieldModel currentPhase = entityModel.getValue(EntityFieldsConstants.FIELD_PHASE);
         String currentPhaseId = Util.getUiDataFromModel(currentPhase, EntityFieldsConstants.FIELD_ID);
         possibleTransitions = entityService.findPossibleTransitionFromCurrentPhase(Entity.getEntityType(entityModel), currentPhaseId);
-        if (possibleTransitions.isEmpty()) {
-        	possibleTransitions.add(new EntityModel("target_phase","No transition"));
-        }
         monitor.done();
         return Status.OK_STATUS;
     }
 
 	public Collection<EntityModel> getPossibleTransitions() {
+		if (possibleTransitions.isEmpty()) {
+			possibleTransitions.add(new EntityModel("target_phase", "No transition"));
+		}
 		return possibleTransitions;
 	}
 	

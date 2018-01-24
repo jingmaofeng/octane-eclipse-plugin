@@ -6,6 +6,8 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
@@ -43,10 +45,10 @@ public class EntityHeaderComposite extends Composite {
 	private static final String TOOLTIP_PHASE_COMBO = "Available entity phases";
 
 	private ToolTip truncatedLabelTooltip;
-	
+
 	private Label lblEntityIcon;
 	private TruncatingStyledText linkEntityName;
-	
+
 	private EntityModel entityModel;
 
 	private Composite phaseComposite;
@@ -63,7 +65,7 @@ public class EntityHeaderComposite extends Composite {
 	 */
 	public EntityHeaderComposite(Composite parent, int style) {
 		super(parent, style);
-		setLayout(new GridLayout(5, false));
+		setLayout(new GridLayout(3, false));
 
 		Font boldFont = new Font(getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
 
@@ -82,19 +84,23 @@ public class EntityHeaderComposite extends Composite {
 		linkEntityName.setText("ENTITY_NAME");
 
 		phaseComposite = new Composite(this, SWT.NONE);
-		GridData phaseButtons = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+		phaseComposite.setLayout(new GridLayout(6, false));
+		GridData phaseButtons = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		phaseButtons.grabExcessVerticalSpace = true;
 		phaseComposite.setLayoutData(phaseButtons);
-		phaseComposite.setLayout(new GridLayout(5, false));
 
 		Label lblPhase = new Label(phaseComposite, SWT.NONE);
+		lblPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		lblPhase.setAlignment(SWT.CENTER);
 		lblPhase.setText("Phase:");
 
 		lblCurrentPhase = new Label(phaseComposite, SWT.NONE);
+		lblCurrentPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		lblCurrentPhase.setFont(SWTResourceManager.getBoldFont(lblPhase.getFont()));
 		lblCurrentPhase.setText("CURRENT_PHASE");
 
 		Label lblMoveTo = new Label(phaseComposite, SWT.NONE);
+		lblMoveTo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		lblMoveTo.setText("Move to:");
 
 		nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(phaseComposite);
@@ -110,47 +116,46 @@ public class EntityHeaderComposite extends Composite {
 		});
 		nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
 		nextPhasesComboBox.selectFirstItem();
-		
 
-		btnSave = new Button(this, SWT.NONE);
+		btnSave = new Button(phaseComposite, SWT.NONE);
+		btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnSave.setToolTipText(TOOLTIP_PHASE);
 		btnSave.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
 
-		btnRefresh = new Button(this, SWT.NONE);
+		btnRefresh = new Button(phaseComposite, SWT.NONE);
+		btnRefresh.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnRefresh.setImage(ImageResources.REFRESH_16X16.getImage());
 		btnRefresh.setToolTipText(TOOLTIP_REFRESH);
 
 	}
 
 	public void setEntityModel(EntityModel entityModel) {
-		this.entityModel = entityModel;		
+		this.entityModel = entityModel;
 		lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
 		linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
 		showOrHidePhase(entityModel);
 	}
 
 	private void showOrHidePhase(EntityModel entityModel) {
-		if(GetPossiblePhasesJob.hasPhases(Entity.getEntityType(entityModel))) {
-			
-            String currentPhaseName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_PHASE));
-            lblCurrentPhase.setText(currentPhaseName);
+		if (GetPossiblePhasesJob.hasPhases(Entity.getEntityType(entityModel))) {
+			String currentPhaseName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_PHASE));
+			lblCurrentPhase.setText(currentPhaseName);
 
 			//load possible phases
 			GetPossiblePhasesJob getPossiblePhasesJob = new GetPossiblePhasesJob("Loading possible phases", entityModel);
 			getPossiblePhasesJob.addJobChangeListener(new JobChangeAdapter() {
 				@Override
-				public void done(IJobChangeEvent event) {      	
-                	Display.getDefault().asyncExec(() -> {
-        				nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));	
-    					nextPhasesComboBox.selectFirstItem();
-    					setChildVisibility(phaseComposite, true);
-    					
-                	});
+				public void done(IJobChangeEvent event) {
+					Display.getDefault().asyncExec(() -> {
+						nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));
+						nextPhasesComboBox.selectFirstItem();
+						setChildVisibility(phaseComposite, true);
+					});
 				}
 			});
 			getPossiblePhasesJob.schedule();
 
-		} else {						
+		} else {
 			setChildVisibility(phaseComposite, false);
 		}
 	}
@@ -158,13 +163,13 @@ public class EntityHeaderComposite extends Composite {
 	private void setChildVisibility(Control control, boolean isVisible) {
 		control.setVisible(isVisible);
 	}
-	
+
 	public void addSaveSelectionListener(Listener listener) {
 		btnSave.addListener(SWT.Selection, listener);
 	}
-	
+
 	public void addRefreshSelectionListener(Listener listener) {
 		btnRefresh.addListener(SWT.Selection, listener);
 	}
-	
+
 }
