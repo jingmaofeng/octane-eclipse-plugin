@@ -38,9 +38,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class EntityModelEditor extends EditorPart {
-	public EntityModelEditor() {
-	}
-	private boolean omgPleaseWorkThisWay = false;
 	
     private static final EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
 
@@ -91,7 +88,7 @@ public class EntityModelEditor extends EditorPart {
         	
             @Override
             public void scheduled(IJobChangeEvent event) {
-                Display.getDefault().asyncExec(() -> rootComposite.showControl(loadingComposite));
+                //Display.getDefault().asyncExec(() -> rootComposite.showControl(loadingComposite));
             }
                        
             @Override
@@ -103,11 +100,6 @@ public class EntityModelEditor extends EditorPart {
                 		entityComposite.setEntityModel(entityModel);
                 		rootComposite.showControl(entityComposite);
                 	});   
-                if (!omgPleaseWorkThisWay) {
-                	getEntityDetailsJob.schedule(); 
-                	omgPleaseWorkThisWay = true;
-                	               	
-                }
                 } else {
                 	Display.getDefault().asyncExec(() -> {
 //                    	errorLabel.setText(getEntityDetailsJob.wasEntityRetrived().getMessage());

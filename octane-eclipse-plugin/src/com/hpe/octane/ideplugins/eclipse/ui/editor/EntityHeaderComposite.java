@@ -88,6 +88,7 @@ public class EntityHeaderComposite extends Composite {
 		GridData phaseButtons = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		phaseButtons.grabExcessVerticalSpace = true;
 		phaseComposite.setLayoutData(phaseButtons);
+		setChildVisibility(phaseComposite, false); //shown after phases are fetched
 
 		Label lblPhase = new Label(phaseComposite, SWT.NONE);
 		lblPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -150,6 +151,11 @@ public class EntityHeaderComposite extends Composite {
 						nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));
 						nextPhasesComboBox.selectFirstItem();
 						setChildVisibility(phaseComposite, true);
+						
+						//Force redraw header
+						layout(true, true);
+				        redraw();
+				        update();
 					});
 				}
 			});
