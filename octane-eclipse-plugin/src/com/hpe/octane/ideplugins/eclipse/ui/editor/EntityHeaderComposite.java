@@ -6,8 +6,6 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
@@ -43,6 +41,7 @@ public class EntityHeaderComposite extends Composite {
 	private static final String TOOLTIP_REFRESH = "Refresh entity details";
 	private static final String TOOLTIP_PHASE = "Save changes to entity phase";
 	private static final String TOOLTIP_PHASE_COMBO = "Available entity phases";
+	private static final String TOOLTIP_FIELDS = "Customize fields to be shown";
 
 	private ToolTip truncatedLabelTooltip;
 
@@ -50,6 +49,7 @@ public class EntityHeaderComposite extends Composite {
 	private TruncatingStyledText linkEntityName;
 
 	private EntityModel entityModel;
+	private EntityModelEditorInput EMInput;
 
 	private Composite phaseComposite;
 	private CustomEntityComboBox<EntityModel> nextPhasesComboBox;
@@ -57,6 +57,7 @@ public class EntityHeaderComposite extends Composite {
 
 	private Button btnRefresh;
 	private Button btnSave;
+	private Button btnFields;
 
 	/**
 	 * Create the composite.
@@ -65,7 +66,7 @@ public class EntityHeaderComposite extends Composite {
 	 */
 	public EntityHeaderComposite(Composite parent, int style) {
 		super(parent, style);
-		setLayout(new GridLayout(3, false));
+		setLayout(new GridLayout(7, false));
 
 		Font boldFont = new Font(getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
 
@@ -84,7 +85,8 @@ public class EntityHeaderComposite extends Composite {
 		linkEntityName.setText("ENTITY_NAME");
 
 		phaseComposite = new Composite(this, SWT.NONE);
-		phaseComposite.setLayout(new GridLayout(6, false));
+		phaseComposite.setLayout(new GridLayout(4, false));
+		
 		GridData phaseButtons = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		phaseButtons.grabExcessVerticalSpace = true;
 		phaseComposite.setLayoutData(phaseButtons);
@@ -117,16 +119,27 @@ public class EntityHeaderComposite extends Composite {
 		});
 		nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
 		nextPhasesComboBox.selectFirstItem();
-
-		btnSave = new Button(phaseComposite, SWT.NONE);
+		
+		btnSave = new Button(this, SWT.NONE);
 		btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnSave.setToolTipText(TOOLTIP_PHASE);
 		btnSave.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
 
-		btnRefresh = new Button(phaseComposite, SWT.NONE);
+		btnRefresh = new Button(this, SWT.NONE);
 		btnRefresh.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnRefresh.setImage(ImageResources.REFRESH_16X16.getImage());
 		btnRefresh.setToolTipText(TOOLTIP_REFRESH);
+
+		btnFields = new Button(this, SWT.NONE);
+		btnFields.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		btnFields.setToolTipText(TOOLTIP_FIELDS);
+		// if
+		// (PluginPreferenceStorage.areShownEntityFieldsDefaults(EMInput.getEntityType()))
+		btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
+		// else {
+		btnFields.setImage(ImageResources.FIELDS_ON.getImage());
+		// }
+		
 
 	}
 
