@@ -38,12 +38,12 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class EntityModelEditor extends EditorPart {
-
+	
     private static final EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
 
 	public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.editor2.EntityModelEditorNew"; //$NON-NLS-1$
 	public EntityModelEditorInput input;
-
+	
 	private EntityComposite entityComposite;
 	private Label errorLabel;
 	private LoadingComposite loadingComposite;
@@ -51,45 +51,44 @@ public class EntityModelEditor extends EditorPart {
 	private EntityModel entityModel;
 
 	private GetEntityModelJob getEntityDetailsJob;
-
+	
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-
+	    
 		if (!(input instanceof EntityModelEditorInput)) {
-			throw new RuntimeException("Wrong input");
-		}
-		this.input = (EntityModelEditorInput) input;
-
-		setSite(site);
+            throw new RuntimeException("Wrong input");
+        }
+	    this.input = (EntityModelEditorInput) input;
+		
+	    setSite(site);
 		setInput(input);
-
-		setPartName(String.valueOf(this.input.getId()));
-		setTitleImage(entityIconFactoryForTabInfo.getImageIcon(this.input.getEntityType()));
+		
+        setPartName(String.valueOf(this.input.getId()));
+        setTitleImage(entityIconFactoryForTabInfo.getImageIcon(this.input.getEntityType()));
 	}
-
+	
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout(SWT.HORIZONTAL));
-
+		
 		rootComposite = new StackLayoutComposite(parent, SWT.NONE);
-
+		
 		loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
-
-		errorLabel = new Label(rootComposite, SWT.NONE);
-		errorLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
-
+		
+     	errorLabel = new Label(rootComposite, SWT.NONE);
+    	errorLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
+		
 		entityComposite = new EntityComposite(rootComposite, SWT.NONE);
-		entityComposite.setLayout(new GridLayout(2, false));
-
+		entityComposite.setLayout(new GridLayout(2, false));		
+	
 		rootComposite.showControl(entityComposite);
-
 		
         getEntityDetailsJob = new GetEntityModelJob("Retrieving entity details", input.getEntityType(), input.getId());
         getEntityDetailsJob.addJobChangeListener(new JobChangeAdapter() {
         	
             @Override
             public void scheduled(IJobChangeEvent event) {
-//                Display.getDefault().asyncExec(() -> rootComposite.showControl(loadingComposite));
+                //Display.getDefault().asyncExec(() -> rootComposite.showControl(loadingComposite));
             }
                        
             @Override
@@ -127,51 +126,6 @@ public class EntityModelEditor extends EditorPart {
      		}); 
         
         getEntityDetailsJob.schedule();
-
-		getEntityDetailsJob = new GetEntityModelJob("Retrieving entity details", input.getEntityType(), input.getId());
-		getEntityDetailsJob.addJobChangeListener(new JobChangeAdapter() {
-
-			@Override
-			public void scheduled(IJobChangeEvent event) {
-				Display.getDefault().asyncExec(() -> rootComposite.showControl(loadingComposite));
-			}
-
-			@Override
-			public void done(IJobChangeEvent event) {
-				if (getEntityDetailsJob.wasEntityRetrived()) {
-					EntityModelEditor.this.entityModel = getEntityDetailsJob.getEntiyData();
-
-					Display.getDefault().asyncExec(() -> {
-						entityComposite.setEntityModel(entityModel);
-						rootComposite.showControl(entityComposite);
-					});
-				} else {
-					Display.getDefault().asyncExec(() -> {
-						// errorLabel.setText(getEntityDetailsJob.wasEntityRetrived().getMessage());
-						// rootComposite.showControl(errorLabel);
-					});
-				}
-			}
-		});
-
-		entityComposite.addRefreshSelectionListener(event -> getEntityDetailsJob.schedule());
-
-		entityComposite.addSaveSelectionListener(new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + Entity.getEntityType(entityModel),
-						entityModel);
-				updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
-					@Override
-					public void done(IJobChangeEvent event) {
-						getEntityDetailsJob.schedule();
-					}
-				});
-				updateEntityJob.schedule();
-			}
-		});
-
-		getEntityDetailsJob.schedule();
 	}
 
 	@Override

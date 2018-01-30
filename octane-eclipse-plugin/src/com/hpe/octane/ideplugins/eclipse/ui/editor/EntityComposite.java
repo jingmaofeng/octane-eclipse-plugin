@@ -40,35 +40,31 @@ public class EntityComposite extends Composite {
 		entityHeaderComposite = new EntityHeaderComposite(this, SWT.NONE);
 		entityHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		
-		entityFieldsComposite = new EntityFieldsView(this, SWT.NONE);
-		GridData gd_entityFieldsComposite = new GridData(SWT.FILL, SWT.FILL);
-		gd_entityFieldsComposite.verticalAlignment = SWT.FILL;
-		gd_entityFieldsComposite.grabExcessVerticalSpace = true;
-		gd_entityFieldsComposite.grabExcessHorizontalSpace = false;
-		entityFieldsComposite.setLayoutData(gd_entityFieldsComposite);
+//		entityFieldsComposite = new EntityFieldsView(this, SWT.NONE);
+//		GridData gd_entityFieldsComposite = new GridData(SWT.FILL, SWT.FILL);
+//		gd_entityFieldsComposite.verticalAlignment = SWT.FILL;
+//		gd_entityFieldsComposite.grabExcessVerticalSpace = true;
+//		gd_entityFieldsComposite.grabExcessHorizontalSpace = false;
+//		entityFieldsComposite.setLayoutData(gd_entityFieldsComposite);
 		
 		entityFieldsComposite = new EntityFieldsComposite(this, SWT.NONE);
 		entityFieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-		entityFieldsComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		entityFieldsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		
-		
 		
 //		fieldsComposite = new Composite(this, SWT.NONE);
 //		fieldsComposite.setLayout(new GridLayout(2, false));
 //		fieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		Label lblNewLabel = new Label(fieldsComposite, SWT.CENTER);
-		lblNewLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		lblNewLabel.setText("New Label");
-		
-		Label lblNewLabel_1 = new Label(fieldsComposite, SWT.CENTER);
-		lblNewLabel_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		lblNewLabel_1.setText("New Label");
-		
-		browser = new Browser(fieldsComposite, SWT.NONE);
-		browser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-		browser.setUrl("http://google.com");
+//		
+//		Label lblNewLabel = new Label(fieldsComposite, SWT.CENTER);
+//		lblNewLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+//		lblNewLabel.setText("New Label");
+//		
+//		Label lblNewLabel_1 = new Label(fieldsComposite, SWT.CENTER);
+//		lblNewLabel_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+//		lblNewLabel_1.setText("New Label");
+//		
+//		browser = new Browser(fieldsComposite, SWT.NONE);
+//		browser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+//		browser.setUrl("http://google.com");
 		
 		entityCommentComposite = new EntityCommentComposite(this, SWT.NONE);
 		GridData gd_entityCommentComposite = new GridData(300, SWT.CENTER);
@@ -84,6 +80,9 @@ public class EntityComposite extends Composite {
 
 		entityHeaderComposite.setEntityModel(entityModel);
 		showOrHideComments(entityModel);
+		
+		entityFieldsComposite.createFieldsSection(entityModel);
+		entityFieldsComposite.createDescriptionFormSection(entityModel);
 	}
 	
 	private void showOrHideComments(EntityModel entityModel) {

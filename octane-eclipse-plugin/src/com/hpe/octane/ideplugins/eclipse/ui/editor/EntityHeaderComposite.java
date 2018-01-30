@@ -49,7 +49,6 @@ public class EntityHeaderComposite extends Composite {
 	private TruncatingStyledText linkEntityName;
 
 	private EntityModel entityModel;
-	private EntityModelEditorInput EMInput;
 
 	private Composite phaseComposite;
 	private CustomEntityComboBox<EntityModel> nextPhasesComboBox;
