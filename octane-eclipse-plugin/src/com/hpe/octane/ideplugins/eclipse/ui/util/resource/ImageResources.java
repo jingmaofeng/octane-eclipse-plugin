@@ -46,7 +46,7 @@ public enum ImageResources {
 	SEARCH("search.png"),
 	START_TIMER_16X16("startTimer-16x16.png"),
 	STOP_TIMER_16X16("stopTimer-16x16.png"),
-	UNIDRAG_SMALL_SAD("unidrag-small-sad.png"),
+	NO_ITEMS_TO_DISPLAY_ROBOT("s-no-items-to-display.png"),
 	UNIDRAG_SMALL("unidrag-small.png"),
 	ROCKET("s-rocket.png"),
 	NO_RESULTS_ROBOT("s-no-items-to-display.png");
