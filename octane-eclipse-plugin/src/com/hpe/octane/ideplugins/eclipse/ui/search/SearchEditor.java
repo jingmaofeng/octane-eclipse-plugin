@@ -56,6 +56,7 @@ public class SearchEditor extends EditorPart {
             Entity.EPIC,
             Entity.FEATURE,
             Entity.USER_STORY,
+            Entity.QUALITY_STORY,
             Entity.DEFECT,
             Entity.TASK,
             Entity.TEST_SUITE,
