@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>com.hpe.adm.octane.ideplugins</groupId>
 			<artifactId>octane-plugin-common</artifactId>
-			<version>1.5.1-SNAPSHOT</version>
+			<version>1.5.1</version>
 		</dependency>
 	</dependencies>
 
