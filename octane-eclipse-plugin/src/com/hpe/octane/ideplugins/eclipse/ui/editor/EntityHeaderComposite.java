@@ -1,11 +1,19 @@
 package com.hpe.octane.ideplugins.eclipse.ui.editor;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
@@ -13,6 +21,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -20,18 +29,24 @@ import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.MetadataService;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
+import com.hpe.adm.octane.ideplugins.services.util.DefaultEntityFieldsUtil;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetPossiblePhasesJob;
+import com.hpe.octane.ideplugins.eclipse.ui.util.MultiSelectComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.util.DelayedRunnable;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityHeaderComposite extends Composite {
@@ -42,6 +57,10 @@ public class EntityHeaderComposite extends Composite {
 	private static final String TOOLTIP_PHASE = "Save changes to entity phase";
 	private static final String TOOLTIP_PHASE_COMBO = "Available entity phases";
 	private static final String TOOLTIP_FIELDS = "Customize fields to be shown";
+
+	private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
+	private Map<String, String> prettyFieldsMap;
+	private static final Map<Entity, Set<String>> defaultFields = DefaultEntityFieldsUtil.getDefaultFields();
 
 	private ToolTip truncatedLabelTooltip;
 
@@ -60,6 +79,7 @@ public class EntityHeaderComposite extends Composite {
 
 	/**
 	 * Create the composite.
+	 * 
 	 * @param parent
 	 * @param style
 	 */
@@ -77,7 +97,8 @@ public class EntityHeaderComposite extends Composite {
 		linkEntityName = new TruncatingStyledText(this, SWT.NONE, truncatedLabelTooltip);
 		linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		linkEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		linkEntityName.addListener(SWT.MouseDown, event -> Activator.getInstance(EntityService.class).openInBrowser(entityModel));
+		linkEntityName.addListener(SWT.MouseDown,
+				event -> Activator.getInstance(EntityService.class).openInBrowser(entityModel));
 
 		linkEntityName.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
 		linkEntityName.setFont(boldFont);
@@ -85,11 +106,11 @@ public class EntityHeaderComposite extends Composite {
 
 		phaseComposite = new Composite(this, SWT.NONE);
 		phaseComposite.setLayout(new GridLayout(4, false));
-		
+
 		GridData phaseButtons = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		phaseButtons.grabExcessVerticalSpace = true;
 		phaseComposite.setLayoutData(phaseButtons);
-		setChildVisibility(phaseComposite, false); //shown after phases are fetched
+		setChildVisibility(phaseComposite, false); // shown after phases are fetched
 
 		Label lblPhase = new Label(phaseComposite, SWT.NONE);
 		lblPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -111,6 +132,7 @@ public class EntityHeaderComposite extends Composite {
 			public String getSelectedLabel(EntityModel entityModelElement) {
 				return Util.getUiDataFromModel(entityModelElement.getValue("target_phase"), "name");
 			}
+
 			@Override
 			public String getListLabel(EntityModel entityModelElement) {
 				return Util.getUiDataFromModel(entityModelElement.getValue("target_phase"), "name");
@@ -118,7 +140,7 @@ public class EntityHeaderComposite extends Composite {
 		});
 		nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
 		nextPhasesComboBox.selectFirstItem();
-		
+
 		btnSave = new Button(this, SWT.NONE);
 		btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnSave.setToolTipText(TOOLTIP_PHASE);
@@ -132,14 +154,7 @@ public class EntityHeaderComposite extends Composite {
 		btnFields = new Button(this, SWT.NONE);
 		btnFields.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnFields.setToolTipText(TOOLTIP_FIELDS);
-		// if
-		// (PluginPreferenceStorage.areShownEntityFieldsDefaults(EMInput.getEntityType()))
-		btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
-		// else {
 		btnFields.setImage(ImageResources.FIELDS_ON.getImage());
-		// }
-		
-
 	}
 
 	public void setEntityModel(EntityModel entityModel) {
@@ -147,6 +162,7 @@ public class EntityHeaderComposite extends Composite {
 		lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
 		linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
 		showOrHidePhase(entityModel);
+		fieldsButtonListener(entityModel);
 	}
 
 	private void showOrHidePhase(EntityModel entityModel) {
@@ -154,8 +170,9 @@ public class EntityHeaderComposite extends Composite {
 			String currentPhaseName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_PHASE));
 			lblCurrentPhase.setText(currentPhaseName);
 
-			//load possible phases
-			GetPossiblePhasesJob getPossiblePhasesJob = new GetPossiblePhasesJob("Loading possible phases", entityModel);
+			// load possible phases
+			GetPossiblePhasesJob getPossiblePhasesJob = new GetPossiblePhasesJob("Loading possible phases",
+					entityModel);
 			getPossiblePhasesJob.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void done(IJobChangeEvent event) {
@@ -163,11 +180,11 @@ public class EntityHeaderComposite extends Composite {
 						nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));
 						nextPhasesComboBox.selectFirstItem();
 						setChildVisibility(phaseComposite, true);
-						
-						//Force redraw header
+
+						// Force redraw header
 						layout(true, true);
-				        redraw();
-				        update();
+						redraw();
+						update();
 					});
 				}
 			});
@@ -190,4 +207,49 @@ public class EntityHeaderComposite extends Composite {
 		btnRefresh.addListener(SWT.Selection, listener);
 	}
 
+	private void fieldsButtonListener(EntityModel entityModel) {
+		
+		// make a map of the field names and labels
+		Collection<FieldMetadata> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
+		allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
+		prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
+		
+		MultiSelectComboBox<String> fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
+			@Override
+			public String getText(Object fieldName) {
+				return prettyFieldsMap.get(fieldName);
+			}
+		});
+
+		fieldCombo.addAll(prettyFieldsMap.keySet());
+
+		btnFields.addListener(SWT.Selection, event -> {
+			fieldCombo.showFloatShell(btnFields);
+			fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
+		});
+
+		fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)));
+
+		fieldCombo.setResetRunnable(() -> {
+			fieldCombo.setSelection(defaultFields.get(Entity.getEntityType(entityModel)));
+		});
+
+		DelayedRunnable delayedRunnable = new DelayedRunnable(() -> {
+			Display.getDefault().asyncExec(() -> {
+				PluginPreferenceStorage.setShownEntityFields(Entity.getEntityType(entityModel),
+						new LinkedHashSet<>(fieldCombo.getSelections()));
+			});
+		}, 500);
+		
+		fieldCombo.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				delayedRunnable.execute();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+	}
 }
