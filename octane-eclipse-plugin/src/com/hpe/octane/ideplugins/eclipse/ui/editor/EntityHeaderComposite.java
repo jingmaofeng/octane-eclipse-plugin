@@ -97,8 +97,7 @@ public class EntityHeaderComposite extends Composite {
 		linkEntityName = new TruncatingStyledText(this, SWT.NONE, truncatedLabelTooltip);
 		linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		linkEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		linkEntityName.addListener(SWT.MouseDown,
-				event -> Activator.getInstance(EntityService.class).openInBrowser(entityModel));
+		linkEntityName.addListener(SWT.MouseDown, event -> Activator.getInstance(EntityService.class).openInBrowser(entityModel));
 
 		linkEntityName.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
 		linkEntityName.setFont(boldFont);
@@ -154,7 +153,6 @@ public class EntityHeaderComposite extends Composite {
 		btnFields = new Button(this, SWT.NONE);
 		btnFields.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnFields.setToolTipText(TOOLTIP_FIELDS);
-		btnFields.setImage(ImageResources.FIELDS_ON.getImage());
 	}
 
 	public void setEntityModel(EntityModel entityModel) {
@@ -162,7 +160,7 @@ public class EntityHeaderComposite extends Composite {
 		lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
 		linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
 		showOrHidePhase(entityModel);
-		fieldsButtonListener(entityModel);
+		selectFieldsToDisplay(entityModel);
 	}
 
 	private void showOrHidePhase(EntityModel entityModel) {
@@ -207,25 +205,31 @@ public class EntityHeaderComposite extends Composite {
 		btnRefresh.addListener(SWT.Selection, listener);
 	}
 
-	private void fieldsButtonListener(EntityModel entityModel) {
-		
+	private void selectFieldsToDisplay(EntityModel entityModel) {
+		if (PluginPreferenceStorage.areShownEntityFieldsDefaults(Entity.getEntityType(entityModel))) {
+			btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
+		} else {
+			btnFields.setImage(ImageResources.FIELDS_ON.getImage());
+		}
+
 		// make a map of the field names and labels
 		Collection<FieldMetadata> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
 		allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
 		prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
-		
+
 		MultiSelectComboBox<String> fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
 			@Override
 			public String getText(Object fieldName) {
 				return prettyFieldsMap.get(fieldName);
 			}
 		});
-
+		fieldCombo.clear();
 		fieldCombo.addAll(prettyFieldsMap.keySet());
 
 		btnFields.addListener(SWT.Selection, event -> {
 			fieldCombo.showFloatShell(btnFields);
-			fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
+			fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)),
+					false);
 		});
 
 		fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)));
@@ -240,7 +244,7 @@ public class EntityHeaderComposite extends Composite {
 						new LinkedHashSet<>(fieldCombo.getSelections()));
 			});
 		}, 500);
-		
+
 		fieldCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -251,5 +255,8 @@ public class EntityHeaderComposite extends Composite {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
+		
+		
+
 	}
 }

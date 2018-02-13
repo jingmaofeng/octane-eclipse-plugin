@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.preference.JFacePreferences;
@@ -28,6 +29,7 @@ import com.hpe.adm.octane.ideplugins.services.MetadataService;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
@@ -40,7 +42,6 @@ public class EntityFieldsComposite extends Composite {
 			.get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
 	private Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
 			.get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
-	private static final int MIN_WIDTH = 800;
 
 	private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
 	private Map<String, String> prettyFieldsMap;
@@ -126,17 +127,18 @@ public class EntityFieldsComposite extends Composite {
 	}
 
 	private void drawEntityFields(Composite parent, EntityModel entityModel) {
-		Collection<FieldMetadata> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
-		drawEntityFields(parent, allFields, entityModel);
+		Set<String> shownFields = PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel));
+		drawEntityFields(parent, shownFields, entityModel);
 	}
 
-	private void drawEntityFields(Composite parent, Collection<FieldMetadata> allFields, EntityModel entityModel) {
+	private void drawEntityFields(Composite parent, Set<String> shownFields, EntityModel entityModel) {
 		Arrays.stream(parent.getChildren())
 			.filter(child -> child != null)
 			.filter(child -> !child.isDisposed())
 			.forEach(child -> child.dispose());
 
-		// make a map of the field names and labels
+//		// make a map of the field names and labels
+		Collection<FieldMetadata> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
 		allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
 		prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
 
@@ -148,14 +150,12 @@ public class EntityFieldsComposite extends Composite {
 		sectionClientRight.setLayout(new GridLayout(2, false));
 		sectionClientRight.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		// Skip the description field because it's in another UI component (below other fields)
-		prettyFieldsMap.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
+//		// Skip the description field because it's in another UI component (below other fields)
+				
+		Iterator<String> iterator = shownFields.iterator();
 
-		Iterator<FieldMetadata> iterator = allFields.iterator();
-
-		for (int i = 0; i < allFields.size(); i++) {
-			FieldMetadata fieldMetadata = iterator.next();
-			String fieldName = fieldMetadata.getName();
+		for (int i = 0; i < shownFields.size(); i++) {		
+			String fieldName = iterator.next();
 			String fieldValue;
 
 			if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
@@ -175,7 +175,7 @@ public class EntityFieldsComposite extends Composite {
 			} else {
 				columnComposite = sectionClientRight;
 			}
-
+			
 			if (!fieldName.equals(EntityFieldsConstants.FIELD_DESCRIPTION)) {
 				// Add the pair of labels for field and value
 				CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);

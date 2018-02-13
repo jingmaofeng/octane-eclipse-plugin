@@ -328,6 +328,10 @@ public class MultiSelectComboBox<T> {
 	public void addAll(Collection<T> options) {
 		this.options.addAll(options);
 	}
+	
+	public void clear() {
+		this.options.clear();
+	}
 
 	public void add(int index, T t, boolean isSelected) {
 		options.add(index, t);

@@ -15,7 +15,9 @@ package com.hpe.octane.ideplugins.eclipse.ui.editor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -26,6 +28,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
@@ -40,6 +43,9 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 public class EntityModelEditor extends EditorPart {
 
 	private static final EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
+	
+	private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
+			.get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
 
 	public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.editor2.EntityModelEditorNew"; //$NON-NLS-1$
 	public EntityModelEditorInput input;
@@ -72,6 +78,8 @@ public class EntityModelEditor extends EditorPart {
 		parent.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		rootComposite = new StackLayoutComposite(parent, SWT.NONE);
+		rootComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+		rootComposite.setBackground(backgroundColor);
 
 		loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
 
@@ -103,20 +111,19 @@ public class EntityModelEditor extends EditorPart {
 					});
 				} else {
 					Display.getDefault().asyncExec(() -> {
-						// errorLabel.setText(getEntityDetailsJob.wasEntityRetrived().getMessage());
-						// rootComposite.showControl(errorLabel);
+//						 errorLabel.setText(getEntityDetailsJob.wasEntityRetrived().getMessage());
+//						 rootComposite.showControl(errorLabel);
 					});
 				}
 			}
 		});
-
+		
 		entityComposite.addRefreshSelectionListener(event -> getEntityDetailsJob.schedule());
 
 		entityComposite.addSaveSelectionListener(new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + Entity.getEntityType(entityModel),
-						entityModel);
+				UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + Entity.getEntityType(entityModel), entityModel);
 				updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
 					@Override
 					public void done(IJobChangeEvent event) {
@@ -125,7 +132,7 @@ public class EntityModelEditor extends EditorPart {
 				});
 				updateEntityJob.schedule();
 			}
-		});
+		});			
 		getEntityDetailsJob.schedule();
 	}
 
