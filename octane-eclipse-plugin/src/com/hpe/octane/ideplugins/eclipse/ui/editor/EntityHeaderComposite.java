@@ -12,8 +12,8 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
@@ -21,7 +21,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -77,6 +76,8 @@ public class EntityHeaderComposite extends Composite {
 	private Button btnSave;
 	private Button btnFields;
 
+
+	private MultiSelectComboBox<String> fieldCombo;
 	/**
 	 * Create the composite.
 	 * 
@@ -153,6 +154,36 @@ public class EntityHeaderComposite extends Composite {
 		btnFields = new Button(this, SWT.NONE);
 		btnFields.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnFields.setToolTipText(TOOLTIP_FIELDS);
+
+		//Actual data is populated when entity is set
+		fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
+			@Override
+			public String getText(Object fieldName) {
+				return prettyFieldsMap.get(fieldName);
+			}
+		});
+
+		btnFields.addListener(SWT.Selection, event -> {
+			fieldCombo.showFloatShell(btnFields);
+			fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
+		});
+
+		fieldCombo.setResetRunnable(() -> {
+			fieldCombo.setSelection(defaultFields.get(Entity.getEntityType(entityModel)));
+		});
+
+		DelayedRunnable delayedRunnable = new DelayedRunnable(() -> {
+			Display.getDefault().asyncExec(() -> {
+				PluginPreferenceStorage.setShownEntityFields(
+						Entity.getEntityType(entityModel),
+						new LinkedHashSet<>(fieldCombo.getSelections()));
+			});
+		}, 500);
+
+		fieldCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) { delayedRunnable.execute(); }
+		});
 	}
 
 	public void setEntityModel(EntityModel entityModel) {
@@ -217,46 +248,8 @@ public class EntityHeaderComposite extends Composite {
 		allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
 		prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
 
-		MultiSelectComboBox<String> fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
-			@Override
-			public String getText(Object fieldName) {
-				return prettyFieldsMap.get(fieldName);
-			}
-		});
 		fieldCombo.clear();
 		fieldCombo.addAll(prettyFieldsMap.keySet());
-
-		btnFields.addListener(SWT.Selection, event -> {
-			fieldCombo.showFloatShell(btnFields);
-			fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)),
-					false);
-		});
-
-		fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)));
-
-		fieldCombo.setResetRunnable(() -> {
-			fieldCombo.setSelection(defaultFields.get(Entity.getEntityType(entityModel)));
-		});
-
-		DelayedRunnable delayedRunnable = new DelayedRunnable(() -> {
-			Display.getDefault().asyncExec(() -> {
-				PluginPreferenceStorage.setShownEntityFields(Entity.getEntityType(entityModel),
-						new LinkedHashSet<>(fieldCombo.getSelections()));
-			});
-		}, 500);
-
-		fieldCombo.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				delayedRunnable.execute();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		
-		
-
+		fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
 	}
 }

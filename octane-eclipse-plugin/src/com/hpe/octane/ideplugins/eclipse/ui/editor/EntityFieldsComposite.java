@@ -13,7 +13,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -30,6 +29,7 @@ import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PreferenceConstants;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
@@ -48,13 +48,16 @@ public class EntityFieldsComposite extends Composite {
 
 	private Composite entityFieldsComposite;
 	private Composite entityDescriptionComposite;
-	private Composite fieldsSection;
+	private Composite fieldsComposite;
+	
 	Section sectionFields;
 	Section sectionDescription;
 
 	private ToolTip truncatedLabelTooltip;
 
 	private FormToolkit formGenerator;
+
+	private EntityModel entityModel;
 
 	public EntityFieldsComposite(Composite parent, int style) {
 		super(parent, style);
@@ -82,19 +85,17 @@ public class EntityFieldsComposite extends Composite {
 		sectionFields.setText("Fields");
 		sectionFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		formGenerator.createCompositeSeparator(sectionFields);
-		fieldsSection = new Composite(sectionFields, SWT.NONE);
-		fieldsSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		fieldsComposite = new Composite(sectionFields, SWT.NONE);
+		fieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		sectionFields.setClient(fieldsComposite);
 		
 		sectionDescription = formGenerator.createSection(entityDescriptionComposite, Section.TREE_NODE | Section.EXPANDED);
 		formGenerator.createCompositeSeparator(sectionDescription);
 		sectionDescription.setText("Description");
-	}
-
-	public void createFieldsSection(EntityModel entityModel) {
-		if (fieldsSection != null && !fieldsSection.isDisposed()) {
-			drawEntityFields(fieldsSection, entityModel);
-		}
-		sectionFields.setClient(fieldsSection);
+	
+		PluginPreferenceStorage.addPrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, () -> {
+			drawEntityFields(entityModel);
+		});
 	}
 
 	public Section createDescriptionFormSection(EntityModel entityModel) {
@@ -126,31 +127,32 @@ public class EntityFieldsComposite extends Composite {
 		return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
 	}
 
-	private void drawEntityFields(Composite parent, EntityModel entityModel) {
+	private void drawEntityFields(EntityModel entityModel) {
 		Set<String> shownFields = PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel));
-		drawEntityFields(parent, shownFields, entityModel);
+		drawEntityFields(shownFields, entityModel);
 	}
 
-	private void drawEntityFields(Composite parent, Set<String> shownFields, EntityModel entityModel) {
-		Arrays.stream(parent.getChildren())
+	private void drawEntityFields(Set<String> shownFields, EntityModel entityModel) {
+		
+		Arrays.stream(fieldsComposite.getChildren())
 			.filter(child -> child != null)
 			.filter(child -> !child.isDisposed())
 			.forEach(child -> child.dispose());
 
-//		// make a map of the field names and labels
+		// make a map of the field names and labels
 		Collection<FieldMetadata> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
 		allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
 		prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
 
-		parent.setLayout(new FillLayout(SWT.HORIZONTAL));
-		Composite sectionClientLeft = new Composite(parent, SWT.NONE);
+		fieldsComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+		Composite sectionClientLeft = new Composite(fieldsComposite, SWT.NONE);
 		sectionClientLeft.setLayout(new GridLayout(2, false));
 		sectionClientLeft.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		Composite sectionClientRight = new Composite(parent, SWT.NONE);
+		Composite sectionClientRight = new Composite(fieldsComposite, SWT.NONE);
 		sectionClientRight.setLayout(new GridLayout(2, false));
 		sectionClientRight.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-//		// Skip the description field because it's in another UI component (below other fields)
+		// Skip the description field because it's in another UI component (below other fields)
 				
 		Iterator<String> iterator = shownFields.iterator();
 
@@ -189,5 +191,21 @@ public class EntityFieldsComposite extends Composite {
 				labelValue.setForeground(foregroundColor);
 			}
 		}
+		
+		// Force redraw
+		layout(true, true);
+		redraw();
+		update();
 	}
+	
+	public EntityModel getEntityModel() {
+		return entityModel;
+	}
+
+	public void setEntityModel(EntityModel entityModel) {
+		this.entityModel = entityModel;
+		drawEntityFields(entityModel);
+		createDescriptionFormSection(entityModel);
+	}
+	
 }

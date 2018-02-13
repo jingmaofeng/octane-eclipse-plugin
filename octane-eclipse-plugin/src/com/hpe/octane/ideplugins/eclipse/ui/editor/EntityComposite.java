@@ -1,7 +1,6 @@
 package com.hpe.octane.ideplugins.eclipse.ui.editor;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -42,18 +41,13 @@ public class EntityComposite extends Composite {
 		gd_entityCommentComposite.grabExcessVerticalSpace = true;
 		gd_entityCommentComposite.grabExcessHorizontalSpace = false;
 		entityCommentComposite.setLayoutData(gd_entityCommentComposite);
-
 	}
 
 	public void setEntityModel(EntityModel entityModel) {
 		this.entityModel = entityModel;
 		entityHeaderComposite.setEntityModel(entityModel);
+		entityFieldsComposite.setEntityModel(entityModel);		
 		showOrHideComments(entityModel);
-	}
-
-	public void createFields(EntityModel entityModel) {
-		entityFieldsComposite.createFieldsSection(entityModel);
-		entityFieldsComposite.createDescriptionFormSection(entityModel);
 	}
 
 	private void showOrHideComments(EntityModel entityModel) {

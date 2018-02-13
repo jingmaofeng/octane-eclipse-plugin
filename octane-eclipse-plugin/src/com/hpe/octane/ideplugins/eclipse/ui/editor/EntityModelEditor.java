@@ -82,6 +82,7 @@ public class EntityModelEditor extends EditorPart {
 		rootComposite.setBackground(backgroundColor);
 
 		loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
+		rootComposite.showControl(loadingComposite);
 
 		errorLabel = new Label(rootComposite, SWT.NONE);
 		errorLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
@@ -106,7 +107,6 @@ public class EntityModelEditor extends EditorPart {
 
 					Display.getDefault().asyncExec(() -> {
 						entityComposite.setEntityModel(entityModel);
-						entityComposite.createFields(entityModel);
 						rootComposite.showControl(entityComposite);
 					});
 				} else {
@@ -133,7 +133,7 @@ public class EntityModelEditor extends EditorPart {
 				updateEntityJob.schedule();
 			}
 		});			
-		getEntityDetailsJob.schedule();
+		getEntityDetailsJob.schedule();	
 	}
 
 	@Override
