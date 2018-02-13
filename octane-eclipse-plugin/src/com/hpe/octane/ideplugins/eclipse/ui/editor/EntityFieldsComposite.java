@@ -35,6 +35,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
+import org.eclipse.swt.widgets.Label;
 
 public class EntityFieldsComposite extends Composite {
 
@@ -49,7 +50,7 @@ public class EntityFieldsComposite extends Composite {
 	private Composite entityFieldsComposite;
 	private Composite entityDescriptionComposite;
 	private Composite fieldsComposite;
-	
+
 	Section sectionFields;
 	Section sectionDescription;
 
@@ -58,6 +59,7 @@ public class EntityFieldsComposite extends Composite {
 	private FormToolkit formGenerator;
 
 	private EntityModel entityModel;
+	private Browser descBrowser;
 
 	public EntityFieldsComposite(Composite parent, int style) {
 		super(parent, style);
@@ -65,10 +67,10 @@ public class EntityFieldsComposite extends Composite {
 
 		formGenerator = new FormToolkit(this.getDisplay());
 		truncatedLabelTooltip = new ToolTip(this.getShell(), SWT.ICON_INFORMATION);
-		
+
 		entityFieldsComposite = new Composite(this, SWT.NONE);
 		entityFieldsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
-		entityFieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		entityFieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		entityFieldsComposite.setLayout(new GridLayout(2, false));
 		formGenerator.adapt(entityFieldsComposite);
 		formGenerator.paintBordersFor(entityFieldsComposite);
@@ -79,7 +81,7 @@ public class EntityFieldsComposite extends Composite {
 		entityDescriptionComposite.setLayout(new GridLayout(1, false));
 		formGenerator.adapt(entityDescriptionComposite);
 		formGenerator.paintBordersFor(entityDescriptionComposite);
-		
+
 		sectionFields = formGenerator.createSection(entityFieldsComposite, Section.TREE_NODE | Section.EXPANDED);
 		sectionFields.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 		sectionFields.setText("Fields");
@@ -88,24 +90,22 @@ public class EntityFieldsComposite extends Composite {
 		fieldsComposite = new Composite(sectionFields, SWT.NONE);
 		fieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		sectionFields.setClient(fieldsComposite);
-		
+
 		sectionDescription = formGenerator.createSection(entityDescriptionComposite, Section.TREE_NODE | Section.EXPANDED);
 		formGenerator.createCompositeSeparator(sectionDescription);
 		sectionDescription.setText("Description");
-	
+		sectionDescription.setExpanded(false);
+		sectionDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
+		descBrowser = factory.createBrowser(sectionDescription, SWT.NONE);
+		descBrowser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+
 		PluginPreferenceStorage.addPrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, () -> {
 			drawEntityFields(entityModel);
 		});
 	}
 
 	public Section createDescriptionFormSection(EntityModel entityModel) {
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd.minimumHeight = 400;
-		sectionDescription.setLayoutData(gd);
-		PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
-		Browser descBrowser = factory.createBrowser(sectionDescription, SWT.NONE);
-		descBrowser.setLayoutData(gd);	
-		
 		String descriptionText = "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
 				+ getRgbString(foregroundColor) + ">"
 				+ Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION))
@@ -133,11 +133,11 @@ public class EntityFieldsComposite extends Composite {
 	}
 
 	private void drawEntityFields(Set<String> shownFields, EntityModel entityModel) {
-		
+
 		Arrays.stream(fieldsComposite.getChildren())
-			.filter(child -> child != null)
-			.filter(child -> !child.isDisposed())
-			.forEach(child -> child.dispose());
+				.filter(child -> child != null)
+				.filter(child -> !child.isDisposed())
+				.forEach(child -> child.dispose());
 
 		// make a map of the field names and labels
 		Collection<FieldMetadata> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
@@ -153,10 +153,9 @@ public class EntityFieldsComposite extends Composite {
 		sectionClientRight.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		// Skip the description field because it's in another UI component (below other fields)
-				
 		Iterator<String> iterator = shownFields.iterator();
 
-		for (int i = 0; i < shownFields.size(); i++) {		
+		for (int i = 0; i < shownFields.size(); i++) {
 			String fieldName = iterator.next();
 			String fieldValue;
 
@@ -177,7 +176,7 @@ public class EntityFieldsComposite extends Composite {
 			} else {
 				columnComposite = sectionClientRight;
 			}
-			
+
 			if (!fieldName.equals(EntityFieldsConstants.FIELD_DESCRIPTION)) {
 				// Add the pair of labels for field and value
 				CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
@@ -185,19 +184,19 @@ public class EntityFieldsComposite extends Composite {
 				labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 				labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
 
-				TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE, truncatedLabelTooltip);
+				TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE,
+						truncatedLabelTooltip);
 				labelValue.setText(fieldValue);
 				labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 				labelValue.setForeground(foregroundColor);
 			}
 		}
-		
 		// Force redraw
 		layout(true, true);
 		redraw();
 		update();
 	}
-	
+
 	public EntityModel getEntityModel() {
 		return entityModel;
 	}
@@ -207,5 +206,5 @@ public class EntityFieldsComposite extends Composite {
 		drawEntityFields(entityModel);
 		createDescriptionFormSection(entityModel);
 	}
-	
+
 }
