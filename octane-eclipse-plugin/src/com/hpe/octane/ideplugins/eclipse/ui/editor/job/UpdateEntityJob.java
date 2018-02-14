@@ -19,26 +19,30 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.hpe.adm.nga.sdk.exception.OctaneException;
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class UpdateEntityJob extends Job {
 	
     private EntityModel entityModel;
+    private EntityModel selectedPhase;
     private EntityService entityService = Activator.getInstance(EntityService.class);
     private boolean wasChanged = false;
     private String errorMessage;
 
-    public UpdateEntityJob(String name, EntityModel entityModel) {
+    public UpdateEntityJob(String name, EntityModel entityModel, EntityModel selectedPhase) {
         super(name);
         this.entityModel = entityModel;
+        this.selectedPhase = selectedPhase;
     }
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
-        	entityService.updateEntity(entityModel);
+//        	entityService.updateEntity(entityModel);
+        	entityService.updateEntityPhase(entityModel, (ReferenceFieldModel) selectedPhase.getValue("target_phase"));
             wasChanged = true;
         } catch (OctaneException ex) {
             wasChanged = false;

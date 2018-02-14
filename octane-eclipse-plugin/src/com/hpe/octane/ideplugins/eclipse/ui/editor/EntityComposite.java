@@ -70,4 +70,8 @@ public class EntityComposite extends Composite {
 	public void addRefreshSelectionListener(Listener listener) {
 		entityHeaderComposite.addRefreshSelectionListener(listener);
 	}
+	
+	public EntityModel getSelectedPhase() {
+		return entityHeaderComposite.getSelectedPhase();
+	}
 }

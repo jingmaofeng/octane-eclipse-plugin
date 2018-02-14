@@ -67,6 +67,7 @@ public class EntityHeaderComposite extends Composite {
 	private TruncatingStyledText linkEntityName;
 
 	private EntityModel entityModel;
+	private EntityModel selectedPhase;
 
 	private Composite phaseComposite;
 	private CustomEntityComboBox<EntityModel> nextPhasesComboBox;
@@ -140,6 +141,7 @@ public class EntityHeaderComposite extends Composite {
 		});
 		nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
 		nextPhasesComboBox.selectFirstItem();
+		selectedPhase = nextPhasesComboBox.getSelection();
 
 		btnSave = new Button(this, SWT.NONE);
 		btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -251,5 +253,14 @@ public class EntityHeaderComposite extends Composite {
 		fieldCombo.clear();
 		fieldCombo.addAll(prettyFieldsMap.keySet());
 		fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
+	}
+	
+
+	public EntityModel getSelectedPhase() {
+		return nextPhasesComboBox.getSelection();
+	}
+
+	public void setSelectedPhase(EntityModel selectedPhase) {
+		this.selectedPhase = selectedPhase;
 	}
 }

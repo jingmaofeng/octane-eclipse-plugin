@@ -133,7 +133,6 @@ public class EntityFieldsComposite extends Composite {
 	}
 
 	private void drawEntityFields(Set<String> shownFields, EntityModel entityModel) {
-
 		Arrays.stream(fieldsComposite.getChildren())
 				.filter(child -> child != null)
 				.filter(child -> !child.isDisposed())
