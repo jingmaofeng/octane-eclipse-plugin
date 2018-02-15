@@ -83,7 +83,6 @@ public class EntityFieldsComposite extends Composite {
 		formGenerator.paintBordersFor(entityDescriptionComposite);
 
 		sectionFields = formGenerator.createSection(entityFieldsComposite, Section.TREE_NODE | Section.EXPANDED);
-		sectionFields.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 		sectionFields.setText("Fields");
 		sectionFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		formGenerator.createCompositeSeparator(sectionFields);
@@ -94,7 +93,6 @@ public class EntityFieldsComposite extends Composite {
 		sectionDescription = formGenerator.createSection(entityDescriptionComposite, Section.TREE_NODE | Section.EXPANDED);
 		formGenerator.createCompositeSeparator(sectionDescription);
 		sectionDescription.setText("Description");
-		sectionDescription.setExpanded(false);
 		sectionDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
 		descBrowser = factory.createBrowser(sectionDescription, SWT.NONE);

@@ -176,9 +176,16 @@ public class EntityHeaderComposite extends Composite {
 
 		DelayedRunnable delayedRunnable = new DelayedRunnable(() -> {
 			Display.getDefault().asyncExec(() -> {
+				
 				PluginPreferenceStorage.setShownEntityFields(
 						Entity.getEntityType(entityModel),
 						new LinkedHashSet<>(fieldCombo.getSelections()));
+				
+				if (PluginPreferenceStorage.areShownEntityFieldsDefaults(Entity.getEntityType(entityModel))) {
+					btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
+				} else {
+					btnFields.setImage(ImageResources.FIELDS_ON.getImage());
+				}
 			});
 		}, 500);
 
