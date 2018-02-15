@@ -114,10 +114,11 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                         }
                     });
         }
+        if (entityType != Entity.COMMENT && entityType != Entity.EPIC && entityType != Entity.FEATURE) {
+        	new MenuItem(menu, SWT.SEPARATOR);
+        }
 
-        new MenuItem(menu, SWT.SEPARATOR);
-
-        if (entityType != Entity.COMMENT) {
+        if (entityType != Entity.COMMENT && entityType != Entity.EPIC && entityType != Entity.FEATURE) {
             addMenuItem(
                     menu,
                     "View details",
