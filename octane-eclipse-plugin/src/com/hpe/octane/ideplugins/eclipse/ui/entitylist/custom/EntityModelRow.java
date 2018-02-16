@@ -72,7 +72,7 @@ public class EntityModelRow extends Composite {
         compositeTitles.setLayout(gl_compositeTitles);
 
         lblEntityTitle = new TruncatingStyledText(compositeTitles, SWT.SINGLE, tip);
-        lblEntityTitle.setText("test here");
+        lblEntityTitle.setText("N/A");
         lblEntityTitle.setFont(font);
         lblEntityTitle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         lblEntityTitle.setAlwaysShowScrollBars(false);
