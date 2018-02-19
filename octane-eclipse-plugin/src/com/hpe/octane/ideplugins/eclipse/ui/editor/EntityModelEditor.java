@@ -38,6 +38,7 @@ import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetEntityModelJob;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.UpdateEntityJob;
+import com.hpe.octane.ideplugins.eclipse.ui.util.ErrorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
@@ -45,6 +46,8 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class EntityModelEditor extends EditorPart {
+	public EntityModelEditor() {
+	}
 
     private static final String GO_TO_BROWSER_DIALOG_MESSAGE = "You can try to change the phase using ALM Octane in a browser."
             + "\nDo you want to do this now?";
@@ -60,13 +63,13 @@ public class EntityModelEditor extends EditorPart {
 	public EntityModelEditorInput input;
 
 	private EntityComposite entityComposite;
-	private Label errorLabel;
 	private LoadingComposite loadingComposite;
 	private StackLayoutComposite rootComposite;
 	private EntityModel entityModel;
-	private EntityModel selectedPhase;
 
 	private GetEntityModelJob getEntityDetailsJob;
+
+	private ErrorComposite errorComposite;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -94,9 +97,8 @@ public class EntityModelEditor extends EditorPart {
 		loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
 		rootComposite.showControl(loadingComposite);
 
-		errorLabel = new Label(rootComposite, SWT.NONE);
-		errorLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
-
+		errorComposite = new ErrorComposite(rootComposite, SWT.NONE);
+		
 		entityComposite = new EntityComposite(rootComposite, SWT.NONE);
 		entityComposite.setLayout(new GridLayout(2, false));
 
@@ -120,8 +122,8 @@ public class EntityModelEditor extends EditorPart {
 					});
 				} else {
 					Display.getDefault().asyncExec(() -> {
-//						 errorLabel.setText(getEntityDetailsJob.wasEntityRetrived().getMessage());
-//						 rootComposite.showControl(errorLabel);
+						errorComposite.setErrorMessage("Something went wrong. Please refresh your plugin");
+						rootComposite.showControl(errorComposite);
 					});
 				}
 			}
