@@ -55,10 +55,15 @@ public class GetPossiblePhasesJob extends Job {
     }
 
 	public Collection<EntityModel> getPossibleTransitions() {
+		return possibleTransitions;
+	}
+	
+	public Collection<EntityModel> getNoTransitionPhase(){
 		if (possibleTransitions.isEmpty()) {
 			possibleTransitions.add(new EntityModel("target_phase", "No transition"));
+			return possibleTransitions;
 		}
-		return possibleTransitions;
+		return null;	
 	}
 	
 	public static boolean hasPhases(Entity entity) {

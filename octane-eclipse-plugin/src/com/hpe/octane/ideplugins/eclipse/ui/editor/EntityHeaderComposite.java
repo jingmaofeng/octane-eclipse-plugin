@@ -215,8 +215,15 @@ public class EntityHeaderComposite extends Composite {
 				@Override
 				public void done(IJobChangeEvent event) {
 					Display.getDefault().asyncExec(() -> {
-						nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));
-						nextPhasesComboBox.selectFirstItem();
+						Collection<EntityModel> possibleTransitions = getPossiblePhasesJob.getPossibleTransitions();
+						if (possibleTransitions.isEmpty()) {
+							nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getNoTransitionPhase()));
+							nextPhasesComboBox.selectFirstItem();
+							btnSave.setEnabled(false);
+						}else {
+							nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));
+							nextPhasesComboBox.selectFirstItem();
+						}
 						setChildVisibility(phaseComposite, true);
 
 						// Force redraw header
