@@ -2,10 +2,10 @@
 <feature
       id="octane.eclipse.feature"
       label="ALM Octane IDE Integration"
-      version="12.55.8.qualifier"
-      provider-name="Hewlett-Packard Enterprise Development Company">
+      version="12.55.13.qualifier"
+      provider-name="Micro Focus">
 
-   <description url="https://saas.hpe.com/en-us/software/alm-octane">
+   <description url="https://software.microfocus.com/en-us/products/alm-octane/overview">
       Enables integration with ALM Octane
    </description>
 
