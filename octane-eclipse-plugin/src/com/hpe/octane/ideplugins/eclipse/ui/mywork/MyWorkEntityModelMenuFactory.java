@@ -150,7 +150,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
         new MenuItem(menu, SWT.SEPARATOR);
 
-        if (entityType != Entity.COMMENT && entityType != Entity.REQUIREMENT) {
+        if (entityType != Entity.COMMENT) {
             addMenuItem(
                     menu,
                     "View details",
