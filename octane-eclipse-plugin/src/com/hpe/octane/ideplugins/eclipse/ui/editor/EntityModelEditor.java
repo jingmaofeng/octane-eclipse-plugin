@@ -134,7 +134,7 @@ public class EntityModelEditor extends EditorPart {
 		entityComposite.addSaveSelectionListener(new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + Entity.getEntityType(entityModel), entityModel, entityComposite.getSelectedPhase());
+				UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + Entity.getEntityType(entityModel), entityModel);
 				updateEntityJob.schedule();
 				updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
 					@Override

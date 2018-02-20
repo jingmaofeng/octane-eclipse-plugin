@@ -26,23 +26,20 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 public class UpdateEntityJob extends Job {
 	
     private EntityModel entityModel;
-    private EntityModel selectedPhase;
     private EntityService entityService = Activator.getInstance(EntityService.class);
     private boolean wasChanged = false;
     private String errorMessage;
 
-    public UpdateEntityJob(String name, EntityModel entityModel, EntityModel selectedPhase) {
+    public UpdateEntityJob(String name, EntityModel entityModel) {
         super(name);
         this.entityModel = entityModel;
-        this.selectedPhase = selectedPhase;
     }
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
-//        	entityService.updateEntity(entityModel);
-        	entityService.updateEntityPhase(entityModel, (ReferenceFieldModel) selectedPhase.getValue("target_phase"));
+        	entityService.updateEntity(entityModel);
             wasChanged = true;
         } catch (OctaneException ex) {
             wasChanged = false;

@@ -80,6 +80,10 @@ public class CustomEntityComboBox <T> {
         this.content = content;
         this.viewer.setInput(content.toArray());
     }
+    
+    public void setEnabled(boolean setEnabled) {
+    	viewer.getCombo().setEnabled(setEnabled);
+    }
 
     public T getSelection() {
         return currentSelection;

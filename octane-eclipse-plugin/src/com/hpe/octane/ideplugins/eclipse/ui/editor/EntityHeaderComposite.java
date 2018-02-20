@@ -30,6 +30,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.MetadataService;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
@@ -39,6 +40,7 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;
+import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxSelectionListener;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetPossiblePhasesJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.MultiSelectComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
@@ -142,7 +144,17 @@ public class EntityHeaderComposite extends Composite {
 		nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
 		nextPhasesComboBox.selectFirstItem();
 		selectedPhase = nextPhasesComboBox.getSelection();
-
+		
+		nextPhasesComboBox.addSelectionListener(new CustomEntityComboBoxSelectionListener<EntityModel>() {
+			@SuppressWarnings("unused")
+			@Override
+			public void selectionChanged(CustomEntityComboBox<EntityModel> customEntityComboBox, EntityModel newSelection) {
+				newSelection = customEntityComboBox.getSelection();
+				ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
+				entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
+			}
+		});
+		
 		btnSave = new Button(this, SWT.NONE);
 		btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnSave.setToolTipText(TOOLTIP_PHASE);
@@ -219,10 +231,11 @@ public class EntityHeaderComposite extends Composite {
 						if (possibleTransitions.isEmpty()) {
 							nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getNoTransitionPhase()));
 							nextPhasesComboBox.selectFirstItem();
-							btnSave.setEnabled(false);
+							nextPhasesComboBox.setEnabled(false);
 						}else {
 							nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));
 							nextPhasesComboBox.selectFirstItem();
+							nextPhasesComboBox.setEnabled(true);
 						}
 						setChildVisibility(phaseComposite, true);
 
