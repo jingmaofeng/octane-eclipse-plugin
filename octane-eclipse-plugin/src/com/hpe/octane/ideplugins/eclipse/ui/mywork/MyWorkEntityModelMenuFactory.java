@@ -148,6 +148,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     });
         }
 
+        
         new MenuItem(menu, SWT.SEPARATOR);
 
         if (entityType != Entity.COMMENT) {
@@ -158,29 +159,32 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     () -> openDetailTab(entityId, entityType));
         }
 
-        if (entityType == Entity.TASK || entityType == Entity.COMMENT) {
-            // Get parent info
-            EntityModel parentEntityModel;
-            if (entityType == Entity.TASK) {
-                parentEntityModel = (EntityModel) entityModel.getValue("story").getValue();
-            } else {
-                parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
-            }
+		if (entityType == Entity.TASK || entityType == Entity.COMMENT) {
+			// Get parent info
+			EntityModel parentEntityModel;
+			if (entityType == Entity.TASK) {
+				parentEntityModel = (EntityModel) entityModel.getValue("story").getValue();
+			} else {
+				parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
+			}
+			Entity parentEntity = Entity.getEntityType(parentEntityModel);
 
-            addMenuItem(
-                    menu,
-                    "View parent details",
-                    entityIconFactory.getImageIcon(Entity.getEntityType(parentEntityModel)),
-                    () -> {
-                        Integer parentId = Integer.valueOf(parentEntityModel.getValue("id").getValue().toString());
-                        Entity parentEntityType = Entity.getEntityType(parentEntityModel);
-                        if (Entity.FEATURE == Entity.getEntityType(parentEntityModel) || Entity.EPIC == Entity.getEntityType(parentEntityModel)) {
-                            entityService.openInBrowser(parentEntityModel);
-                        } else {
-                            openDetailTab(parentId, parentEntityType);
-                        }
-                    });
-        }
+			if (parentEntity != Entity.AUTOMATED_TEST && parentEntity != Entity.TEST_SUITE) {
+				
+				addMenuItem(menu, 
+						"View parent details",
+						
+						entityIconFactory.getImageIcon(Entity.getEntityType(parentEntityModel)), () -> {
+							Integer parentId = Integer.valueOf(parentEntityModel.getValue("id").getValue().toString());
+							Entity parentEntityType = Entity.getEntityType(parentEntityModel);
+							if (Entity.FEATURE == Entity.getEntityType(parentEntityModel) || Entity.EPIC == Entity.getEntityType(parentEntityModel)) {
+								entityService.openInBrowser(parentEntityModel);
+							} else {
+								openDetailTab(parentId, parentEntityType);
+							}
+						});
+			}
+		}
 
         if (entityType == Entity.GHERKIN_TEST) {
             addMenuItem(
