@@ -174,15 +174,16 @@ public class EntityFieldsComposite extends Composite {
 				columnComposite = sectionClientRight;
 			}
 
-			if (!fieldName.equals(EntityFieldsConstants.FIELD_DESCRIPTION)) {
+			if (!fieldName.equals(EntityFieldsConstants.FIELD_DESCRIPTION) 
+					&& !fieldName.equals(EntityFieldsConstants.FIELD_NAME) 
+					&& !fieldName.equals(EntityFieldsConstants.FIELD_PHASE)) {
 				// Add the pair of labels for field and value
 				CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
 				labelFieldName.setText(prettyFieldsMap.get(fieldName));
 				labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 				labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
 
-				TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE,
-						truncatedLabelTooltip);
+				TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE, truncatedLabelTooltip);
 				labelValue.setText(fieldValue);
 				labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 				labelValue.setForeground(foregroundColor);

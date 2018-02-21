@@ -273,8 +273,11 @@ public class EntityHeaderComposite extends Composite {
 		}
 
 		// make a map of the field names and labels
-		Collection<FieldMetadata> allFields = metadataService.getFields(Entity.getEntityType(entityModel));
-		allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
+		Collection<FieldMetadata> allFields = metadataService.getVisibleFields(Entity.getEntityType(entityModel));
+		allFields.stream()
+			.filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION) 
+						&& !f.getName().equals(EntityFieldsConstants.FIELD_NAME)
+						&& !f.getName().equals(EntityFieldsConstants.FIELD_PHASE));
 		prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
 
 		fieldCombo.clear();
