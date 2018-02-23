@@ -142,16 +142,16 @@ public class EntityHeaderComposite extends Composite {
 			}
 		});
 		nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
-		nextPhasesComboBox.selectFirstItem();
 		selectedPhase = nextPhasesComboBox.getSelection();
 		
 		nextPhasesComboBox.addSelectionListener(new CustomEntityComboBoxSelectionListener<EntityModel>() {
-			@SuppressWarnings("unused")
 			@Override
 			public void selectionChanged(CustomEntityComboBox<EntityModel> customEntityComboBox, EntityModel newSelection) {
 				newSelection = customEntityComboBox.getSelection();
-				ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
-				entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
+				if(newSelection.getValue("target_phase") instanceof ReferenceFieldModel) {
+					ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
+					entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
+				}
 			}
 		});
 		
