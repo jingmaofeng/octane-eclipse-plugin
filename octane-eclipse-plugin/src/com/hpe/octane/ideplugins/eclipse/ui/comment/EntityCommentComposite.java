@@ -43,6 +43,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityCommentComposite extends StackLayoutComposite {
@@ -58,6 +59,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
     private Text commentText;
 
 	private Button postCommentBtn;
+	private Label separator;
 
     public EntityCommentComposite(Composite parent, int style) {
         super(parent, style);
@@ -65,9 +67,19 @@ public class EntityCommentComposite extends StackLayoutComposite {
         loadingComposite = new LoadingComposite(this, SWT.NONE);
 
         commentsComposite = new Composite(this, SWT.NONE);
-        commentsComposite.setLayout(new GridLayout(1, false));
+        GridLayout gl_commentsComposite = new GridLayout(2, false);
+        gl_commentsComposite.marginWidth = 0;
+        gl_commentsComposite.horizontalSpacing = 10;
+        commentsComposite.setLayout(gl_commentsComposite);
         formToolkit.adapt(commentsComposite);
         formToolkit.paintBordersFor(commentsComposite);
+        
+        separator = new Label(commentsComposite, SWT.SEPARATOR | SWT.VERTICAL);
+        GridData sepGridData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 3);
+        sepGridData.widthHint = 2;
+        separator.setLayoutData(sepGridData);
+
+        formToolkit.adapt(separator, true, true);
 
         Label commentsTitleLabel = new Label(commentsComposite, SWT.NONE);
         formToolkit.adapt(commentsTitleLabel, true, true);
