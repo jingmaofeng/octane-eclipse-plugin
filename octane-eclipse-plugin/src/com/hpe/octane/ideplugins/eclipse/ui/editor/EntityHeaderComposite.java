@@ -41,6 +41,7 @@ import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxSelectionListener;
+import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetPossiblePhasesJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.MultiSelectComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
@@ -81,6 +82,8 @@ public class EntityHeaderComposite extends Composite {
 	private Button btnComments;
 
 	private MultiSelectComboBox<String> fieldCombo;
+
+	private GridData gdBtnComments;
 	/**
 	 * Create the composite.
 	 * 
@@ -170,8 +173,9 @@ public class EntityHeaderComposite extends Composite {
 		btnFields.setToolTipText(TOOLTIP_FIELDS);
 		
 		btnComments = new Button(this, SWT.NONE);
-		btnComments.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		btnComments.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
+		gdBtnComments = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+		btnComments.setLayoutData(gdBtnComments);
+		btnComments.setImage(ImageResources.SHOW_COMMENTS.getImage());
 
 		//Actual data is populated when entity is set
 		fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
@@ -215,6 +219,11 @@ public class EntityHeaderComposite extends Composite {
 		this.entityModel = entityModel;
 		lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
 		linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
+		if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
+			btnComments.setVisible(true);
+		} else {
+			gdBtnComments.exclude=true;
+		}
 		showOrHidePhase(entityModel);
 		selectFieldsToDisplay(entityModel);
 	}

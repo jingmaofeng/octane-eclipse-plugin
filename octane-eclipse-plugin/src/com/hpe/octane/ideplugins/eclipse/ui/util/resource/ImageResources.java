@@ -49,7 +49,8 @@ public enum ImageResources {
 	NO_ITEMS_TO_DISPLAY_ROBOT("s-no-items-to-display.png"),
 	UNIDRAG_SMALL("unidrag-small.png"),
 	ROCKET("s-rocket.png"),
-	NO_RESULTS_ROBOT("s-no-items-to-display.png");
+	NO_RESULTS_ROBOT("s-no-items-to-display.png"),
+	SHOW_COMMENTS("comments-16x16.png");
 	//@formatter:on
 
     private static final String PATH_PREFIX = "icons/";

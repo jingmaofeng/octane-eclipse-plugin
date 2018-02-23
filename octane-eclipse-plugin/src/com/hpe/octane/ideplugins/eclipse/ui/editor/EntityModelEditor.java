@@ -100,7 +100,6 @@ public class EntityModelEditor extends EditorPart {
 		errorComposite = new ErrorComposite(rootComposite, SWT.NONE);
 		
 		entityComposite = new EntityComposite(rootComposite, SWT.NONE);
-		entityComposite.setLayout(new GridLayout(2, false));
 
 		rootComposite.showControl(entityComposite);
 
