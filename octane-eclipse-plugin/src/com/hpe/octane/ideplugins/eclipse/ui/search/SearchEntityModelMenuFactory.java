@@ -16,6 +16,8 @@ import static com.hpe.adm.octane.ideplugins.services.util.Util.getUiDataFromMode
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -53,6 +55,19 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
 
     // private static final ILog logger = Activator.getDefault().getLog();
+	
+	private static final Set<Entity> viewDetailsWhitelist = new HashSet<Entity>();
+	static {
+		viewDetailsWhitelist.add(Entity.USER_STORY);
+		viewDetailsWhitelist.add(Entity.QUALITY_STORY);
+		viewDetailsWhitelist.add(Entity.DEFECT);
+		viewDetailsWhitelist.add(Entity.TASK);
+		viewDetailsWhitelist.add(Entity.MANUAL_TEST);
+		viewDetailsWhitelist.add(Entity.GHERKIN_TEST);
+		viewDetailsWhitelist.add(Entity.TEST_SUITE_RUN);
+		viewDetailsWhitelist.add(Entity.MANUAL_TEST_RUN);
+		viewDetailsWhitelist.add(Entity.REQUIREMENT);
+	}
 
     private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
@@ -114,11 +129,11 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                         }
                     });
         }
-        if (entityType != Entity.COMMENT && entityType != Entity.EPIC && entityType != Entity.FEATURE && entityType != Entity.AUTOMATED_TEST) {
+        if (viewDetailsWhitelist.contains(entityType)) {
         	new MenuItem(menu, SWT.SEPARATOR);
         }
 
-        if (entityType != Entity.COMMENT && entityType != Entity.EPIC && entityType != Entity.FEATURE && entityType != Entity.AUTOMATED_TEST) {
+        if (viewDetailsWhitelist.contains(entityType)) {
             addMenuItem(
                     menu,
                     "View details",

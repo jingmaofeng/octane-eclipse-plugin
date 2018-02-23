@@ -23,6 +23,8 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -84,11 +86,24 @@ import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
 
 public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
+	private static final Set<Entity> whitelistParentDetails = new HashSet<Entity>();
+	static {
+		whitelistParentDetails.add(Entity.USER_STORY);
+		whitelistParentDetails.add(Entity.DEFECT);
+		whitelistParentDetails.add(Entity.TASK);
+		whitelistParentDetails.add(Entity.QUALITY_STORY);
+        whitelistParentDetails.add(Entity.MANUAL_TEST);
+        whitelistParentDetails.add(Entity.GHERKIN_TEST);
+        whitelistParentDetails.add(Entity.MANUAL_TEST_RUN);
+        whitelistParentDetails.add(Entity.TEST_SUITE_RUN);
+	}
     private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
     private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
     private static DownloadScriptService scriptService = Activator.getInstance(DownloadScriptService.class);
     private EntityListData entityListData;
+    
+    
 
     public MyWorkEntityModelMenuFactory(EntityListData entityListData) {
         this.entityListData = entityListData;
@@ -102,8 +117,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
         EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(entityId, entityType);
         try {
             page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
-        } catch (PartInitException ex) {
-        }
+        } catch (PartInitException ex) {}
     }
 
     @Override
@@ -169,8 +183,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 			}
 			Entity parentEntity = Entity.getEntityType(parentEntityModel);
 
-			if (parentEntity != Entity.AUTOMATED_TEST && parentEntity != Entity.TEST_SUITE) {
-				
+			if (whitelistParentDetails.contains(parentEntity)) {
 				addMenuItem(menu, 
 						"View parent details",
 						
