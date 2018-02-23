@@ -78,7 +78,7 @@ public class EntityHeaderComposite extends Composite {
 	private Button btnRefresh;
 	private Button btnSave;
 	private Button btnFields;
-
+	private Button btnComments;
 
 	private MultiSelectComboBox<String> fieldCombo;
 	/**
@@ -89,7 +89,7 @@ public class EntityHeaderComposite extends Composite {
 	 */
 	public EntityHeaderComposite(Composite parent, int style) {
 		super(parent, style);
-		setLayout(new GridLayout(7, false));
+		setLayout(new GridLayout(8, false));
 
 		Font boldFont = new Font(getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
 
@@ -168,6 +168,10 @@ public class EntityHeaderComposite extends Composite {
 		btnFields = new Button(this, SWT.NONE);
 		btnFields.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnFields.setToolTipText(TOOLTIP_FIELDS);
+		
+		btnComments = new Button(this, SWT.NONE);
+		btnComments.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		btnComments.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
 
 		//Actual data is populated when entity is set
 		fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
@@ -263,6 +267,10 @@ public class EntityHeaderComposite extends Composite {
 
 	public void addRefreshSelectionListener(Listener listener) {
 		btnRefresh.addListener(SWT.Selection, listener);
+	}
+	
+	public void addCommentsSelectionListener(Listener listener) {
+		btnComments.addListener(SWT.Selection, listener);
 	}
 
 	private void selectFieldsToDisplay(EntityModel entityModel) {

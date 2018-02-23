@@ -1,9 +1,11 @@
 package com.hpe.octane.ideplugins.eclipse.ui.editor;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
@@ -13,7 +15,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
 
 public class EntityComposite extends Composite {
 
-	@SuppressWarnings("unused")
 	private EntityModel entityModel;
 
 	private EntityCommentComposite entityCommentComposite;
@@ -27,20 +28,24 @@ public class EntityComposite extends Composite {
 	 */
 	public EntityComposite(Composite parent, int style) {
 		super(parent, style);
-		setLayout(new GridLayout(2, true));
+		setLayout(new GridLayout(2, false));
 
 		entityHeaderComposite = new EntityHeaderComposite(this, SWT.NONE);
-		entityHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-
-		entityFieldsComposite = new EntityFieldsComposite(this, SWT.NONE);
-		entityFieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-
-		entityCommentComposite = new EntityCommentComposite(this, SWT.NONE);
-		GridData gd_entityCommentComposite = new GridData(300, SWT.CENTER);
-		gd_entityCommentComposite.verticalAlignment = SWT.FILL;
-		gd_entityCommentComposite.grabExcessVerticalSpace = true;
-		gd_entityCommentComposite.grabExcessHorizontalSpace = false;
-		entityCommentComposite.setLayoutData(gd_entityCommentComposite);
+		entityHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+		
+		SashForm sashForm = new SashForm(this, SWT.NONE);
+		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 2, 1));
+		entityFieldsComposite = new EntityFieldsComposite(sashForm, SWT.PUSH);
+		entityCommentComposite = new EntityCommentComposite(sashForm, SWT.PUSH);
+		
+		entityHeaderComposite.addCommentsSelectionListener(new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
+					entityCommentComposite.setVisible(!entityCommentComposite.getVisible());
+				}
+			}
+		});
 	}
 
 	public void setEntityModel(EntityModel entityModel) {
@@ -52,13 +57,13 @@ public class EntityComposite extends Composite {
 
 	private void showOrHideComments(EntityModel entityModel) {
 		if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
-			GridData gridData = (GridData) entityCommentComposite.getLayoutData();
-			gridData.exclude = false;
+			//GridData gridData = (GridData) entityCommentComposite.getLayoutData();
+			//gridData.exclude = false;
 			entityCommentComposite.setVisible(true);
 			entityCommentComposite.setEntityModel(entityModel);
 		} else {
-			GridData gridData = (GridData) entityCommentComposite.getLayoutData();
-			gridData.exclude = true;
+//			GridData gridData = (GridData) entityCommentComposite.getLayoutData();
+//			gridData.exclude = true;
 			entityCommentComposite.setVisible(false);
 		}
 	}
