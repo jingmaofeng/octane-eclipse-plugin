@@ -23,8 +23,6 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -92,8 +90,6 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
     private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
     private static DownloadScriptService scriptService = Activator.getInstance(DownloadScriptService.class);
     private EntityListData entityListData;
-    
-    
 
     public MyWorkEntityModelMenuFactory(EntityListData entityListData) {
         this.entityListData = entityListData;
@@ -107,7 +103,8 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
         EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(entityId, entityType);
         try {
             page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
-        } catch (PartInitException ex) {}
+        } catch (PartInitException ex) {
+        }
     }
 
     @Override
@@ -117,8 +114,6 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
         EntityModel entityModel = MyWorkUtil.getEntityModelFromUserItem(userItem);
         Entity entityType = Entity.getEntityType(entityModel);
-        // String entityName =
-        // Util.getUiDataFromModel(entityModel.getValue("name"));
         Integer entityId = Integer.valueOf(getUiDataFromModel(entityModel.getValue("id")));
 
         addMenuItem(
@@ -152,7 +147,6 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     });
         }
 
-        
         new MenuItem(menu, SWT.SEPARATOR);
 
         if (entityType != Entity.COMMENT) {
@@ -163,31 +157,31 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     () -> openDetailTab(entityId, entityType));
         }
 
-		if (entityType == Entity.TASK || entityType == Entity.COMMENT) {
-			// Get parent info
-			EntityModel parentEntityModel;
-			if (entityType == Entity.TASK) {
-				parentEntityModel = (EntityModel) entityModel.getValue("story").getValue();
-			} else {
-				parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
-			}
-			Entity parentEntity = Entity.getEntityType(parentEntityModel);
+        if (entityType == Entity.TASK || entityType == Entity.COMMENT) {
+            // Get parent info
+            EntityModel parentEntityModel;
+            if (entityType == Entity.TASK) {
+                parentEntityModel = (EntityModel) entityModel.getValue("story").getValue();
+            } else {
+                parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
+            }
+            Entity parentEntity = Entity.getEntityType(parentEntityModel);
 
-			if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(parentEntity)) {
-				addMenuItem(menu, 
-						"View parent details",
-						
-						entityIconFactory.getImageIcon(Entity.getEntityType(parentEntityModel)), () -> {
-							Integer parentId = Integer.valueOf(parentEntityModel.getValue("id").getValue().toString());
-							Entity parentEntityType = Entity.getEntityType(parentEntityModel);
-							if (Entity.FEATURE == Entity.getEntityType(parentEntityModel) || Entity.EPIC == Entity.getEntityType(parentEntityModel)) {
-								entityService.openInBrowser(parentEntityModel);
-							} else {
-								openDetailTab(parentId, parentEntityType);
-							}
-						});
-			}
-		}
+            if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(parentEntity)) {
+                addMenuItem(menu,
+                        "View parent details",
+
+                        entityIconFactory.getImageIcon(Entity.getEntityType(parentEntityModel)), () -> {
+                            Integer parentId = Integer.valueOf(parentEntityModel.getValue("id").getValue().toString());
+                            Entity parentEntityType = Entity.getEntityType(parentEntityModel);
+                            if (Entity.FEATURE == Entity.getEntityType(parentEntityModel) || Entity.EPIC == Entity.getEntityType(parentEntityModel)) {
+                                entityService.openInBrowser(parentEntityModel);
+                            } else {
+                                openDetailTab(parentId, parentEntityType);
+                            }
+                        });
+            }
+        }
 
         if (entityType == Entity.GHERKIN_TEST) {
             addMenuItem(
@@ -251,14 +245,13 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     () -> {
                         PluginPreferenceStorage.setActiveItem(null);
                     });
-            
+
             MenuItem commitMessage = addMenuItem(
                     menu,
                     "Copy commit message to clipboard",
                     PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY).createImage(),
-                    () -> CommitMessageUtil.copyMessageIfValid()
-            		);
-             
+                    () -> CommitMessageUtil.copyMessageIfValid());
+
             if (!new EntityModelEditorInput(entityModel).equals(PluginPreferenceStorage.getActiveItem())) {
                 startWork.setEnabled(true);
                 stopWork.setEnabled(false);

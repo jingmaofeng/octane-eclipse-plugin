@@ -12,9 +12,6 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.util;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.events.MouseEvent;
@@ -37,58 +34,58 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class OpenDetailTabEntityMouseListener implements EntityMouseListener {
 
-	private static final ILog logger = Activator.getDefault().getLog();
-	private static EntityService entityService = Activator.getInstance(EntityService.class);
+    private static final ILog logger = Activator.getDefault().getLog();
+    private static EntityService entityService = Activator.getInstance(EntityService.class);
 
-	private EntityModel parentEntityModel;
+    private EntityModel parentEntityModel;
 
-	private IWorkbenchPage getCurrentWorkbenchPage() {
-		IWorkbench wb = PlatformUI.getWorkbench();
-		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-		return win.getActivePage();
-	}
+    private IWorkbenchPage getCurrentWorkbenchPage() {
+        IWorkbench wb = PlatformUI.getWorkbench();
+        IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+        return win.getActivePage();
+    }
 
-	@Override
-	public void mouseClick(EntityModel entityModel, MouseEvent event) {
-		// Open detail tab
-		if (event.count == 2) {
-			
-			if (Entity.USER_ITEM == Entity.getEntityType(entityModel)) {
-				getCurrentWorkbenchPage();
-				entityModel = MyWorkUtil.getEntityModelFromUserItem(entityModel);
-			}
+    @Override
+    public void mouseClick(EntityModel entityModel, MouseEvent event) {
+        // Open detail tab
+        if (event.count == 2) {
 
-			if (Entity.COMMENT == Entity.getEntityType(entityModel)) {
-				// Get parent info
-				getCurrentWorkbenchPage();
-				parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
-				Entity parentEntity = Entity.getEntityType(parentEntityModel);
-				if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(parentEntity)) {
-					entityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
-				} else {
-					entityService.openInBrowser(entityModel);
-				}
-			}
-			
-			//Open in browser
-			if (!EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(Entity.getEntityType(entityModel))) {
-				entityService.openInBrowser(entityModel);
-			} else {
-				Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
-				EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));
-				try {
-					if (Entity.COMMENT != Entity.getEntityType(entityModel)) {
-						logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
-						getCurrentWorkbenchPage().openEditor(entityModelEditorInput, EntityModelEditor.ID);
-					} else {
-						logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
-					}
-				} catch (PartInitException ex) {
-					logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "An exception has occured when opening the editor", ex));
-				}
-			}
+            if (Entity.USER_ITEM == Entity.getEntityType(entityModel)) {
+                getCurrentWorkbenchPage();
+                entityModel = MyWorkUtil.getEntityModelFromUserItem(entityModel);
+            }
 
-		}
-	}
+            if (Entity.COMMENT == Entity.getEntityType(entityModel)) {
+                // Get parent info
+                getCurrentWorkbenchPage();
+                parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
+                Entity parentEntity = Entity.getEntityType(parentEntityModel);
+                if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(parentEntity)) {
+                    entityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
+                } else {
+                    entityService.openInBrowser(entityModel);
+                }
+            }
+
+            // Open in browser
+            if (!EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(Entity.getEntityType(entityModel))) {
+                entityService.openInBrowser(entityModel);
+            } else {
+                Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
+                EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));
+                try {
+                    if (Entity.COMMENT != Entity.getEntityType(entityModel)) {
+                        logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
+                        getCurrentWorkbenchPage().openEditor(entityModelEditorInput, EntityModelEditor.ID);
+                    } else {
+                        logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
+                    }
+                } catch (PartInitException ex) {
+                    logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "An exception has occured when opening the editor", ex));
+                }
+            }
+
+        }
+    }
 
 }

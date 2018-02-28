@@ -16,8 +16,6 @@ import static com.hpe.adm.octane.ideplugins.services.util.Util.getUiDataFromMode
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -117,7 +115,7 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                     });
         }
         if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(entityType)) {
-        	new MenuItem(menu, SWT.SEPARATOR);
+            new MenuItem(menu, SWT.SEPARATOR);
         }
 
         if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(entityType)) {
