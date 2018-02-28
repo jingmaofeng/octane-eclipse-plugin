@@ -51,24 +51,11 @@ import com.hpe.octane.ideplugins.eclipse.ui.mywork.job.AddToMyWorkJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
 
     // private static final ILog logger = Activator.getDefault().getLog();
-	
-	private static final Set<Entity> viewDetailsWhitelist = new HashSet<Entity>();
-	static {
-		viewDetailsWhitelist.add(Entity.USER_STORY);
-		viewDetailsWhitelist.add(Entity.QUALITY_STORY);
-		viewDetailsWhitelist.add(Entity.DEFECT);
-		viewDetailsWhitelist.add(Entity.TASK);
-		viewDetailsWhitelist.add(Entity.MANUAL_TEST);
-		viewDetailsWhitelist.add(Entity.GHERKIN_TEST);
-		viewDetailsWhitelist.add(Entity.TEST_SUITE_RUN);
-		viewDetailsWhitelist.add(Entity.MANUAL_TEST_RUN);
-		viewDetailsWhitelist.add(Entity.REQUIREMENT);
-	}
-
     private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
     private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
@@ -129,11 +116,11 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                         }
                     });
         }
-        if (viewDetailsWhitelist.contains(entityType)) {
+        if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(entityType)) {
         	new MenuItem(menu, SWT.SEPARATOR);
         }
 
-        if (viewDetailsWhitelist.contains(entityType)) {
+        if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(entityType)) {
             addMenuItem(
                     menu,
                     "View details",

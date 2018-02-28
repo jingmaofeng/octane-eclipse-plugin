@@ -33,75 +33,62 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
+import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class OpenDetailTabEntityMouseListener implements EntityMouseListener {
-	
-	private static final Set<Entity> whitelistParentDetails = new HashSet<Entity>();
-	static {
-		whitelistParentDetails.add(Entity.USER_STORY);
-		whitelistParentDetails.add(Entity.DEFECT);
-		whitelistParentDetails.add(Entity.TASK);
-		whitelistParentDetails.add(Entity.QUALITY_STORY);
-        whitelistParentDetails.add(Entity.MANUAL_TEST);
-        whitelistParentDetails.add(Entity.GHERKIN_TEST);
-        whitelistParentDetails.add(Entity.MANUAL_TEST_RUN);
-        whitelistParentDetails.add(Entity.TEST_SUITE_RUN);
-	}
-	
-    private static final ILog logger = Activator.getDefault().getLog();
-    private static EntityService entityService = Activator.getInstance(EntityService.class);
-    
+
+	private static final ILog logger = Activator.getDefault().getLog();
+	private static EntityService entityService = Activator.getInstance(EntityService.class);
+
 	private EntityModel parentEntityModel;
-	private IWorkbenchPage page;
-	private IWorkbenchWindow win;
-	private IWorkbench wb;
-	
-	private void openInTab() {
-        wb = PlatformUI.getWorkbench();
-        win = wb.getActiveWorkbenchWindow();
-        page = win.getActivePage();
+
+	private IWorkbenchPage getCurrentWorkbenchPage() {
+		IWorkbench wb = PlatformUI.getWorkbench();
+		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+		return win.getActivePage();
 	}
 
-    @Override
-    public void mouseClick(EntityModel entityModel, MouseEvent event) {
-        // Open detail tab
-        if (event.count == 2) {
-            if (Entity.USER_ITEM == Entity.getEntityType(entityModel)) {
-            	openInTab();
-                entityModel = MyWorkUtil.getEntityModelFromUserItem(entityModel);
-            }
+	@Override
+	public void mouseClick(EntityModel entityModel, MouseEvent event) {
+		// Open detail tab
+		if (event.count == 2) {
+			
+			if (Entity.USER_ITEM == Entity.getEntityType(entityModel)) {
+				getCurrentWorkbenchPage();
+				entityModel = MyWorkUtil.getEntityModelFromUserItem(entityModel);
+			}
 
-            if (Entity.COMMENT == Entity.getEntityType(entityModel)) {
-            	// Get parent info
-    			parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
-    			Entity parentEntity = Entity.getEntityType(parentEntityModel);
-    			if (whitelistParentDetails.contains(parentEntity)) { 
-    				openInTab();
-    				entityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
-    			} else {
-    				entityService.openInBrowser(entityModel);
-    			}
-            }
-            
-            if(Entity.FEATURE == Entity.getEntityType(entityModel) || Entity.EPIC == Entity.getEntityType(entityModel)) {
-            	entityService.openInBrowser(entityModel);
-            } else {
-	            Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
-	            EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));
-	            try {
+			if (Entity.COMMENT == Entity.getEntityType(entityModel)) {
+				// Get parent info
+				getCurrentWorkbenchPage();
+				parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
+				Entity parentEntity = Entity.getEntityType(parentEntityModel);
+				if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(parentEntity)) {
+					entityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
+				} else {
+					entityService.openInBrowser(entityModel);
+				}
+			}
+			
+			//Open in browser
+			if (!EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(Entity.getEntityType(entityModel))) {
+				entityService.openInBrowser(entityModel);
+			} else {
+				Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
+				EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));
+				try {
 					if (Entity.COMMENT != Entity.getEntityType(entityModel)) {
-						openInTab();
 						logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
-						page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
+						getCurrentWorkbenchPage().openEditor(entityModelEditorInput, EntityModelEditor.ID);
 					} else {
-						logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(),null));
+						logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
 					}
-	            } catch (PartInitException ex) {
-	                logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "An exception has occured when opening the editor", ex));
-	            }
-            }
-            
-        }
-    }
+				} catch (PartInitException ex) {
+					logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "An exception has occured when opening the editor", ex));
+				}
+			}
+
+		}
+	}
 
 }
