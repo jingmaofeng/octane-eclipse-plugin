@@ -30,42 +30,61 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
+import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class OpenDetailTabEntityMouseListener implements EntityMouseListener {
 
     private static final ILog logger = Activator.getDefault().getLog();
     private static EntityService entityService = Activator.getInstance(EntityService.class);
 
+    private EntityModel parentEntityModel;
+
+    private IWorkbenchPage getCurrentWorkbenchPage() {
+        IWorkbench wb = PlatformUI.getWorkbench();
+        IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+        return win.getActivePage();
+    }
+
     @Override
     public void mouseClick(EntityModel entityModel, MouseEvent event) {
         // Open detail tab
         if (event.count == 2) {
-            IWorkbench wb = PlatformUI.getWorkbench();
-            IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-            IWorkbenchPage page = win.getActivePage();
 
             if (Entity.USER_ITEM == Entity.getEntityType(entityModel)) {
+                getCurrentWorkbenchPage();
                 entityModel = MyWorkUtil.getEntityModelFromUserItem(entityModel);
             }
 
             if (Entity.COMMENT == Entity.getEntityType(entityModel)) {
-                entityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
+                // Get parent info
+                getCurrentWorkbenchPage();
+                parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
+                Entity parentEntity = Entity.getEntityType(parentEntityModel);
+                if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(parentEntity)) {
+                    entityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
+                } else {
+                    entityService.openInBrowser(entityModel);
+                }
             }
-            
-            if(Entity.FEATURE == Entity.getEntityType(entityModel) || Entity.EPIC == Entity.getEntityType(entityModel)) {
-            	entityService.openInBrowser(entityModel);
+
+            // Open in browser
+            if (!EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(Entity.getEntityType(entityModel))) {
+                entityService.openInBrowser(entityModel);
             } else {
-	            Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
-	            EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));
-	            try {
-	                logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));                
-	                page.openEditor(entityModelEditorInput, EntityModelEditor.ID);                                      
-	            } catch (PartInitException ex) {
-	                logger.log(
-	                        new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "An exception has occured when opening the editor", ex));
-	            }
+                Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
+                EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));
+                try {
+                    if (Entity.COMMENT != Entity.getEntityType(entityModel)) {
+                        logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
+                        getCurrentWorkbenchPage().openEditor(entityModelEditorInput, EntityModelEditor.ID);
+                    } else {
+                        logger.log(new Status(Status.INFO, Activator.PLUGIN_ID, Status.OK, entityModelEditorInput.toString(), null));
+                    }
+                } catch (PartInitException ex) {
+                    logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR, "An exception has occured when opening the editor", ex));
+                }
             }
-            
+
         }
     }
 

@@ -81,6 +81,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
+import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
@@ -113,8 +114,6 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
         EntityModel entityModel = MyWorkUtil.getEntityModelFromUserItem(userItem);
         Entity entityType = Entity.getEntityType(entityModel);
-        // String entityName =
-        // Util.getUiDataFromModel(entityModel.getValue("name"));
         Integer entityId = Integer.valueOf(getUiDataFromModel(entityModel.getValue("id")));
 
         addMenuItem(
@@ -150,7 +149,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
 
         new MenuItem(menu, SWT.SEPARATOR);
 
-        if (entityType != Entity.COMMENT && entityType != Entity.REQUIREMENT) {
+        if (entityType != Entity.COMMENT) {
             addMenuItem(
                     menu,
                     "View details",
@@ -166,20 +165,22 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
             } else {
                 parentEntityModel = (EntityModel) Util.getContainerItemForCommentModel(entityModel).getValue();
             }
+            Entity parentEntity = Entity.getEntityType(parentEntityModel);
 
-            addMenuItem(
-                    menu,
-                    "View parent details",
-                    entityIconFactory.getImageIcon(Entity.getEntityType(parentEntityModel)),
-                    () -> {
-                        Integer parentId = Integer.valueOf(parentEntityModel.getValue("id").getValue().toString());
-                        Entity parentEntityType = Entity.getEntityType(parentEntityModel);
-                        if (Entity.FEATURE == Entity.getEntityType(parentEntityModel) || Entity.EPIC == Entity.getEntityType(parentEntityModel)) {
-                            entityService.openInBrowser(parentEntityModel);
-                        } else {
-                            openDetailTab(parentId, parentEntityType);
-                        }
-                    });
+            if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(parentEntity)) {
+                addMenuItem(menu,
+                        "View parent details",
+
+                        entityIconFactory.getImageIcon(Entity.getEntityType(parentEntityModel)), () -> {
+                            Integer parentId = Integer.valueOf(parentEntityModel.getValue("id").getValue().toString());
+                            Entity parentEntityType = Entity.getEntityType(parentEntityModel);
+                            if (Entity.FEATURE == Entity.getEntityType(parentEntityModel) || Entity.EPIC == Entity.getEntityType(parentEntityModel)) {
+                                entityService.openInBrowser(parentEntityModel);
+                            } else {
+                                openDetailTab(parentId, parentEntityType);
+                            }
+                        });
+            }
         }
 
         if (entityType == Entity.GHERKIN_TEST) {
@@ -244,14 +245,13 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                     () -> {
                         PluginPreferenceStorage.setActiveItem(null);
                     });
-            
+
             MenuItem commitMessage = addMenuItem(
                     menu,
                     "Copy commit message to clipboard",
                     PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY).createImage(),
-                    () -> CommitMessageUtil.copyMessageIfValid()
-            		);
-             
+                    () -> CommitMessageUtil.copyMessageIfValid());
+
             if (!new EntityModelEditorInput(entityModel).equals(PluginPreferenceStorage.getActiveItem())) {
                 startWork.setEnabled(true);
                 stopWork.setEnabled(false);

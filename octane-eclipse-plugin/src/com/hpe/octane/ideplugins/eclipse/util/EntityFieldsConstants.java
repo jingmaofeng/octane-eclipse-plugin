@@ -12,12 +12,17 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.util;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
+
 public class EntityFieldsConstants {
-	
-	public static final String FIELD_ID = "id";
-	public static final String FIELD_TYPE = "type";
-	public static final String FIELD_SUBTYPE = "subtype";
-	
+
+    public static final String FIELD_ID = "id";
+    public static final String FIELD_TYPE = "type";
+    public static final String FIELD_SUBTYPE = "subtype";
+
     public static final String FIELD_DEFECT_TYPE = "defect_type";
     public static final String FIELD_DESCRIPTION = "description";
     public static final String FIELD_FEATURE = "parent";
@@ -66,11 +71,11 @@ public class EntityFieldsConstants {
     public static final String FIELD_ITEM_ORIGIN = "item_origin";
     public static final String FIELD_ESTIMATED_HOURS = "estimated_hours";
     public static final String FIELD_AUTOMATION_STATUS = "automation_status";
-    
-    //inner user prop
+
+    // inner user prop
     public static final String FIELD_FULL_NAME = "full_name";
 
-    //FOR TEST RUNS
+    // FOR TEST RUNS
     public static final String FIELD_TEST_NAME = "test_name";
     public static final String FIELD_TEST_RUN_NAME = "name";
     public static final String FIELD_TEST_RUN_NATIVE_STATUS = "native_status";
@@ -82,8 +87,20 @@ public class EntityFieldsConstants {
     public static final String FIELD_TEST_RUN_DURATION = "duration";
     public static final String FIELD_TEST_RUN_VERSION = "test_version";
 
-    //COMMENTS
-    public static final String FIELD_COMMENT_TEXT="text";
+    // COMMENTS
+    public static final String FIELD_COMMENT_TEXT = "text";
 
-
+    // Fields that are white listed for verifications
+    public static final Set<Entity> supportedEntitiesThatAllowDetailView = new HashSet<Entity>();
+    static {
+        supportedEntitiesThatAllowDetailView.add(Entity.USER_STORY);
+        supportedEntitiesThatAllowDetailView.add(Entity.DEFECT);
+        supportedEntitiesThatAllowDetailView.add(Entity.TASK);
+        supportedEntitiesThatAllowDetailView.add(Entity.QUALITY_STORY);
+        supportedEntitiesThatAllowDetailView.add(Entity.MANUAL_TEST);
+        supportedEntitiesThatAllowDetailView.add(Entity.GHERKIN_TEST);
+        supportedEntitiesThatAllowDetailView.add(Entity.MANUAL_TEST_RUN);
+        supportedEntitiesThatAllowDetailView.add(Entity.TEST_SUITE_RUN);
+        supportedEntitiesThatAllowDetailView.add(Entity.REQUIREMENT);
+    }
 }
