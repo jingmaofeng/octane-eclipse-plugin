@@ -65,250 +65,256 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityHeaderComposite extends Composite {
 
-	private static final EntityIconFactory entityIconFactory = new EntityIconFactory(25, 25, 7);
+    private static final EntityIconFactory entityIconFactory = new EntityIconFactory(25, 25, 7);
 
-	private static final String TOOLTIP_REFRESH = "Refresh entity details";
-	private static final String TOOLTIP_PHASE = "Save changes to entity phase";
-	private static final String TOOLTIP_PHASE_COMBO = "Available entity phases";
-	private static final String TOOLTIP_FIELDS = "Customize fields to be shown";
+    private static final String TOOLTIP_REFRESH = "Refresh entity details";
+    private static final String TOOLTIP_PHASE = "Save changes to entity phase";
+    private static final String TOOLTIP_PHASE_COMBO = "Available entity phases";
+    private static final String TOOLTIP_FIELDS = "Customize fields to be shown";
 
-	private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
-	private Map<String, String> prettyFieldsMap;
-	private static final Map<Entity, Set<String>> defaultFields = DefaultEntityFieldsUtil.getDefaultFields();
+    private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
+    private Map<String, String> prettyFieldsMap;
+    private static final Map<Entity, Set<String>> defaultFields = DefaultEntityFieldsUtil.getDefaultFields();
 
-	private ToolTip truncatedLabelTooltip;
+    private ToolTip truncatedLabelTooltip;
 
-	private Label lblEntityIcon;
-	private TruncatingStyledText linkEntityName;
+    private Label lblEntityIcon;
+    private TruncatingStyledText linkEntityName;
 
-	private EntityModel entityModel;
+    private EntityModel entityModel;
 
-	private Composite phaseComposite;
-	private CustomEntityComboBox<EntityModel> nextPhasesComboBox;
-	private Label lblCurrentPhase;
+    private Composite phaseComposite;
+    private CustomEntityComboBox<EntityModel> nextPhasesComboBox;
+    private Label lblCurrentPhase;
 
-	private Button btnRefresh;
-	private Button btnSave;
-	private Button btnFields;
-	private Button btnComments;
+    private Button btnRefresh;
+    private Button btnSave;
+    private Button btnFields;
+    private Button btnComments;
 
-	private MultiSelectComboBox<String> fieldCombo;
+    private MultiSelectComboBox<String> fieldCombo;
 
-	private GridData gdBtnComments;
-	/**
-	 * Create the composite.
-	 * 
-	 * @param parent
-	 * @param style
-	 */
-	public EntityHeaderComposite(Composite parent, int style) {
-		super(parent, style);
-		setLayout(new GridLayout(8, false));
+    private GridData gdBtnComments;
 
-		Font boldFont = new Font(getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
+    /**
+     * Create the composite.
+     * 
+     * @param parent
+     * @param style
+     */
+    public EntityHeaderComposite(Composite parent, int style) {
+        super(parent, style);
+        setLayout(new GridLayout(8, false));
 
-		truncatedLabelTooltip = new ToolTip(parent.getShell(), SWT.ICON_INFORMATION);
+        Font boldFont = new Font(getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 12, SWT.BOLD));
 
-		lblEntityIcon = new Label(this, SWT.NONE);
-		lblEntityIcon.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
+        truncatedLabelTooltip = new ToolTip(parent.getShell(), SWT.ICON_INFORMATION);
 
-		linkEntityName = new TruncatingStyledText(this, SWT.NONE, truncatedLabelTooltip);
-		linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		linkEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		linkEntityName.addListener(SWT.MouseDown, event -> Activator.getInstance(EntityService.class).openInBrowser(entityModel));
+        lblEntityIcon = new Label(this, SWT.NONE);
+        lblEntityIcon.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 
-		linkEntityName.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
-		linkEntityName.setFont(boldFont);
-		linkEntityName.setText("ENTITY_NAME");
+        linkEntityName = new TruncatingStyledText(this, SWT.NONE, truncatedLabelTooltip);
+        linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        linkEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        linkEntityName.addListener(SWT.MouseDown, event -> Activator.getInstance(EntityService.class).openInBrowser(entityModel));
 
-		phaseComposite = new Composite(this, SWT.NONE);
-		phaseComposite.setLayout(new GridLayout(4, false));
+        linkEntityName.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+        linkEntityName.setFont(boldFont);
+        linkEntityName.setText("ENTITY_NAME");
 
-		GridData phaseButtons = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		phaseButtons.grabExcessVerticalSpace = true;
-		phaseComposite.setLayoutData(phaseButtons);
-		setChildVisibility(phaseComposite, false); // shown after phases are fetched
+        phaseComposite = new Composite(this, SWT.NONE);
+        phaseComposite.setLayout(new GridLayout(4, false));
 
-		Label lblPhase = new Label(phaseComposite, SWT.NONE);
-		lblPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		lblPhase.setAlignment(SWT.CENTER);
-		lblPhase.setText("Phase:");
+        GridData phaseButtons = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+        phaseButtons.grabExcessVerticalSpace = true;
+        phaseComposite.setLayoutData(phaseButtons);
+        setChildVisibility(phaseComposite, false); // shown after phases are
+                                                   // fetched
 
-		lblCurrentPhase = new Label(phaseComposite, SWT.NONE);
-		lblCurrentPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		lblCurrentPhase.setFont(SWTResourceManager.getBoldFont(lblPhase.getFont()));
-		lblCurrentPhase.setText("CURRENT_PHASE");
+        Label lblPhase = new Label(phaseComposite, SWT.NONE);
+        lblPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+        lblPhase.setAlignment(SWT.CENTER);
+        lblPhase.setText("Phase:");
 
-		Label lblMoveTo = new Label(phaseComposite, SWT.NONE);
-		lblMoveTo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		lblMoveTo.setText("Move to:");
+        lblCurrentPhase = new Label(phaseComposite, SWT.NONE);
+        lblCurrentPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+        lblCurrentPhase.setFont(SWTResourceManager.getBoldFont(lblPhase.getFont()));
+        lblCurrentPhase.setText("CURRENT_PHASE");
 
-		nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(phaseComposite);
-		nextPhasesComboBox.setLabelProvider(new CustomEntityComboBoxLabelProvider<EntityModel>() {
-			@Override
-			public String getSelectedLabel(EntityModel entityModelElement) {
-				return Util.getUiDataFromModel(entityModelElement.getValue("target_phase"), "name");
-			}
+        Label lblMoveTo = new Label(phaseComposite, SWT.NONE);
+        lblMoveTo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+        lblMoveTo.setText("Move to:");
 
-			@Override
-			public String getListLabel(EntityModel entityModelElement) {
-				return Util.getUiDataFromModel(entityModelElement.getValue("target_phase"), "name");
-			}
-		});
-		nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
-		nextPhasesComboBox.addSelectionListener(new CustomEntityComboBoxSelectionListener<EntityModel>() {
-			@Override
-			public void selectionChanged(CustomEntityComboBox<EntityModel> customEntityComboBox, EntityModel newSelection) {
-				newSelection = customEntityComboBox.getSelection();
-				if(newSelection.getValue("target_phase") instanceof ReferenceFieldModel) {
-					ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
-					entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
-				}
-			}
-		});
-		
-		btnSave = new Button(this, SWT.NONE);
-		btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		btnSave.setToolTipText(TOOLTIP_PHASE);
-		btnSave.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
+        nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(phaseComposite);
+        nextPhasesComboBox.setLabelProvider(new CustomEntityComboBoxLabelProvider<EntityModel>() {
+            @Override
+            public String getSelectedLabel(EntityModel entityModelElement) {
+                return Util.getUiDataFromModel(entityModelElement.getValue("target_phase"), "name");
+            }
 
-		btnRefresh = new Button(this, SWT.NONE);
-		btnRefresh.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		btnRefresh.setImage(ImageResources.REFRESH_16X16.getImage());
-		btnRefresh.setToolTipText(TOOLTIP_REFRESH);
+            @Override
+            public String getListLabel(EntityModel entityModelElement) {
+                return Util.getUiDataFromModel(entityModelElement.getValue("target_phase"), "name");
+            }
+        });
+        nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
+        nextPhasesComboBox.addSelectionListener(new CustomEntityComboBoxSelectionListener<EntityModel>() {
+            @Override
+            public void selectionChanged(CustomEntityComboBox<EntityModel> customEntityComboBox, EntityModel newSelection) {
+                newSelection = customEntityComboBox.getSelection();
+                if (newSelection.getValue("target_phase") instanceof ReferenceFieldModel) {
+                    ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
+                    entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
+                }
+            }
+        });
 
-		btnFields = new Button(this, SWT.NONE);
-		btnFields.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		btnFields.setToolTipText(TOOLTIP_FIELDS);
-		
-		btnComments = new Button(this, SWT.NONE);
-		gdBtnComments = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
-		btnComments.setLayoutData(gdBtnComments);
-		btnComments.setImage(ImageResources.SHOW_COMMENTS.getImage());
+        btnSave = new Button(this, SWT.NONE);
+        btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+        btnSave.setToolTipText(TOOLTIP_PHASE);
+        btnSave.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
 
-		//Actual data is populated when entity is set
-		fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
-			@Override
-			public String getText(Object fieldName) {
-				return prettyFieldsMap.get(fieldName);
-			}
-		});
+        btnRefresh = new Button(this, SWT.NONE);
+        btnRefresh.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+        btnRefresh.setImage(ImageResources.REFRESH_16X16.getImage());
+        btnRefresh.setToolTipText(TOOLTIP_REFRESH);
 
-		btnFields.addListener(SWT.Selection, event -> {
-			fieldCombo.showFloatShell(btnFields);
-			fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
-		});
+        btnFields = new Button(this, SWT.NONE);
+        btnFields.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+        btnFields.setToolTipText(TOOLTIP_FIELDS);
 
-		fieldCombo.setResetRunnable(() -> {
-			fieldCombo.setSelection(defaultFields.get(Entity.getEntityType(entityModel)));
-		});
+        btnComments = new Button(this, SWT.NONE);
+        gdBtnComments = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+        btnComments.setLayoutData(gdBtnComments);
+        btnComments.setImage(ImageResources.SHOW_COMMENTS.getImage());
 
-		DelayedRunnable delayedRunnable = new DelayedRunnable(() -> {
-			Display.getDefault().asyncExec(() -> {
-				
-				PluginPreferenceStorage.setShownEntityFields(
-						Entity.getEntityType(entityModel),
-						new LinkedHashSet<>(fieldCombo.getSelections()));
-				
-				if (PluginPreferenceStorage.areShownEntityFieldsDefaults(Entity.getEntityType(entityModel))) {
-					btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
-				} else {
-					btnFields.setImage(ImageResources.FIELDS_ON.getImage());
-				}
-			});
-		}, 500);
+        // Actual data is populated when entity is set
+        fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
+            @Override
+            public String getText(Object fieldName) {
+                return prettyFieldsMap.get(fieldName);
+            }
+        });
 
-		fieldCombo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) { delayedRunnable.execute(); }
-		});
-	}
+        btnFields.addListener(SWT.Selection, event -> {
+            fieldCombo.showFloatShell(btnFields);
+            fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
+        });
 
-	public void setEntityModel(EntityModel entityModel) {
-		this.entityModel = entityModel;
-		lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
-		linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
-		if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
-			btnComments.setVisible(true);
-		} else {
-			gdBtnComments.exclude=true;
-		}
-		showOrHidePhase(entityModel);
-		selectFieldsToDisplay(entityModel);
-	}
+        fieldCombo.setResetRunnable(() -> {
+            fieldCombo.setSelection(defaultFields.get(Entity.getEntityType(entityModel)));
+        });
 
-	private void showOrHidePhase(EntityModel entityModel) {
-		if (GetPossiblePhasesJob.hasPhases(Entity.getEntityType(entityModel))) {
-			String currentPhaseName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_PHASE));
-			lblCurrentPhase.setText(currentPhaseName);
+        DelayedRunnable delayedRunnable = new DelayedRunnable(() -> {
+            Display.getDefault().asyncExec(() -> {
 
-			// load possible phases
-			GetPossiblePhasesJob getPossiblePhasesJob = new GetPossiblePhasesJob("Loading possible phases",
-					entityModel);
-			getPossiblePhasesJob.addJobChangeListener(new JobChangeAdapter() {
-				@Override
-				public void done(IJobChangeEvent event) {
-					Display.getDefault().asyncExec(() -> {
-						Collection<EntityModel> possibleTransitions = getPossiblePhasesJob.getPossibleTransitions();
-						if (possibleTransitions.isEmpty()) {
-							nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getNoTransitionPhase()));
-							nextPhasesComboBox.selectFirstItem();
-							nextPhasesComboBox.setEnabled(false);
-						}else {
-							nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));
-							nextPhasesComboBox.selectFirstItem();
-							nextPhasesComboBox.setEnabled(true);
-						}
-						setChildVisibility(phaseComposite, true);
+                PluginPreferenceStorage.setShownEntityFields(
+                        Entity.getEntityType(entityModel),
+                        new LinkedHashSet<>(fieldCombo.getSelections()));
 
-						// Force redraw header
-						layout(true, true);
-						redraw();
-						update();
-					});
-				}
-			});
-			getPossiblePhasesJob.schedule();
+                if (PluginPreferenceStorage.areShownEntityFieldsDefaults(Entity.getEntityType(entityModel))) {
+                    btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
+                } else {
+                    btnFields.setImage(ImageResources.FIELDS_ON.getImage());
+                }
+            });
+        }, 500);
 
-		} else {
-			setChildVisibility(phaseComposite, false);
-		}
-	}
+        fieldCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                delayedRunnable.execute();
+            }
+        });
+    }
 
-	private void setChildVisibility(Control control, boolean isVisible) {
-		control.setVisible(isVisible);
-	}
+    public void setEntityModel(EntityModel entityModel) {
+        this.entityModel = entityModel;
+        lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
+        linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
+        if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
+            btnComments.setVisible(true);
+            gdBtnComments.exclude = false;
+        } else {
+            btnComments.setVisible(false);
+            gdBtnComments.exclude = true;
+        }
+        showOrHidePhase(entityModel);
+        selectFieldsToDisplay(entityModel);
+    }
 
-	public void addSaveSelectionListener(Listener listener) {
-		btnSave.addListener(SWT.Selection, listener);
-	}
+    private void showOrHidePhase(EntityModel entityModel) {
+        if (GetPossiblePhasesJob.hasPhases(Entity.getEntityType(entityModel))) {
+            String currentPhaseName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_PHASE));
+            lblCurrentPhase.setText(currentPhaseName);
 
-	public void addRefreshSelectionListener(Listener listener) {
-		btnRefresh.addListener(SWT.Selection, listener);
-	}
-	
-	public void addCommentsSelectionListener(Listener listener) {
-		btnComments.addListener(SWT.Selection, listener);
-	}
+            // load possible phases
+            GetPossiblePhasesJob getPossiblePhasesJob = new GetPossiblePhasesJob("Loading possible phases",
+                    entityModel);
+            getPossiblePhasesJob.addJobChangeListener(new JobChangeAdapter() {
+                @Override
+                public void done(IJobChangeEvent event) {
+                    Display.getDefault().asyncExec(() -> {
+                        Collection<EntityModel> possibleTransitions = getPossiblePhasesJob.getPossibleTransitions();
+                        if (possibleTransitions.isEmpty()) {
+                            nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getNoTransitionPhase()));
+                            nextPhasesComboBox.selectFirstItem();
+                            nextPhasesComboBox.setEnabled(false);
+                        } else {
+                            nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));
+                            nextPhasesComboBox.selectFirstItem();
+                            nextPhasesComboBox.setEnabled(true);
+                        }
+                        setChildVisibility(phaseComposite, true);
 
-	private void selectFieldsToDisplay(EntityModel entityModel) {
-		if (PluginPreferenceStorage.areShownEntityFieldsDefaults(Entity.getEntityType(entityModel))) {
-			btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
-		} else {
-			btnFields.setImage(ImageResources.FIELDS_ON.getImage());
-		}
+                        // Force redraw header
+                        layout(true, true);
+                        redraw();
+                        update();
+                    });
+                }
+            });
+            getPossiblePhasesJob.schedule();
 
-		// make a map of the field names and labels
-		Collection<FieldMetadata> allFields = metadataService.getVisibleFields(Entity.getEntityType(entityModel));
-		allFields.stream()
-			.filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION) 
-						&& !f.getName().equals(EntityFieldsConstants.FIELD_NAME)
-						&& !f.getName().equals(EntityFieldsConstants.FIELD_PHASE));
-		prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
+        } else {
+            setChildVisibility(phaseComposite, false);
+        }
+    }
 
-		fieldCombo.clear();
-		fieldCombo.addAll(prettyFieldsMap.keySet());
-		fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
-	}
-	
+    private void setChildVisibility(Control control, boolean isVisible) {
+        control.setVisible(isVisible);
+    }
+
+    public void addSaveSelectionListener(Listener listener) {
+        btnSave.addListener(SWT.Selection, listener);
+    }
+
+    public void addRefreshSelectionListener(Listener listener) {
+        btnRefresh.addListener(SWT.Selection, listener);
+    }
+
+    public void addCommentsSelectionListener(Listener listener) {
+        btnComments.addListener(SWT.Selection, listener);
+    }
+
+    private void selectFieldsToDisplay(EntityModel entityModel) {
+        if (PluginPreferenceStorage.areShownEntityFieldsDefaults(Entity.getEntityType(entityModel))) {
+            btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
+        } else {
+            btnFields.setImage(ImageResources.FIELDS_ON.getImage());
+        }
+
+        // make a map of the field names and labels
+        Collection<FieldMetadata> allFields = metadataService.getVisibleFields(Entity.getEntityType(entityModel));
+        allFields.stream()
+                .filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION)
+                        && !f.getName().equals(EntityFieldsConstants.FIELD_NAME)
+                        && !f.getName().equals(EntityFieldsConstants.FIELD_PHASE));
+        prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
+
+        fieldCombo.clear();
+        fieldCombo.addAll(prettyFieldsMap.keySet());
+        fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
+    }
+
 }
