@@ -49,11 +49,11 @@ import com.hpe.octane.ideplugins.eclipse.ui.mywork.job.AddToMyWorkJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
 
     // private static final ILog logger = Activator.getDefault().getLog();
-
     private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
     private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
@@ -114,10 +114,11 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                         }
                     });
         }
+        if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(entityType)) {
+            new MenuItem(menu, SWT.SEPARATOR);
+        }
 
-        new MenuItem(menu, SWT.SEPARATOR);
-
-        if (entityType != Entity.COMMENT) {
+        if (EntityFieldsConstants.supportedEntitiesThatAllowDetailView.contains(entityType)) {
             addMenuItem(
                     menu,
                     "View details",
