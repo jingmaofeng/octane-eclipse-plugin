@@ -29,13 +29,13 @@ import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
+import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PrefereceChangeHandler;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PreferenceConstants;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
-import org.eclipse.swt.widgets.Label;
 
 public class EntityFieldsComposite extends Composite {
 
@@ -49,23 +49,19 @@ public class EntityFieldsComposite extends Composite {
 
 	private Composite entityFieldsComposite;
 	private Composite entityDescriptionComposite;
-	private Composite fieldsComposite;
-
-	Section sectionFields;
-	Section sectionDescription;
+	private Composite fieldsComposite;	
 
 	private ToolTip truncatedLabelTooltip;
-
-	private FormToolkit formGenerator;
-
+	
 	private EntityModel entityModel;
 	private Browser descBrowser;
 
 	public EntityFieldsComposite(Composite parent, int style) {
 		super(parent, style);
+		
 		setLayout(new GridLayout(1, false));
-
-		formGenerator = new FormToolkit(this.getDisplay());
+		FormToolkit formGenerator = new FormToolkit(this.getDisplay());
+		
 		truncatedLabelTooltip = new ToolTip(this.getShell(), SWT.ICON_INFORMATION);
 
 		entityFieldsComposite = new Composite(this, SWT.NONE);
@@ -82,28 +78,34 @@ public class EntityFieldsComposite extends Composite {
 		formGenerator.adapt(entityDescriptionComposite);
 		formGenerator.paintBordersFor(entityDescriptionComposite);
 
-		sectionFields = formGenerator.createSection(entityFieldsComposite, Section.TREE_NODE | Section.EXPANDED);
+		Section sectionFields = formGenerator.createSection(entityFieldsComposite, Section.TREE_NODE | Section.EXPANDED);
 		sectionFields.setText("Fields");
 		sectionFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		formGenerator.createCompositeSeparator(sectionFields);
+		
 		fieldsComposite = new Composite(sectionFields, SWT.NONE);
 		fieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		sectionFields.setClient(fieldsComposite);
 
-		sectionDescription = formGenerator.createSection(entityDescriptionComposite, Section.TREE_NODE | Section.EXPANDED);
+		Section sectionDescription = formGenerator.createSection(entityDescriptionComposite, Section.TREE_NODE | Section.EXPANDED);
 		formGenerator.createCompositeSeparator(sectionDescription);
+		
 		sectionDescription.setText("Description");
 		sectionDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
 		PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
 		descBrowser = factory.createBrowser(sectionDescription, SWT.NONE);
 		descBrowser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-
-		PluginPreferenceStorage.addPrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, () -> {
-			drawEntityFields(entityModel);
-		});
+		descBrowser.addLocationListener(new LinkInterceptListener());
+		sectionDescription.setClient(descBrowser);
+		
+		//Field listener
+		PrefereceChangeHandler prefereceChangeHandler = () -> drawEntityFields(entityModel);
+		PluginPreferenceStorage.addPrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, prefereceChangeHandler);
+		addDisposeListener(e -> PluginPreferenceStorage.removePrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, prefereceChangeHandler));
 	}
 
-	public Section createDescriptionFormSection(EntityModel entityModel) {
+	public void setDesciptionText(EntityModel entityModel) {
 		String descriptionText = "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
 				+ getRgbString(foregroundColor) + ">"
 				+ Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION))
@@ -115,10 +117,6 @@ public class EntityFieldsComposite extends Composite {
 		} else {
 			descBrowser.setText(descriptionText);
 		}
-
-		descBrowser.addLocationListener(new LinkInterceptListener());
-		sectionDescription.setClient(descBrowser);
-		return sectionDescription;
 	}
 
 	private static String getRgbString(Color color) {
@@ -189,6 +187,7 @@ public class EntityFieldsComposite extends Composite {
 				labelValue.setForeground(foregroundColor);
 			}
 		}
+		
 		// Force redraw
 		layout(true, true);
 		redraw();
@@ -202,7 +201,7 @@ public class EntityFieldsComposite extends Composite {
 	public void setEntityModel(EntityModel entityModel) {
 		this.entityModel = entityModel;
 		drawEntityFields(entityModel);
-		createDescriptionFormSection(entityModel);
+		setDesciptionText(entityModel);
 	}
 
 }

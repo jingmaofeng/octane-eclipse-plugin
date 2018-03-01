@@ -27,12 +27,10 @@ public class GetEntityModelJob extends Job {
 
     private long entityId;
     private Entity entityType;
-
-    private boolean wasEntityRetrived = false;
-
     private EntityModel retrivedEntity;    
-
     private EntityService entityService = Activator.getInstance(EntityService.class);
+    
+    private Exception exception;
 
     public GetEntityModelJob(String name, Entity entityType, long entityId) {
         super(name);
@@ -45,20 +43,24 @@ public class GetEntityModelJob extends Job {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
             retrivedEntity = entityService.findEntity(this.entityType, this.entityId);
-            wasEntityRetrived = true;
-        } catch (ServiceException ignored) {
-            wasEntityRetrived = false;
+            exception = null;
+        } catch (ServiceException exception) {
+        	this.exception = exception;
         }
         monitor.done();
         return Status.OK_STATUS;
     }
 
     public boolean wasEntityRetrived() {
-        return wasEntityRetrived;
+    	return exception == null;
     }
 
     public EntityModel getEntiyData() {
         return retrivedEntity;
     }
+
+	public Exception getException() {
+		return exception;
+	}
 
 }

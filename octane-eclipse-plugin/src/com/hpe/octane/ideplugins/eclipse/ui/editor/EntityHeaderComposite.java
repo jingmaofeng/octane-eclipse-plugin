@@ -70,7 +70,6 @@ public class EntityHeaderComposite extends Composite {
 	private TruncatingStyledText linkEntityName;
 
 	private EntityModel entityModel;
-	private EntityModel selectedPhase;
 
 	private Composite phaseComposite;
 	private CustomEntityComboBox<EntityModel> nextPhasesComboBox;
@@ -145,8 +144,6 @@ public class EntityHeaderComposite extends Composite {
 			}
 		});
 		nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
-		selectedPhase = nextPhasesComboBox.getSelection();
-		
 		nextPhasesComboBox.addSelectionListener(new CustomEntityComboBoxSelectionListener<EntityModel>() {
 			@Override
 			public void selectionChanged(CustomEntityComboBox<EntityModel> customEntityComboBox, EntityModel newSelection) {
@@ -302,12 +299,4 @@ public class EntityHeaderComposite extends Composite {
 		fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
 	}
 	
-
-	public EntityModel getSelectedPhase() {
-		return nextPhasesComboBox.getSelection();
-	}
-
-	public void setSelectedPhase(EntityModel selectedPhase) {
-		this.selectedPhase = selectedPhase;
-	}
 }

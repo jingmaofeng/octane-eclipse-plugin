@@ -12,6 +12,8 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.util;
 
+import java.util.Arrays;
+
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -46,6 +48,10 @@ public class StackLayoutComposite extends Composite {
     }
 
     public void showControl(Control control) {
+    	if(!Arrays.asList(getChildren()).contains(control)){
+    		throw new RuntimeException("Cannot show control that is not a child of StackLayoutComposite, control: " + control);
+    	}
+    	
         layout.topControl = control;
         // layout of parent works
         parent.layout(true, true);

@@ -1,7 +1,6 @@
 package com.hpe.octane.ideplugins.eclipse.ui.editor;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -28,50 +27,59 @@ public class EntityComposite extends Composite {
 	 */
 	public EntityComposite(Composite parent, int style) {
 		super(parent, style);
-		setLayout(new GridLayout(1, false));
+		setLayout(new GridLayout(2, false));
 
 		entityHeaderComposite = new EntityHeaderComposite(this, SWT.NONE);
-		entityHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		entityHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 		
-		SashForm sashForm = new SashForm(this, SWT.NONE);
-		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
-		entityFieldsComposite = new EntityFieldsComposite(sashForm, SWT.PUSH);
-		entityCommentComposite = new EntityCommentComposite(sashForm, SWT.PUSH);
+		entityFieldsComposite = new EntityFieldsComposite(this, SWT.NONE);
+		entityFieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		entityCommentComposite = new EntityCommentComposite(this, SWT.NONE);
+		GridData entityCommentCompositeGridData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
+		entityCommentCompositeGridData.widthHint = 350;
+		entityCommentComposite.setLayoutData(entityCommentCompositeGridData);
 		
 		entityHeaderComposite.addCommentsSelectionListener(new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
-					entityCommentComposite.setVisible(!entityCommentComposite.getVisible());
-					
-					// Force redraw
-					layout(false, true);
-					redraw();
-					update();
-				}
+				setCommentsVisible(!entityCommentComposite.getVisible());
 			}
-			
 		});
-
+	}
+	
+	public void setCommentsVisible(boolean isVisible) {
+		entityCommentComposite.setVisible(isVisible);
+		((GridData) entityCommentComposite.getLayoutData()).exclude = !isVisible;
+		layout(true, true);
+		redraw();
+		update();
 	}
 
 	public void setEntityModel(EntityModel entityModel) {
 		this.entityModel = entityModel;
+		
 		entityHeaderComposite.setEntityModel(entityModel);
-		entityFieldsComposite.setEntityModel(entityModel);		
-		showOrHideComments(entityModel);
-	}
-
-	private void showOrHideComments(EntityModel entityModel) {
+		entityFieldsComposite.setEntityModel(entityModel);	
+		
 		if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
-			entityCommentComposite.setVisible(true);
+			setCommentsVisible(true);
 			entityCommentComposite.setEntityModel(entityModel);
 		} else {
-			entityCommentComposite.setVisible(false);
+			setCommentsVisible(false);
 		}
+		
+		setSize(computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		layout(true, true);
+		redraw();
+		update();
 	}
+	
+	public EntityModel getEntityModel() {
+        return entityModel;
+    }
 
-	public void addSaveSelectionListener(Listener listener) {
+    public void addSaveSelectionListener(Listener listener) {
 		entityHeaderComposite.addSaveSelectionListener(listener);
 	}
 
@@ -79,7 +87,4 @@ public class EntityComposite extends Composite {
 		entityHeaderComposite.addRefreshSelectionListener(listener);
 	}
 	
-	public EntityModel getSelectedPhase() {
-		return entityHeaderComposite.getSelectedPhase();
-	}
 }

@@ -43,7 +43,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
-import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityCommentComposite extends StackLayoutComposite {
