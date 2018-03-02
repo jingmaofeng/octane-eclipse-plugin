@@ -35,13 +35,13 @@ public abstract class OctaneViewPart extends ViewPart {
     private WelcomeComposite welcomeComposite;
     private LoadingComposite loadingComposite;
     private Control octaneViewControl;
-    
+
     private StackLayoutComposite rootContainer;
 
     @Override
     public void createPartControl(Composite parent) {
         rootContainer = new StackLayoutComposite(parent, SWT.NONE);
-        
+
         welcomeComposite = new WelcomeComposite(rootContainer, SWT.NONE, () -> {
             PreferencesUtil.createPreferenceDialogOn(parent.getShell(),
                     PluginPreferencePage.ID,
