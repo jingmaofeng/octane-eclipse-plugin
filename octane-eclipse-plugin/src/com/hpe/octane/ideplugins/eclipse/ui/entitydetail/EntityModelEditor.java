@@ -57,7 +57,7 @@ public class EntityModelEditor extends EditorPart {
     private static final Color BACKGROUND_COLOR = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme()
             .getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
 
-    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.editor2.EntityModelEditorNew"; //$NON-NLS-1$
+    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditor"; //$NON-NLS-1$
 
     public EntityModelEditorInput input;
     private EntityModel entityModel;
