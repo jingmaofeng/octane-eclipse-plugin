@@ -123,7 +123,6 @@ public class EntityModelEditor extends EditorPart {
             }
         });
 
-        getEntityDetailsJob.schedule();
         entityComposite.addRefreshSelectionListener(event -> getEntityDetailsJob.schedule());
 
         entityComposite.addSaveSelectionListener(new Listener() {
@@ -151,6 +150,8 @@ public class EntityModelEditor extends EditorPart {
                 });
             }
         });
+
+        getEntityDetailsJob.schedule();
     }
 
     @Override
