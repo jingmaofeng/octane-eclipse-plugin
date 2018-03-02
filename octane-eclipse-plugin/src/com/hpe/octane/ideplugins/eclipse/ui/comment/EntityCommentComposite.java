@@ -57,8 +57,8 @@ public class EntityCommentComposite extends StackLayoutComposite {
 
     private Text commentText;
 
-	private Button postCommentBtn;
-	private Label separator;
+    private Button postCommentBtn;
+    private Label separator;
 
     public EntityCommentComposite(Composite parent, int style) {
         super(parent, style);
@@ -72,7 +72,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
         commentsComposite.setLayout(gl_commentsComposite);
         formToolkit.adapt(commentsComposite);
         formToolkit.paintBordersFor(commentsComposite);
-        
+
         separator = new Label(commentsComposite, SWT.SEPARATOR | SWT.VERTICAL);
         GridData sepGridData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 3);
         sepGridData.widthHint = 2;
@@ -114,10 +114,10 @@ public class EntityCommentComposite extends StackLayoutComposite {
         });
         formToolkit.adapt(postCommentBtn, true, true);
         postCommentBtn.setText("Post");
-        
+
         commentText.setEnabled(false);
         postCommentBtn.setEnabled(false);
-        
+
         PropagateScrollBrowserFactory browserFactory = new PropagateScrollBrowserFactory();
         commentsBrowser = browserFactory.createBrowser(commentsComposite, SWT.NONE);
         commentsBrowser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -127,13 +127,13 @@ public class EntityCommentComposite extends StackLayoutComposite {
         commentsBrowser.setText("<html></html>");
         commentsBrowser.addLocationListener(new LinkInterceptListener());
     }
-    
-	public void setEntityModel(EntityModel entityModel) {
-		this.entityModel = entityModel;
+
+    public void setEntityModel(EntityModel entityModel) {
+        this.entityModel = entityModel;
         commentText.setEnabled(true);
         postCommentBtn.setEnabled(true);
-		displayComments();
-	}
+        displayComments();
+    }
 
     private void postComment(String text) {
         commentText.setEnabled(false);
@@ -158,7 +158,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
         });
     }
 
-    private void displayComments() {    	
+    private void displayComments() {
         GetCommentsJob getCommentsJob = new GetCommentsJob("Getting comments", entityModel);
         getCommentsJob.schedule();
         showControl(loadingComposite);

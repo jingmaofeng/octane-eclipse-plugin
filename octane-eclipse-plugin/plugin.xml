@@ -69,7 +69,7 @@
          point="org.eclipse.ui.editors">
       <editor
             class="com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor"
-            id="com.hpe.octane.ideplugins.eclipse.ui.editor2.EntityModelEditorNew"
+            id="com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor"
             name="EntityModelEditorNew">
       </editor>
       <editor
