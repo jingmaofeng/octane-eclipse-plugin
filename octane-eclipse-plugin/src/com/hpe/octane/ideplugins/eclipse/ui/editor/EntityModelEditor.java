@@ -23,6 +23,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -30,7 +32,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
+import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetEntityModelJob;
+import com.hpe.octane.ideplugins.eclipse.ui.editor.job.UpdateEntityJob;
+import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
@@ -41,7 +48,11 @@ public class EntityModelEditor extends EditorPart {
     public EntityModelEditor() {
     }
 
+    private static final String GO_TO_BROWSER_DIALOG_MESSAGE = "You can try to change the phase using ALM Octane in a browser."
+            + "\nDo you want to do this now?";
+
     private static final EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
+    private static EntityService entityService = Activator.getInstance(EntityService.class);
 
     private static final Color BACKGROUND_COLOR = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme()
             .getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
@@ -114,6 +125,32 @@ public class EntityModelEditor extends EditorPart {
 
         getEntityDetailsJob.schedule();
         entityComposite.addRefreshSelectionListener(event -> getEntityDetailsJob.schedule());
+
+        entityComposite.addSaveSelectionListener(new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + Entity.getEntityType(entityModel), entityModel);
+                updateEntityJob.schedule();
+                updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
+                    @Override
+                    public void done(IJobChangeEvent event) {
+                        Display.getDefault().asyncExec(() -> {
+                            if (updateEntityJob.isPhaseChanged()) {
+                                new InfoPopup("Saving entity", "Saved your changes").open();
+                            } else {
+                                boolean shouldGoToBrowser = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
+                                        "Business rule violation",
+                                        "Phase change failed \n" + GO_TO_BROWSER_DIALOG_MESSAGE);
+                                if (shouldGoToBrowser) {
+                                    entityService.openInBrowser(entityModel);
+                                }
+                            }
+                            getEntityDetailsJob.schedule();
+                        });
+                    }
+                });
+            }
+        });
     }
 
     @Override

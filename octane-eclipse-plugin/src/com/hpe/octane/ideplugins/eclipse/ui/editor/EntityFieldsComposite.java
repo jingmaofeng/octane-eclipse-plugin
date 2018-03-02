@@ -51,169 +51,170 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityFieldsComposite extends Composite {
 
-	private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
-			.get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
-	private Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
-			.get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+    private Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
+            .get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
+    private Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
+            .get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
 
-	private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
-	private Map<String, String> prettyFieldsMap;
+    private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
+    private Map<String, String> prettyFieldsMap;
 
-	private Composite entityFieldsComposite;
-	private Composite entityDescriptionComposite;
-	private Composite fieldsComposite;	
+    private Composite entityFieldsComposite;
+    private Composite entityDescriptionComposite;
+    private Composite fieldsComposite;
 
-	private ToolTip truncatedLabelTooltip;
-	
-	private EntityModel entityModel;
-	private Browser descBrowser;
+    private ToolTip truncatedLabelTooltip;
 
-	public EntityFieldsComposite(Composite parent, int style) {
-		super(parent, style);
-		
-		setLayout(new GridLayout(1, false));
-		FormToolkit formGenerator = new FormToolkit(this.getDisplay());
-		
-		truncatedLabelTooltip = new ToolTip(this.getShell(), SWT.ICON_INFORMATION);
+    private EntityModel entityModel;
+    private Browser descBrowser;
 
-		entityFieldsComposite = new Composite(this, SWT.NONE);
-		entityFieldsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
-		entityFieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-		entityFieldsComposite.setLayout(new GridLayout(2, false));
-		formGenerator.adapt(entityFieldsComposite);
-		formGenerator.paintBordersFor(entityFieldsComposite);
+    public EntityFieldsComposite(Composite parent, int style) {
+        super(parent, style);
 
-		entityDescriptionComposite = new Composite(this, SWT.NONE);
-		entityDescriptionComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
-		entityDescriptionComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		entityDescriptionComposite.setLayout(new GridLayout(1, false));
-		formGenerator.adapt(entityDescriptionComposite);
-		formGenerator.paintBordersFor(entityDescriptionComposite);
+        setLayout(new GridLayout(1, false));
+        FormToolkit formGenerator = new FormToolkit(this.getDisplay());
 
-		Section sectionFields = formGenerator.createSection(entityFieldsComposite, Section.TREE_NODE | Section.EXPANDED);
-		sectionFields.setText("Fields");
-		sectionFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		formGenerator.createCompositeSeparator(sectionFields);
-		
-		fieldsComposite = new Composite(sectionFields, SWT.NONE);
-		fieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-		sectionFields.setClient(fieldsComposite);
+        truncatedLabelTooltip = new ToolTip(this.getShell(), SWT.ICON_INFORMATION);
 
-		Section sectionDescription = formGenerator.createSection(entityDescriptionComposite, Section.TREE_NODE | Section.EXPANDED);
-		formGenerator.createCompositeSeparator(sectionDescription);
-		
-		sectionDescription.setText("Description");
-		sectionDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
-		descBrowser = factory.createBrowser(sectionDescription, SWT.NONE);
-		descBrowser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-		descBrowser.addLocationListener(new LinkInterceptListener());
-		sectionDescription.setClient(descBrowser);
-		
-		//Field listener
-		PrefereceChangeHandler prefereceChangeHandler = () -> drawEntityFields(entityModel);
-		PluginPreferenceStorage.addPrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, prefereceChangeHandler);
-		addDisposeListener(e -> PluginPreferenceStorage.removePrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, prefereceChangeHandler));
-	}
+        entityFieldsComposite = new Composite(this, SWT.NONE);
+        entityFieldsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+        entityFieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+        entityFieldsComposite.setLayout(new GridLayout(2, false));
+        formGenerator.adapt(entityFieldsComposite);
+        formGenerator.paintBordersFor(entityFieldsComposite);
 
-	public void setDesciptionText(EntityModel entityModel) {
-		String descriptionText = "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-				+ getRgbString(foregroundColor) + ">"
-				+ Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION))
-				+ "</font></body></html>";
-		if (descriptionText.equals("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-				+ getRgbString(foregroundColor) + ">" + "</font></body></html>")) {
-			descBrowser.setText("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-					+ getRgbString(foregroundColor) + ">" + "No description" + "</font></body></html>");
-		} else {
-			descBrowser.setText(descriptionText);
-		}
-	}
+        entityDescriptionComposite = new Composite(this, SWT.NONE);
+        entityDescriptionComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+        entityDescriptionComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        entityDescriptionComposite.setLayout(new GridLayout(1, false));
+        formGenerator.adapt(entityDescriptionComposite);
+        formGenerator.paintBordersFor(entityDescriptionComposite);
 
-	private static String getRgbString(Color color) {
-		return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
-	}
+        Section sectionFields = formGenerator.createSection(entityFieldsComposite, Section.TREE_NODE | Section.EXPANDED);
+        sectionFields.setText("Fields");
+        sectionFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        formGenerator.createCompositeSeparator(sectionFields);
 
-	private void drawEntityFields(EntityModel entityModel) {
-		Set<String> shownFields = PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel));
-		drawEntityFields(shownFields, entityModel);
-	}
+        fieldsComposite = new Composite(sectionFields, SWT.NONE);
+        fieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+        sectionFields.setClient(fieldsComposite);
 
-	private void drawEntityFields(Set<String> shownFields, EntityModel entityModel) {
-		Arrays.stream(fieldsComposite.getChildren())
-				.filter(child -> child != null)
-				.filter(child -> !child.isDisposed())
-				.forEach(child -> child.dispose());
+        Section sectionDescription = formGenerator.createSection(entityDescriptionComposite, Section.TREE_NODE | Section.EXPANDED);
+        formGenerator.createCompositeSeparator(sectionDescription);
 
-		// make a map of the field names and labels
-		Collection<FieldMetadata> allFields = metadataService.getVisibleFields(Entity.getEntityType(entityModel));
-		allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
-		prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
+        sectionDescription.setText("Description");
+        sectionDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-		fieldsComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		Composite sectionClientLeft = new Composite(fieldsComposite, SWT.NONE);
-		sectionClientLeft.setLayout(new GridLayout(2, false));
-		sectionClientLeft.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		Composite sectionClientRight = new Composite(fieldsComposite, SWT.NONE);
-		sectionClientRight.setLayout(new GridLayout(2, false));
-		sectionClientRight.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
+        descBrowser = factory.createBrowser(sectionDescription, SWT.NONE);
+        descBrowser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+        descBrowser.addLocationListener(new LinkInterceptListener());
+        sectionDescription.setClient(descBrowser);
 
-		// Skip the description field because it's in another UI component (below other fields)
-		Iterator<String> iterator = shownFields.iterator();
+        // Field listener
+        PrefereceChangeHandler prefereceChangeHandler = () -> drawEntityFields(entityModel);
+        PluginPreferenceStorage.addPrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, prefereceChangeHandler);
+        addDisposeListener(e -> PluginPreferenceStorage.removePrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, prefereceChangeHandler));
+    }
 
-		for (int i = 0; i < shownFields.size(); i++) {
-			String fieldName = iterator.next();
-			String fieldValue;
+    public void setDesciptionText(EntityModel entityModel) {
+        String descriptionText = "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
+                + getRgbString(foregroundColor) + ">"
+                + Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION))
+                + "</font></body></html>";
+        if (descriptionText.equals("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
+                + getRgbString(foregroundColor) + ">" + "</font></body></html>")) {
+            descBrowser.setText("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
+                    + getRgbString(foregroundColor) + ">" + "No description" + "</font></body></html>");
+        } else {
+            descBrowser.setText(descriptionText);
+        }
+    }
 
-			if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
-					|| EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
-					|| EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
-					|| EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
-				fieldValue = Util.getUiDataFromModel(entityModel.getValue(fieldName),
-						EntityFieldsConstants.FIELD_FULL_NAME);
-			} else {
-				fieldValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
-			}
+    private static String getRgbString(Color color) {
+        return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
+    }
 
-			// Determine if we put the label pair in the left or right container
-			Composite columnComposite;
-			if (i % 2 == 0) {
-				columnComposite = sectionClientLeft;
-			} else {
-				columnComposite = sectionClientRight;
-			}
+    private void drawEntityFields(EntityModel entityModel) {
+        Set<String> shownFields = PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel));
+        drawEntityFields(shownFields, entityModel);
+    }
 
-			if (!fieldName.equals(EntityFieldsConstants.FIELD_DESCRIPTION) 
-					&& !fieldName.equals(EntityFieldsConstants.FIELD_NAME) 
-					&& !fieldName.equals(EntityFieldsConstants.FIELD_PHASE)) {
-				// Add the pair of labels for field and value
-				CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
-				labelFieldName.setText(prettyFieldsMap.get(fieldName));
-				labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
-				labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+    private void drawEntityFields(Set<String> shownFields, EntityModel entityModel) {
+        Arrays.stream(fieldsComposite.getChildren())
+                .filter(child -> child != null)
+                .filter(child -> !child.isDisposed())
+                .forEach(child -> child.dispose());
 
-				TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE, truncatedLabelTooltip);
-				labelValue.setText(fieldValue);
-				labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-				labelValue.setForeground(foregroundColor);
-			}
-		}
-		
-		// Force redraw
-		layout(true, true);
-		redraw();
-		update();
-	}
+        // make a map of the field names and labels
+        Collection<FieldMetadata> allFields = metadataService.getVisibleFields(Entity.getEntityType(entityModel));
+        allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
+        prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
 
-	public EntityModel getEntityModel() {
-		return entityModel;
-	}
+        fieldsComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+        Composite sectionClientLeft = new Composite(fieldsComposite, SWT.NONE);
+        sectionClientLeft.setLayout(new GridLayout(2, false));
+        sectionClientLeft.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+        Composite sectionClientRight = new Composite(fieldsComposite, SWT.NONE);
+        sectionClientRight.setLayout(new GridLayout(2, false));
+        sectionClientRight.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-	public void setEntityModel(EntityModel entityModel) {
-		this.entityModel = entityModel;
-		drawEntityFields(entityModel);
-		setDesciptionText(entityModel);
-	}
+        // Skip the description field because it's in another UI component
+        // (below other fields)
+        Iterator<String> iterator = shownFields.iterator();
+
+        for (int i = 0; i < shownFields.size(); i++) {
+            String fieldName = iterator.next();
+            String fieldValue;
+
+            if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
+                    || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
+                    || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
+                    || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
+                fieldValue = Util.getUiDataFromModel(entityModel.getValue(fieldName),
+                        EntityFieldsConstants.FIELD_FULL_NAME);
+            } else {
+                fieldValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
+            }
+
+            // Determine if we put the label pair in the left or right container
+            Composite columnComposite;
+            if (i % 2 == 0) {
+                columnComposite = sectionClientLeft;
+            } else {
+                columnComposite = sectionClientRight;
+            }
+
+            if (!fieldName.equals(EntityFieldsConstants.FIELD_DESCRIPTION)
+                    && !fieldName.equals(EntityFieldsConstants.FIELD_NAME)
+                    && !fieldName.equals(EntityFieldsConstants.FIELD_PHASE)) {
+                // Add the pair of labels for field and value
+                CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
+                labelFieldName.setText(prettyFieldsMap.get(fieldName));
+                labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
+                labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+
+                TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE, truncatedLabelTooltip);
+                labelValue.setText(fieldValue);
+                labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+                labelValue.setForeground(foregroundColor);
+            }
+        }
+
+        // Force redraw
+        layout(true, true);
+        redraw();
+        update();
+    }
+
+    public EntityModel getEntityModel() {
+        return entityModel;
+    }
+
+    public void setEntityModel(EntityModel entityModel) {
+        this.entityModel = entityModel;
+        drawEntityFields(entityModel);
+        setDesciptionText(entityModel);
+    }
 
 }
