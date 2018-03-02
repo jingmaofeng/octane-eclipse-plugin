@@ -13,44 +13,48 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<profiles>
-        <profile>
+		<profile>
 			<!-- Used for signing built jars -->
-			<!-- This profile is not needed development, should only be run by the CI-->
-            <id>signhp</id>
-            <build>
-                <defaultGoal>install</defaultGoal>
-                <plugins>
-                 	<plugin>
-                        <groupId>org.eclipse.tycho</groupId>
-                        <artifactId>tycho-packaging-plugin</artifactId>
-                        <version>${tycho-version}</version>
-                    </plugin>
-                    <!-- Has to be after exectuted after the tycho package plugin -->
-                    <plugin>
-                        <groupId>SignHPUtility.plugin</groupId>
-                        <artifactId>signhp-maven-plugin</artifactId>
-                        <version>${signhp.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>signHP</goal>
-                                </goals>
-                                <configuration>
-                                    <parameters>
-                                    -g ${project.build.directory}/${project.name}-${project.version}.jar -t 24 -p AGN_JAR -i -v -u jarsigner -c 1 -o ${project.build.directory}
-                                    </parameters>
-                                    <properties>
-                                		<krb.account_name>${hpsign.account_name}</krb.account_name>
+			<!-- This profile is not needed development, should only be run by the 
+				CI -->
+			<id>signhp</id>
+			<build>
+				<defaultGoal>install</defaultGoal>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-packaging-plugin</artifactId>
+						<version>${tycho-version}</version>
+					</plugin>
+					<!-- Has to be after exectuted after the tycho package plugin -->
+					<plugin>
+						<groupId>SignHPUtility.plugin</groupId>
+						<artifactId>signhp-maven-plugin</artifactId>
+						<version>${signhp.version}</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>signHP</goal>
+								</goals>
+								<configuration>
+									<parameters>
+										-g
+										${project.build.directory}/${project.name}-${project.version}.jar
+										-t 24 -p AGN_JAR -i -v -u jarsigner -c 1 -o
+										${project.build.directory}
+									</parameters>
+									<properties>
+										<krb.account_name>${hpsign.account_name}</krb.account_name>
 										<krb.password>${hpsign.krb.password}</krb.password>
-                                    </properties>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-    
+									</properties>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 </project>
