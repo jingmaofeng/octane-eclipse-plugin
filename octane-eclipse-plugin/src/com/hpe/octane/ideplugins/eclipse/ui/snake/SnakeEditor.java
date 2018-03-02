@@ -35,7 +35,7 @@ public class SnakeEditor extends EditorPart {
 
     public static final NullEditorInput snakeEditorInput = new NullEditorInput();
 
-    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor"; //$NON-NLS-1$
+    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.snake.SnakeEditor"; //$NON-NLS-1$
     private SnakeGameCanvas snakeGameCanvas;
 
     @Override

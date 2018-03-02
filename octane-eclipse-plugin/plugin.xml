@@ -68,9 +68,9 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor"
-            id="com.hpe.octane.ideplugins.eclipse.ui.editor2.EntityModelEditorNew"
-            name="EntityModelEditorNew">
+            class="com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditor"
+            id="com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditor"
+            name="EntityModelEditor">
       </editor>
       <editor
             class="com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor"
@@ -79,10 +79,10 @@
             name="SearchEditor">
       </editor>
       <editor
-            class="com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor"
+            class="com.hpe.octane.ideplugins.eclipse.ui.snake.SnakeEditor"
             default="false"
             icon="icons/octane-icon-13x13.png"
-            id="com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor"
+            id="com.hpe.octane.ideplugins.eclipse.ui.snake.SnakeEditor"
             name="Octane Snake">
       </editor>
    </extension>
@@ -128,7 +128,7 @@
             id="com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditorInput">
       </factory>
       <factory
-            class="com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput"
+            class="com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditorInput"
             id="com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput">
       </factory>
    </extension>

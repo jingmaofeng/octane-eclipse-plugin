@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.ui.editor;
+package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;

@@ -27,8 +27,8 @@ import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditor;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityMouseListener;
 
 public class OpenDetailTabEntityMouseListener implements EntityMouseListener {

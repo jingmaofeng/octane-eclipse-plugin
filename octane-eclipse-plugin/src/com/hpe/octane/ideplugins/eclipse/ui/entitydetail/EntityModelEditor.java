@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.ui.editor;
+package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -30,7 +30,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetEntityModelJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
@@ -46,7 +46,7 @@ public class EntityModelEditor extends EditorPart {
     private static final Color BACKGROUND_COLOR = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme()
             .getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
 
-    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.editor2.EntityModelEditorNew"; //$NON-NLS-1$
+    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditor"; //$NON-NLS-1$
 
     public EntityModelEditorInput input;
     private EntityModel entityModel;

@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.ui.editor;
+package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +54,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxSelectionListener;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetPossiblePhasesJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetPossiblePhasesJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.MultiSelectComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
