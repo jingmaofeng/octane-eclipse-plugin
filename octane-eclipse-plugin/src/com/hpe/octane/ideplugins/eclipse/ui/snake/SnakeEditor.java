@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.ui.editor.snake;
+package com.hpe.octane.ideplugins.eclipse.ui.snake;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
@@ -35,7 +35,7 @@ public class SnakeEditor extends EditorPart {
 
     public static final NullEditorInput snakeEditorInput = new NullEditorInput();
 
-    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor"; //$NON-NLS-1$
+    public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.snake.SnakeEditor"; //$NON-NLS-1$
     private SnakeGameCanvas snakeGameCanvas;
 
     @Override

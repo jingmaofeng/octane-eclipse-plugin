@@ -57,16 +57,28 @@ public class EntityCommentComposite extends StackLayoutComposite {
 
     private Text commentText;
 
-    public EntityCommentComposite(Composite parent, int style, EntityModel entityModel) {
+    private Button postCommentBtn;
+    private Label separator;
+
+    public EntityCommentComposite(Composite parent, int style) {
         super(parent, style);
-        this.entityModel = entityModel;
 
         loadingComposite = new LoadingComposite(this, SWT.NONE);
 
         commentsComposite = new Composite(this, SWT.NONE);
-        commentsComposite.setLayout(new GridLayout(1, false));
+        GridLayout gl_commentsComposite = new GridLayout(2, false);
+        gl_commentsComposite.marginWidth = 0;
+        gl_commentsComposite.horizontalSpacing = 10;
+        commentsComposite.setLayout(gl_commentsComposite);
         formToolkit.adapt(commentsComposite);
         formToolkit.paintBordersFor(commentsComposite);
+
+        separator = new Label(commentsComposite, SWT.SEPARATOR | SWT.VERTICAL);
+        GridData sepGridData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 3);
+        sepGridData.widthHint = 2;
+        separator.setLayoutData(sepGridData);
+
+        formToolkit.adapt(separator, true, true);
 
         Label commentsTitleLabel = new Label(commentsComposite, SWT.NONE);
         formToolkit.adapt(commentsTitleLabel, true, true);
@@ -89,7 +101,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
             }
         });
 
-        Button postCommentBtn = new Button(inputCommentAndSendButtonComposite, SWT.NONE);
+        postCommentBtn = new Button(inputCommentAndSendButtonComposite, SWT.NONE);
         postCommentBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
         postCommentBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -103,6 +115,9 @@ public class EntityCommentComposite extends StackLayoutComposite {
         formToolkit.adapt(postCommentBtn, true, true);
         postCommentBtn.setText("Post");
 
+        commentText.setEnabled(false);
+        postCommentBtn.setEnabled(false);
+
         PropagateScrollBrowserFactory browserFactory = new PropagateScrollBrowserFactory();
         commentsBrowser = browserFactory.createBrowser(commentsComposite, SWT.NONE);
         commentsBrowser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -111,8 +126,12 @@ public class EntityCommentComposite extends StackLayoutComposite {
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
         commentsBrowser.addLocationListener(new LinkInterceptListener());
+    }
 
-        // init load
+    public void setEntityModel(EntityModel entityModel) {
+        this.entityModel = entityModel;
+        commentText.setEnabled(true);
+        postCommentBtn.setEnabled(true);
         displayComments();
     }
 
@@ -139,7 +158,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
         });
     }
 
-    public void displayComments() {
+    private void displayComments() {
         GetCommentsJob getCommentsJob = new GetCommentsJob("Getting comments", entityModel);
         getCommentsJob.schedule();
         showControl(loadingComposite);

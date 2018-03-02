@@ -25,7 +25,8 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-public class CustomEntityComboBox <T>{
+public class CustomEntityComboBox <T> {
+	
 	private ComboViewer viewer;
     private CustomEntityComboBoxLabelProvider<T> labelProvider;
     private List<T> content;
@@ -78,6 +79,10 @@ public class CustomEntityComboBox <T>{
     public void setContent(List<T> content) {
         this.content = content;
         this.viewer.setInput(content.toArray());
+    }
+    
+    public void setEnabled(boolean setEnabled) {
+    	viewer.getCombo().setEnabled(setEnabled);
     }
 
     public T getSelection() {

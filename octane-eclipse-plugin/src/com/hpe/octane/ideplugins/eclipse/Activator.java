@@ -32,11 +32,11 @@ import com.hpe.adm.octane.ideplugins.services.di.ServiceModule;
 import com.hpe.adm.octane.ideplugins.services.util.UrlParser;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PreferenceConstants;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.KonamiCodeListener;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.snake.SnakeEditor;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditor;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
+import com.hpe.octane.ideplugins.eclipse.ui.snake.KonamiCodeListener;
+import com.hpe.octane.ideplugins.eclipse.ui.snake.SnakeEditor;
 
 /**
  * The activator class controls the plug-in life cycle

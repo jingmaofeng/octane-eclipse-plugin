@@ -41,7 +41,7 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRenderer;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.custom.EntityModelRow.DetailsPosition;

@@ -28,8 +28,8 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditor;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditor;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditorInput;
 
 public class CallEditor extends AbstractHandler {
 
@@ -41,16 +41,16 @@ public class CallEditor extends AbstractHandler {
         IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
         IWorkbenchPage page = window.getActivePage();
         ISelection selection = HandlerUtil.getCurrentSelection(event);
-        
+
         if (selection != null && selection instanceof IStructuredSelection) {
             Object obj = ((IStructuredSelection) selection).getFirstElement();
             if (obj != null) {
                 EntityModel entityModel = (EntityModel) obj;
-                
-            	if(Entity.USER_ITEM == Entity.getEntityType(entityModel)){
-            		entityModel = MyWorkUtil.getEntityModelFromUserItem(entityModel);
-            	}
-          
+
+                if (Entity.USER_ITEM == Entity.getEntityType(entityModel)) {
+                    entityModel = MyWorkUtil.getEntityModelFromUserItem(entityModel);
+                }
+
                 Long id = Long.parseLong(entityModel.getValue("id").getValue().toString());
 
                 EntityModelEditorInput entityModelEditorInput = new EntityModelEditorInput(id, Entity.getEntityType(entityModel));

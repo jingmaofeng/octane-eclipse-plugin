@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
@@ -253,7 +252,7 @@ public class MultiSelectComboBox<T> {
 	}
 	
 	public void setSelection(Collection<T> selectOptions, boolean fireSelectionHandlers) {
-		clearSelection(fireSelectionHandlers);
+		clearSelection(false);
 		setSelected(selectOptions, fireSelectionHandlers);
 	}
 	
@@ -261,63 +260,39 @@ public class MultiSelectComboBox<T> {
 		clearSelection(true);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void clearSelection(boolean fireSelectionHandlers) {
 		selection.clear();
-		if(buttons != null) {
-			buttons.stream()
-				.filter(btn -> !btn.isDisposed())
-				.filter(btn -> btn.getVisible())
-				.forEach(btn -> setSelected((T) btn.getData(BTN_DATA_CONSTANT), false, false));
-		}
+		redrawButtonSelectionState();
 		if(fireSelectionHandlers) {
 			selectionListeners.forEach(l -> l.widgetSelected(null));
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void selectAll() {
 		selection.addAll(options);
-		if(buttons != null) {
-			buttons.stream()
-				.filter(btn -> !btn.isDisposed())
-				.filter(btn -> btn.getVisible())
-				.forEach(btn -> setSelected((T) btn.getData(BTN_DATA_CONSTANT), true, false));
-		}
+		redrawButtonSelectionState();
 		selectionListeners.forEach(l -> l.widgetSelected(null));
 	}
 
 	public void setSelected(T option, boolean isSelected, boolean fireSelectionListeners) {
 		if (isSelected) {
 			selection.add(option);
-			Button btn = findButton(option);
-			if (btn != null && !btn.isDisposed()) {
-				btn.setSelection(true);
-			}
 		} else {
 			selection.remove(option);
-			Button btn = findButton(option);
-			if (btn != null && !btn.isDisposed()) {
-				btn.setSelection(false);
-			}
 		}
+		
+		redrawButtonSelectionState();
 		
 		if(fireSelectionListeners) { 
 			selectionListeners.forEach(l -> l.widgetSelected(null));
 		}
 	}
-
-	private Button findButton(T option) {
-		Optional<Button> button;
-
-		button = buttons.stream()
-				.filter(btn -> option.equals(btn.getData(BTN_DATA_CONSTANT)))
-				.findFirst();
-
-		if (button.isPresent()) {
-			return button.get();
-		} else {
-			return null;
+	
+	private void redrawButtonSelectionState() {
+		if(buttons != null) {
+			buttons.stream()
+				.filter(btn -> !btn.isDisposed())
+				.forEach(btn -> btn.setSelection(selection.contains(btn.getData(BTN_DATA_CONSTANT))));
 		}
 	}
 
@@ -327,6 +302,14 @@ public class MultiSelectComboBox<T> {
 
 	public void addAll(Collection<T> options) {
 		this.options.addAll(options);
+	}
+	
+	/**
+	 * Remove all options
+	 */
+	public void clear() {
+		this.options.clear();
+		this.selection.clear();
 	}
 
 	public void add(int index, T t, boolean isSelected) {
