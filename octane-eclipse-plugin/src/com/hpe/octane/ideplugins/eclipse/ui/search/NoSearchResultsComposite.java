@@ -13,37 +13,31 @@
 package com.hpe.octane.ideplugins.eclipse.ui.search;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
-import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class NoSearchResultsComposite extends Composite {
-
-    private Color backgroundColor = SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
 
     public NoSearchResultsComposite(Composite parent, int style) {
         super(parent, style);
         setLayout(new GridLayout(1, false));
 
-        Label lblPlaceholder = new Label(this, SWT.NONE);
-        lblPlaceholder.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
+        Composite rootComposite = new Composite(this, SWT.NONE);
+        rootComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+        rootComposite.setLayout(new GridLayout(1, false));
 
-        Label lblRobot = new Label(this, SWT.NONE);
-        lblRobot.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+        Label lblRobot = new Label(rootComposite, SWT.NONE);
+        lblRobot.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
         lblRobot.setImage(ImageResources.NO_ITEMS_TO_DISPLAY_ROBOT.getImage());
-        
-        Label lblNoResults = new Label(this, SWT.NONE);
-        lblNoResults.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true, true, 1, 1));
+
+        Label lblNoResults = new Label(rootComposite, SWT.NONE);
+        lblNoResults.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
         lblNoResults.setText("No results");
-        
+
     }
 
 }

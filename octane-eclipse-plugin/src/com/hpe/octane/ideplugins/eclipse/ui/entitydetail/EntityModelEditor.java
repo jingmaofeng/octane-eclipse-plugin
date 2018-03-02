@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.hpe.octane.ideplugins.eclipse.ui.editor;
+package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -35,8 +35,8 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.job.GetEntityModelJob;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.job.UpdateEntityJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.UpdateEntityJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;

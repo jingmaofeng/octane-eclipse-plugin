@@ -31,7 +31,7 @@ import org.eclipse.equinox.security.storage.StorageException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.DefaultEntityFieldsUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
-import com.hpe.octane.ideplugins.eclipse.ui.editor.EntityModelEditorInput;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditorInput;
 
 public class PluginPreferenceStorage {
 
