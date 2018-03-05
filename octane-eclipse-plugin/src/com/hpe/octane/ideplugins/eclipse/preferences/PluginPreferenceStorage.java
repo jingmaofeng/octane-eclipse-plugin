@@ -127,6 +127,18 @@ public class PluginPreferenceStorage {
 
     }
 
+    public static void resetShownEntityFields() {
+        ISecurePreferences securePrefs = getSecurePrefs();
+        try {
+            securePrefs.put(PreferenceConstants.SHOWN_ENTITY_FIELDS,
+                    DefaultEntityFieldsUtil.entityFieldsToJson(DefaultEntityFieldsUtil.getDefaultFields()), false);
+            fireChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS);
+        } catch (StorageException e) {
+            Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+                    "An exception has occured while saving shown entity fields", e));
+        }
+    }
+
     public static Set<String> getShownEntityFields(Entity entity) {
         ISecurePreferences securePrefs = getSecurePrefs();
         String shownEntityFields;

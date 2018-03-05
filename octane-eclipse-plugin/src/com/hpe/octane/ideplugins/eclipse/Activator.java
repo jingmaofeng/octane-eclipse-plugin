@@ -122,6 +122,10 @@ public class Activator extends AbstractUIPlugin {
                     page.closeEditor(editor.getEditor(false), false);
                 }
             }
+
+            // Clear selected fields for detail view
+            // One octane can have differnt fields that the other
+            PluginPreferenceStorage.resetShownEntityFields();
         });
 
         // Restore all entity model editors from their references, this is a
