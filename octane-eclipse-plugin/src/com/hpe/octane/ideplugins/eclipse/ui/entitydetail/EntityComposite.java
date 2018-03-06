@@ -76,7 +76,7 @@ public class EntityComposite extends Composite {
         entityFieldsComposite.setEntityModel(entityModel);
 
         if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
-            setCommentsVisible(true);
+            setCommentsVisible(false);
             entityCommentComposite.setEntityModel(entityModel);
         } else {
             setCommentsVisible(false);
