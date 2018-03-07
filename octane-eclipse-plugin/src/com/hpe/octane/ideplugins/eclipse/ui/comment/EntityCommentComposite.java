@@ -24,6 +24,7 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -46,6 +47,8 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityCommentComposite extends StackLayoutComposite {
+
+    private static final int LOADING_GIF_TOP = -350;
 
     private FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 
@@ -138,8 +141,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
     private void postComment(String text) {
         commentText.setEnabled(false);
         showControl(loadingComposite);
-        loadingComposite.setLocation(0, -300);
-
+        loadingComposite.setIndicatorLocation(LOADING_GIF_TOP);
 
         PostCommentJob sendCommentJob = new PostCommentJob("Posting Comment", entityModel, text);
         sendCommentJob.schedule();
@@ -164,8 +166,8 @@ public class EntityCommentComposite extends StackLayoutComposite {
         GetCommentsJob getCommentsJob = new GetCommentsJob("Getting comments", entityModel);
         getCommentsJob.schedule();
         showControl(loadingComposite);
-        loadingComposite.setLocation(0, -300);
-        
+        loadingComposite.setIndicatorLocation(LOADING_GIF_TOP);
+
         getCommentsJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
             public void done(IJobChangeEvent event) {

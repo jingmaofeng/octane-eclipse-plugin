@@ -78,10 +78,7 @@ public class EntityComposite extends Composite {
         if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
             setCommentsVisible(false);
             entityCommentComposite.setEntityModel(entityModel);
-        } else {
-            setCommentsVisible(false);
-        }
-
+        } 
         setSize(computeSize(SWT.DEFAULT, SWT.DEFAULT));
         layout(true, true);
         redraw();

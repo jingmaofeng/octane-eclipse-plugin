@@ -30,6 +30,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -173,6 +174,7 @@ public class LoadingComposite extends Composite {
                                 int yPos = point.y / 2 - offScreenImage.getBounds().height / 2;
                                 shellGC.fillRectangle(0, 0, point.x, point.y);
                                 shellGC.drawImage(offScreenImage, xPos, yPos);
+                                
                             }
                         });
 
@@ -213,6 +215,11 @@ public class LoadingComposite extends Composite {
 
         animateThread.setDaemon(true);
         animateThread.start();
+    }
+
+    public void setIndicatorLocation(int heightLocation) {
+        Point point = LoadingComposite.this.getLocation();
+        LoadingComposite.this.setLocation(new Point(point.x, heightLocation));
     }
 
     @Override
