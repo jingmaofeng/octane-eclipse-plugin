@@ -36,11 +36,16 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 
 public class LoadingComposite extends Composite {
+    
+    public enum LoadingPosition {
+        TOP, CENTER, BOTTOM
+    }
 
     private ImageData[] imageDataArray;
     private Thread animateThread;
     private Image image;
     private ImageLoader loader;
+    private LoadingPosition loadingPosition = LoadingPosition.CENTER;
 
     /**
      * Create the composite.
@@ -169,10 +174,27 @@ public class LoadingComposite extends Composite {
                                 }
 
                                 Point point = LoadingComposite.this.getSize();
-                                int xPos = point.x / 2 - offScreenImage.getBounds().width / 2;
-                                int yPos = point.y / 2 - offScreenImage.getBounds().height / 2;
+                                
+                                int xPos = (point.x - offScreenImage.getBounds().width) / 2;
+                                
+                                int yPos;
+                                switch(loadingPosition) {
+                                    case CENTER:
+                                        yPos = (point.y - offScreenImage.getBounds().height) / 2;
+                                        break;
+                                    case TOP:
+                                        yPos = 0 + offScreenImage.getBounds().height / 4;
+                                        break;
+                                    case BOTTOM:
+                                        yPos = point.y - offScreenImage.getBounds().height;
+                                        break;
+                                    default:
+                                        yPos = 0;
+                                }
+                                
                                 shellGC.fillRectangle(0, 0, point.x, point.y);
                                 shellGC.drawImage(offScreenImage, xPos, yPos);
+                                
                             }
                         });
 
@@ -213,6 +235,10 @@ public class LoadingComposite extends Composite {
 
         animateThread.setDaemon(true);
         animateThread.start();
+    }
+
+    public void setLoadingVerticalPosition(LoadingPosition loadingPosition) {
+        this.loadingPosition = loadingPosition;
     }
 
     @Override
