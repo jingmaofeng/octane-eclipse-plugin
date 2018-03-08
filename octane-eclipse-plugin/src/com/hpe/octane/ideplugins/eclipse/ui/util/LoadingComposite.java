@@ -30,24 +30,22 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 
 public class LoadingComposite extends Composite {
+    
+    public enum LoadingPosition {
+        TOP, CENTER, BOTTOM
+    }
 
     private ImageData[] imageDataArray;
     private Thread animateThread;
     private Image image;
     private ImageLoader loader;
-    
-    public enum LoadingPosition {
-        TOP, BOTTOM
-    }
-    
-    private LoadingPosition loadingPosition;
+    private LoadingPosition loadingPosition = LoadingPosition.CENTER;
 
     /**
      * Create the composite.
@@ -176,14 +174,24 @@ public class LoadingComposite extends Composite {
                                 }
 
                                 Point point = LoadingComposite.this.getSize();
-                                int xPos = (point.x - offScreenImage.getBounds().width)/2;
-                                //Default height for loading is centered
-                                int yPos = (point.y - offScreenImage.getBounds().height)/2;
-                                if(loadingPosition == LoadingPosition.TOP) {
-                                    yPos = 0 + offScreenImage.getBounds().height/4;
-                                } else if(loadingPosition == LoadingPosition.BOTTOM) {
-                                    yPos = point.y - offScreenImage.getBounds().height;
-                                } 
+                                
+                                int xPos = (point.x - offScreenImage.getBounds().width) / 2;
+                                
+                                int yPos;
+                                switch(loadingPosition) {
+                                    case CENTER:
+                                        yPos = (point.y - offScreenImage.getBounds().height) / 2;
+                                        break;
+                                    case TOP:
+                                        yPos = 0 + offScreenImage.getBounds().height / 4;
+                                        break;
+                                    case BOTTOM:
+                                        yPos = point.y - offScreenImage.getBounds().height;
+                                        break;
+                                    default:
+                                        yPos = 0;
+                                }
+                                
                                 shellGC.fillRectangle(0, 0, point.x, point.y);
                                 shellGC.drawImage(offScreenImage, xPos, yPos);
                                 
@@ -229,7 +237,7 @@ public class LoadingComposite extends Composite {
         animateThread.start();
     }
 
-    public void setLoadingHeightPosition(LoadingPosition loadingPosition) {
+    public void setLoadingVerticalPosition(LoadingPosition loadingPosition) {
         this.loadingPosition = loadingPosition;
     }
 
