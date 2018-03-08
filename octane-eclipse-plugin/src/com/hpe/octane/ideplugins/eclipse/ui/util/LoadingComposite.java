@@ -42,6 +42,12 @@ public class LoadingComposite extends Composite {
     private Thread animateThread;
     private Image image;
     private ImageLoader loader;
+    
+    public enum LoadingPosition {
+        TOP, BOTTOM
+    }
+    
+    private LoadingPosition loadingPosition;
 
     /**
      * Create the composite.
@@ -170,8 +176,14 @@ public class LoadingComposite extends Composite {
                                 }
 
                                 Point point = LoadingComposite.this.getSize();
-                                int xPos = point.x / 2 - offScreenImage.getBounds().width / 2;
-                                int yPos = point.y / 2 - offScreenImage.getBounds().height / 2;
+                                int xPos = (point.x - offScreenImage.getBounds().width)/2;
+                                //Default height for loading is centered
+                                int yPos = (point.y - offScreenImage.getBounds().height)/2;
+                                if(loadingPosition == LoadingPosition.TOP) {
+                                    yPos = 0 + offScreenImage.getBounds().height/4;
+                                } else if(loadingPosition == LoadingPosition.BOTTOM) {
+                                    yPos = point.y - offScreenImage.getBounds().height;
+                                } 
                                 shellGC.fillRectangle(0, 0, point.x, point.y);
                                 shellGC.drawImage(offScreenImage, xPos, yPos);
                                 
@@ -217,9 +229,8 @@ public class LoadingComposite extends Composite {
         animateThread.start();
     }
 
-    public void setIndicatorLocation(int heightLocation) {
-        Point point = LoadingComposite.this.getLocation();
-        LoadingComposite.this.setLocation(new Point(point.x, heightLocation));
+    public void setLoadingHeightPosition(LoadingPosition loadingPosition) {
+        this.loadingPosition = loadingPosition;
     }
 
     @Override

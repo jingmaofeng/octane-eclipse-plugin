@@ -42,6 +42,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.PostCommentJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite.LoadingPosition;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
@@ -141,7 +142,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
     private void postComment(String text) {
         commentText.setEnabled(false);
         showControl(loadingComposite);
-        loadingComposite.setIndicatorLocation(LOADING_GIF_TOP);
+        loadingComposite.setLoadingHeightPosition(LoadingPosition.TOP);
 
         PostCommentJob sendCommentJob = new PostCommentJob("Posting Comment", entityModel, text);
         sendCommentJob.schedule();
@@ -166,7 +167,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
         GetCommentsJob getCommentsJob = new GetCommentsJob("Getting comments", entityModel);
         getCommentsJob.schedule();
         showControl(loadingComposite);
-        loadingComposite.setIndicatorLocation(LOADING_GIF_TOP);
+        loadingComposite.setLoadingHeightPosition(LoadingPosition.TOP);
 
         getCommentsJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
