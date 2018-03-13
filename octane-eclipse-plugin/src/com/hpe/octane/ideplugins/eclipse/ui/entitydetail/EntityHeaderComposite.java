@@ -12,15 +12,12 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
@@ -42,19 +39,14 @@ import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.MetadataService;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.DefaultEntityFieldsUtil;
-import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
-import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxLabelProvider;
-import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBoxSelectionListener;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
-import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetPossiblePhasesJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.MultiSelectComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
@@ -84,7 +76,7 @@ public class EntityHeaderComposite extends Composite {
 
     private EntityModel entityModel;
 
-    private Composite phaseComposite;
+    private EntityPhaseComposite phaseComposite;
     private CustomEntityComboBox<EntityModel> nextPhasesComboBox;
     private Label lblCurrentPhase;
 
@@ -123,52 +115,8 @@ public class EntityHeaderComposite extends Composite {
         linkEntityName.setFont(boldFont);
         linkEntityName.setText("ENTITY_NAME");
 
-        phaseComposite = new Composite(this, SWT.NONE);
-        phaseComposite.setLayout(new GridLayout(4, false));
-
-        GridData phaseButtons = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-        phaseButtons.grabExcessVerticalSpace = true;
-        phaseComposite.setLayoutData(phaseButtons);
-        setChildVisibility(phaseComposite, false); // shown after phases are
-                                                   // fetched
-
-        Label lblPhase = new Label(phaseComposite, SWT.NONE);
-        lblPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-        lblPhase.setAlignment(SWT.CENTER);
-        lblPhase.setText("Phase:");
-
-        lblCurrentPhase = new Label(phaseComposite, SWT.NONE);
-        lblCurrentPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-        lblCurrentPhase.setFont(SWTResourceManager.getBoldFont(lblPhase.getFont()));
-        lblCurrentPhase.setText("CURRENT_PHASE");
-
-        Label lblMoveTo = new Label(phaseComposite, SWT.NONE);
-        lblMoveTo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-        lblMoveTo.setText("Move to:");
-
-        nextPhasesComboBox = new CustomEntityComboBox<EntityModel>(phaseComposite);
-        nextPhasesComboBox.setLabelProvider(new CustomEntityComboBoxLabelProvider<EntityModel>() {
-            @Override
-            public String getSelectedLabel(EntityModel entityModelElement) {
-                return Util.getUiDataFromModel(entityModelElement.getValue("target_phase"), "name");
-            }
-
-            @Override
-            public String getListLabel(EntityModel entityModelElement) {
-                return Util.getUiDataFromModel(entityModelElement.getValue("target_phase"), "name");
-            }
-        });
-        nextPhasesComboBox.setTooltipText(TOOLTIP_PHASE_COMBO);
-        nextPhasesComboBox.addSelectionListener(new CustomEntityComboBoxSelectionListener<EntityModel>() {
-            @Override
-            public void selectionChanged(CustomEntityComboBox<EntityModel> customEntityComboBox, EntityModel newSelection) {
-                newSelection = customEntityComboBox.getSelection();
-                if (newSelection.getValue("target_phase") instanceof ReferenceFieldModel) {
-                    ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
-                    entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
-                }
-            }
-        });
+        phaseComposite = new EntityPhaseComposite(this, SWT.NONE);
+        phaseComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 
         btnSave = new Button(this, SWT.NONE);
         btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -232,6 +180,9 @@ public class EntityHeaderComposite extends Composite {
 
     public void setEntityModel(EntityModel entityModel) {
         this.entityModel = entityModel;
+
+        phaseComposite.setEntityModel(entityModel);
+
         lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
         linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
         if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
@@ -241,46 +192,7 @@ public class EntityHeaderComposite extends Composite {
             btnComments.setVisible(false);
             gdBtnComments.exclude = true;
         }
-        showOrHidePhase(entityModel);
         selectFieldsToDisplay(entityModel);
-    }
-
-    private void showOrHidePhase(EntityModel entityModel) {
-        if (GetPossiblePhasesJob.hasPhases(Entity.getEntityType(entityModel))) {
-            String currentPhaseName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_PHASE));
-            lblCurrentPhase.setText(currentPhaseName);
-
-            // load possible phases
-            GetPossiblePhasesJob getPossiblePhasesJob = new GetPossiblePhasesJob("Loading possible phases",
-                    entityModel);
-            getPossiblePhasesJob.addJobChangeListener(new JobChangeAdapter() {
-                @Override
-                public void done(IJobChangeEvent event) {
-                    Display.getDefault().asyncExec(() -> {
-                        Collection<EntityModel> possibleTransitions = getPossiblePhasesJob.getPossibleTransitions();
-                        if (possibleTransitions.isEmpty()) {
-                            nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getNoTransitionPhase()));
-                            nextPhasesComboBox.selectFirstItem();
-                            nextPhasesComboBox.setEnabled(false);
-                        } else {
-                            nextPhasesComboBox.setContent(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));
-                            nextPhasesComboBox.selectFirstItem();
-                            nextPhasesComboBox.setEnabled(true);
-                        }
-                        setChildVisibility(phaseComposite, true);
-
-                        // Force redraw header
-                        layout(true, true);
-                        redraw();
-                        update();
-                    });
-                }
-            });
-            getPossiblePhasesJob.schedule();
-
-        } else {
-            setChildVisibility(phaseComposite, false);
-        }
     }
 
     private void setChildVisibility(Control control, boolean isVisible) {
