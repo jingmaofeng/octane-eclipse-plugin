@@ -3,20 +3,16 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -25,7 +21,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetPossiblePhasesJob;
@@ -37,6 +32,7 @@ public class EntityPhaseComposite extends Composite {
     private static final String CURRENT_PHASE_PLACE_HOLDER = "CURRENT_PHASE";
     private static final String NEXT_PHASE_PLACE_HOLDER = "NEXT_PHASE";
     private static final String TOOLTIP_BLOCKED_PHASE = "You must save first before doing any more changes to phase";
+    private static final String TOOLTIP_CLICKABLE_PHASE = "Click here to choose you desired next phase";
 
     private Label lblPhase;
     private Label lblCurrentPhase;
@@ -44,6 +40,7 @@ public class EntityPhaseComposite extends Composite {
     private Button btnSelectPhase;
     private EntityModel entityModel;
     private Menu phaseSelectionMenu;
+    private Label lblNextPhase;
 
     public EntityPhaseComposite(Composite parent, int style) {
         super(parent, style);
@@ -63,27 +60,29 @@ public class EntityPhaseComposite extends Composite {
         lblMoveTo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
         lblMoveTo.setText("Move to:");
 
-        Label lblNextPhase = new Label(this, SWT.NONE);
-
+        lblNextPhase = new Label(this, SWT.NONE);
         lblNextPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
         lblNextPhase.setFont(SWTResourceManager.getBoldFont(lblNextPhase.getFont()));
         lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
         lblNextPhase.setText(NEXT_PHASE_PLACE_HOLDER);
+        lblNextPhase.setToolTipText(TOOLTIP_CLICKABLE_PHASE);
+
         lblNextPhase.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
-//                btnSelectPhase.setEnabled(false);
+                btnSelectPhase.setEnabled(false);
                 lblNextPhase.setToolTipText(TOOLTIP_BLOCKED_PHASE);
                 lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+                btnSelectPhase.setEnabled(false);
+                lblCurrentPhase.setText(lblNextPhase.getText());
             }
         });
-        
+
         btnSelectPhase = new Button(this, SWT.NONE);
         btnSelectPhase.setText("Target Phases Button");
-        
-        phaseSelectionMenu = new Menu(btnSelectPhase);        
+
+        phaseSelectionMenu = new Menu(btnSelectPhase);
         btnSelectPhase.setMenu(phaseSelectionMenu);
-        
 
     }
 
@@ -105,39 +104,30 @@ public class EntityPhaseComposite extends Composite {
                     Display.getDefault().asyncExec(() -> {
                         Collection<EntityModel> possibleTransitions = getPossiblePhasesJob.getPossibleTransitions();
                         if (possibleTransitions.isEmpty()) {
-                            phaseSelectionMenu.setData(new ArrayList<>(getPossiblePhasesJob.getNoTransitionPhase()));
+                            lblNextPhase.setText("No transition");
+                            lblNextPhase.setEnabled(false);
                             btnSelectPhase.setEnabled(false);
                         } else {
-//                            phaseSelectionMenu.setData(new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions()));
-//                            btnSelectPhase.setEnabled(true);
-                            
                             List<EntityModel> myList = new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions());
-                            EntityModel em = myList.get(0);
-                            String stringulet = Util.getUiDataFromModel(em.getValue("target_phase"));
-                            MenuItem mi = new MenuItem(phaseSelectionMenu, SWT.NONE);
-                            mi.setText(stringulet);
-                            mi.addListener(SWT.Selection, new Listener() {
-                                @Override
-                                public void handleEvent(Event e) {
-                                    System.out.println("I did something");
-                                }
-                            });
-                            
+                            lblNextPhase.setText(Util.getUiDataFromModel((myList.get(0)).getValue("target_phase")));
+                            for (int i = 0; i < myList.size(); i++) {
+                                EntityModel em = myList.get(i);
+                                String stringulet = Util.getUiDataFromModel(em.getValue("target_phase"));
+                                MenuItem mi = new MenuItem(phaseSelectionMenu, SWT.NONE);
+                                mi.setText(stringulet);
+                                mi.addListener(SWT.Selection, new Listener() {
+                                    @Override
+                                    public void handleEvent(Event e) {
+                                        System.out.println("I did something");
+                                        lblNextPhase.setText(mi.getText());
+                                    }
+                                });
+                            }
                         }
-
-                        // Force redraw header
-                        layout(true, true);
-                        redraw();
-                        update();
                     });
                 }
             });
             getPossiblePhasesJob.schedule();
         }
     }
-
-    private void setChildVisibility(Control control, boolean isVisible) {
-        control.setVisible(isVisible);
-    }
-
 }

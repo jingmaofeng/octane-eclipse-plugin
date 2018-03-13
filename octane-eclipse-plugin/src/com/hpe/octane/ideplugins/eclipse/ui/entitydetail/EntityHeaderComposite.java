@@ -45,8 +45,8 @@ import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.DefaultEntityFieldsUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
-import com.hpe.octane.ideplugins.eclipse.ui.combobox.CustomEntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetPossiblePhasesJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.MultiSelectComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
@@ -61,7 +61,6 @@ public class EntityHeaderComposite extends Composite {
 
     private static final String TOOLTIP_REFRESH = "Refresh entity details";
     private static final String TOOLTIP_PHASE = "Save changes";
-    private static final String TOOLTIP_PHASE_COMBO = "Available entity phases";
     private static final String TOOLTIP_FIELDS = "Customize fields to be shown";
     private static final String TOOLTIP_COMMENTS = "Show comments";
 
@@ -77,8 +76,6 @@ public class EntityHeaderComposite extends Composite {
     private EntityModel entityModel;
 
     private EntityPhaseComposite phaseComposite;
-    private CustomEntityComboBox<EntityModel> nextPhasesComboBox;
-    private Label lblCurrentPhase;
 
     private Button btnRefresh;
     private Button btnSave;
@@ -180,11 +177,11 @@ public class EntityHeaderComposite extends Composite {
 
     public void setEntityModel(EntityModel entityModel) {
         this.entityModel = entityModel;
-
         phaseComposite.setEntityModel(entityModel);
-
         lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
         linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
+        selectFieldsToDisplay(entityModel);
+
         if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
             btnComments.setVisible(true);
             gdBtnComments.exclude = false;
@@ -192,7 +189,12 @@ public class EntityHeaderComposite extends Composite {
             btnComments.setVisible(false);
             gdBtnComments.exclude = true;
         }
-        selectFieldsToDisplay(entityModel);
+
+        if (GetPossiblePhasesJob.hasPhases(Entity.getEntityType(entityModel))) {
+            setChildVisibility(phaseComposite, true);
+        } else {
+            setChildVisibility(phaseComposite, false);
+        }
     }
 
     private void setChildVisibility(Control control, boolean isVisible) {
