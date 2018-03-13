@@ -62,7 +62,7 @@ public class EntityHeaderComposite extends Composite {
     private static final String TOOLTIP_REFRESH = "Refresh entity details";
     private static final String TOOLTIP_PHASE = "Save changes";
     private static final String TOOLTIP_FIELDS = "Customize fields to be shown";
-    private static final String TOOLTIP_COMMENTS = "Show comments";
+    private static final String TOOLTIP_COMMENTS = "Show comments"; 
 
     private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
     private Map<String, String> prettyFieldsMap;
