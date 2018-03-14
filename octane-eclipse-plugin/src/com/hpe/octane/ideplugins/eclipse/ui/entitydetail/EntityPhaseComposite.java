@@ -80,6 +80,7 @@ public class EntityPhaseComposite extends Composite {
                 lblNextPhase.setToolTipText(TOOLTIP_BLOCKED_PHASE);
                 lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
                 btnSelectPhase.setEnabled(false);
+                lblNextPhase.setEnabled(false);
                 lblCurrentPhase.setText(lblNextPhase.getText());
 
                 if (newSelection.getValue("target_phase") instanceof ReferenceFieldModel) {
@@ -105,10 +106,18 @@ public class EntityPhaseComposite extends Composite {
         });
 
     }
+    
+    private void setDisplayButtons() {
+        lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
+        lblNextPhase.setToolTipText(TOOLTIP_CLICKABLE_PHASE);
+        lblNextPhase.setEnabled(true);
+        btnSelectPhase.setEnabled(true);
+    }
 
     public void setEntityModel(EntityModel entityModel) {
         this.entityModel = entityModel;
         getPossiblePhaseTransitions();
+        setDisplayButtons();
     }
 
     private void getPossiblePhaseTransitions() {
@@ -139,8 +148,7 @@ public class EntityPhaseComposite extends Composite {
                         } else {
                             List<EntityModel> possiblePhasesList = new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions());
 
-                            // initialize the label next-phase with the first
-                            // items
+                            // initialize the label next-phase with the first items
                             lblNextPhase.setText(Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase")));
                             newSelection = possiblePhasesList.get(0);
 
