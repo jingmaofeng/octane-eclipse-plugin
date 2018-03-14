@@ -43,11 +43,10 @@ public class EntityPhaseComposite extends Composite {
     private Label lblMoveTo;
     private Label lblNextPhase;
 
-    private Button btnSelectPhase;
-
     private EntityModel entityModel;
     private EntityModel newSelection;
 
+    private Button btnSelectPhase;
     private Menu phaseSelectionMenu;
 
     public EntityPhaseComposite(Composite parent, int style) {
@@ -102,7 +101,6 @@ public class EntityPhaseComposite extends Composite {
 
             @Override
             public void widgetDefaultSelected(SelectionEvent arg0) {
-                // TODO Auto-generated method stub
             }
         });
 
@@ -121,18 +119,28 @@ public class EntityPhaseComposite extends Composite {
             // load possible phases
             GetPossiblePhasesJob getPossiblePhasesJob = new GetPossiblePhasesJob("Loading possible phases", entityModel);
             getPossiblePhasesJob.addJobChangeListener(new JobChangeAdapter() {
+                @Override
+                public void scheduled(IJobChangeEvent event) {
+                    Display.getDefault().asyncExec(() -> {
+                        for (MenuItem items : phaseSelectionMenu.getItems()) {
+                            items.dispose();
+                        }
+                    });
+                }
 
                 @Override
                 public void done(IJobChangeEvent event) {
                     Display.getDefault().asyncExec(() -> {
                         Collection<EntityModel> possibleTransitions = getPossiblePhasesJob.getPossibleTransitions();
-
                         if (possibleTransitions.isEmpty()) {
                             lblNextPhase.setText("No transition");
                             lblNextPhase.setEnabled(false);
                             btnSelectPhase.setEnabled(false);
                         } else {
                             List<EntityModel> possiblePhasesList = new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions());
+
+                            // initialize the label next-phase with the first
+                            // items
                             lblNextPhase.setText(Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase")));
                             newSelection = possiblePhasesList.get(0);
 
@@ -151,6 +159,11 @@ public class EntityPhaseComposite extends Composite {
                                 });
                             }
                         }
+
+                        // Force redraw
+                        layout(true, true);
+                        redraw();
+                        update();
                     });
                 }
             });
