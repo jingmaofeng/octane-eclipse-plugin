@@ -45,7 +45,8 @@ public enum ImageResources {
 	STOP_TIMER_16X16("stopTimer-16x16.png"),
 	NO_ITEMS_TO_DISPLAY_ROBOT("s-no-items-to-display.png"),
 	ROCKET("s-rocket.png"),
-	SHOW_COMMENTS("comments-16x16.png");
+	SHOW_COMMENTS("comments-16x16.png"),
+    DROP_DOWN("drop-down.png");
 	//@formatter:on
 
     private static final String PATH_PREFIX = "icons/";

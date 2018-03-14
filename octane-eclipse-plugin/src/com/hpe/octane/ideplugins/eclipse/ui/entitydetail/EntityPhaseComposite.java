@@ -9,6 +9,8 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -25,6 +27,7 @@ import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetPossiblePhasesJob;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
@@ -79,8 +82,8 @@ public class EntityPhaseComposite extends Composite {
                 lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
                 btnSelectPhase.setEnabled(false);
                 lblCurrentPhase.setText(lblNextPhase.getText());
-                
-                if (newSelection.getValue("target_phase") instanceof ReferenceFieldModel){
+
+                if (newSelection.getValue("target_phase") instanceof ReferenceFieldModel) {
                     ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
                     entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
                 }
@@ -88,10 +91,20 @@ public class EntityPhaseComposite extends Composite {
         });
 
         btnSelectPhase = new Button(this, SWT.NONE);
-        btnSelectPhase.setText("Target Phases Button");
-
+        btnSelectPhase.setImage(ImageResources.DROP_DOWN.getImage());
         phaseSelectionMenu = new Menu(btnSelectPhase);
         btnSelectPhase.setMenu(phaseSelectionMenu);
+        btnSelectPhase.addSelectionListener(new SelectionListener() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                phaseSelectionMenu.setVisible(true);
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent arg0) {
+                // TODO Auto-generated method stub
+            }
+        });
 
     }
 
@@ -121,6 +134,7 @@ public class EntityPhaseComposite extends Composite {
                         } else {
                             List<EntityModel> possiblePhasesList = new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions());
                             lblNextPhase.setText(Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase")));
+                            newSelection = possiblePhasesList.get(0);
 
                             for (int i = 0; i < possiblePhasesList.size(); i++) {
                                 EntityModel nextTargetPhase = possiblePhasesList.get(i);
