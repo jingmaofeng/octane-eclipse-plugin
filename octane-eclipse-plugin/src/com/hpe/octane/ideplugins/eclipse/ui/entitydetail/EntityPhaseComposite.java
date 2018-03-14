@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetPossiblePhasesJob;
@@ -37,10 +38,14 @@ public class EntityPhaseComposite extends Composite {
     private Label lblPhase;
     private Label lblCurrentPhase;
     private Label lblMoveTo;
-    private Button btnSelectPhase;
-    private EntityModel entityModel;
-    private Menu phaseSelectionMenu;
     private Label lblNextPhase;
+
+    private Button btnSelectPhase;
+
+    private EntityModel entityModel;
+    private EntityModel newSelection;
+
+    private Menu phaseSelectionMenu;
 
     public EntityPhaseComposite(Composite parent, int style) {
         super(parent, style);
@@ -70,11 +75,15 @@ public class EntityPhaseComposite extends Composite {
         lblNextPhase.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
-                btnSelectPhase.setEnabled(false);
                 lblNextPhase.setToolTipText(TOOLTIP_BLOCKED_PHASE);
                 lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
                 btnSelectPhase.setEnabled(false);
                 lblCurrentPhase.setText(lblNextPhase.getText());
+                
+                if (newSelection.getValue("target_phase") instanceof ReferenceFieldModel){
+                    ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
+                    entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
+                }
             }
         });
 
@@ -99,27 +108,31 @@ public class EntityPhaseComposite extends Composite {
             // load possible phases
             GetPossiblePhasesJob getPossiblePhasesJob = new GetPossiblePhasesJob("Loading possible phases", entityModel);
             getPossiblePhasesJob.addJobChangeListener(new JobChangeAdapter() {
+
                 @Override
                 public void done(IJobChangeEvent event) {
                     Display.getDefault().asyncExec(() -> {
                         Collection<EntityModel> possibleTransitions = getPossiblePhasesJob.getPossibleTransitions();
+
                         if (possibleTransitions.isEmpty()) {
                             lblNextPhase.setText("No transition");
                             lblNextPhase.setEnabled(false);
                             btnSelectPhase.setEnabled(false);
                         } else {
-                            List<EntityModel> myList = new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions());
-                            lblNextPhase.setText(Util.getUiDataFromModel((myList.get(0)).getValue("target_phase")));
-                            for (int i = 0; i < myList.size(); i++) {
-                                EntityModel em = myList.get(i);
-                                String stringulet = Util.getUiDataFromModel(em.getValue("target_phase"));
-                                MenuItem mi = new MenuItem(phaseSelectionMenu, SWT.NONE);
-                                mi.setText(stringulet);
-                                mi.addListener(SWT.Selection, new Listener() {
+                            List<EntityModel> possiblePhasesList = new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions());
+                            lblNextPhase.setText(Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase")));
+
+                            for (int i = 0; i < possiblePhasesList.size(); i++) {
+                                EntityModel nextTargetPhase = possiblePhasesList.get(i);
+                                String nextTargetPhaseName = Util.getUiDataFromModel(nextTargetPhase.getValue("target_phase"));
+
+                                MenuItem menuItemPhase = new MenuItem(phaseSelectionMenu, SWT.NONE);
+                                menuItemPhase.setText(nextTargetPhaseName);
+                                menuItemPhase.addListener(SWT.Selection, new Listener() {
                                     @Override
                                     public void handleEvent(Event e) {
-                                        System.out.println("I did something");
-                                        lblNextPhase.setText(mi.getText());
+                                        lblNextPhase.setText(menuItemPhase.getText());
+                                        newSelection = nextTargetPhase;
                                     }
                                 });
                             }
