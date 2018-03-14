@@ -92,6 +92,7 @@ public class EntityPhaseComposite extends Composite {
 
         btnSelectPhase = new Button(this, SWT.NONE);
         btnSelectPhase.setImage(ImageResources.DROP_DOWN.getImage());
+        
         phaseSelectionMenu = new Menu(btnSelectPhase);
         btnSelectPhase.setMenu(phaseSelectionMenu);
         btnSelectPhase.addSelectionListener(new SelectionListener() {
@@ -106,7 +107,7 @@ public class EntityPhaseComposite extends Composite {
         });
 
     }
-    
+
     private void setDisplayButtons() {
         lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
         lblNextPhase.setToolTipText(TOOLTIP_CLICKABLE_PHASE);
