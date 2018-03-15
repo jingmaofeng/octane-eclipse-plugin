@@ -11,6 +11,7 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -37,7 +38,7 @@ public class EntityPhaseComposite extends Composite {
     private static final String NEXT_PHASE_PLACE_HOLDER = "NEXT_PHASE";
     private static final String TOOLTIP_BLOCKED_PHASE = "You must save first before doing any more changes to phase";
     private static final String TOOLTIP_CLICKABLE_PHASE = "Click here to choose you desired next phase";
-
+    
     private Label lblPhase;
     private Label lblCurrentPhase;
     private Label lblMoveTo;
@@ -73,6 +74,7 @@ public class EntityPhaseComposite extends Composite {
         lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
         lblNextPhase.setText(NEXT_PHASE_PLACE_HOLDER);
         lblNextPhase.setToolTipText(TOOLTIP_CLICKABLE_PHASE);
+        lblNextPhase.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
 
         lblNextPhase.addMouseListener(new MouseAdapter() {
             @Override
