@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.core.internal.resources.projectvariables.ParentVariableResolver;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -47,13 +43,20 @@ public class EntityPhaseComposite extends Composite {
     private EntityModel entityModel;
     private EntityModel newSelection;
 
-    private Button btnSelectPhase;
+    private Label btnSelectPhase;
     private Menu phaseSelectionMenu;
     private GridData gdBtnSelectPhase;
+    
+    private Label lblSeparatorLeft;
+    private Label lblSeparatorRight;
+    private Label lblSeparatorMiddle;
 
     public EntityPhaseComposite(Composite parent, int style) {
         super(parent, style);
-        setLayout(new GridLayout(5, false));
+        setLayout(new GridLayout(8, false));
+        
+        lblSeparatorLeft = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
+        lblSeparatorLeft.setLayoutData(createSeparatorGridData());
 
         lblPhase = new Label(this, SWT.NONE);
         lblPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -64,6 +67,9 @@ public class EntityPhaseComposite extends Composite {
         lblCurrentPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
         lblCurrentPhase.setFont(SWTResourceManager.getBoldFont(lblPhase.getFont()));
         lblCurrentPhase.setText(CURRENT_PHASE_PLACE_HOLDER);
+        
+        lblSeparatorMiddle = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
+        lblSeparatorMiddle.setLayoutData(createSeparatorGridData());
 
         lblMoveTo = new Label(this, SWT.NONE);
         lblMoveTo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -85,7 +91,8 @@ public class EntityPhaseComposite extends Composite {
             }
         });
 
-        btnSelectPhase = new Button(this, SWT.NONE);
+        btnSelectPhase = new Label(this, SWT.NONE);
+        btnSelectPhase.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
         gdBtnSelectPhase = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
         btnSelectPhase.setLayoutData(gdBtnSelectPhase);
         btnSelectPhase.setImage(ImageResources.DROP_DOWN.getImage());
@@ -93,22 +100,28 @@ public class EntityPhaseComposite extends Composite {
         phaseSelectionMenu = new Menu(btnSelectPhase);
         phaseSelectionMenu.setOrientation(SWT.RIGHT_TO_LEFT);
         btnSelectPhase.setMenu(phaseSelectionMenu);
-        btnSelectPhase.addSelectionListener(new SelectionListener() {
+        
+        lblSeparatorRight = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
+        lblSeparatorRight.setLayoutData(createSeparatorGridData());
+        
+        btnSelectPhase.addMouseListener(new MouseAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent e) {
+            public void mouseDown(MouseEvent e) {
                 phaseSelectionMenu.setVisible(true);
             }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent arg0) {}
         });
-
     }
 
     public void setEntityModel(EntityModel entityModel) {
         this.entityModel = entityModel;
         getPossiblePhaseTransitions();
         enableDisplayButtons();
+    }
+    
+    private GridData createSeparatorGridData() {
+        GridData gdSeparator = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);        
+        gdSeparator.heightHint = 16;
+        return gdSeparator;
     }
 
     private void getPossiblePhaseTransitions() {
@@ -152,7 +165,7 @@ public class EntityPhaseComposite extends Composite {
                                     EntityModel nextTargetPhase = possiblePhasesList.get(i);
                                     String nextTargetPhaseName = Util.getUiDataFromModel(nextTargetPhase.getValue("target_phase"));
 
-                                    MenuItem menuItemPhase = new MenuItem(phaseSelectionMenu, SWT.NONE);
+                                    MenuItem menuItemPhase = new MenuItem(phaseSelectionMenu, SWT.CHECK);
                                     menuItemPhase.setText(nextTargetPhaseName);
                                     menuItemPhase.addListener(SWT.Selection, new Listener() {
                                         @Override
@@ -178,7 +191,9 @@ public class EntityPhaseComposite extends Composite {
             ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
             entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
             lblCurrentPhase.setText(lblNextPhase.getText());
+            
             layout();
+            getParent().layout();
         }
     }
 
