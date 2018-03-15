@@ -11,7 +11,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -97,8 +96,7 @@ public class EntityPhaseComposite extends Composite {
             }
 
             @Override
-            public void widgetDefaultSelected(SelectionEvent arg0) {
-            }
+            public void widgetDefaultSelected(SelectionEvent arg0) {}
         });
 
     }
