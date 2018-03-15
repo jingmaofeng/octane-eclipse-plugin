@@ -28,7 +28,7 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
  * Fetch images for the plugin or for the test SWT shells used for debugging
  */
 public enum ImageResources {
-	//@formatter:off
+    //@formatter:off
 	ACTIVEITEM("activeitem.png"),
 	ADD("add.png"),
 	BROWSER_16X16("browser-16x16.png"),
@@ -45,7 +45,8 @@ public enum ImageResources {
 	STOP_TIMER_16X16("stopTimer-16x16.png"),
 	NO_ITEMS_TO_DISPLAY_ROBOT("s-no-items-to-display.png"),
 	ROCKET("s-rocket.png"),
-	SHOW_COMMENTS("comments-16x16.png");
+	SHOW_COMMENTS("comments-16x16.png"),
+	DROP_DOWN("drop-down.png");
 	//@formatter:on
 
     private static final String PATH_PREFIX = "icons/";
