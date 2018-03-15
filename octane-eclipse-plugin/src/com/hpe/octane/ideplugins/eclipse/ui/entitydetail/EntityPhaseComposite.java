@@ -38,7 +38,7 @@ public class EntityPhaseComposite extends Composite {
     private static final String NEXT_PHASE_PLACE_HOLDER = "NEXT_PHASE";
     private static final String TOOLTIP_BLOCKED_PHASE = "You must save first before doing any more changes to phase";
     private static final String TOOLTIP_CLICKABLE_PHASE = "Click here to choose you desired next phase";
-    
+
     private Label lblPhase;
     private Label lblCurrentPhase;
     private Label lblMoveTo;
@@ -79,23 +79,16 @@ public class EntityPhaseComposite extends Composite {
         lblNextPhase.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
-                lblNextPhase.setToolTipText(TOOLTIP_BLOCKED_PHASE);
-                lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
-                btnSelectPhase.setEnabled(false);
-                lblNextPhase.setEnabled(false);
-                lblCurrentPhase.setText(lblNextPhase.getText());
-
-                if (newSelection.getValue("target_phase") instanceof ReferenceFieldModel) {
-                    ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
-                    entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
-                }
+                updateCurrentEntity();
+                disableDisplayButtons();
             }
         });
 
         btnSelectPhase = new Button(this, SWT.NONE);
         btnSelectPhase.setImage(ImageResources.DROP_DOWN.getImage());
-        
+
         phaseSelectionMenu = new Menu(btnSelectPhase);
+        phaseSelectionMenu.setOrientation(SWT.RIGHT_TO_LEFT);
         btnSelectPhase.setMenu(phaseSelectionMenu);
         btnSelectPhase.addSelectionListener(new SelectionListener() {
             @Override
@@ -110,17 +103,10 @@ public class EntityPhaseComposite extends Composite {
 
     }
 
-    private void setDisplayButtons() {
-        lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
-        lblNextPhase.setToolTipText(TOOLTIP_CLICKABLE_PHASE);
-        lblNextPhase.setEnabled(true);
-        btnSelectPhase.setEnabled(true);
-    }
-
     public void setEntityModel(EntityModel entityModel) {
         this.entityModel = entityModel;
         getPossiblePhaseTransitions();
-        setDisplayButtons();
+        enableDisplayButtons();
     }
 
     private void getPossiblePhaseTransitions() {
@@ -154,31 +140,53 @@ public class EntityPhaseComposite extends Composite {
                             // initialize the label next-phase with the first items
                             lblNextPhase.setText(Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase")));
                             newSelection = possiblePhasesList.get(0);
+                            if (possiblePhasesList.size() < 2) {
+                                btnSelectPhase.setVisible(false);
+                            } else {
+                                for (int i = 1; i < possiblePhasesList.size(); i++) {
+                                    EntityModel nextTargetPhase = possiblePhasesList.get(i);
+                                    String nextTargetPhaseName = Util.getUiDataFromModel(nextTargetPhase.getValue("target_phase"));
 
-                            for (int i = 0; i < possiblePhasesList.size(); i++) {
-                                EntityModel nextTargetPhase = possiblePhasesList.get(i);
-                                String nextTargetPhaseName = Util.getUiDataFromModel(nextTargetPhase.getValue("target_phase"));
-
-                                MenuItem menuItemPhase = new MenuItem(phaseSelectionMenu, SWT.NONE);
-                                menuItemPhase.setText(nextTargetPhaseName);
-                                menuItemPhase.addListener(SWT.Selection, new Listener() {
-                                    @Override
-                                    public void handleEvent(Event e) {
-                                        lblNextPhase.setText(menuItemPhase.getText());
-                                        newSelection = nextTargetPhase;
-                                    }
-                                });
+                                    MenuItem menuItemPhase = new MenuItem(phaseSelectionMenu, SWT.NONE);
+                                    menuItemPhase.setText(nextTargetPhaseName);
+                                    menuItemPhase.addListener(SWT.Selection, new Listener() {
+                                        @Override
+                                        public void handleEvent(Event e) {
+                                            lblNextPhase.setText(menuItemPhase.getText());
+                                            newSelection = nextTargetPhase;
+                                            updateCurrentEntity();
+                                            disableDisplayButtons();
+                                        }
+                                    });
+                                }
                             }
                         }
-
-                        // Force redraw
-                        layout(true, true);
-                        redraw();
-                        update();
                     });
                 }
             });
             getPossiblePhasesJob.schedule();
         }
+    }
+
+    private void updateCurrentEntity() {
+        if (newSelection.getValue("target_phase") instanceof ReferenceFieldModel) {
+            ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
+            entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
+            lblCurrentPhase.setText(lblNextPhase.getText());
+        }
+    }
+
+    private void enableDisplayButtons() {
+        lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
+        lblNextPhase.setToolTipText(TOOLTIP_CLICKABLE_PHASE);
+        lblNextPhase.setEnabled(true);
+        btnSelectPhase.setEnabled(true);
+    }
+
+    private void disableDisplayButtons() {
+        lblNextPhase.setToolTipText(TOOLTIP_BLOCKED_PHASE);
+        lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+        btnSelectPhase.setEnabled(false);
+        lblNextPhase.setEnabled(false);
     }
 }
