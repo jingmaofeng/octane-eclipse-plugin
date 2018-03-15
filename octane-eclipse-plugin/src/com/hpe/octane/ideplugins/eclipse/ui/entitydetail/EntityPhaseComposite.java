@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.internal.resources.projectvariables.ParentVariableResolver;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
@@ -48,6 +49,7 @@ public class EntityPhaseComposite extends Composite {
 
     private Button btnSelectPhase;
     private Menu phaseSelectionMenu;
+    private GridData gdBtnSelectPhase;
 
     public EntityPhaseComposite(Composite parent, int style) {
         super(parent, style);
@@ -84,6 +86,8 @@ public class EntityPhaseComposite extends Composite {
         });
 
         btnSelectPhase = new Button(this, SWT.NONE);
+        gdBtnSelectPhase = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+        btnSelectPhase.setLayoutData(gdBtnSelectPhase);
         btnSelectPhase.setImage(ImageResources.DROP_DOWN.getImage());
 
         phaseSelectionMenu = new Menu(btnSelectPhase);
@@ -140,7 +144,10 @@ public class EntityPhaseComposite extends Composite {
                             newSelection = possiblePhasesList.get(0);
                             if (possiblePhasesList.size() < 2) {
                                 btnSelectPhase.setVisible(false);
+                                gdBtnSelectPhase.exclude = true;
                             } else {
+                                btnSelectPhase.setVisible(true);
+                                gdBtnSelectPhase.exclude = false;
                                 for (int i = 1; i < possiblePhasesList.size(); i++) {
                                     EntityModel nextTargetPhase = possiblePhasesList.get(i);
                                     String nextTargetPhaseName = Util.getUiDataFromModel(nextTargetPhase.getValue("target_phase"));
@@ -171,6 +178,7 @@ public class EntityPhaseComposite extends Composite {
             ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
             entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
             lblCurrentPhase.setText(lblNextPhase.getText());
+            layout();
         }
     }
 
