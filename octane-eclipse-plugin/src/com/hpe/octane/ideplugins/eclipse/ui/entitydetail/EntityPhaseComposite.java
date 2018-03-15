@@ -31,7 +31,7 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 public class EntityPhaseComposite extends Composite {
 
     private static final String CURRENT_PHASE_PLACE_HOLDER = "CURRENT_PHASE";
-    private static final String NEXT_PHASE_PLACE_HOLDER = "NEXT_PHASE";
+    private static final String NEXT_PHASE_PLACE_HOLDER = "Move to: NEXT_PHASE";
     private static final String TOOLTIP_BLOCKED_PHASE = "You must save first before doing any more changes to phase";
     private static final String TOOLTIP_CLICKABLE_PHASE = "Click here to choose you desired next phase";
 
@@ -53,7 +53,7 @@ public class EntityPhaseComposite extends Composite {
 
     public EntityPhaseComposite(Composite parent, int style) {
         super(parent, style);
-        setLayout(new GridLayout(8, false));
+        setLayout(new GridLayout(7, false));
         
         lblSeparatorLeft = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
         lblSeparatorLeft.setLayoutData(createSeparatorGridData());
@@ -70,10 +70,6 @@ public class EntityPhaseComposite extends Composite {
         
         lblSeparatorMiddle = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
         lblSeparatorMiddle.setLayoutData(createSeparatorGridData());
-
-        lblMoveTo = new Label(this, SWT.NONE);
-        lblMoveTo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-        lblMoveTo.setText("Move to:");
 
         lblNextPhase = new Label(this, SWT.NONE);
         lblNextPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -153,7 +149,8 @@ public class EntityPhaseComposite extends Composite {
                             List<EntityModel> possiblePhasesList = new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions());
 
                             // initialize the label next-phase with the first items
-                            lblNextPhase.setText(Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase")));
+                            String initialValueNextPhase = "Move to: " + Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase"));
+                            lblNextPhase.setText(initialValueNextPhase);
                             newSelection = possiblePhasesList.get(0);
                             if (possiblePhasesList.size() < 2) {
                                 btnSelectPhase.setVisible(false);
@@ -165,12 +162,13 @@ public class EntityPhaseComposite extends Composite {
                                     EntityModel nextTargetPhase = possiblePhasesList.get(i);
                                     String nextTargetPhaseName = Util.getUiDataFromModel(nextTargetPhase.getValue("target_phase"));
 
-                                    MenuItem menuItemPhase = new MenuItem(phaseSelectionMenu, SWT.CHECK);
+                                    MenuItem menuItemPhase = new MenuItem(phaseSelectionMenu, SWT.NONE);
                                     menuItemPhase.setText(nextTargetPhaseName);
                                     menuItemPhase.addListener(SWT.Selection, new Listener() {
                                         @Override
                                         public void handleEvent(Event e) {
-                                            lblNextPhase.setText(menuItemPhase.getText());
+                                            String newString = "Move to: " + menuItemPhase.getText();
+                                            lblNextPhase.setText(newString);
                                             newSelection = nextTargetPhase;
                                             updateCurrentEntity();
                                             disableDisplayButtons();
@@ -190,7 +188,9 @@ public class EntityPhaseComposite extends Composite {
         if (newSelection.getValue("target_phase") instanceof ReferenceFieldModel) {
             ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
             entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
-            lblCurrentPhase.setText(lblNextPhase.getText());
+            String newString = lblNextPhase.getText();
+            newString = newString.replace("Move to: ", "");
+            lblCurrentPhase.setText(newString);
             
             layout();
             getParent().layout();
@@ -207,7 +207,11 @@ public class EntityPhaseComposite extends Composite {
     private void disableDisplayButtons() {
         lblNextPhase.setToolTipText(TOOLTIP_BLOCKED_PHASE);
         lblNextPhase.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+        String newString = lblNextPhase.getText();
+        newString = newString.replace("Move to: ", "Moved to: ");
+        lblNextPhase.setText(newString);
         btnSelectPhase.setEnabled(false);
         lblNextPhase.setEnabled(false);
+
     }
 }
