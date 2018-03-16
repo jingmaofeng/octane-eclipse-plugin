@@ -37,7 +37,6 @@ public class EntityPhaseComposite extends Composite {
 
     private Label lblPhase;
     private Label lblCurrentPhase;
-    private Label lblMoveTo;
     private Label lblNextPhase;
 
     private EntityModel entityModel;
@@ -191,7 +190,6 @@ public class EntityPhaseComposite extends Composite {
             String newString = lblNextPhase.getText();
             newString = newString.replace("Move to: ", "");
             lblCurrentPhase.setText(newString);
-            
             layout();
             getParent().layout();
         }
@@ -212,6 +210,8 @@ public class EntityPhaseComposite extends Composite {
         lblNextPhase.setText(newString);
         btnSelectPhase.setEnabled(false);
         lblNextPhase.setEnabled(false);
+        layout();
+        getParent().layout();
 
     }
 }
