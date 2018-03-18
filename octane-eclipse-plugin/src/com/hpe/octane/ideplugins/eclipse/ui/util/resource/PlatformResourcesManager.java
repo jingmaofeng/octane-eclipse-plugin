@@ -8,37 +8,38 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
 public class PlatformResourcesManager {
-    
+
     public static Color getPlatformBackgroundColor() {
-        if(isRunningOnEclipsePlatform()) {
+        if (isRunningOnEclipsePlatform()) {
             return getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
         } else {
             return SWTResourceManager.getColor(SWT.COLOR_WHITE);
         }
     }
-    
+
     public static Color getPlatformForegroundColor() {
-        if(isRunningOnEclipsePlatform()) {
+        if (isRunningOnEclipsePlatform()) {
             return getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
         } else {
-            return SWTResourceManager.getColor(SWT.COLOR_WHITE);
+            return SWTResourceManager.getColor(SWT.COLOR_BLACK);
         }
     }
 
     public static Image getPlatformImage(String platformImageConstant) {
-        if(isRunningOnEclipsePlatform()) {
+        if (isRunningOnEclipsePlatform()) {
             return PlatformUI.getWorkbench().getSharedImages().getImage(platformImageConstant);
         } else {
             return ImageResources.PLACEHOLDER.getImage();
         }
     }
-    
+
     private static ColorRegistry getColorRegistry() {
         return PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry();
     }
-    
+
     /**
      * Check if running on eclipse platform or not
+     * 
      * @return
      */
     private static boolean isRunningOnEclipsePlatform() {
@@ -49,5 +50,5 @@ public class PlatformResourcesManager {
             return false;
         }
     }
-    
+
 }
