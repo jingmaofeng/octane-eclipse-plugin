@@ -9,6 +9,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
+import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.connection.BasicConnectionSettingProvider;
+import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettings;
+import com.hpe.adm.octane.ideplugins.services.di.ServiceModule;
+import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
+import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.EntityCommentComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
@@ -18,6 +26,7 @@ public class DebugWindow {
 
     protected Shell shell;
     protected Display display;
+    protected ServiceModule serviceModule = getServiceDIModule();
 
     public static void main(String[] args) {
         try {
@@ -82,6 +91,11 @@ public class DebugWindow {
 
         EntityCommentComposite entityCommentComposite = new EntityCommentComposite(fieldCommentParentComposite, SWT.NONE);
         entityCommentComposite.setLayoutData(BorderLayout.EAST);
+
+        EntityModel entityModel = getEntityModel();
+        entityCommentComposite.setEntityModel(entityModel);
+        entityFieldsComposite.setEntityModel(entityModel);
+        entityHeaderComposite.setEntityModel(entityModel);
     }
 
     private void positionShell() {
@@ -93,6 +107,27 @@ public class DebugWindow {
         int x = bounds.x + (bounds.width - rect.width) / 2;
         int y = bounds.y + (bounds.height - rect.height) / 2;
         shell.setLocation(x, y);
+    }
+
+    private ServiceModule getServiceDIModule() {
+        ConnectionSettings connectionSettings = new ConnectionSettings();
+        connectionSettings.setBaseUrl("https://mqast001pngx.saas.hpe.com");
+        connectionSettings.setSharedSpaceId(2004L);
+        connectionSettings.setWorkspaceId(26002L);
+        connectionSettings.setUserName(System.getProperty("username"));
+        connectionSettings.setPassword(System.getProperty("password"));
+        Activator.setConnectionSettings(connectionSettings);
+        ServiceModule module = new ServiceModule(new BasicConnectionSettingProvider(connectionSettings));
+        return module;
+    }
+
+    private EntityModel getEntityModel() {
+        try {
+            return serviceModule.getInstance(EntityService.class).findEntity(Entity.DEFECT, 146090L);
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }
