@@ -195,6 +195,9 @@ public class EntityHeaderComposite extends Composite {
         } else {
             setChildVisibility(phaseComposite, false);
         }
+
+        layout();
+        update();
     }
 
     private void setChildVisibility(Control control, boolean isVisible) {

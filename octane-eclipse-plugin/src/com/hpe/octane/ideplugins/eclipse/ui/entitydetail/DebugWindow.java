@@ -1,5 +1,8 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
 
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Point;
@@ -12,10 +15,12 @@ import org.eclipse.swt.widgets.Shell;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettings;
-import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.EntityCommentComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.UpdateEntityJob;
+import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 import swing2swt.layout.BorderLayout;
@@ -24,6 +29,10 @@ public class DebugWindow {
 
     protected Shell shell;
     protected Display display;
+    private EntityCommentComposite entityCommentComposite;
+    private EntityFieldsComposite entityFieldsComposite;
+    private EntityHeaderComposite entityHeaderComposite;
+    private EntityModel entityModel;
 
     public static void main(String[] args) {
         initMockActivator();
@@ -70,7 +79,7 @@ public class DebugWindow {
         shell.setBackgroundMode(SWT.INHERIT_FORCE);
         positionShell();
 
-        EntityHeaderComposite entityHeaderComposite = new EntityHeaderComposite(shell, SWT.NONE);
+        entityHeaderComposite = new EntityHeaderComposite(shell, SWT.NONE);
         entityHeaderComposite.setLayoutData(BorderLayout.NORTH);
 
         ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.HORIZONTAL | SWT.VERTICAL);
@@ -84,16 +93,77 @@ public class DebugWindow {
 
         scrolledComposite.setContent(fieldCommentParentComposite);
 
-        EntityFieldsComposite entityFieldsComposite = new EntityFieldsComposite(fieldCommentParentComposite, SWT.NONE);
+        entityFieldsComposite = new EntityFieldsComposite(fieldCommentParentComposite, SWT.NONE);
         entityFieldsComposite.setLayoutData(BorderLayout.CENTER);
 
-        EntityCommentComposite entityCommentComposite = new EntityCommentComposite(fieldCommentParentComposite, SWT.NONE);
+        entityCommentComposite = new EntityCommentComposite(fieldCommentParentComposite, SWT.NONE);
         entityCommentComposite.setLayoutData(BorderLayout.EAST);
 
-        EntityModel entityModel = getEntityModel();
-        entityCommentComposite.setEntityModel(entityModel);
-        entityFieldsComposite.setEntityModel(entityModel);
-        entityHeaderComposite.setEntityModel(entityModel);
+        loadEntity();
+
+        entityHeaderComposite.addRefreshSelectionListener(event -> {
+            loadEntity();
+        });
+        entityHeaderComposite.addSaveSelectionListener(event -> {
+            saveEntity();
+        });
+    }
+
+    protected void loadEntity() {
+        GetEntityModelJob getEntityDetailsJob = new GetEntityModelJob("Retrieving entity details", Entity.DEFECT, 146090L);
+
+        getEntityDetailsJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void scheduled(IJobChangeEvent event) {
+                Display.getDefault().asyncExec(() -> {
+                    // rootComposite.showControl(loadingComposite);
+                });
+            }
+
+            @Override
+            public void done(IJobChangeEvent event) {
+                if (getEntityDetailsJob.wasEntityRetrived()) {
+                    entityModel = getEntityDetailsJob.getEntiyData();
+                    Display.getDefault().asyncExec(() -> {
+
+                        entityCommentComposite.setEntityModel(entityModel);
+                        entityFieldsComposite.setEntityModel(entityModel);
+                        entityHeaderComposite.setEntityModel(entityModel);
+
+                    });
+                } else {
+                    MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error",
+                            "Failed to load entity, " + getEntityDetailsJob.getException());
+                }
+            }
+        });
+
+        getEntityDetailsJob.schedule();
+    }
+
+    private void saveEntity() {
+        EntityService entityService = Activator.getInstance(EntityService.class);
+
+        UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + Entity.getEntityType(entityModel), entityModel);
+        updateEntityJob.schedule();
+        updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                Display.getDefault().asyncExec(() -> {
+                    if (updateEntityJob.isPhaseChanged()) {
+                        new InfoPopup("Saving entity", "Saved your changes").open();
+                    } else {
+                        boolean shouldGoToBrowser = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
+                                "Business rule violation",
+                                "Phase change failed \n" + "Sorry!");
+                        if (shouldGoToBrowser) {
+                            entityService.openInBrowser(entityModel);
+                        }
+                    }
+                    DebugWindow.this.loadEntity();
+                });
+            }
+        });
     }
 
     private void positionShell() {
@@ -115,15 +185,6 @@ public class DebugWindow {
         connectionSettings.setUserName(System.getProperty("username"));
         connectionSettings.setPassword(System.getProperty("password"));
         Activator.setConnectionSettings(connectionSettings);
-    }
-
-    private EntityModel getEntityModel() {
-        try {
-            return Activator.getInstance(EntityService.class).findEntity(Entity.DEFECT, 146090L);
-        } catch (ServiceException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
 }
