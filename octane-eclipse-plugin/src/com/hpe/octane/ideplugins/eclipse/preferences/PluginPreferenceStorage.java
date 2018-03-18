@@ -95,36 +95,40 @@ public class PluginPreferenceStorage {
         return (editorInput.getId() != -1) ? editorInput : null;
     }
 
+    static Map<Entity, Set<String>> fields = new HashMap<>();
+    static {
+        fields = DefaultEntityFieldsUtil.getDefaultFields();
+    }
+
     public static void setShownEntityFields(Entity entity, Set<String> entityFields) {
-        ISecurePreferences securePrefs = getSecurePrefs();
+        fields.put(entity, entityFields);
+        fireChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS);
 
-        Map<Entity, Set<String>> showEntityFieldMap;
-        String fieldsStr = null;
-
-        try {
-            fieldsStr = securePrefs.get(PreferenceConstants.SHOWN_ENTITY_FIELDS, null);
-        } catch (StorageException e) {
-            Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
-                    "An exception has occured while loading shown entity fields", e));
-        }
-
-        if (fieldsStr == null) {
-            showEntityFieldMap = DefaultEntityFieldsUtil.getDefaultFields();
-        } else {
-            showEntityFieldMap = DefaultEntityFieldsUtil.entityFieldsFromJson(fieldsStr);
-        }
-
-        showEntityFieldMap.put(entity, entityFields);
-
-        try {
-            securePrefs.put(PreferenceConstants.SHOWN_ENTITY_FIELDS,
-                    DefaultEntityFieldsUtil.entityFieldsToJson(showEntityFieldMap), false);
-            fireChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS);
-        } catch (StorageException e) {
-            Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
-                    "An exception has occured while saving shown entity fields", e));
-        }
-
+        /*
+         * ISecurePreferences securePrefs = getSecurePrefs();
+         * 
+         * Map<Entity, Set<String>> showEntityFieldMap; String fieldsStr = null;
+         * 
+         * try { fieldsStr =
+         * securePrefs.get(PreferenceConstants.SHOWN_ENTITY_FIELDS, null); }
+         * catch (StorageException e) { Activator.getDefault().getLog().log(new
+         * Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+         * "An exception has occured while loading shown entity fields", e)); }
+         * 
+         * if (fieldsStr == null) { showEntityFieldMap =
+         * DefaultEntityFieldsUtil.getDefaultFields(); } else {
+         * showEntityFieldMap =
+         * DefaultEntityFieldsUtil.entityFieldsFromJson(fieldsStr); }
+         * 
+         * showEntityFieldMap.put(entity, entityFields);
+         * 
+         * try { securePrefs.put(PreferenceConstants.SHOWN_ENTITY_FIELDS,
+         * DefaultEntityFieldsUtil.entityFieldsToJson(showEntityFieldMap),
+         * false); fireChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS); }
+         * catch (StorageException e) { Activator.getDefault().getLog().log(new
+         * Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+         * "An exception has occured while saving shown entity fields", e)); }
+         */
     }
 
     public static void resetShownEntityFields() {
@@ -140,28 +144,27 @@ public class PluginPreferenceStorage {
     }
 
     public static Set<String> getShownEntityFields(Entity entity) {
-        ISecurePreferences securePrefs = getSecurePrefs();
-        String shownEntityFields;
-        Map<Entity, Set<String>> showEntityFieldMap;
+        return fields.get(entity);
 
-        try {
-            shownEntityFields = securePrefs.get(PreferenceConstants.SHOWN_ENTITY_FIELDS, null);
-        } catch (StorageException e) {
-            Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
-                    "An exception has occured while getting shown entity fields", e));
-            throw new RuntimeException(e);
-        }
-
-        if (shownEntityFields == null) {
-            return DefaultEntityFieldsUtil.getDefaultFields().get(entity);
-        } else {
-            showEntityFieldMap = DefaultEntityFieldsUtil.entityFieldsFromJson(shownEntityFields);
-            if (!showEntityFieldMap.containsKey(entity)) {
-                return DefaultEntityFieldsUtil.getDefaultFields().get(entity);
-            } else {
-                return showEntityFieldMap.get(entity);
-            }
-        }
+        /*
+         * ISecurePreferences securePrefs = getSecurePrefs(); String
+         * shownEntityFields; Map<Entity, Set<String>> showEntityFieldMap;
+         * 
+         * try { shownEntityFields =
+         * securePrefs.get(PreferenceConstants.SHOWN_ENTITY_FIELDS, null); }
+         * catch (StorageException e) { Activator.getDefault().getLog().log(new
+         * Status(Status.ERROR, Activator.PLUGIN_ID, Status.ERROR,
+         * "An exception has occured while getting shown entity fields", e));
+         * throw new RuntimeException(e); }
+         * 
+         * if (shownEntityFields == null) { return
+         * DefaultEntityFieldsUtil.getDefaultFields().get(entity); } else {
+         * showEntityFieldMap =
+         * DefaultEntityFieldsUtil.entityFieldsFromJson(shownEntityFields); if
+         * (!showEntityFieldMap.containsKey(entity)) { return
+         * DefaultEntityFieldsUtil.getDefaultFields().get(entity); } else {
+         * return showEntityFieldMap.get(entity); } }
+         */
     }
 
     public static boolean areShownEntityFieldsDefaults(Entity entity) {
