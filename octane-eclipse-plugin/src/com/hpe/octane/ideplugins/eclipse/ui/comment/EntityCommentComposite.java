@@ -17,7 +17,6 @@ import java.util.Collection;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -32,7 +31,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
@@ -44,6 +42,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite.LoadingPosition;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityCommentComposite extends StackLayoutComposite {
@@ -140,7 +139,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
     private void postComment(String text) {
         commentText.setEnabled(false);
         showControl(loadingComposite);
-        
+
         PostCommentJob sendCommentJob = new PostCommentJob("Posting Comment", entityModel, text);
         sendCommentJob.schedule();
         sendCommentJob.addJobChangeListener(new JobChangeAdapter() {
@@ -165,14 +164,15 @@ public class EntityCommentComposite extends StackLayoutComposite {
         getCommentsJob.schedule();
         showControl(loadingComposite);
 
-
         getCommentsJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
             public void done(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
                     String html = getCommentHtmlString(getCommentsJob.getComents());
-                    commentsBrowser.setText(html);
-                    showControl(commentsComposite);
+                    if (!commentsBrowser.isDisposed()) {
+                        commentsBrowser.setText(html);
+                        showControl(commentsComposite);
+                    }
                 });
             }
         });
@@ -180,14 +180,14 @@ public class EntityCommentComposite extends StackLayoutComposite {
     }
 
     private static String getCommentHtmlString(Collection<EntityModel> comments) {
-        StringBuilder commentsBuilder = new StringBuilder();
-        Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
-                .get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
-        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")";
 
-        Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
-                .get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+        Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
+        Color foregroundColor = PlatformResourcesManager.getPlatformForegroundColor();
+
+        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")";
         String foregroundColorString = "rgb(" + foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")";
+
+        StringBuilder commentsBuilder = new StringBuilder();
         commentsBuilder.append("<html><body bgcolor =" + backgroundColorString + ">");
         commentsBuilder.append("<font color =" + foregroundColorString + ">");
 
