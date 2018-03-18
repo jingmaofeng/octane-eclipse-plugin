@@ -14,14 +14,14 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 import swing2swt.layout.BorderLayout;
 
-public class PocWindow {
+public class DebugWindow {
 
     protected Shell shell;
     protected Display display;
 
     public static void main(String[] args) {
         try {
-            PocWindow window = new PocWindow();
+            DebugWindow window = new DebugWindow();
             window.open();
         } catch (Exception e) {
             e.printStackTrace();
