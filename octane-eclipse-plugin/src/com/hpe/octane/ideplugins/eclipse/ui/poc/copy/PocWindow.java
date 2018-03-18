@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.poc;
+package com.hpe.octane.ideplugins.eclipse.ui.poc.copy;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
