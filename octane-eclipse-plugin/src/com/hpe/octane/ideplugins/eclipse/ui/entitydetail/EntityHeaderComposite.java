@@ -35,7 +35,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.model.EntityModel;
@@ -50,7 +49,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetPossiblePhasesJo
 import com.hpe.octane.ideplugins.eclipse.ui.util.MultiSelectComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
-import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.DelayedRunnable;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
@@ -118,11 +117,11 @@ public class EntityHeaderComposite extends Composite {
         btnSave = new Button(this, SWT.NONE);
         btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
         btnSave.setToolTipText(TOOLTIP_PHASE);
-        btnSave.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
+        btnSave.setImage(PlatformResourcesManager.getPlatformImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
 
         btnRefresh = new Button(this, SWT.NONE);
         btnRefresh.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-        btnRefresh.setImage(ImageResources.REFRESH_16X16.getImage());
+        //btnRefresh.setImage(ImageResources.REFRESH_16X16.getImage());
         btnRefresh.setToolTipText(TOOLTIP_REFRESH);
 
         btnFields = new Button(this, SWT.NONE);
@@ -132,7 +131,7 @@ public class EntityHeaderComposite extends Composite {
         btnComments = new Button(this, SWT.NONE);
         gdBtnComments = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
         btnComments.setLayoutData(gdBtnComments);
-        btnComments.setImage(ImageResources.SHOW_COMMENTS.getImage());
+        //btnComments.setImage(ImageResources.SHOW_COMMENTS.getImage());
         btnComments.setToolTipText(TOOLTIP_COMMENTS);
 
         // Actual data is populated when entity is set
@@ -160,9 +159,9 @@ public class EntityHeaderComposite extends Composite {
                         new LinkedHashSet<>(fieldCombo.getSelections()));
 
                 if (PluginPreferenceStorage.areShownEntityFieldsDefaults(Entity.getEntityType(entityModel))) {
-                    btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
+                    //btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
                 } else {
-                    btnFields.setImage(ImageResources.FIELDS_ON.getImage());
+                    //btnFields.setImage(ImageResources.FIELDS_ON.getImage());
                 }
             });
         }, 500);
@@ -178,7 +177,7 @@ public class EntityHeaderComposite extends Composite {
     public void setEntityModel(EntityModel entityModel) {
         this.entityModel = entityModel;
         phaseComposite.setEntityModel(entityModel);
-        lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
+        //lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
         linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
         selectFieldsToDisplay(entityModel);
 
@@ -215,9 +214,9 @@ public class EntityHeaderComposite extends Composite {
 
     private void selectFieldsToDisplay(EntityModel entityModel) {
         if (PluginPreferenceStorage.areShownEntityFieldsDefaults(Entity.getEntityType(entityModel))) {
-            btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
+            //btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
         } else {
-            btnFields.setImage(ImageResources.FIELDS_ON.getImage());
+            //btnFields.setImage(ImageResources.FIELDS_ON.getImage());
         }
 
         // make a map of the field names and labels

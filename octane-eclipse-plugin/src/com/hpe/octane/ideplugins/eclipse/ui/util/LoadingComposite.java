@@ -34,6 +34,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 
 public class LoadingComposite extends Composite {
     
@@ -55,8 +56,7 @@ public class LoadingComposite extends Composite {
      */
     public LoadingComposite(Composite parent, int style) {
         super(parent, style);
-        setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
-                .get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
+        setBackground(PlatformResourcesManager.getPlatformBackgroundColor());
         Display display = parent.getDisplay();
         GC shellGC = new GC(this);
         Color shellBackground = getBackground();
@@ -66,7 +66,7 @@ public class LoadingComposite extends Composite {
         try {
             stream = Platform.getBundle(Activator.PLUGIN_ID).getEntry(ImageResources.OCTANE_PRELOADER.getPluginPath()).openStream();
             imageDataArray = loader.load(stream);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             // BACKUP PLAN!!!
             setLayout(new GridLayout(1, false));
             Label lblLoading = new Label(this, SWT.NONE);

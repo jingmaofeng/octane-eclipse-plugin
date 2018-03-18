@@ -32,7 +32,7 @@ public class NoSearchResultsComposite extends Composite {
 
         Label lblRobot = new Label(rootComposite, SWT.NONE);
         lblRobot.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-        lblRobot.setImage(ImageResources.NO_ITEMS_TO_DISPLAY_ROBOT.getImage());
+        lblRobot.setImage(ImageResources.S_NO_ITEMS_TO_DISPLAY.getImage());
 
         Label lblNoResults = new Label(rootComposite, SWT.NONE);
         lblNoResults.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));

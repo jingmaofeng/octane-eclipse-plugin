@@ -31,7 +31,7 @@ public class NoWorkComposite extends Composite {
 
     private static final String NO_WORK_TEXT = "You're Awesome! You finished all your work!";
     private static final String NO_WORK_LINK_TEXT = "You may want to talk with your team leader... or have some fun!";
-    private static final Image unidragonImage = ImageResources.ROCKET.getImage();
+    private static final Image unidragonImage = ImageResources.S_ROCKET.getImage();
     private static final Color hotPink = SWTResourceManager.getColor(255, 105, 180);
     private static final Color defaultColor = SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND);
 
