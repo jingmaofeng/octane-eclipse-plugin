@@ -46,7 +46,7 @@ public class EntityPhaseComposite extends Composite {
     private Label btnSelectPhase;
     private Menu phaseSelectionMenu;
     private GridData gdBtnSelectPhase;
-    
+
     private Label lblSeparatorLeft;
     private Label lblSeparatorRight;
     private Label lblSeparatorMiddle;
@@ -54,7 +54,7 @@ public class EntityPhaseComposite extends Composite {
     public EntityPhaseComposite(Composite parent, int style) {
         super(parent, style);
         setLayout(new GridLayout(7, false));
-        
+
         lblSeparatorLeft = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
         lblSeparatorLeft.setLayoutData(createSeparatorGridData());
 
@@ -67,7 +67,7 @@ public class EntityPhaseComposite extends Composite {
         lblCurrentPhase.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
         lblCurrentPhase.setFont(SWTResourceManager.getBoldFont(lblPhase.getFont()));
         lblCurrentPhase.setText(CURRENT_PHASE_PLACE_HOLDER);
-        
+
         lblSeparatorMiddle = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
         lblSeparatorMiddle.setLayoutData(createSeparatorGridData());
 
@@ -96,10 +96,10 @@ public class EntityPhaseComposite extends Composite {
         phaseSelectionMenu = new Menu(btnSelectPhase);
         phaseSelectionMenu.setOrientation(SWT.RIGHT_TO_LEFT);
         btnSelectPhase.setMenu(phaseSelectionMenu);
-        
+
         lblSeparatorRight = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
         lblSeparatorRight.setLayoutData(createSeparatorGridData());
-        
+
         btnSelectPhase.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
@@ -113,9 +113,9 @@ public class EntityPhaseComposite extends Composite {
         getPossiblePhaseTransitions();
         enableDisplayButtons();
     }
-    
+
     private GridData createSeparatorGridData() {
-        GridData gdSeparator = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);        
+        GridData gdSeparator = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
         gdSeparator.heightHint = 16;
         return gdSeparator;
     }
@@ -131,8 +131,10 @@ public class EntityPhaseComposite extends Composite {
                 @Override
                 public void scheduled(IJobChangeEvent event) {
                     Display.getDefault().asyncExec(() -> {
-                        for (MenuItem items : phaseSelectionMenu.getItems()) {
-                            items.dispose();
+                        if (!phaseSelectionMenu.isDisposed()) {
+                            for (MenuItem items : phaseSelectionMenu.getItems()) {
+                                items.dispose();
+                            }
                         }
                     });
                 }
@@ -148,8 +150,10 @@ public class EntityPhaseComposite extends Composite {
                         } else {
                             List<EntityModel> possiblePhasesList = new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions());
 
-                            // initialize the label next-phase with the first items
-                            String initialValueNextPhase = "Move to: " + Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase"));
+                            // initialize the label next-phase with the first
+                            // items
+                            String initialValueNextPhase = "Move to: "
+                                    + Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase"));
                             lblNextPhase.setText(initialValueNextPhase);
                             newSelection = possiblePhasesList.get(0);
                             if (possiblePhasesList.size() < 2) {
@@ -191,7 +195,7 @@ public class EntityPhaseComposite extends Composite {
             String newString = lblNextPhase.getText();
             newString = newString.replace("Move to: ", "");
             lblCurrentPhase.setText(newString);
-            
+
             layout();
             getParent().layout();
         }
