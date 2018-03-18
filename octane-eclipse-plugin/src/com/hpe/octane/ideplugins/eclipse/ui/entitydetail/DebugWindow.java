@@ -11,9 +11,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
-import com.hpe.adm.octane.ideplugins.services.connection.BasicConnectionSettingProvider;
 import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettings;
-import com.hpe.adm.octane.ideplugins.services.di.ServiceModule;
 import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -26,9 +24,9 @@ public class DebugWindow {
 
     protected Shell shell;
     protected Display display;
-    protected ServiceModule serviceModule = getServiceDIModule();
 
     public static void main(String[] args) {
+        initMockActivator();
         try {
             DebugWindow window = new DebugWindow();
             window.open();
@@ -109,7 +107,7 @@ public class DebugWindow {
         shell.setLocation(x, y);
     }
 
-    private ServiceModule getServiceDIModule() {
+    private static void initMockActivator() {
         ConnectionSettings connectionSettings = new ConnectionSettings();
         connectionSettings.setBaseUrl("https://mqast001pngx.saas.hpe.com");
         connectionSettings.setSharedSpaceId(2004L);
@@ -117,13 +115,11 @@ public class DebugWindow {
         connectionSettings.setUserName(System.getProperty("username"));
         connectionSettings.setPassword(System.getProperty("password"));
         Activator.setConnectionSettings(connectionSettings);
-        ServiceModule module = new ServiceModule(new BasicConnectionSettingProvider(connectionSettings));
-        return module;
     }
 
     private EntityModel getEntityModel() {
         try {
-            return serviceModule.getInstance(EntityService.class).findEntity(Entity.DEFECT, 146090L);
+            return Activator.getInstance(EntityService.class).findEntity(Entity.DEFECT, 146090L);
         } catch (ServiceException e) {
             e.printStackTrace();
             return null;
