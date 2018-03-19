@@ -125,7 +125,7 @@ public class EntityPhaseComposite extends Composite {
         gdSeparator.heightHint = 16;
         return gdSeparator;
     }
-
+ 
     private void getPossiblePhaseTransitions() {
         if (GetPossiblePhasesJob.hasPhases(Entity.getEntityType(entityModel))) {
             String currentPhaseName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_PHASE));
