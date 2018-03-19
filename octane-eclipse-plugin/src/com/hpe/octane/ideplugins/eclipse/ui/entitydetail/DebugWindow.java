@@ -110,7 +110,7 @@ public class DebugWindow {
     }
 
     protected void loadEntity() {
-        GetEntityModelJob getEntityDetailsJob = new GetEntityModelJob("Retrieving entity details", Entity.DEFECT, 146090L);
+        GetEntityModelJob getEntityDetailsJob = new GetEntityModelJob("Retrieving entity details", Entity.valueOf(System.getProperty("entity")), Long.parseLong(System.getProperty("entityId")));
 
         getEntityDetailsJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
@@ -179,9 +179,9 @@ public class DebugWindow {
 
     private static void initMockActivator() {
         ConnectionSettings connectionSettings = new ConnectionSettings();
-        connectionSettings.setBaseUrl("https://mqast001pngx.saas.hpe.com");
-        connectionSettings.setSharedSpaceId(2004L);
-        connectionSettings.setWorkspaceId(26002L);
+        connectionSettings.setBaseUrl(System.getProperty("url"));
+        connectionSettings.setSharedSpaceId(Long.parseLong(System.getProperty("ssid")));
+        connectionSettings.setWorkspaceId(Long.parseLong(System.getProperty("wsid")));
         connectionSettings.setUserName(System.getProperty("username"));
         connectionSettings.setPassword(System.getProperty("password"));
         Activator.setConnectionSettings(connectionSettings);
