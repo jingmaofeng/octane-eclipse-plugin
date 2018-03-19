@@ -151,6 +151,7 @@ public class EntityPhaseComposite extends Composite {
                             lblNextPhase.setText("No transition");
                             lblNextPhase.setEnabled(false);
                             btnSelectPhase.setEnabled(false);
+                            gdBtnSelectPhase.exclude = true;
                         } else {
                             List<EntityModel> possiblePhasesList = new ArrayList<>(getPossiblePhasesJob.getPossibleTransitions());
 
