@@ -28,7 +28,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
@@ -41,9 +40,9 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PrefereceChangeHandler;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PreferenceConstants;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor.FieldEditorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
-import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
@@ -60,8 +59,6 @@ public class EntityFieldsComposite extends Composite {
     private Composite entityDescriptionComposite;
     private Composite fieldsComposite;
 
-    private ToolTip truncatedLabelTooltip;
-
     private EntityModel entityModel;
     private Browser descBrowser;
 
@@ -70,8 +67,6 @@ public class EntityFieldsComposite extends Composite {
 
         setLayout(new GridLayout(1, false));
         FormToolkit formGenerator = new FormToolkit(this.getDisplay());
-
-        truncatedLabelTooltip = new ToolTip(this.getShell(), SWT.ICON_INFORMATION);
 
         entityFieldsComposite = new Composite(this, SWT.NONE);
         entityFieldsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
@@ -162,17 +157,6 @@ public class EntityFieldsComposite extends Composite {
 
         for (int i = 0; i < shownFields.size(); i++) {
             String fieldName = iterator.next();
-            String fieldValue;
-
-            if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
-                    || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
-                    || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
-                    || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
-                fieldValue = Util.getUiDataFromModel(entityModel.getValue(fieldName),
-                        EntityFieldsConstants.FIELD_FULL_NAME);
-            } else {
-                fieldValue = Util.getUiDataFromModel(entityModel.getValue(fieldName));
-            }
 
             // Determine if we put the label pair in the left or right container
             Composite columnComposite;
@@ -190,11 +174,10 @@ public class EntityFieldsComposite extends Composite {
                 labelFieldName.setText(prettyFieldsMap.get(fieldName));
                 labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
                 labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-
-                TruncatingStyledText labelValue = new TruncatingStyledText(columnComposite, SWT.NONE, truncatedLabelTooltip);
-                labelValue.setText(fieldValue);
-                labelValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-                labelValue.setForeground(foregroundColor);
+                
+                FieldEditorComposite fieldEditorComposite = new FieldEditorComposite(columnComposite, SWT.NONE, entityModel, fieldName);
+                fieldEditorComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+                fieldEditorComposite.setForeground(foregroundColor);
             }
         }
 
