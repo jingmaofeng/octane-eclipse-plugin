@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
@@ -40,9 +39,8 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PrefereceChangeHandler;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PreferenceConstants;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor.DescriptionComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor.FieldEditorComposite;
-import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
-import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
@@ -60,7 +58,7 @@ public class EntityFieldsComposite extends Composite {
     private Composite fieldsComposite;
 
     private EntityModel entityModel;
-    private Browser descBrowser;
+    private DescriptionComposite descriptionComposite;
 
     public EntityFieldsComposite(Composite parent, int style) {
         super(parent, style);
@@ -97,34 +95,14 @@ public class EntityFieldsComposite extends Composite {
         sectionDescription.setText("Description");
         sectionDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-        PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
-        descBrowser = factory.createBrowser(sectionDescription, SWT.NONE);
-        descBrowser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-        descBrowser.addLocationListener(new LinkInterceptListener());
-        sectionDescription.setClient(descBrowser);
+        descriptionComposite = new DescriptionComposite(sectionDescription, SWT.NONE);
+        descriptionComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+        sectionDescription.setClient(descriptionComposite);
 
         // Field listener
         PrefereceChangeHandler prefereceChangeHandler = () -> drawEntityFields(entityModel);
         PluginPreferenceStorage.addPrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, prefereceChangeHandler);
         addDisposeListener(e -> PluginPreferenceStorage.removePrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, prefereceChangeHandler));
-    }
-
-    public void setDesciptionText(EntityModel entityModel) {
-        String descriptionText = "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-                + getRgbString(foregroundColor) + ">"
-                + Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION))
-                + "</font></body></html>";
-        if (descriptionText.equals("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-                + getRgbString(foregroundColor) + ">" + "</font></body></html>")) {
-            descBrowser.setText("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-                    + getRgbString(foregroundColor) + ">" + "No description" + "</font></body></html>");
-        } else {
-            descBrowser.setText(descriptionText);
-        }
-    }
-
-    private static String getRgbString(Color color) {
-        return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
     }
 
     private void drawEntityFields(EntityModel entityModel) {
@@ -194,7 +172,7 @@ public class EntityFieldsComposite extends Composite {
     public void setEntityModel(EntityModel entityModel) {
         this.entityModel = entityModel;
         drawEntityFields(entityModel);
-        setDesciptionText(entityModel);
+        descriptionComposite.setEntityModel(entityModel);
     }
 
 }
