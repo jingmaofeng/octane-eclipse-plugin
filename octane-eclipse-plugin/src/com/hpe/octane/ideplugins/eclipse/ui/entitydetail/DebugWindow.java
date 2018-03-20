@@ -4,10 +4,7 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
@@ -17,10 +14,11 @@ import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettings;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
-import com.hpe.octane.ideplugins.eclipse.ui.comment.EntityCommentComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.UpdateEntityJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
+import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 import swing2swt.layout.BorderLayout;
@@ -29,10 +27,11 @@ public class DebugWindow {
 
     protected Shell shell;
     protected Display display;
-    private EntityCommentComposite entityCommentComposite;
-    private EntityFieldsComposite entityFieldsComposite;
-    private EntityHeaderComposite entityHeaderComposite;
     private EntityModel entityModel;
+    
+    private EntityComposite entityComposite;
+    private LoadingComposite loadingComposite;
+    private StackLayoutComposite rootComposite;
 
     public static void main(String[] args) {
         initMockActivator();
@@ -78,33 +77,18 @@ public class DebugWindow {
         shell.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         shell.setBackgroundMode(SWT.INHERIT_FORCE);
         positionShell();
-
-        entityHeaderComposite = new EntityHeaderComposite(shell, SWT.NONE);
-        entityHeaderComposite.setLayoutData(BorderLayout.NORTH);
-
-        ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.HORIZONTAL | SWT.VERTICAL);
-        scrolledComposite.setExpandHorizontal(true);
-        scrolledComposite.setExpandVertical(true);
-        scrolledComposite.setMinSize(new Point(800, 600));
-
-        Composite fieldCommentParentComposite = new Composite(scrolledComposite, SWT.NONE);
-        fieldCommentParentComposite.setLayoutData(BorderLayout.CENTER);
-        fieldCommentParentComposite.setLayout(new BorderLayout());
-
-        scrolledComposite.setContent(fieldCommentParentComposite);
-
-        entityFieldsComposite = new EntityFieldsComposite(fieldCommentParentComposite, SWT.NONE);
-        entityFieldsComposite.setLayoutData(BorderLayout.CENTER);
-
-        entityCommentComposite = new EntityCommentComposite(fieldCommentParentComposite, SWT.NONE);
-        entityCommentComposite.setLayoutData(BorderLayout.EAST);
-
+        
+        rootComposite = new StackLayoutComposite(shell, SWT.NONE);
+        loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
+        entityComposite = new EntityComposite(rootComposite, SWT.NONE);
+        rootComposite.showControl(loadingComposite);
+        
         loadEntity();
 
-        entityHeaderComposite.addRefreshSelectionListener(event -> {
+        entityComposite.addRefreshSelectionListener(event -> {
             loadEntity();
         });
-        entityHeaderComposite.addSaveSelectionListener(event -> {
+        entityComposite.addSaveSelectionListener(event -> {
             saveEntity();
         });
     }
@@ -116,7 +100,7 @@ public class DebugWindow {
             @Override
             public void scheduled(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
-                    // rootComposite.showControl(loadingComposite);
+                    rootComposite.showControl(loadingComposite);
                 });
             }
 
@@ -125,11 +109,8 @@ public class DebugWindow {
                 if (getEntityDetailsJob.wasEntityRetrived()) {
                     entityModel = getEntityDetailsJob.getEntiyData();
                     Display.getDefault().asyncExec(() -> {
-
-                        entityCommentComposite.setEntityModel(entityModel);
-                        entityFieldsComposite.setEntityModel(entityModel);
-                        entityHeaderComposite.setEntityModel(entityModel);
-
+                        entityComposite.setEntityModel(entityModel);
+                        rootComposite.showControl(entityComposite);
                     });
                 } else {
                     MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error",
