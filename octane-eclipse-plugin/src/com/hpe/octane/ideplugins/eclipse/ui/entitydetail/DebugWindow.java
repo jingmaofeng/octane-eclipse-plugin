@@ -132,7 +132,7 @@ public class DebugWindow {
             public void done(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
                     if (updateEntityJob.isPhaseChanged()) {
-                        new InfoPopup("Saving entity", "Saved your changes").open();
+                        new InfoPopup("Saving entity", "Saved your changes").open();                        
                     } else {
                         boolean shouldGoToBrowser = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
                                 "Business rule violation",

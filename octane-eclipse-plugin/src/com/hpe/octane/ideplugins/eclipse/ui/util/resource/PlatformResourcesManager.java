@@ -5,9 +5,19 @@ import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 public class PlatformResourcesManager {
+    
+    public static Shell getActiveShell() {
+        if(isRunningOnEclipsePlatform()) {
+            return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        } else {
+            return Display.getCurrent().getActiveShell();
+        }
+    }
 
     public static Color getPlatformBackgroundColor() {
         if (isRunningOnEclipsePlatform()) {

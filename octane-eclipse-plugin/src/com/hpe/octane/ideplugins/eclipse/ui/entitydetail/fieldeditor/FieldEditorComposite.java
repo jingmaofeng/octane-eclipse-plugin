@@ -9,13 +9,19 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
+import com.hpe.adm.octane.ideplugins.services.MetadataService;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
+import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class FieldEditorComposite extends Composite {
+    
+    private MetadataService metadataService = Activator.getInstance(MetadataService.class);
     
     /**
      * Create the composite.
@@ -26,12 +32,13 @@ public class FieldEditorComposite extends Composite {
         super(parent, style);
         
         setLayout(new FillLayout(SWT.HORIZONTAL));
-        
         StackLayoutComposite stackLayoutComposite = new StackLayoutComposite(this, SWT.NONE);
         
         @SuppressWarnings("rawtypes")
         FieldModel fieldModel = entityModel.getValue(fieldName);
-        
+        Entity entityType = Entity.getEntityType(entityModel);
+        FieldMetadata fieldMetadata = metadataService.getMetadata(entityType, fieldName);
+     
         String fieldValueString = "";
         
         if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
@@ -46,6 +53,7 @@ public class FieldEditorComposite extends Composite {
         
         FieldValueLabel lblFieldValueText = new FieldValueLabel(stackLayoutComposite, SWT.NONE);
         lblFieldValueText.setText(fieldValueString);
+        stackLayoutComposite.showControl(lblFieldValueText);
                 
         Label lblEditor = new Label(stackLayoutComposite, SWT.NONE);
         
@@ -60,19 +68,9 @@ public class FieldEditorComposite extends Composite {
         lblEditor.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                System.out.println("focus lost");
                 stackLayoutComposite.showControl(lblFieldValueText);
             }
-            
-            @Override
-            public void focusGained(FocusEvent e) {
-                System.out.println("focus gained");
-            }
         });
-        
-     
-        
-        stackLayoutComposite.showControl(lblFieldValueText);
         
     }
 
