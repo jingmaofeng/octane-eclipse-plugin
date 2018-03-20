@@ -98,6 +98,8 @@ public class PluginPreferenceStorage {
     static Map<Entity, Set<String>> fields = new HashMap<>();
     static {
         fields = DefaultEntityFieldsUtil.getDefaultFields();
+        fields.get(Entity.DEFECT).add("owner");
+        fields.get(Entity.DEFECT).add("detected_by");
     }
 
     public static void setShownEntityFields(Entity entity, Set<String> entityFields) {
