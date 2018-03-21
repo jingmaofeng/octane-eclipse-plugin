@@ -154,6 +154,7 @@ public class EntityPhaseComposite extends Composite {
                             // items
                             String initialValueNextPhase = "Move to: "
                                     + Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase"));
+                            
                             lblNextPhase.setText(initialValueNextPhase);
                             newSelection = possiblePhasesList.get(0);
                             if (possiblePhasesList.size() < 2) {

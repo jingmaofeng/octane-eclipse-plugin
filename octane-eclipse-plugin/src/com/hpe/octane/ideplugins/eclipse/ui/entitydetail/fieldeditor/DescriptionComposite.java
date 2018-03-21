@@ -2,8 +2,6 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
@@ -30,7 +28,6 @@ public class DescriptionComposite extends Composite{
     private EntityModel entityModel;
     private Text txtDescHtml;
     private Browser browserDescHtml;
-    private boolean fml;
 
     public DescriptionComposite(Composite parent, int style) {
         super(parent, style);
@@ -50,27 +47,18 @@ public class DescriptionComposite extends Composite{
             browserDescHtml.setText(getBrowserText(entityModel));
         });
         
-        fml = false;
-        
         //Switch
         browserDescHtml.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
                 stackLayoutComposite.showControl(txtDescHtml);
-                fml = false;
             }
         });
        
         txtDescHtml.addListener(SWT.FocusOut, new Listener() {
             @Override
             public void handleEvent(Event event) {
-                System.out.println("focus out");
-                if(fml) {
-                    System.out.println("pass");
-                    stackLayoutComposite.showControl(browserDescHtml);
-                } else {
-                    fml = true;
-                }
+                //stackLayoutComposite.showControl(browserDescHtml);
             }
         });
        
