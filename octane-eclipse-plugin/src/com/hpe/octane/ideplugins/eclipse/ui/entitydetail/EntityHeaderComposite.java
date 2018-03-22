@@ -62,7 +62,7 @@ public class EntityHeaderComposite extends Composite {
     private static final String TOOLTIP_REFRESH = "Refresh entity details";
     private static final String TOOLTIP_PHASE = "Save changes";
     private static final String TOOLTIP_FIELDS = "Customize fields to be shown";
-    private static final String TOOLTIP_COMMENTS = "Show comments"; 
+    private static final String TOOLTIP_COMMENTS = "Show comments";
 
     private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
     private Map<String, String> prettyFieldsMap;
@@ -222,12 +222,11 @@ public class EntityHeaderComposite extends Composite {
 
         // make a map of the field names and labels
         Collection<FieldMetadata> allFields = metadataService.getVisibleFields(Entity.getEntityType(entityModel));
-        allFields.stream()
+        prettyFieldsMap = allFields.stream()
                 .filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION)
                         && !f.getName().equals(EntityFieldsConstants.FIELD_NAME)
-                        && !f.getName().equals(EntityFieldsConstants.FIELD_PHASE));
-        prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
-
+                        && !f.getName().equals(EntityFieldsConstants.FIELD_PHASE))
+                .collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
         fieldCombo.clear();
         fieldCombo.addAll(prettyFieldsMap.keySet());
         fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
