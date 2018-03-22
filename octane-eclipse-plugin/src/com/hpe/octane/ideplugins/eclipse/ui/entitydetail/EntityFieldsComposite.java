@@ -148,8 +148,10 @@ public class EntityFieldsComposite extends Composite {
 
         // make a map of the field names and labels
         Collection<FieldMetadata> allFields = metadataService.getVisibleFields(Entity.getEntityType(entityModel));
-        allFields.stream().filter(f -> !f.getName().equals(EntityFieldsConstants.FIELD_DESCRIPTION));
         prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
+        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
+        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_PHASE);
+        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_NAME);
 
         fieldsComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
         Composite sectionClientLeft = new Composite(fieldsComposite, SWT.NONE);
