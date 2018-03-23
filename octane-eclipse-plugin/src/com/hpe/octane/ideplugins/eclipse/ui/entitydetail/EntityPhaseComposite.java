@@ -9,6 +9,8 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -37,7 +39,6 @@ public class EntityPhaseComposite extends Composite {
 
     private Label lblPhase;
     private Label lblCurrentPhase;
-    private Label lblMoveTo;
     private Label lblNextPhase;
 
     private EntityModel entityModel;
@@ -103,6 +104,11 @@ public class EntityPhaseComposite extends Composite {
         btnSelectPhase.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
+                final Rectangle bounds = btnSelectPhase.getBounds();
+                Point btnPosition = btnSelectPhase.toDisplay(bounds.width, bounds.height);
+                int x = btnPosition.x;
+                int y = btnPosition.y + 1;
+                phaseSelectionMenu.setLocation(x, y);
                 phaseSelectionMenu.setVisible(true);
             }
         });
@@ -154,7 +160,6 @@ public class EntityPhaseComposite extends Composite {
                             // items
                             String initialValueNextPhase = "Move to: "
                                     + Util.getUiDataFromModel((possiblePhasesList.get(0)).getValue("target_phase"));
-                            
                             lblNextPhase.setText(initialValueNextPhase);
                             newSelection = possiblePhasesList.get(0);
                             if (possiblePhasesList.size() < 2) {
@@ -196,7 +201,6 @@ public class EntityPhaseComposite extends Composite {
             String newString = lblNextPhase.getText();
             newString = newString.replace("Move to: ", "");
             lblCurrentPhase.setText(newString);
-
             layout();
             getParent().layout();
         }
@@ -217,6 +221,8 @@ public class EntityPhaseComposite extends Composite {
         lblNextPhase.setText(newString);
         btnSelectPhase.setEnabled(false);
         lblNextPhase.setEnabled(false);
+        layout();
+        getParent().layout();
 
     }
 }
