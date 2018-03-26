@@ -12,6 +12,10 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.comment;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -21,6 +25,10 @@ import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.LocationAdapter;
+import org.eclipse.swt.browser.LocationEvent;
+import org.eclipse.swt.browser.OpenWindowListener;
+import org.eclipse.swt.browser.WindowEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -37,9 +45,9 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
+import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.PostCommentJob;
-import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite.LoadingPosition;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
@@ -127,7 +135,37 @@ public class EntityCommentComposite extends StackLayoutComposite {
         formToolkit.paintBordersFor(commentsBrowser);
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
-        commentsBrowser.addLocationListener(new LinkInterceptListener());
+        setupBrowser(commentsBrowser);
+        commentsBrowser.addLocationListener(new LocationAdapter() {
+            // method called when the user clicks a link but before the link is opened
+            @Override
+            public void changing(LocationEvent event) {
+                String urlString = event.location;
+                if (urlString.toLowerCase().contains("about:")) {
+                    urlString = urlString.replace("about:", Activator.getConnectionSettings().getBaseUrl());
+                }
+
+                if (urlString == null)
+                    return;
+                try {
+                    URI url = new URI(urlString);
+                    Desktop.getDesktop().browse(url);
+                    event.doit = false; // stop propagation
+                } catch (URISyntaxException | IOException e) {
+                    // tough luck, continue propagation, it's better than nothing
+                    event.doit = true;
+                }
+            }
+        });
+    }
+
+    private void setupBrowser(Browser browser) {
+        browser.addOpenWindowListener(new OpenWindowListener() {
+            public void open(WindowEvent event) {
+                event.browser = commentsBrowser;
+                event.required = true;
+            }
+        });
     }
 
     public void setEntityModel(EntityModel entityModel) {
@@ -140,7 +178,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
     private void postComment(String text) {
         commentText.setEnabled(false);
         showControl(loadingComposite);
-        
+
         PostCommentJob sendCommentJob = new PostCommentJob("Posting Comment", entityModel, text);
         sendCommentJob.schedule();
         sendCommentJob.addJobChangeListener(new JobChangeAdapter() {
@@ -164,7 +202,6 @@ public class EntityCommentComposite extends StackLayoutComposite {
         GetCommentsJob getCommentsJob = new GetCommentsJob("Getting comments", entityModel);
         getCommentsJob.schedule();
         showControl(loadingComposite);
-
 
         getCommentsJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
