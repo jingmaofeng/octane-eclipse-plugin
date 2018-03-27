@@ -27,8 +27,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationAdapter;
 import org.eclipse.swt.browser.LocationEvent;
-import org.eclipse.swt.browser.OpenWindowListener;
-import org.eclipse.swt.browser.WindowEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -136,7 +134,8 @@ public class EntityCommentComposite extends StackLayoutComposite {
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
         commentsBrowser.addLocationListener(new LocationAdapter() {
-            // method called when the user clicks a link but before the link is opened
+            // method called when the user clicks a link but before the link is
+            // opened
             @Override
             public void changing(LocationEvent event) {
                 String urlString = event.location;
@@ -146,6 +145,9 @@ public class EntityCommentComposite extends StackLayoutComposite {
                 if (urlString.toLowerCase().contains("about:")) {
                     urlString = urlString.replace("about:", Activator.getConnectionSettings().getBaseUrl());
                 } else if (urlString.toLowerCase().contains("file://")) {
+                    // this is because macOS identifies the comment as a file://
+                    // in the system, which is different from the windows
+                    // approach when changing only the "about:"
                     urlString = urlString.replace("file://", Activator.getConnectionSettings().getBaseUrl());
                 }
 
@@ -156,7 +158,8 @@ public class EntityCommentComposite extends StackLayoutComposite {
                     Desktop.getDesktop().browse(url);
                     event.doit = false; // stop propagation
                 } catch (URISyntaxException | IOException e) {
-                    // tough luck, continue propagation, it's better than nothing
+                    // tough luck, continue propagation, it's better than
+                    // nothing
                     event.doit = true;
                 }
             }
