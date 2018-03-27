@@ -27,8 +27,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationAdapter;
 import org.eclipse.swt.browser.LocationEvent;
-import org.eclipse.swt.browser.OpenWindowListener;
-import org.eclipse.swt.browser.WindowEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -140,15 +138,14 @@ public class EntityCommentComposite extends StackLayoutComposite {
             @Override
             public void changing(LocationEvent event) {
                 String urlString = event.location;
-                if (urlString.toLowerCase().contains("blank")) {
+                if (urlString == null || "about:blank".equals(urlString)) {
                     return;
                 }
+                
                 if (urlString.toLowerCase().contains("about:")) {
                     urlString = urlString.replace("about:", Activator.getConnectionSettings().getBaseUrl());
                 }
 
-                if (urlString == null)
-                    return;
                 try {
                     URI url = new URI(urlString);
                     Desktop.getDesktop().browse(url);
