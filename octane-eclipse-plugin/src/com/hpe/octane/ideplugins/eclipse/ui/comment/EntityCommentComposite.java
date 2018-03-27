@@ -135,12 +135,14 @@ public class EntityCommentComposite extends StackLayoutComposite {
         formToolkit.paintBordersFor(commentsBrowser);
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
-        setupBrowser(commentsBrowser);
         commentsBrowser.addLocationListener(new LocationAdapter() {
             // method called when the user clicks a link but before the link is opened
             @Override
             public void changing(LocationEvent event) {
                 String urlString = event.location;
+                if (urlString.toLowerCase().contains("blank")) {
+                    return;
+                }
                 if (urlString.toLowerCase().contains("about:")) {
                     urlString = urlString.replace("about:", Activator.getConnectionSettings().getBaseUrl());
                 }
@@ -155,15 +157,6 @@ public class EntityCommentComposite extends StackLayoutComposite {
                     // tough luck, continue propagation, it's better than nothing
                     event.doit = true;
                 }
-            }
-        });
-    }
-
-    private void setupBrowser(Browser browser) {
-        browser.addOpenWindowListener(new OpenWindowListener() {
-            public void open(WindowEvent event) {
-                event.browser = commentsBrowser;
-                event.required = true;
             }
         });
     }
