@@ -145,6 +145,8 @@ public class EntityCommentComposite extends StackLayoutComposite {
                 }
                 if (urlString.toLowerCase().contains("about:")) {
                     urlString = urlString.replace("about:", Activator.getConnectionSettings().getBaseUrl());
+                } else if (urlString.toLowerCase().contains("file://")) {
+                    urlString = urlString.replace("file://", Activator.getConnectionSettings().getBaseUrl());
                 }
 
                 if (urlString == null)
