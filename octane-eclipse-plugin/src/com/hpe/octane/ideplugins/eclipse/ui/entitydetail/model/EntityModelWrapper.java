@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
+package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,26 +8,27 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 
 @SuppressWarnings("rawtypes")
-public class ObservableEntityModel extends EntityModel {
+public class EntityModelWrapper {
+    
+    private EntityModel entityModel;
+    private List<FieldModelChangedHandler> changeHandlers = new ArrayList<>();
     
     public static interface FieldModelChangedHandler {
         public void fieldModelChanged(FieldModel fieldModel);
     }
     
-    private List<FieldModelChangedHandler> changeHandlers = new ArrayList<>();
-    
-    @Override
-    public EntityModel setValue(FieldModel fieldModel) {
-        EntityModel entityModel = super.setValue(fieldModel);
-        callChangeHandlers(fieldModel);
-        return entityModel;
+    public EntityModelWrapper(EntityModel entityModel) {
+        this.entityModel = entityModel;
     }
     
-    @Override
-    public EntityModel setValues(Set<FieldModel> values) {
-        EntityModel entityModel = super.setValues(values);
+    public void setValue(FieldModel fieldModel) {
+        entityModel.setValue(fieldModel);
+        callChangeHandlers(fieldModel);
+    }
+    
+    public void setValues(Set<FieldModel> values) {
+        entityModel.setValues(values);
         values.forEach(fieldModel -> callChangeHandlers(fieldModel));
-        return entityModel;
     }
     
     private void callChangeHandlers(FieldModel fieldModel) {
@@ -41,5 +42,5 @@ public class ObservableEntityModel extends EntityModel {
     public boolean removeFieldModelChangedHandler(FieldModelChangedHandler fieldModelChangedHandler) {
         return changeHandlers.remove(fieldModelChangedHandler);
     }
-
+    
 }

@@ -1,14 +1,14 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.ObservableEntityModel;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 
 public class DateEditor extends Composite implements FieldEditor{
 
@@ -25,7 +25,7 @@ public class DateEditor extends Composite implements FieldEditor{
     }
 
     @Override
-    public void setField(ObservableEntityModel entityModel, String fieldName) {
+    public void setField(EntityModelWrapper entityModel, String... fieldNames) {
         // TODO Auto-generated method stub
     }
 
@@ -35,15 +35,15 @@ public class DateEditor extends Composite implements FieldEditor{
     }
 
     @Override
-    public boolean hasError() {
+    public void setFieldMessage(FieldMessage fieldMessage) {
         // TODO Auto-generated method stub
-        return false;
+        
     }
 
     @Override
-    public String getErrorText() {
+    public void getFieldMessage(FieldMessage fieldMessage) {
         // TODO Auto-generated method stub
-        return null;
+        
     }
     
 }
