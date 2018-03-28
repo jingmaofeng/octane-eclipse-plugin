@@ -14,8 +14,10 @@ package com.hpe.octane.ideplugins.eclipse.ui.comment;
 
 import java.awt.Desktop;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -139,22 +141,20 @@ public class EntityCommentComposite extends StackLayoutComposite {
             @Override
             public void changing(LocationEvent event) {
                 String urlString = event.location;
-                if (urlString.toLowerCase().contains("blank")) {
+                
+                URL targetUrl;
+                if (urlString == null || "about:blank".equals(urlString)) {
                     return;
                 }
-                if (urlString.toLowerCase().contains("about:")) {
-                    urlString = urlString.replace("about:", Activator.getConnectionSettings().getBaseUrl());
-                } else if (urlString.toLowerCase().contains("file://")) {
-                    // this is because macOS identifies the comment as a file://
-                    // in the system, which is different from the windows
-                    // approach when changing only the "about:"
-                    urlString = urlString.replace("file://", Activator.getConnectionSettings().getBaseUrl());
-                }
-
-                if (urlString == null)
-                    return;
+                
                 try {
                     URI url = new URI(urlString);
+                    try {
+                        targetUrl = new URL(urlString);
+                    } catch (MalformedURLException ex) {
+                        targetUrl = new URL(Activator.getConnectionSettings().getBaseUrl() + url.getSchemeSpecificPart());
+                    }
+                    url = targetUrl.toURI();
                     Desktop.getDesktop().browse(url);
                     event.doit = false; // stop propagation
                 } catch (URISyntaxException | IOException e) {
