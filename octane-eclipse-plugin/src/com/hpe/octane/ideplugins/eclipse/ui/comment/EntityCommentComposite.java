@@ -16,7 +16,6 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -41,11 +40,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.nga.sdk.network.google.GoogleHttpClient;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
@@ -58,7 +54,6 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityCommentComposite extends StackLayoutComposite {
 
-    private static final Logger logger = LoggerFactory.getLogger(GoogleHttpClient.class.getName());
     private FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 
     private EntityModel entityModel;
@@ -144,7 +139,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
             @Override
             public void changing(LocationEvent event) {
                 String urlString = event.location;
-                if (urlString == null || "about:blank".contains(urlString)) {
+                if (urlString == null || "about:blank".equals(urlString)) {
                     return;
                 }
                 if (urlString.toLowerCase().contains("about:")) {
