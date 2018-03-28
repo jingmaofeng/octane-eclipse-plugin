@@ -14,7 +14,6 @@ package com.hpe.octane.ideplugins.eclipse.ui.comment;
 
 import java.awt.Desktop;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -42,8 +41,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.nga.sdk.network.google.GoogleHttpClient;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
@@ -56,6 +58,7 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityCommentComposite extends StackLayoutComposite {
 
+    private static final Logger logger = LoggerFactory.getLogger(GoogleHttpClient.class.getName());
     private FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 
     private EntityModel entityModel;
@@ -141,20 +144,22 @@ public class EntityCommentComposite extends StackLayoutComposite {
             @Override
             public void changing(LocationEvent event) {
                 String urlString = event.location;
-                
-                URL targetUrl;
-                if (urlString == null || "about:blank".equals(urlString)) {
+                if (urlString == null || "about:blank".contains(urlString)) {
                     return;
                 }
-                
+                if (urlString.toLowerCase().contains("about:")) {
+                    urlString = urlString.replace("about:", Activator.getConnectionSettings().getBaseUrl());
+                } else if (urlString.toLowerCase().contains("file://")) {
+                    // this is because macOS identifies the comment as a file://
+                    // in the system, which is different from the windows
+                    // approach when changing only the "about:"
+                    urlString = urlString.replace("file://", Activator.getConnectionSettings().getBaseUrl());
+                }
+
+                if (urlString == null)
+                    return;
                 try {
                     URI url = new URI(urlString);
-                    try {
-                        targetUrl = new URL(urlString);
-                    } catch (MalformedURLException ex) {
-                        targetUrl = new URL(Activator.getConnectionSettings().getBaseUrl() + url.getSchemeSpecificPart());
-                    }
-                    url = targetUrl.toURI();
                     Desktop.getDesktop().browse(url);
                     event.doit = false; // stop propagation
                 } catch (URISyntaxException | IOException e) {
