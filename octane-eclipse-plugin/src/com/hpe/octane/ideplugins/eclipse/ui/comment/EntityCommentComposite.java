@@ -135,38 +135,38 @@ public class EntityCommentComposite extends StackLayoutComposite {
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
         commentsBrowser.addLocationListener(new LocationAdapter() {
-            // method called when the user clicks a link but before the link is
-            // opened
+            // method called when the user clicks a link but before the link is opened
             @Override
             public void changing(LocationEvent event) {
                 String urlString = event.location;
                 if (urlString == null || "about:blank".equals(urlString)) {
                     return;
                 }
-//                if (urlString.toLowerCase().contains("about:")) {
-//                    urlString = urlString.replace("about:", Activator.getConnectionSettings().getBaseUrl());
-//                } else if (urlString.toLowerCase().contains("file://")) {
-//                    // this is because macOS identifies the comment as a file://
-//                    // in the system, which is different from the windows
-//                    // approach when changing only the "about:"
-//                    urlString = urlString.replace("file://", Activator.getConnectionSettings().getBaseUrl());
-//                }
+                
                 try {
                     URIBuilder url = new URIBuilder(urlString);
-                    URI baseURI = new URI(Activator.getConnectionSettings().getBaseUrl());
                     
+                    if (url.getHost() != null) {
+                        String temporaryString = url.toString();
+                        URI finalUrl = new URI(temporaryString);
+
+                        Desktop.getDesktop().browse(finalUrl);
+                        event.doit = false;
+                        return;
+                    }
+                    
+                    URI baseURI = new URI(Activator.getConnectionSettings().getBaseUrl());
                     url.setHost(baseURI.getHost());
                     url.setPort(baseURI.getPort());
                     url.setScheme(baseURI.getScheme());
-                    
+
                     String temporaryString = url.toString();
                     URI finalUrl = new URI(temporaryString);
-                    
+
                     Desktop.getDesktop().browse(finalUrl);
                     event.doit = false; // stop propagation
                 } catch (URISyntaxException | IOException e) {
-                    // tough luck, continue propagation, it's better than
-                    // nothing
+                    // tough luck, continue propagation, it's better than nothing
                     event.doit = true;
                 }
             }
