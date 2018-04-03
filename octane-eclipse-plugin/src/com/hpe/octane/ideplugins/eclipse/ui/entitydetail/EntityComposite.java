@@ -19,14 +19,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.EntityCommentComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 
 public class EntityComposite extends Composite {
-
-    private EntityModel entityModel;
 
     private EntityCommentComposite entityCommentComposite;
     private EntityHeaderComposite entityHeaderComposite;
@@ -69,24 +66,18 @@ public class EntityComposite extends Composite {
         update();
     }
 
-    public void setEntityModel(EntityModel entityModel) {
-        this.entityModel = entityModel;
-
-        entityHeaderComposite.setEntityModel(entityModel);
-        entityFieldsComposite.setEntityModel(entityModel);
+    public void setEntityModel(EntityModelWrapper entityModelWrapper) {
+        entityHeaderComposite.setEntityModel(entityModelWrapper);
+        entityFieldsComposite.setEntityModel(entityModelWrapper);
         
         setCommentsVisible(false);
-        if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
-            entityCommentComposite.setEntityModel(entityModel);
+        if (GetCommentsJob.hasCommentSupport(entityModelWrapper.getEntityType())) {
+            entityCommentComposite.setEntityModel(entityModelWrapper.getReadOnlyEntityModel());
         } 
         setSize(computeSize(SWT.DEFAULT, SWT.DEFAULT));
         layout(true, true);
         redraw();
         update();
-    }
-
-    public EntityModel getEntityModel() {
-        return entityModel;
     }
 
     public void addSaveSelectionListener(Listener listener) {

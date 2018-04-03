@@ -1,11 +1,11 @@
-package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor;
+package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
 import org.eclipse.swt.graphics.Drawable;
 
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 
 public interface FieldEditor extends Drawable {
-    
+        
     public enum FieldMessageLevel {
         INFO, ERROR
     }
@@ -33,9 +33,7 @@ public interface FieldEditor extends Drawable {
         }   
     }
     
-    public void setField(EntityModelWrapper entityModel, String... fieldNames);
-    
-    public void forceUpdate();
+    public void setField(EntityModelWrapper entityModel, String fieldName);
     
     public void setFieldMessage(FieldMessage fieldMessage);
     public void getFieldMessage(FieldMessage fieldMessage);

@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor;
+package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Text;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.StringFieldModel;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
@@ -25,7 +26,7 @@ public class DescriptionComposite extends Composite{
     private PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
     private Color foregroundColor = PlatformResourcesManager.getPlatformForegroundColor();
     private Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
-    private EntityModel entityModel;
+    private EntityModelWrapper entityModelWrapper;
     private Text txtDescHtml;
     private Browser browserDescHtml;
 
@@ -43,8 +44,8 @@ public class DescriptionComposite extends Composite{
         
         txtDescHtml.addModifyListener(e -> {
             StringFieldModel descriptionFieldModel = new StringFieldModel("description", txtDescHtml.getText());
-            entityModel.setValue(descriptionFieldModel);
-            browserDescHtml.setText(getBrowserText(entityModel));
+            entityModelWrapper.setValue(descriptionFieldModel);
+            browserDescHtml.setText(getBrowserText(entityModelWrapper.getReadOnlyEntityModel()));
         });
         
         //Switch
@@ -64,10 +65,10 @@ public class DescriptionComposite extends Composite{
        
     }
     
-    public void setEntityModel(EntityModel entityModel) {
-        this.entityModel = entityModel;
-        txtDescHtml.setText(Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION)));
-        browserDescHtml.setText(getBrowserText(entityModel));
+    public void setEntityModel(EntityModelWrapper entityModelWrapper) {
+        this.entityModelWrapper = entityModelWrapper;
+        txtDescHtml.setText(Util.getUiDataFromModel(entityModelWrapper.getValue(EntityFieldsConstants.FIELD_DESCRIPTION)));
+        browserDescHtml.setText(getBrowserText(entityModelWrapper.getReadOnlyEntityModel()));
     }
     
     private String getBrowserText(EntityModel entityModel) {        

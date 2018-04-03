@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
+package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,9 +23,9 @@ import org.eclipse.swt.widgets.MenuItem;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
-import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetPossiblePhasesJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
@@ -41,7 +41,7 @@ public class EntityPhaseComposite extends Composite {
     private Label lblCurrentPhase;
     private Label lblNextPhase;
 
-    private EntityModel entityModel;
+    private EntityModelWrapper entityModelWrapper;
     private EntityModel newSelection;
 
     private Label btnSelectPhase;
@@ -114,8 +114,8 @@ public class EntityPhaseComposite extends Composite {
         });
     }
 
-    public void setEntityModel(EntityModel entityModel) {
-        this.entityModel = entityModel;
+    public void setEntityModel(EntityModelWrapper entityModelWrapper) {
+        this.entityModelWrapper = entityModelWrapper;
         getPossiblePhaseTransitions();
         enableDisplayButtons();
     }
@@ -127,12 +127,12 @@ public class EntityPhaseComposite extends Composite {
     }
 
     private void getPossiblePhaseTransitions() {
-        if (GetPossiblePhasesJob.hasPhases(Entity.getEntityType(entityModel))) {
-            String currentPhaseName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_PHASE));
+        if (GetPossiblePhasesJob.hasPhases(entityModelWrapper.getEntityType())) {
+            String currentPhaseName = Util.getUiDataFromModel(entityModelWrapper.getValue(EntityFieldsConstants.FIELD_PHASE));
             lblCurrentPhase.setText(currentPhaseName);
 
             // load possible phases
-            GetPossiblePhasesJob getPossiblePhasesJob = new GetPossiblePhasesJob("Loading possible phases", entityModel);
+            GetPossiblePhasesJob getPossiblePhasesJob = new GetPossiblePhasesJob("Loading possible phases", entityModelWrapper.getReadOnlyEntityModel());
             getPossiblePhasesJob.addJobChangeListener(new JobChangeAdapter() {
                 @Override
                 public void scheduled(IJobChangeEvent event) {
@@ -149,6 +149,11 @@ public class EntityPhaseComposite extends Composite {
                 public void done(IJobChangeEvent event) {
                     Display.getDefault().asyncExec(() -> {
                         Collection<EntityModel> possibleTransitions = getPossiblePhasesJob.getPossibleTransitions();
+                        
+                        if(lblNextPhase.isDisposed()) {
+                            return;
+                        }
+                        
                         if (possibleTransitions.isEmpty()) {
                             lblNextPhase.setText("No transition");
                             lblNextPhase.setEnabled(false);
@@ -197,7 +202,7 @@ public class EntityPhaseComposite extends Composite {
     private void updateCurrentEntity() {
         if (newSelection.getValue("target_phase") instanceof ReferenceFieldModel) {
             ReferenceFieldModel targetPhaseFieldModel = (ReferenceFieldModel) newSelection.getValue("target_phase");
-            entityModel.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
+            entityModelWrapper.setValue(new ReferenceFieldModel("phase", targetPhaseFieldModel.getValue()));
             String newString = lblNextPhase.getText();
             newString = newString.replace("Move to: ", "");
             lblCurrentPhase.setText(newString);

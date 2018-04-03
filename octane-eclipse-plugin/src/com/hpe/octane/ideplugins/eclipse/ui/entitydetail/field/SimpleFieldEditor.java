@@ -1,6 +1,7 @@
-package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor;
+package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -8,19 +9,16 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 
-import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.nga.sdk.model.FieldModel;
-import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
-import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
-public class SimpleFieldEditor extends Composite implements FieldEditor {
+public abstract class SimpleFieldEditor extends Composite implements FieldEditor {
     
-    private EntityModelWrapper entityModel;
-    private String fieldName;
+    protected EntityModelWrapper entityModel;
+    protected String fieldName;
+    protected Text textField;
     
-    private Text textField;
+    private ModifyListener modifyListener;
     private Label lblMessage;
 
     public SimpleFieldEditor(Composite parent, int style) {
@@ -35,23 +33,24 @@ public class SimpleFieldEditor extends Composite implements FieldEditor {
         gd_lblMessage.exclude = true;
         lblMessage.setLayoutData(gd_lblMessage);
         
-        textField.addModifyListener(e -> {
-            
-        });
+
+        textField.addModifyListener(createModifyListener());
+        textField.setText(getFieldValueString());
     }
+    
+    protected abstract ModifyListener createModifyListener();
+    protected abstract String getFieldValueString();
 
     @Override
-    public void setField(EntityModelWrapper entityModel, String... fieldNames) {
+    public void setField(EntityModelWrapper entityModel, String fieldName) {
         this.entityModel = entityModel;
-        this.fieldName = fieldNames[0];
+        this.fieldName = fieldName;
         
-        
-        
-    }
-
-    @Override
-    public void forceUpdate() {
-        
+        if(modifyListener != null) {
+            textField.removeModifyListener(modifyListener);
+        }
+        modifyListener = createModifyListener();
+        textField.setText(getFieldValueString());
     }
 
     @Override
@@ -83,20 +82,6 @@ public class SimpleFieldEditor extends Composite implements FieldEditor {
     @Override
     public void getFieldMessage(FieldMessage fieldMessage) {
         // TODO Auto-generated method stub
-    }
-    
-    private String getFieldValueString(EntityModel entityModel, String fieldName) {
-        @SuppressWarnings("rawtypes")
-        FieldModel fieldModel = entityModel.getValue(fieldName);
-        if (EntityFieldsConstants.FIELD_OWNER.equals(fieldName)
-                || EntityFieldsConstants.FIELD_AUTHOR.equals(fieldName)
-                || EntityFieldsConstants.FIELD_TEST_RUN_RUN_BY.equals(fieldName)
-                || EntityFieldsConstants.FIELD_DETECTEDBY.equals(fieldName)) {
-            
-            return Util.getUiDataFromModel(fieldModel, EntityFieldsConstants.FIELD_FULL_NAME);
-        } else {
-            return Util.getUiDataFromModel(entityModel.getValue(fieldName));
-        }
     }
     
 }

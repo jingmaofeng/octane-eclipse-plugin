@@ -31,12 +31,11 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
-import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
-import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.UpdateEntityJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
@@ -60,7 +59,7 @@ public class EntityModelEditor extends EditorPart {
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditor"; //$NON-NLS-1$
 
     public EntityModelEditorInput input;
-    private EntityModel entityModel;
+    private EntityModelWrapper entityModelWrapper;
 
     @Override
     public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -111,9 +110,9 @@ public class EntityModelEditor extends EditorPart {
             @Override
             public void done(IJobChangeEvent event) {
                 if (getEntityDetailsJob.wasEntityRetrived()) {
-                    EntityModelEditor.this.entityModel = getEntityDetailsJob.getEntiyData();
+                    EntityModelEditor.this.entityModelWrapper = new EntityModelWrapper(getEntityDetailsJob.getEntiyData());
                     Display.getDefault().asyncExec(() -> {
-                        entityComposite.setEntityModel(entityModel);
+                        entityComposite.setEntityModel(entityModelWrapper);
                         rootComposite.showControl(entityScrolledComposite);
                     });
                 } else {
@@ -128,7 +127,7 @@ public class EntityModelEditor extends EditorPart {
         entityComposite.addSaveSelectionListener(new Listener() {
             @Override
             public void handleEvent(Event event) {
-                UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + Entity.getEntityType(entityModel), entityModel);
+                UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + entityModelWrapper.getEntityType(), entityModelWrapper.getEntityModel());
                 updateEntityJob.schedule();
                 updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
                     @Override
@@ -141,7 +140,7 @@ public class EntityModelEditor extends EditorPart {
                                         "Business rule violation",
                                         "Phase change failed \n" + GO_TO_BROWSER_DIALOG_MESSAGE);
                                 if (shouldGoToBrowser) {
-                                    entityService.openInBrowser(entityModel);
+                                    entityService.openInBrowser(entityModelWrapper.getEntityModel());
                                 }
                             }
                             getEntityDetailsJob.schedule();

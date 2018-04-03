@@ -9,13 +9,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
-import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettings;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.UpdateEntityJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
@@ -27,7 +27,7 @@ public class DebugWindow {
 
     protected Shell shell;
     protected Display display;
-    private EntityModel entityModel;
+    private EntityModelWrapper entityModelWrapper;
     
     private EntityComposite entityComposite;
     private LoadingComposite loadingComposite;
@@ -107,9 +107,9 @@ public class DebugWindow {
             @Override
             public void done(IJobChangeEvent event) {
                 if (getEntityDetailsJob.wasEntityRetrived()) {
-                    entityModel = getEntityDetailsJob.getEntiyData();
+                    entityModelWrapper = new EntityModelWrapper(getEntityDetailsJob.getEntiyData());
                     Display.getDefault().asyncExec(() -> {
-                        entityComposite.setEntityModel(entityModel);
+                        entityComposite.setEntityModel(entityModelWrapper);
                         rootComposite.showControl(entityComposite);
                     });
                 } else {
@@ -125,7 +125,7 @@ public class DebugWindow {
     private void saveEntity() {
         EntityService entityService = Activator.getInstance(EntityService.class);
 
-        UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + Entity.getEntityType(entityModel), entityModel);
+        UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + entityModelWrapper.getEntityType(), entityModelWrapper.getEntityModel());
         updateEntityJob.schedule();
         updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
@@ -138,7 +138,7 @@ public class DebugWindow {
                                 "Business rule violation",
                                 "Phase change failed \n" + "Sorry!");
                         if (shouldGoToBrowser) {
-                            entityService.openInBrowser(entityModel);
+                            entityService.openInBrowser(entityModelWrapper.getEntityModel());
                         }
                     }
                     DebugWindow.this.loadEntity();

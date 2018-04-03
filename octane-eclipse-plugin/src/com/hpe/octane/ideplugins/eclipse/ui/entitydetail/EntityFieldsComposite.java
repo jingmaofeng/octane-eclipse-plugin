@@ -27,37 +27,39 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
-import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.MetadataService;
-import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
-import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PrefereceChangeHandler;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PreferenceConstants;
-import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor.DescriptionComposite;
-import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor.FieldEditorComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field.DescriptionComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field.FieldEditor;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field.FieldEditorFactory;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityFieldsComposite extends Composite {
 
-    private Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
+    //private Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
     private Color foregroundColor = PlatformResourcesManager.getPlatformForegroundColor();
 
     private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
+    private static FieldEditorFactory fieldEditorFactory = new FieldEditorFactory();
+    
     private Map<String, String> prettyFieldsMap;
 
     private Composite entityFieldsComposite;
     private Composite entityDescriptionComposite;
     private Composite fieldsComposite;
 
-    private EntityModel entityModel;
+    private EntityModelWrapper entityModel;
     private DescriptionComposite descriptionComposite;
 
     public EntityFieldsComposite(Composite parent, int style) {
@@ -105,19 +107,19 @@ public class EntityFieldsComposite extends Composite {
         addDisposeListener(e -> PluginPreferenceStorage.removePrefenceChangeHandler(PreferenceConstants.SHOWN_ENTITY_FIELDS, prefereceChangeHandler));
     }
 
-    private void drawEntityFields(EntityModel entityModel) {
-        Set<String> shownFields = PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel));
-        drawEntityFields(shownFields, entityModel);
+    private void drawEntityFields(EntityModelWrapper entityModelWrapper) {
+        Set<String> shownFields = PluginPreferenceStorage.getShownEntityFields(entityModelWrapper.getEntityType());
+        drawEntityFields(shownFields, entityModelWrapper);
     }
 
-    private void drawEntityFields(Set<String> shownFields, EntityModel entityModel) {
+    private void drawEntityFields(Set<String> shownFields, EntityModelWrapper entityModelWrapper) {
         Arrays.stream(fieldsComposite.getChildren())
                 .filter(child -> child != null)
                 .filter(child -> !child.isDisposed())
                 .forEach(child -> child.dispose());
 
         // make a map of the field names and labels
-        Collection<FieldMetadata> allFields = metadataService.getVisibleFields(Entity.getEntityType(entityModel));
+        Collection<FieldMetadata> allFields = metadataService.getVisibleFields(entityModelWrapper.getEntityType());
         prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
         prettyFieldsMap.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
         prettyFieldsMap.remove(EntityFieldsConstants.FIELD_PHASE);
@@ -155,9 +157,10 @@ public class EntityFieldsComposite extends Composite {
                 labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
                 labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
                 
-                FieldEditorComposite fieldEditorComposite = new FieldEditorComposite(columnComposite, SWT.NONE, entityModel, fieldName);
-                fieldEditorComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-                fieldEditorComposite.setForeground(foregroundColor);
+                FieldEditor fieldEditor = fieldEditorFactory.createFieldEditor(columnComposite, entityModelWrapper, fieldName);
+                
+                ((Control) fieldEditor).setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+                ((Control) fieldEditor).setForeground(foregroundColor);
             }
         }
 
@@ -167,14 +170,10 @@ public class EntityFieldsComposite extends Composite {
         update();
     }
 
-    public EntityModel getEntityModel() {
-        return entityModel;
-    }
-
-    public void setEntityModel(EntityModel entityModel) {
-        this.entityModel = entityModel;
-        drawEntityFields(entityModel);
-        descriptionComposite.setEntityModel(entityModel);
+    public void setEntityModel(EntityModelWrapper entityModelWrapper) {
+        this.entityModel = entityModelWrapper;
+        drawEntityFields(entityModelWrapper);
+        descriptionComposite.setEntityModel(entityModelWrapper);
     }
 
 }

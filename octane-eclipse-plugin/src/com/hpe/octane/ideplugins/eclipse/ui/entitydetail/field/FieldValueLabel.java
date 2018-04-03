@@ -1,4 +1,4 @@
-package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.fieldeditor;
+package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseListener;

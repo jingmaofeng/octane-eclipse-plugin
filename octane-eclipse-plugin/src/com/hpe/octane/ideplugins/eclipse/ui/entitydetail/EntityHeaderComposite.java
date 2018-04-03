@@ -45,7 +45,9 @@ import com.hpe.adm.octane.ideplugins.services.util.DefaultEntityFieldsUtil;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field.EntityPhaseComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetPossiblePhasesJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.MultiSelectComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
@@ -73,7 +75,7 @@ public class EntityHeaderComposite extends Composite {
     private Label lblEntityIcon;
     private TruncatingStyledText linkEntityName;
 
-    private EntityModel entityModel;
+    private EntityModelWrapper entityModelWrapper;
 
     private EntityPhaseComposite phaseComposite;
 
@@ -106,7 +108,7 @@ public class EntityHeaderComposite extends Composite {
         linkEntityName = new TruncatingStyledText(this, SWT.NONE, truncatedLabelTooltip);
         linkEntityName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         linkEntityName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-        linkEntityName.addListener(SWT.MouseDown, event -> Activator.getInstance(EntityService.class).openInBrowser(entityModel));
+        linkEntityName.addListener(SWT.MouseDown, event -> Activator.getInstance(EntityService.class).openInBrowser(entityModelWrapper.getReadOnlyEntityModel()));
 
         linkEntityName.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
         linkEntityName.setFont(boldFont);
@@ -145,21 +147,21 @@ public class EntityHeaderComposite extends Composite {
 
         btnFields.addListener(SWT.Selection, event -> {
             fieldCombo.showFloatShell(btnFields);
-            fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
+            fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(entityModelWrapper.getEntityType()), false);
         });
 
         fieldCombo.setResetRunnable(() -> {
-            fieldCombo.setSelection(defaultFields.get(Entity.getEntityType(entityModel)));
+            fieldCombo.setSelection(defaultFields.get(entityModelWrapper.getEntityType()));
         });
 
         DelayedRunnable delayedRunnable = new DelayedRunnable(() -> {
             Display.getDefault().asyncExec(() -> {
 
                 PluginPreferenceStorage.setShownEntityFields(
-                        Entity.getEntityType(entityModel),
+                        entityModelWrapper.getEntityType(),
                         new LinkedHashSet<>(fieldCombo.getSelections()));
 
-                if (PluginPreferenceStorage.areShownEntityFieldsDefaults(Entity.getEntityType(entityModel))) {
+                if (PluginPreferenceStorage.areShownEntityFieldsDefaults(entityModelWrapper.getEntityType())) {
                     btnFields.setImage(ImageResources.FIELDS_OFF.getImage());
                 } else {
                     btnFields.setImage(ImageResources.FIELDS_ON.getImage());
@@ -175,14 +177,14 @@ public class EntityHeaderComposite extends Composite {
         });
     }
 
-    public void setEntityModel(EntityModel entityModel) {
-        this.entityModel = entityModel;
-        phaseComposite.setEntityModel(entityModel);
-        lblEntityIcon.setImage(entityIconFactory.getImageIcon(Entity.getEntityType(entityModel)));
-        linkEntityName.setText(entityModel.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
-        selectFieldsToDisplay(entityModel);
+    public void setEntityModel(EntityModelWrapper entityModelWrapper) {
+        this.entityModelWrapper = entityModelWrapper;
+        phaseComposite.setEntityModel(entityModelWrapper);
+        lblEntityIcon.setImage(entityIconFactory.getImageIcon(entityModelWrapper.getEntityType()));
+        linkEntityName.setText(entityModelWrapper.getValue(EntityFieldsConstants.FIELD_NAME).getValue().toString());
+        selectFieldsToDisplay(entityModelWrapper.getReadOnlyEntityModel());
 
-        if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
+        if (GetCommentsJob.hasCommentSupport(entityModelWrapper.getEntityType())) {
             btnComments.setVisible(true);
             gdBtnComments.exclude = false;
         } else {
@@ -190,7 +192,7 @@ public class EntityHeaderComposite extends Composite {
             gdBtnComments.exclude = true;
         }
 
-        if (GetPossiblePhasesJob.hasPhases(Entity.getEntityType(entityModel))) {
+        if (GetPossiblePhasesJob.hasPhases(entityModelWrapper.getEntityType())) {
             setChildVisibility(phaseComposite, true);
         } else {
             setChildVisibility(phaseComposite, false);

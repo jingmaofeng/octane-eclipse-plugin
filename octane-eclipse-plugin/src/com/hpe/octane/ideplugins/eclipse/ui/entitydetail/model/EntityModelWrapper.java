@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
+import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 
 @SuppressWarnings("rawtypes")
 public class EntityModelWrapper {
@@ -17,10 +18,26 @@ public class EntityModelWrapper {
         public void fieldModelChanged(FieldModel fieldModel);
     }
     
+    public Entity getEntityType() {
+        return Entity.getEntityType(entityModel);
+    }
+    
     public EntityModelWrapper(EntityModel entityModel) {
         this.entityModel = entityModel;
     }
     
+    public ReadOnlyEntityModel getReadOnlyEntityModel() {
+        return new ReadOnlyEntityModel(entityModel.getValues());
+    }
+    
+    public EntityModel getEntityModel() {
+        return entityModel;
+    }
+    
+    public FieldModel getValue(String key) {
+        return entityModel.getValue(key);
+    }
+
     public void setValue(FieldModel fieldModel) {
         entityModel.setValue(fieldModel);
         callChangeHandlers(fieldModel);
