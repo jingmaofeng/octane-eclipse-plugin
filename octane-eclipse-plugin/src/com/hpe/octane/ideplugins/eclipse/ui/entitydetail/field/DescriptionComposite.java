@@ -2,17 +2,11 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Text;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.nga.sdk.model.StringFieldModel;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
@@ -21,53 +15,23 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
-public class DescriptionComposite extends Composite{
+public class DescriptionComposite extends Composite {
     
     private PropagateScrollBrowserFactory factory = new PropagateScrollBrowserFactory();
     private Color foregroundColor = PlatformResourcesManager.getPlatformForegroundColor();
     private Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
-    private EntityModelWrapper entityModelWrapper;
-    private Text txtDescHtml;
     private Browser browserDescHtml;
 
     public DescriptionComposite(Composite parent, int style) {
         super(parent, style);
-        
         setLayout(new FillLayout(SWT.HORIZONTAL));
-        StackLayoutComposite stackLayoutComposite = new StackLayoutComposite(this, SWT.NONE);
-        
-        txtDescHtml = new Text(stackLayoutComposite, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-
+        StackLayoutComposite stackLayoutComposite = new StackLayoutComposite(this, SWT.NONE);        
         browserDescHtml = factory.createBrowser(stackLayoutComposite, SWT.NONE);
         browserDescHtml.addLocationListener(new LinkInterceptListener());
         stackLayoutComposite.showControl(browserDescHtml);
-        
-        txtDescHtml.addModifyListener(e -> {
-            StringFieldModel descriptionFieldModel = new StringFieldModel("description", txtDescHtml.getText());
-            entityModelWrapper.setValue(descriptionFieldModel);
-            browserDescHtml.setText(getBrowserText(entityModelWrapper.getReadOnlyEntityModel()));
-        });
-        
-        //Switch
-        browserDescHtml.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseDown(MouseEvent e) {
-                stackLayoutComposite.showControl(txtDescHtml);
-            }
-        });
-       
-        txtDescHtml.addListener(SWT.FocusOut, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                //stackLayoutComposite.showControl(browserDescHtml);
-            }
-        });
-       
     }
     
     public void setEntityModel(EntityModelWrapper entityModelWrapper) {
-        this.entityModelWrapper = entityModelWrapper;
-        txtDescHtml.setText(Util.getUiDataFromModel(entityModelWrapper.getValue(EntityFieldsConstants.FIELD_DESCRIPTION)));
         browserDescHtml.setText(getBrowserText(entityModelWrapper.getReadOnlyEntityModel()));
     }
     
