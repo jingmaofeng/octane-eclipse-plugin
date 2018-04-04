@@ -63,10 +63,7 @@ public class TruncatingStyledText extends StyledText {
             }
         });
 
-        // Make selection prettier, disable I_BEAN cursor
-        this.setCursor(null);
-        this.setSelectionBackground(getBackground());
-        this.setSelectionForeground(getForeground());
+        //deselect on focus lost
         addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
@@ -77,7 +74,6 @@ public class TruncatingStyledText extends StyledText {
 
     private int getTextWidth() {
         return gc.stringExtent(originalText).x;
-
     }
 
     private int getTextWidth(String text) {

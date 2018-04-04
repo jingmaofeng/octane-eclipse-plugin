@@ -3,20 +3,22 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ToolTip;
 
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
+import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 
 public class ReadOnlyFieldEditor extends Composite implements FieldEditor {
 
-    private Label lblFieldValue;
+    private TruncatingStyledText lblFieldValue;
+    private ToolTip toolTip;
 
     public ReadOnlyFieldEditor(Composite parent, int style) {
         super(parent, style);
         setLayout(new FillLayout(SWT.HORIZONTAL));
-        lblFieldValue = new Label(this, SWT.NONE);
-        lblFieldValue.setEnabled(false);
+        toolTip = new ToolTip(parent.getShell(), SWT.NONE);
+        lblFieldValue = new TruncatingStyledText(this, SWT.NONE, toolTip);
     }
 
     @Override
