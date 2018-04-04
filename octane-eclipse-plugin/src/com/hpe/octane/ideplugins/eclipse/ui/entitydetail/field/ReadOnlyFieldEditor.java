@@ -28,5 +28,5 @@ public class ReadOnlyFieldEditor extends Composite implements FieldEditor {
     public void setFieldMessage(FieldMessage fieldMessage) {}
 
     @Override
-    public void getFieldMessage(FieldMessage fieldMessage) {}
+    public FieldMessage getFieldMessage() { return null; }
 }

@@ -36,6 +36,6 @@ public interface FieldEditor extends Drawable {
     public void setField(EntityModelWrapper entityModel, String fieldName);
     
     public void setFieldMessage(FieldMessage fieldMessage);
-    public void getFieldMessage(FieldMessage fieldMessage);
+    public FieldMessage getFieldMessage();
 
 }

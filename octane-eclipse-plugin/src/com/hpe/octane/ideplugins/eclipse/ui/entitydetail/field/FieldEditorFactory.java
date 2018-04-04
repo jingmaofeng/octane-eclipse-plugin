@@ -20,27 +20,39 @@ public class FieldEditorFactory {
         Entity entityType = Entity.getEntityType(entityModel);
         FieldMetadata fieldMetadata = metadataService.getMetadata(entityType, fieldName);
         
-        //String fieldValueString = getFieldValueString(entityModel, fieldName);
-        
         FieldEditor fieldEditor = null;
         
-        switch(fieldMetadata.getFieldType()){
-//            case Integer:
-//                break;
-//            case Float:
-//                break;
-//            case Date:
-//                break;
-//            case DateTime:
-//                break;
-//            case Boolean:
-//                break;
-            default:
-                fieldEditor = new ReadOnlyFieldEditor(parent, SWT.NONE);
-                fieldEditor.setField(entityModelWrapper, fieldName);
-                break;
+        if(!fieldMetadata.isEditable()) {
+            fieldEditor = new ReadOnlyFieldEditor(parent, SWT.NONE);
+            
+        } else {
+            switch(fieldMetadata.getFieldType()){
+                case Integer:
+                    fieldEditor = new NumericFieldEditor(parent, SWT.NONE, false);
+                    ((NumericFieldEditor) fieldEditor).setBounds(0, Long.MAX_VALUE);
+                    break;
+                case Float:
+                    fieldEditor = new NumericFieldEditor(parent, SWT.NONE, true);
+                    break;
+                case String:
+                    fieldEditor = new StringFieldEditor(parent, SWT.NONE);
+                    break;
+//                case Boolean:
+//                    break;
+//                case Date:
+//                    break;
+//                case DateTime:
+//                    break;
+//                case Boolean:
+//                    break;
+                default:
+                    fieldEditor = new ReadOnlyFieldEditor(parent, SWT.NONE);
+                    break;
+            }
+            
         }
         
+        fieldEditor.setField(entityModelWrapper, fieldName);
         return fieldEditor;
     }
    

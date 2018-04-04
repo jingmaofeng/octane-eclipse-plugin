@@ -135,8 +135,8 @@ public class DebugWindow {
                         new InfoPopup("Saving entity", "Saved your changes").open();                        
                     } else {
                         boolean shouldGoToBrowser = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
-                                "Business rule violation",
-                                "Phase change failed \n" + "Sorry!");
+                                "Save failed",
+                                updateEntityJob.getFailedReason());
                         if (shouldGoToBrowser) {
                             entityService.openInBrowser(entityModelWrapper.getEntityModel());
                         }
