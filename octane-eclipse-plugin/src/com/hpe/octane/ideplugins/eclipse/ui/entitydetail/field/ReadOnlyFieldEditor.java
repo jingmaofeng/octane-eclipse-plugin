@@ -18,7 +18,7 @@ public class ReadOnlyFieldEditor extends Composite implements FieldEditor {
         super(parent, style);
         setLayout(new FillLayout(SWT.HORIZONTAL));
         toolTip = new ToolTip(parent.getShell(), SWT.NONE);
-        lblFieldValue = new TruncatingStyledText(this, SWT.NONE, toolTip);
+        lblFieldValue = new TruncatingStyledText(this, SWT.READ_ONLY, toolTip);
     }
 
     @Override
