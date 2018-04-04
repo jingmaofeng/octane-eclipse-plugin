@@ -32,12 +32,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.nga.sdk.exception.OctaneException;
+import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.UpdateEntityJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
-import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper.FieldModelChangedHandler;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
@@ -58,6 +59,11 @@ public class EntityModelEditor extends EditorPart {
 
     public EntityModelEditorInput input;
     private EntityModelWrapper entityModelWrapper;
+    private EntityComposite entityComposite;
+    private StackLayoutComposite rootComposite;
+    private ScrolledComposite entityScrolledComposite;
+    private LoadingComposite loadingComposite;
+    private boolean isDirty = false;
 
     @Override
     public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -76,25 +82,35 @@ public class EntityModelEditor extends EditorPart {
 
     @Override
     public void createPartControl(Composite parent) {
-
-        StackLayoutComposite rootComposite = new StackLayoutComposite(parent, SWT.NONE);
+        rootComposite = new StackLayoutComposite(parent, SWT.NONE);
         rootComposite.setBackgroundMode(SWT.INHERIT_FORCE);
         rootComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
         rootComposite.setBackground(BACKGROUND_COLOR);
 
-        LoadingComposite loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
+        loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
+        rootComposite.showControl(loadingComposite);
 
-        ScrolledComposite entityScrolledComposite = new ScrolledComposite(rootComposite, SWT.HORIZONTAL | SWT.VERTICAL);
-        EntityComposite entityComposite = new EntityComposite(entityScrolledComposite, SWT.NONE);
+        entityScrolledComposite = new ScrolledComposite(rootComposite, SWT.HORIZONTAL | SWT.VERTICAL);
+        entityComposite = new EntityComposite(entityScrolledComposite, SWT.NONE);
         entityScrolledComposite.setContent(entityComposite);
         entityScrolledComposite.setExpandHorizontal(true);
         entityScrolledComposite.setExpandVertical(true);
         entityScrolledComposite.setMinSize(new Point(800, 1000));
 
-        rootComposite.showControl(loadingComposite);
+        entityComposite.addRefreshSelectionListener(event -> loadEntity());
 
-        GetEntityModelJob getEntityDetailsJob = new GetEntityModelJob("Retrieving entity details",
-                input.getEntityType(), input.getId());
+        entityComposite.addSaveSelectionListener(new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                doSave(null);
+            }
+        });
+
+        loadEntity();
+    }
+    
+    private void loadEntity() {
+        GetEntityModelJob getEntityDetailsJob = new GetEntityModelJob("Retrieving entity details", input.getEntityType(), input.getId());
 
         getEntityDetailsJob.addJobChangeListener(new JobChangeAdapter() {
 
@@ -108,7 +124,10 @@ public class EntityModelEditor extends EditorPart {
             @Override
             public void done(IJobChangeEvent event) {
                 if (getEntityDetailsJob.wasEntityRetrived()) {
+                    
                     EntityModelEditor.this.entityModelWrapper = new EntityModelWrapper(getEntityDetailsJob.getEntiyData());
+                    initIsDirtyListener();
+                    
                     Display.getDefault().asyncExec(() -> {
                         entityComposite.setEntityModel(entityModelWrapper);
                         rootComposite.showControl(entityScrolledComposite);
@@ -119,41 +138,25 @@ public class EntityModelEditor extends EditorPart {
                 }
             }
         });
-
-        entityComposite.addRefreshSelectionListener(event -> getEntityDetailsJob.schedule());
-
-        entityComposite.addSaveSelectionListener(new Listener() {
+        
+        getEntityDetailsJob.schedule();
+    }
+    
+    private void initIsDirtyListener() {
+        setIsDirty(false);
+        entityModelWrapper.addFieldModelChangedHandler(new FieldModelChangedHandler() {
             @Override
-            public void handleEvent(Event event) {
-                UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + entityModelWrapper.getEntityType(), entityModelWrapper.getEntityModel());
-                updateEntityJob.schedule();
-                updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
-                    @Override
-                    public void done(IJobChangeEvent event) {
-                        Display.getDefault().asyncExec(() -> {
-                            OctaneException octaneException = updateEntityJob.getOctaneException();
-                            if(octaneException == null){
-                                new InfoPopup("Saving entity", "Saved your changes").open();
-                            } else {
-                                EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(parent.getShell());
-                                errorDialog.open(octaneException, "Saving entity failed");
-                                errorDialog.addButton("Back", ()-> errorDialog.close());
-                                errorDialog.addButton("Refresh", ()-> {
-                                    getEntityDetailsJob.schedule();
-                                    errorDialog.close();
-                                });
-                                errorDialog.addButton("Open in browser", ()-> {
-                                    entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
-                                    errorDialog.close();
-                                });
-                            }
-                        });
-                    }
-                });
+            public void fieldModelChanged(@SuppressWarnings("rawtypes") FieldModel fieldModel) {
+                setIsDirty(true);
             }
         });
-
-        getEntityDetailsJob.schedule();
+    }
+    
+    private void setIsDirty(boolean isDirty) {
+        Display.getDefault().syncExec(() -> {
+            EntityModelEditor.this.isDirty = isDirty;
+            firePropertyChange(PROP_DIRTY);
+        });
     }
 
     @Override
@@ -162,21 +165,54 @@ public class EntityModelEditor extends EditorPart {
 
     @Override
     public void doSave(IProgressMonitor monitor) {
-        // Not supported
+        UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + entityModelWrapper.getEntityType(), entityModelWrapper.getEntityModel());
+        
+        updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                    OctaneException octaneException = updateEntityJob.getOctaneException();
+                    
+                    if(octaneException == null){
+                        loadEntity();
+                        
+                    } else {
+                        Display.getDefault().asyncExec(() -> {
+                            
+                            EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(rootComposite.getShell());
+                  
+                            errorDialog.addButton("Back", () -> errorDialog.close());
+                            
+                            errorDialog.addButton("Refresh", () -> {
+                                loadEntity();
+                                errorDialog.close();
+                            });
+                            errorDialog.addButton("Open in browser", ()-> {
+                                entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
+                                errorDialog.close();
+                            });
+                            
+                            errorDialog.open(octaneException, "Saving entity failed");
+                            
+                        });
+                    }
+            }
+        });
+        
+        updateEntityJob.schedule();
     }
-
+    
     @Override
     public void doSaveAs() {
-        // Not supported
+        doSave(null);
     }
 
     @Override
     public boolean isDirty() {
-        return false;
+        return isDirty;
     }
 
     @Override
     public boolean isSaveAsAllowed() {
-        return false;
+        return entityModelWrapper != null && isDirty;
     }
 }
