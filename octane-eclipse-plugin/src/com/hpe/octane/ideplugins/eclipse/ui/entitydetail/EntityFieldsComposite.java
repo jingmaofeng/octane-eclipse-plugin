@@ -155,11 +155,15 @@ public class EntityFieldsComposite extends Composite {
                 CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
                 labelFieldName.setText(prettyFieldsMap.get(fieldName));
                 labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
-                labelFieldName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+                GridData labelFieldNameGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+                labelFieldNameGridData.heightHint = 35;
+                labelFieldName.setLayoutData(labelFieldNameGridData);
                 
                 FieldEditor fieldEditor = fieldEditorFactory.createFieldEditor(columnComposite, entityModelWrapper, fieldName);
                 
-                ((Control) fieldEditor).setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+                GridData fieldEditorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+                fieldEditorGridData.heightHint = 35;
+                ((Control) fieldEditor).setLayoutData(fieldEditorGridData);
                 ((Control) fieldEditor).setForeground(foregroundColor);
             }
         }

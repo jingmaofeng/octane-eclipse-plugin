@@ -24,13 +24,15 @@ public class StringFieldEditor extends Composite implements FieldEditor {
     public StringFieldEditor(Composite parent, int style) {
         super(parent, style);
         GridLayout gridLayout = new GridLayout(2, false);
+        gridLayout.verticalSpacing = 0;
         gridLayout.marginWidth = 0;
         setLayout(gridLayout);
         
         textField = new Text(this, SWT.BORDER);
-        textField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        textField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
         
         fieldMessageComposite = new FieldMessageComposite(this, SWT.NONE);
+        fieldMessageComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
         
         modifyListener = new ModifyListener() {
             @Override

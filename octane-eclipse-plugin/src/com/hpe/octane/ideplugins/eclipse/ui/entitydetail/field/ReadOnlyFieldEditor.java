@@ -1,7 +1,8 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolTip;
 
@@ -16,9 +17,10 @@ public class ReadOnlyFieldEditor extends Composite implements FieldEditor {
 
     public ReadOnlyFieldEditor(Composite parent, int style) {
         super(parent, style);
-        setLayout(new FillLayout(SWT.HORIZONTAL));
         toolTip = new ToolTip(parent.getShell(), SWT.NONE);
-        lblFieldValue = new TruncatingStyledText(this, SWT.READ_ONLY, toolTip);
+        setLayout(new GridLayout(1, false));
+        lblFieldValue = new TruncatingStyledText(this, SWT.READ_ONLY | SWT.SINGLE, toolTip);
+        lblFieldValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
     }
 
     @Override

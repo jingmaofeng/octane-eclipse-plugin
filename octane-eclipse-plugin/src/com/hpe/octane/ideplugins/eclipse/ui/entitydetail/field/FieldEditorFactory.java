@@ -40,12 +40,9 @@ public class FieldEditorFactory {
                 case Boolean:
                     fieldEditor = new BooleanFieldEditor(parent, SWT.NONE);
                     break;
-//                case Date:
-//                    break;
-//                case DateTime:
-//                    break;
-//                case Boolean:
-//                    break;
+                case DateTime:
+                    fieldEditor = new DateTimeFieldEditor(parent, SWT.NONE);
+                    break;
                 default:
                     fieldEditor = new ReadOnlyFieldEditor(parent, SWT.NONE);
                     break;
