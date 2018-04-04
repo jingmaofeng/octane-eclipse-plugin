@@ -21,7 +21,9 @@ public class BooleanFieldEditor extends Composite implements FieldEditor {
 
     public BooleanFieldEditor(Composite parent, int style) {
         super(parent, style);
-        setLayout(new GridLayout(2, false));
+        GridLayout gridLayout = new GridLayout(2, false);
+        gridLayout.marginWidth = 0;
+        setLayout(gridLayout);
         
         combo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
         combo.setItems(new String[] {Boolean.TRUE.toString(), Boolean.FALSE.toString()});

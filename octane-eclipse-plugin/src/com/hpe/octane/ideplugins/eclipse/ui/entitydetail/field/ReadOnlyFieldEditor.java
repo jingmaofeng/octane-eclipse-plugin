@@ -24,6 +24,13 @@ public class ReadOnlyFieldEditor extends Composite implements FieldEditor {
     @Override
     public void setField(EntityModelWrapper entityModel, String fieldName) {
         lblFieldValue.setText(Util.getUiDataFromModel(entityModel.getValue(fieldName)));
+        
+        //Removes a bunch of unnecessary listeners 
+        if(lblFieldValue.getText().isEmpty()) {
+            lblFieldValue.setEnabled(false);
+        } else {
+            lblFieldValue.setEnabled(true);
+        }
     }
 
     @Override

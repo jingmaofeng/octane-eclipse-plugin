@@ -29,7 +29,9 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
 
     public NumericFieldEditor(Composite parent, int style, boolean isRealNumber) {
         super(parent, style);
-        setLayout(new GridLayout(2, false));
+        GridLayout gridLayout = new GridLayout(2, false);
+        gridLayout.marginWidth = 0;
+        setLayout(gridLayout);
 
         textField = new Text(this, SWT.BORDER);
         textField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
