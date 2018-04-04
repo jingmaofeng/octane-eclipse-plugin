@@ -31,6 +31,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
+import com.hpe.adm.nga.sdk.exception.OctaneException;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
@@ -46,9 +47,6 @@ public class EntityModelEditor extends EditorPart {
 
     public EntityModelEditor() {
     }
-
-    private static final String GO_TO_BROWSER_DIALOG_MESSAGE = "You can try to change the phase using ALM Octane in a browser."
-            + "\nDo you want to do this now?";
 
     private static final EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
@@ -133,17 +131,22 @@ public class EntityModelEditor extends EditorPart {
                     @Override
                     public void done(IJobChangeEvent event) {
                         Display.getDefault().asyncExec(() -> {
-                            if (updateEntityJob.isPhaseChanged()) {
+                            OctaneException octaneException = updateEntityJob.getOctaneException();
+                            if(octaneException == null){
                                 new InfoPopup("Saving entity", "Saved your changes").open();
                             } else {
-                                boolean shouldGoToBrowser = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
-                                        "Business rule violation",
-                                        "Phase change failed \n" + GO_TO_BROWSER_DIALOG_MESSAGE);
-                                if (shouldGoToBrowser) {
-                                    entityService.openInBrowser(entityModelWrapper.getEntityModel());
-                                }
+                                EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(parent.getShell());
+                                errorDialog.open(octaneException, "Saving entity failed");
+                                errorDialog.addButton("Back", ()-> errorDialog.close());
+                                errorDialog.addButton("Refresh", ()-> {
+                                    getEntityDetailsJob.schedule();
+                                    errorDialog.close();
+                                });
+                                errorDialog.addButton("Open in browser", ()-> {
+                                    entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
+                                    errorDialog.close();
+                                });
                             }
-                            getEntityDetailsJob.schedule();
                         });
                     }
                 });

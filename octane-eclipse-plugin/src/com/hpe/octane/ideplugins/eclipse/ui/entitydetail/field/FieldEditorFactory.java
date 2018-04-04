@@ -37,8 +37,9 @@ public class FieldEditorFactory {
                 case String:
                     fieldEditor = new StringFieldEditor(parent, SWT.NONE);
                     break;
-//                case Boolean:
-//                    break;
+                case Boolean:
+                    fieldEditor = new BooleanFieldEditor(parent, SWT.NONE);
+                    break;
 //                case Date:
 //                    break;
 //                case DateTime:

@@ -53,12 +53,7 @@ public class PlatformResourcesManager {
      * @return
      */
     private static boolean isRunningOnEclipsePlatform() {
-        try {
-            Class.forName("org.eclipse.e4.ui.workbench.IWorkbench");
-            return true;
-        } catch (ClassNotFoundException ex) {
-            return false;
-        }
+        return false;
     }
 
 }

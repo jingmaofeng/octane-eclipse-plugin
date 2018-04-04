@@ -9,6 +9,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
+import com.hpe.adm.nga.sdk.exception.OctaneException;
+import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettings;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
@@ -16,6 +18,7 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.UpdateEntityJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper.FieldModelChangedHandler;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
@@ -72,7 +75,6 @@ public class DebugWindow {
     protected void createContents() {
         shell = new Shell();
         shell.setSize(1200, 800);
-        shell.setText("Edit me!");
         shell.setLayout(new BorderLayout());
         shell.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         shell.setBackgroundMode(SWT.INHERIT_FORCE);
@@ -108,7 +110,20 @@ public class DebugWindow {
             public void done(IJobChangeEvent event) {
                 if (getEntityDetailsJob.wasEntityRetrived()) {
                     entityModelWrapper = new EntityModelWrapper(getEntityDetailsJob.getEntiyData());
+                    
+                  
+                    
+                    entityModelWrapper.addFieldModelChangedHandler(new FieldModelChangedHandler() {
+                        @Override
+                        public void fieldModelChanged(@SuppressWarnings("rawtypes") FieldModel fieldModel) {
+                            Display.getDefault().asyncExec(() -> {
+                                shell.setText("*" + shell.getText());
+                            });
+                        }
+                    });
+                    
                     Display.getDefault().asyncExec(() -> {
+                        shell.setText("mata");
                         entityComposite.setEntityModel(entityModelWrapper);
                         rootComposite.showControl(entityComposite);
                     });
@@ -131,17 +146,24 @@ public class DebugWindow {
             @Override
             public void done(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
-                    if (updateEntityJob.isPhaseChanged()) {
-                        new InfoPopup("Saving entity", "Saved your changes").open();                        
+                    OctaneException octaneException = updateEntityJob.getOctaneException();
+                    if(octaneException == null){
+                        new InfoPopup("Saving entity", "Saved your changes").open();
                     } else {
-                        boolean shouldGoToBrowser = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
-                                "Save failed",
-                                updateEntityJob.getFailedReason());
-                        if (shouldGoToBrowser) {
-                            entityService.openInBrowser(entityModelWrapper.getEntityModel());
-                        }
+                        EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(shell);
+                        
+                        errorDialog.addButton("Back", ()-> errorDialog.close());
+                        errorDialog.addButton("Refresh", ()-> {
+                            loadEntity();
+                            errorDialog.close();
+                        });
+                        errorDialog.addButton("Open in browser", ()-> {
+                            entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
+                            errorDialog.close();
+                        });
+                        
+                        errorDialog.open(octaneException, "Saving entity failed");
                     }
-                    DebugWindow.this.loadEntity();
                 });
             }
         });
