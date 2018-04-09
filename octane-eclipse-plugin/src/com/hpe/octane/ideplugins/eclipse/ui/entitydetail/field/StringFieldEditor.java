@@ -14,7 +14,7 @@ import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 
 public class StringFieldEditor extends Composite implements FieldEditor {
-    
+
     protected EntityModelWrapper entityModelWrapper;
     protected String fieldName;
     protected Text textField;
@@ -27,20 +27,20 @@ public class StringFieldEditor extends Composite implements FieldEditor {
         gridLayout.verticalSpacing = 0;
         gridLayout.marginWidth = 0;
         setLayout(gridLayout);
-        
-        textField = new Text(this, SWT.BORDER);
+
+        textField = new Text(this, style);
         textField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
-        
+
         fieldMessageComposite = new FieldMessageComposite(this, SWT.NONE);
         fieldMessageComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
-        
+
         modifyListener = new ModifyListener() {
             @Override
             public void modifyText(ModifyEvent e) {
                 String text = textField.getText();
-                //whitespace is considered null
-                if(text.isEmpty() && text.length() != 0) {
-                    entityModelWrapper.setValue(new ReferenceErrorModel(fieldName, null)); 
+                // whitespace is considered null
+                if (text.isEmpty() && text.length() != 0) {
+                    entityModelWrapper.setValue(new ReferenceErrorModel(fieldName, null));
                 } else {
                     entityModelWrapper.setValue(new StringFieldModel(fieldName, text));
                 }
@@ -61,10 +61,10 @@ public class StringFieldEditor extends Composite implements FieldEditor {
     public void setFieldMessage(FieldMessage fieldMessage) {
         fieldMessageComposite.setFieldMessage(fieldMessage);
     }
-    
+
     @Override
     public FieldMessage getFieldMessage() {
         return fieldMessageComposite.getFieldMessage();
     }
-    
+
 }

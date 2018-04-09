@@ -113,7 +113,7 @@ public class EntityHeaderComposite extends Composite {
 
         Label lblSeparator = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
         GridData lblSeparatorGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-        lblSeparatorGridData.heightHint = boldFont.getFontData()[0].getHeight();
+        lblSeparatorGridData.heightHint = 16;
         lblSeparator.setLayoutData(lblSeparatorGridData);
 
         nameFieldEditor = new StringFieldEditor(this, SWT.NONE);

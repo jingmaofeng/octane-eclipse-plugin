@@ -38,7 +38,7 @@ public class FieldEditorFactory {
                     fieldEditor = new NumericFieldEditor(parent, SWT.NONE, true);
                     break;
                 case String:
-                    fieldEditor = new StringFieldEditor(parent, SWT.NONE);
+                    fieldEditor = new StringFieldEditor(parent, SWT.BORDER);
                     break;
                 case Boolean:
                     fieldEditor = new BooleanFieldEditor(parent, SWT.NONE);
