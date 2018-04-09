@@ -174,6 +174,7 @@ public class EntityFieldsComposite extends Composite {
                 FieldEditor fieldEditor = fieldEditorFactory.createFieldEditor(columnComposite, entityModelWrapper, fieldName);
 
                 GridData fieldEditorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+                fieldEditorGridData.heightHint = 30;
                 ((Control) fieldEditor).setLayoutData(fieldEditorGridData);
                 ((Control) fieldEditor).setForeground(foregroundColor);
             }

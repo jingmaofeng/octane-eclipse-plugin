@@ -18,9 +18,7 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -61,7 +59,6 @@ public class EntityModelEditor extends EditorPart {
     private EntityModelWrapper entityModelWrapper;
     private EntityComposite entityComposite;
     private StackLayoutComposite rootComposite;
-    private ScrolledComposite entityScrolledComposite;
     private LoadingComposite loadingComposite;
     private boolean isDirty = false;
 
@@ -90,13 +87,7 @@ public class EntityModelEditor extends EditorPart {
         loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
         rootComposite.showControl(loadingComposite);
 
-        entityScrolledComposite = new ScrolledComposite(rootComposite, SWT.HORIZONTAL | SWT.VERTICAL);
-        entityComposite = new EntityComposite(entityScrolledComposite, SWT.NONE);
-        entityScrolledComposite.setContent(entityComposite);
-        entityScrolledComposite.setExpandHorizontal(true);
-        entityScrolledComposite.setExpandVertical(true);
-        entityScrolledComposite.setMinSize(new Point(800, 1000));
-
+        entityComposite = new EntityComposite(rootComposite, SWT.NONE);
         entityComposite.addRefreshSelectionListener(event -> loadEntity());
 
         entityComposite.addSaveSelectionListener(new Listener() {
@@ -108,7 +99,7 @@ public class EntityModelEditor extends EditorPart {
 
         loadEntity();
     }
-    
+
     private void loadEntity() {
         GetEntityModelJob getEntityDetailsJob = new GetEntityModelJob("Retrieving entity details", input.getEntityType(), input.getId());
 
@@ -124,13 +115,13 @@ public class EntityModelEditor extends EditorPart {
             @Override
             public void done(IJobChangeEvent event) {
                 if (getEntityDetailsJob.wasEntityRetrived()) {
-                    
+
                     EntityModelEditor.this.entityModelWrapper = new EntityModelWrapper(getEntityDetailsJob.getEntiyData());
                     initIsDirtyListener();
-                    
+
                     Display.getDefault().asyncExec(() -> {
                         entityComposite.setEntityModel(entityModelWrapper);
-                        rootComposite.showControl(entityScrolledComposite);
+                        rootComposite.showControl(entityComposite);
                     });
                 } else {
                     MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error",
@@ -138,10 +129,10 @@ public class EntityModelEditor extends EditorPart {
                 }
             }
         });
-        
+
         getEntityDetailsJob.schedule();
     }
-    
+
     private void initIsDirtyListener() {
         setIsDirty(false);
         entityModelWrapper.addFieldModelChangedHandler(new FieldModelChangedHandler() {
@@ -151,7 +142,7 @@ public class EntityModelEditor extends EditorPart {
             }
         });
     }
-    
+
     private void setIsDirty(boolean isDirty) {
         Display.getDefault().syncExec(() -> {
             EntityModelEditor.this.isDirty = isDirty;
@@ -166,41 +157,41 @@ public class EntityModelEditor extends EditorPart {
     @Override
     public void doSave(IProgressMonitor monitor) {
         UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + entityModelWrapper.getEntityType(), entityModelWrapper.getEntityModel());
-        
+
         updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
             public void done(IJobChangeEvent event) {
-                    OctaneException octaneException = updateEntityJob.getOctaneException();
-                    
-                    if(octaneException == null){
-                        loadEntity();
-                        
-                    } else {
-                        Display.getDefault().asyncExec(() -> {
-                            
-                            EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(rootComposite.getShell());
-                  
-                            errorDialog.addButton("Back", () -> errorDialog.close());
-                            
-                            errorDialog.addButton("Refresh", () -> {
-                                loadEntity();
-                                errorDialog.close();
-                            });
-                            errorDialog.addButton("Open in browser", ()-> {
-                                entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
-                                errorDialog.close();
-                            });
-                            
-                            errorDialog.open(octaneException, "Saving entity failed");
-                            
+                OctaneException octaneException = updateEntityJob.getOctaneException();
+
+                if (octaneException == null) {
+                    loadEntity();
+
+                } else {
+                    Display.getDefault().asyncExec(() -> {
+
+                        EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(rootComposite.getShell());
+
+                        errorDialog.addButton("Back", () -> errorDialog.close());
+
+                        errorDialog.addButton("Refresh", () -> {
+                            loadEntity();
+                            errorDialog.close();
                         });
-                    }
+                        errorDialog.addButton("Open in browser", () -> {
+                            entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
+                            errorDialog.close();
+                        });
+
+                        errorDialog.open(octaneException, "Saving entity failed");
+
+                    });
+                }
             }
         });
-        
+
         updateEntityJob.schedule();
     }
-    
+
     @Override
     public void doSaveAs() {
         doSave(null);
