@@ -141,6 +141,7 @@ public class EntityFieldsComposite extends Composite {
         Composite sectionClientLeft = new Composite(fieldsComposite, SWT.NONE);
         sectionClientLeft.setLayout(new GridLayout(2, false));
         sectionClientLeft.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+
         Composite sectionClientRight = new Composite(fieldsComposite, SWT.NONE);
         sectionClientRight.setLayout(new GridLayout(2, false));
         sectionClientRight.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
@@ -168,24 +169,21 @@ public class EntityFieldsComposite extends Composite {
                 labelFieldName.setText(prettyFieldsMap.get(fieldName));
                 labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
                 GridData labelFieldNameGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-                labelFieldNameGridData.heightHint = 35;
                 labelFieldName.setLayoutData(labelFieldNameGridData);
 
                 FieldEditor fieldEditor = fieldEditorFactory.createFieldEditor(columnComposite, entityModelWrapper, fieldName);
 
                 GridData fieldEditorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-                fieldEditorGridData.heightHint = 35;
                 ((Control) fieldEditor).setLayoutData(fieldEditorGridData);
                 ((Control) fieldEditor).setForeground(foregroundColor);
             }
         }
 
         // Force redraw
+        fieldsComposite.setSize(fieldsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
         layout(true, true);
         redraw();
         update();
-
-        fieldsComposite.setSize(fieldsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
 
     @Override
