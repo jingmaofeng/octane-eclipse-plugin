@@ -22,7 +22,7 @@ public class StringFieldEditor extends Composite implements FieldEditor {
     private ModifyListener modifyListener;
 
     public StringFieldEditor(Composite parent, int style) {
-        super(parent, style);
+        super(parent, SWT.NONE);
         GridLayout gridLayout = new GridLayout(2, false);
         gridLayout.verticalSpacing = 0;
         gridLayout.marginWidth = 0;
