@@ -18,6 +18,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 
 import com.hpe.octane.ideplugins.eclipse.ui.comment.EntityCommentComposite;
@@ -30,6 +31,7 @@ public class EntityComposite extends Composite {
     private EntityHeaderComposite entityHeaderComposite;
     private EntityFieldsComposite entityFieldsComposite;
     private ScrolledComposite scrolledComposite;
+    private Label label;
 
     /**
      * Create the composite.
@@ -43,6 +45,9 @@ public class EntityComposite extends Composite {
 
         entityHeaderComposite = new EntityHeaderComposite(this, SWT.NONE);
         entityHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
+
+        label = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
+        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
 
         scrolledComposite = new ScrolledComposite(this, SWT.H_SCROLL |
                 SWT.V_SCROLL);
@@ -58,6 +63,7 @@ public class EntityComposite extends Composite {
         GridData entityCommentCompositeGridData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
         entityCommentCompositeGridData.widthHint = 350;
         entityCommentComposite.setLayoutData(entityCommentCompositeGridData);
+        new Label(this, SWT.NONE);
 
         entityHeaderComposite.addCommentsSelectionListener(new Listener() {
             @Override
