@@ -41,13 +41,13 @@ public class EntityComposite extends Composite {
      */
     public EntityComposite(Composite parent, int style) {
         super(parent, style);
-        setLayout(new GridLayout(3, false));
+        setLayout(new GridLayout(2, false));
 
         entityHeaderComposite = new EntityHeaderComposite(this, SWT.NONE);
         entityHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 
         label = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
-        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
+        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 
         scrolledComposite = new ScrolledComposite(this, SWT.H_SCROLL |
                 SWT.V_SCROLL);
@@ -63,6 +63,7 @@ public class EntityComposite extends Composite {
         GridData entityCommentCompositeGridData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
         entityCommentCompositeGridData.widthHint = 350;
         entityCommentComposite.setLayoutData(entityCommentCompositeGridData);
+        new Label(this, SWT.NONE);
         new Label(this, SWT.NONE);
 
         entityHeaderComposite.addCommentsSelectionListener(new Listener() {
