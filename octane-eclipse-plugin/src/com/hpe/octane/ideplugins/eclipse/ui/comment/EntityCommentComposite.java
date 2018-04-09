@@ -12,14 +12,21 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.comment;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.LocationAdapter;
+import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -34,9 +41,9 @@ import org.eclipse.swt.widgets.Text;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
+import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.PostCommentJob;
-import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite.LoadingPosition;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
@@ -112,7 +119,43 @@ public class EntityCommentComposite extends StackLayoutComposite {
         commentsBrowser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
-        commentsBrowser.addLocationListener(new LinkInterceptListener());
+        commentsBrowser.addLocationListener(new LocationAdapter() {
+            // method called when the user clicks a link but before the link is opened
+            @Override
+            public void changing(LocationEvent event) {
+                String urlString = event.location;
+                if (urlString == null || "about:blank".equals(urlString)) {
+                    return;
+                }
+                
+                try {
+                    URIBuilder url = new URIBuilder(urlString);
+                    
+                    if (url.getHost() != null) {
+                        String temporaryString = url.toString();
+                        URI finalUrl = new URI(temporaryString);
+
+                        Desktop.getDesktop().browse(finalUrl);
+                        event.doit = false;
+                        return;
+                    }
+                    
+                    URI baseURI = new URI(Activator.getConnectionSettings().getBaseUrl());
+                    url.setHost(baseURI.getHost());
+                    url.setPort(baseURI.getPort());
+                    url.setScheme(baseURI.getScheme());
+
+                    String temporaryString = url.toString();
+                    URI finalUrl = new URI(temporaryString);
+
+                    Desktop.getDesktop().browse(finalUrl);
+                    event.doit = false; // stop propagation
+                } catch (URISyntaxException | IOException e) {
+                    // tough luck, continue propagation, it's better than nothing
+                    event.doit = true;
+                }
+            }
+        });
     }
 
     public void setEntityModel(EntityModel entityModel) {
