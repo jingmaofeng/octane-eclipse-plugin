@@ -28,6 +28,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.events.IExpansionListener;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
@@ -47,59 +49,69 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityFieldsComposite extends Composite {
 
-    //private Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
+    // private Color backgroundColor =
+    // PlatformResourcesManager.getPlatformBackgroundColor();
     private Color foregroundColor = PlatformResourcesManager.getPlatformForegroundColor();
 
     private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
     private static FieldEditorFactory fieldEditorFactory = new FieldEditorFactory();
-    
+
     private Map<String, String> prettyFieldsMap;
 
-    private Composite entityFieldsComposite;
-    private Composite entityDescriptionComposite;
-    private Composite fieldsComposite;
-
     private EntityModelWrapper entityModel;
+
+    private Composite fieldsComposite;
     private DescriptionComposite descriptionComposite;
+
+    private FormToolkit formGenerator;
 
     public EntityFieldsComposite(Composite parent, int style) {
         super(parent, style);
-
+        formGenerator = new FormToolkit(this.getDisplay());
         setLayout(new GridLayout(1, false));
-        FormToolkit formGenerator = new FormToolkit(this.getDisplay());
 
-        entityFieldsComposite = new Composite(this, SWT.NONE);
-        entityFieldsComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
-        entityFieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-        entityFieldsComposite.setLayout(new GridLayout(2, false));
-        formGenerator.adapt(entityFieldsComposite);
-        formGenerator.paintBordersFor(entityFieldsComposite);
-
-        entityDescriptionComposite = new Composite(this, SWT.NONE);
-        entityDescriptionComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
-        entityDescriptionComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-        entityDescriptionComposite.setLayout(new GridLayout(1, false));
-        formGenerator.adapt(entityDescriptionComposite);
-        formGenerator.paintBordersFor(entityDescriptionComposite);
-
-        Section sectionFields = formGenerator.createSection(entityFieldsComposite, Section.TREE_NODE | Section.EXPANDED);
+        // Fields
+        Section sectionFields = formGenerator.createSection(this, Section.TREE_NODE | Section.EXPANDED);
         sectionFields.setText("Fields");
-        sectionFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        formGenerator.createCompositeSeparator(sectionFields);
-
+        sectionFields.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
         fieldsComposite = new Composite(sectionFields, SWT.NONE);
-        fieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
         sectionFields.setClient(fieldsComposite);
 
-        Section sectionDescription = formGenerator.createSection(entityDescriptionComposite, Section.TREE_NODE | Section.EXPANDED);
-        formGenerator.createCompositeSeparator(sectionDescription);
+        // Description
 
+        // Needed for height hint to work
+        Composite descriptionWrapper = new Composite(this, SWT.NONE);
+        descriptionWrapper.setLayout(new FillLayout());
+        GridData gdSectionDescription = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+        gdSectionDescription.heightHint = 500;
+        descriptionWrapper.setLayoutData(gdSectionDescription);
+
+        Section sectionDescription = formGenerator.createSection(descriptionWrapper, Section.TREE_NODE | Section.EXPANDED);
         sectionDescription.setText("Description");
-        sectionDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-
         descriptionComposite = new DescriptionComposite(sectionDescription, SWT.NONE);
-        descriptionComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
         sectionDescription.setClient(descriptionComposite);
+
+        formGenerator.createCompositeSeparator(sectionDescription);
+        formGenerator.createCompositeSeparator(sectionFields);
+
+        sectionDescription.addExpansionListener(new IExpansionListener() {
+            @Override
+            public void expansionStateChanging(ExpansionEvent e) {
+            }
+
+            @Override
+            public void expansionStateChanged(ExpansionEvent e) {
+                GridData gdSectionDescription = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+                if (sectionDescription.isExpanded()) {
+                    gdSectionDescription.heightHint = 500;
+                    descriptionWrapper.setLayoutData(gdSectionDescription);
+                } else {
+                    gdSectionDescription.heightHint = -1;
+                    descriptionWrapper.setLayoutData(gdSectionDescription);
+                }
+                layout(true, true);
+            }
+        });
 
         // Field listener
         PrefereceChangeHandler prefereceChangeHandler = () -> drawEntityFields(entityModel);
@@ -158,9 +170,9 @@ public class EntityFieldsComposite extends Composite {
                 GridData labelFieldNameGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
                 labelFieldNameGridData.heightHint = 35;
                 labelFieldName.setLayoutData(labelFieldNameGridData);
-                
+
                 FieldEditor fieldEditor = fieldEditorFactory.createFieldEditor(columnComposite, entityModelWrapper, fieldName);
-                
+
                 GridData fieldEditorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
                 fieldEditorGridData.heightHint = 35;
                 ((Control) fieldEditor).setLayoutData(fieldEditorGridData);
@@ -172,6 +184,14 @@ public class EntityFieldsComposite extends Composite {
         layout(true, true);
         redraw();
         update();
+
+        fieldsComposite.setSize(fieldsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+    }
+
+    @Override
+    public void layout(boolean changed, boolean all) {
+        setSize(computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        super.layout(changed, all);
     }
 
     public void setEntityModel(EntityModelWrapper entityModelWrapper) {

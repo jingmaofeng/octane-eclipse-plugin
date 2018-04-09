@@ -22,7 +22,7 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
     protected String fieldName;
     protected Text textField;
     private FieldMessageComposite fieldMessageComposite;
-    
+
     private long minumumValue = Long.MIN_VALUE;
     private long maximumValue = Long.MAX_VALUE;
     private ModifyListener modifyListener;
@@ -35,47 +35,46 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
 
         textField = new Text(this, SWT.BORDER);
         textField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
-        
+
         fieldMessageComposite = new FieldMessageComposite(this, SWT.NONE);
         fieldMessageComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
-        
+
         textField.addListener(SWT.Verify, new Listener() {
+            @Override
             public void handleEvent(Event e) {
                 String string = e.text;
-                
-                if(string.isEmpty() || "-".equals(string)) {
+
+                if (string.isEmpty() || "-".equals(string)) {
                     return;
                 }
-                
+
                 double doubleValue = 0;
                 long longValue = 0;
-                
-                if(isRealNumber) {
+
+                if (isRealNumber) {
                     try {
                         doubleValue = Double.parseDouble(string);
                     } catch (Exception ex) {
-                        System.out.println(ex);
                         e.doit = false;
                         return;
-                    }    
+                    }
                 } else {
                     try {
                         longValue = Long.parseLong(string);
                     } catch (Exception ex) {
-                        System.out.println(ex);
                         e.doit = false;
                         return;
                     }
                 }
-                
+
                 long value = isRealNumber ? (long) doubleValue : longValue;
-                
-                if(value < minumumValue) {
+
+                if (value < minumumValue) {
                     e.doit = false;
                     return;
                 }
-                
-                if(value > maximumValue) {
+
+                if (value > maximumValue) {
                     e.doit = false;
                     return;
                 }
@@ -85,26 +84,28 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
         modifyListener = new ModifyListener() {
             @Override
             public void modifyText(ModifyEvent e) {
-                if(textField.getText().isEmpty()) {
+                if (textField.getText().isEmpty()) {
                     entityModelWrapper.setValue(new ReferenceFieldModel(fieldName, null));
                 } else {
-                    if(isRealNumber) {
+                    if (isRealNumber) {
                         try {
                             Float value = Float.parseFloat(textField.getText());
                             entityModelWrapper.setValue(new FloatFieldModel(fieldName, value));
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                        }
                     } else {
                         try {
                             Long value = Long.parseLong(textField.getText());
                             entityModelWrapper.setValue(new LongFieldModel(fieldName, value));
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                        }
                     }
 
                 }
             }
         };
     }
-    
+
     public void setBounds(long minValue, long maxValue) {
         this.minumumValue = minValue;
         this.maximumValue = maxValue;
