@@ -60,7 +60,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
 
         lblEmptyText = new Label(this, SWT.NONE);
         lblEmptyText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        lblEmptyText.setText("no date set");
+        lblEmptyText.setText("set date");
 
         // Init
         setDateTimeVisible(false);
