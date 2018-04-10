@@ -3,7 +3,6 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
@@ -34,7 +33,6 @@ public class DescriptionComposite extends Composite {
 
     public void setEntityModel(EntityModelWrapper entityModelWrapper) {
         browserDescHtml.setText(getBrowserText(entityModelWrapper.getReadOnlyEntityModel()));
-        getInnerSize();
     }
 
     private String getBrowserText(EntityModel entityModel) {
@@ -54,18 +52,6 @@ public class DescriptionComposite extends Composite {
 
     private static String getRgbString(Color color) {
         return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
-    }
-
-    public Point getInnerSize() {
-        try {
-            System.out.println(browserDescHtml.evaluate(
-                    "document.body"));
-            System.out.println(browserDescHtml.execute(
-                    "return Math.max(document.body.scrollHeight,document.documentElement.scrollHeight,document.body.offsetHeight,document.documentElement.offsetHeight,document.documentElement.clientHeight)"));
-        } catch (Exception e) {
-            System.err.println("sorry i can't " + e);
-        }
-        return null;
     }
 
 }
