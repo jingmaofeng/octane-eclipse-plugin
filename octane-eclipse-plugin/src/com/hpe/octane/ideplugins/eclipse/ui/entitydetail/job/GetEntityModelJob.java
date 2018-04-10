@@ -12,6 +12,9 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -19,6 +22,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.MetadataService;
 import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -29,6 +33,7 @@ public class GetEntityModelJob extends Job {
     private Entity entityType;
     private EntityModel retrivedEntity;    
     private EntityService entityService = Activator.getInstance(EntityService.class);
+    private MetadataService metadataService =  Activator.getInstance(MetadataService.class);
     
     private Exception exception;
 
@@ -42,7 +47,13 @@ public class GetEntityModelJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
-            retrivedEntity = entityService.findEntity(this.entityType, this.entityId);
+            Set<String> fields = metadataService
+                        .getFields(this.entityType)
+                        .stream()
+                        .map(fieldMetadata -> fieldMetadata.getName())
+                        .collect(Collectors.toSet());
+            
+            retrivedEntity = entityService.findEntity(this.entityType, this.entityId, fields);
             exception = null;
         } catch (ServiceException exception) {
         	this.exception = exception;
