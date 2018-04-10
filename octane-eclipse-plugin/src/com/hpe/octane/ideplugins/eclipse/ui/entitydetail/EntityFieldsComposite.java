@@ -94,11 +94,11 @@ public class EntityFieldsComposite extends Composite {
         formGenerator.createCompositeSeparator(sectionDescription);
         formGenerator.createCompositeSeparator(sectionFields);
 
+        //Expand listeners
+        
         sectionDescription.addExpansionListener(new IExpansionListener() {
             @Override
-            public void expansionStateChanging(ExpansionEvent e) {
-            }
-
+            public void expansionStateChanging(ExpansionEvent e) {}
             @Override
             public void expansionStateChanged(ExpansionEvent e) {
                 GridData gdSectionDescription = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
@@ -109,6 +109,15 @@ public class EntityFieldsComposite extends Composite {
                     gdSectionDescription.heightHint = -1;
                     descriptionWrapper.setLayoutData(gdSectionDescription);
                 }
+                layout(true, true);
+            }
+        });
+        
+        sectionFields.addExpansionListener(new IExpansionListener() {
+            @Override
+            public void expansionStateChanging(ExpansionEvent expansionEvent) {}
+            @Override
+            public void expansionStateChanged(ExpansionEvent expansionEvent) {
                 layout(true, true);
             }
         });
