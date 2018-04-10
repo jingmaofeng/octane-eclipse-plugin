@@ -18,7 +18,12 @@ public class ReadOnlyFieldEditor extends Composite implements FieldEditor {
     public ReadOnlyFieldEditor(Composite parent, int style) {
         super(parent, style);
         toolTip = new ToolTip(parent.getShell(), SWT.NONE);
-        setLayout(new GridLayout(1, false));
+        
+        GridLayout gridLayout = new GridLayout(1, false);
+        gridLayout.verticalSpacing = 0;
+        gridLayout.marginWidth = 0;
+        setLayout(gridLayout);
+        
         lblFieldValue = new TruncatingStyledText(this, SWT.READ_ONLY | SWT.SINGLE, toolTip);
         lblFieldValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
     }
