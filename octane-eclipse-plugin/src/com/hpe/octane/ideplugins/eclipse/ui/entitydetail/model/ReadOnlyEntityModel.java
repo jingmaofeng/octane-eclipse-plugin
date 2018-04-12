@@ -25,11 +25,11 @@ public class ReadOnlyEntityModel extends EntityModel {
     }
 
     public EntityModel setValue(FieldModel fieldModel) {
-        throw new RuntimeException(ReadOnlyEntityModel.class.toString() + " is not read-only");
+        throw new RuntimeException(ReadOnlyEntityModel.class.toString() + " is read-only");
     }
     
     public EntityModel setValues(Set<FieldModel> values) {
-        throw new RuntimeException(ReadOnlyEntityModel.class.toString() + " is not read-only");
+        throw new RuntimeException(ReadOnlyEntityModel.class.toString() + " is read-only");
     }
     
 }
