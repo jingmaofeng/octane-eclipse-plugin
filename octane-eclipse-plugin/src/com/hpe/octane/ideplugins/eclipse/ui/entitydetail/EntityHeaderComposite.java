@@ -99,7 +99,7 @@ public class EntityHeaderComposite extends Composite {
      */
     public EntityHeaderComposite(Composite parent, int style) {
         super(parent, style);
-        setLayout(new GridLayout(11, false));
+        setLayout(new GridLayout(10, false));
 
         Font boldFont = new Font(getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 11, SWT.BOLD));
 
@@ -149,7 +149,6 @@ public class EntityHeaderComposite extends Composite {
         btnComments.setLayoutData(gdBtnComments);
         btnComments.setImage(ImageResources.COMMENTS_16X16.getImage());
         btnComments.setToolTipText(TOOLTIP_COMMENTS);
-        new Label(this, SWT.NONE);
 
         // Actual data is populated when entity is set
         fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {

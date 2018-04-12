@@ -63,8 +63,6 @@ public class EntityComposite extends Composite {
         GridData entityCommentCompositeGridData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
         entityCommentCompositeGridData.widthHint = 350;
         entityCommentComposite.setLayoutData(entityCommentCompositeGridData);
-        new Label(this, SWT.NONE);
-        new Label(this, SWT.NONE);
 
         entityHeaderComposite.addCommentsSelectionListener(new Listener() {
             @Override
