@@ -184,8 +184,9 @@ public class EntityFieldsComposite extends Composite {
 
                 GridData fieldEditorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
                 fieldEditorGridData.heightHint = 30;
-                ((Control) fieldEditor).setLayoutData(fieldEditorGridData);
-                ((Control) fieldEditor).setForeground(foregroundColor);
+                Control fieldEditorControl = (Control) fieldEditor;
+                fieldEditorControl.setLayoutData(fieldEditorGridData);
+                fieldEditorControl.setForeground(foregroundColor);
             }
         }
 
