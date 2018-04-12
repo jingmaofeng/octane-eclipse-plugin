@@ -51,7 +51,7 @@ public class StringFieldEditor extends Composite implements FieldEditor {
             public void modifyText(ModifyEvent e) {
                 String text = textField.getText();
                 // whitespace is considered null
-                if (text.isEmpty() && text.length() != 0) {
+                if (text.trim().isEmpty()) {
                     entityModelWrapper.setValue(new ReferenceErrorModel(fieldName, null));
                 } else {
                     entityModelWrapper.setValue(new StringFieldModel(fieldName, text));
