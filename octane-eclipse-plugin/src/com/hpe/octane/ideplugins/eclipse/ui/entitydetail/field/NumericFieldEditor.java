@@ -62,6 +62,7 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
 
                 double doubleValue = 0;
                 long longValue = 0;
+                long value;
 
                 if (isRealNumber) {
                     try {
@@ -70,6 +71,7 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
                         e.doit = false;
                         return;
                     }
+                    value = (long) doubleValue;
                 } else {
                     try {
                         longValue = Long.parseLong(string);
@@ -77,9 +79,8 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
                         e.doit = false;
                         return;
                     }
+                    value = longValue;
                 }
-
-                long value = isRealNumber ? (long) doubleValue : longValue;
 
                 if (value < minumumValue) {
                     e.doit = false;
