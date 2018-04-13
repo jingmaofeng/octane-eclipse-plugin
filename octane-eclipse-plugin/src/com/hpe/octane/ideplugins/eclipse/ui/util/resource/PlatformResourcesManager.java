@@ -66,7 +66,7 @@ public class PlatformResourcesManager {
      */
     private static boolean isRunningOnEclipsePlatform() {
         //TODO: try to implement dynamically, currently used for debugging outside of the IDE
-        return true;
+        return false;
     }
 
 }
