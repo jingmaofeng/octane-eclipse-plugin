@@ -60,26 +60,22 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
                     return;
                 }
 
-                double doubleValue = 0;
-                long longValue = 0;
                 long value;
 
                 if (isRealNumber) {
                     try {
-                        doubleValue = Double.parseDouble(string);
+                        value = (long) Double.parseDouble(string);
                     } catch (Exception ex) {
                         e.doit = false;
                         return;
                     }
-                    value = (long) doubleValue;
                 } else {
                     try {
-                        longValue = Long.parseLong(string);
+                        value = Long.parseLong(string);
                     } catch (Exception ex) {
                         e.doit = false;
                         return;
                     }
-                    value = longValue;
                 }
 
                 if (value < minumumValue) {
