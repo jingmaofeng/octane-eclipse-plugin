@@ -58,9 +58,6 @@ public class FieldEditorFactory {
                 case DateTime:
                     fieldEditor = new DateTimeFieldEditor(parent, SWT.NONE);
                     break;
-                case Reference:
-                    fieldEditor = new SingleReferenceFieldEditor(parent, SWT.NONE);
-                    break;
                 default:
                     fieldEditor = new ReadOnlyFieldEditor(parent, SWT.NONE);
                     break;
