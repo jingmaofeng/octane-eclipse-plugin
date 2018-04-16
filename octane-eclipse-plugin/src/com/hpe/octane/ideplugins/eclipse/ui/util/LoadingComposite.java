@@ -14,9 +14,9 @@ package com.hpe.octane.ideplugins.eclipse.ui.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.graphics.Color;
@@ -30,13 +30,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.PlatformUI;
 
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 
 public class LoadingComposite extends Composite {
-    
+
     public enum LoadingPosition {
         TOP, CENTER, BOTTOM
     }
@@ -55,26 +55,28 @@ public class LoadingComposite extends Composite {
      */
     public LoadingComposite(Composite parent, int style) {
         super(parent, style);
-        setBackground(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
-                .get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR));
+        setBackground(PlatformResourcesManager.getPlatformBackgroundColor());
         Display display = parent.getDisplay();
         GC shellGC = new GC(this);
         Color shellBackground = getBackground();
 
         loader = new ImageLoader();
-        InputStream stream;
+
         try {
-            stream = Platform.getBundle(Activator.PLUGIN_ID).getEntry(ImageResources.OCTANE_PRELOADER.getPluginPath()).openStream();
-            imageDataArray = loader.load(stream);
-        } catch (IOException ex) {
-            // BACKUP PLAN!!!
-            setLayout(new GridLayout(1, false));
-            Label lblLoading = new Label(this, SWT.NONE);
-            lblLoading.setLayoutData(
-                    new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
-            lblLoading.setAlignment(SWT.CENTER);
-            lblLoading.setText("Loading...");
-            return;
+            imageDataArray = getImageDataForPlatform(loader);
+        } catch (Exception ex1) {
+            try {
+                imageDataArray = getImageDataForDebug(loader);
+            } catch (Exception ex2) {
+                // BACKUP PLAN!!!
+                setLayout(new GridLayout(1, false));
+                Label lblLoading = new Label(this, SWT.NONE);
+                lblLoading.setLayoutData(
+                        new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+                lblLoading.setAlignment(SWT.CENTER);
+                lblLoading.setText("Loading...");
+                return;
+            }
         }
 
         animateThread = new Thread() {
@@ -174,11 +176,11 @@ public class LoadingComposite extends Composite {
                                 }
 
                                 Point point = LoadingComposite.this.getSize();
-                                
+
                                 int xPos = (point.x - offScreenImage.getBounds().width) / 2;
-                                
+
                                 int yPos;
-                                switch(loadingPosition) {
+                                switch (loadingPosition) {
                                     case CENTER:
                                         yPos = (point.y - offScreenImage.getBounds().height) / 2;
                                         break;
@@ -191,10 +193,10 @@ public class LoadingComposite extends Composite {
                                     default:
                                         yPos = 0;
                                 }
-                                
+
                                 shellGC.fillRectangle(0, 0, point.x, point.y);
                                 shellGC.drawImage(offScreenImage, xPos, yPos);
-                                
+
                             }
                         });
 
@@ -235,6 +237,16 @@ public class LoadingComposite extends Composite {
 
         animateThread.setDaemon(true);
         animateThread.start();
+    }
+
+    private ImageData[] getImageDataForPlatform(ImageLoader loader) throws IOException {
+        InputStream stream = Platform.getBundle(Activator.PLUGIN_ID).getEntry(ImageResources.OCTANE_PRELOADER.getPluginPath()).openStream();
+        return loader.load(stream);
+    }
+
+    private ImageData[] getImageDataForDebug(ImageLoader loader) throws IOException {
+        InputStream stream = new URL("file:/" + System.getProperty("user.dir") + "/icons/octane_preloader.gif").openStream();
+        return loader.load(stream);
     }
 
     public void setLoadingVerticalPosition(LoadingPosition loadingPosition) {

@@ -13,24 +13,25 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 
-import com.hpe.adm.nga.sdk.model.EntityModel;
-import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.EntityCommentComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 
 public class EntityComposite extends Composite {
-
-    private EntityModel entityModel;
 
     private EntityCommentComposite entityCommentComposite;
     private EntityHeaderComposite entityHeaderComposite;
     private EntityFieldsComposite entityFieldsComposite;
+    private ScrolledComposite scrolledComposite;
+    private Label label;
 
     /**
      * Create the composite.
@@ -43,10 +44,20 @@ public class EntityComposite extends Composite {
         setLayout(new GridLayout(2, false));
 
         entityHeaderComposite = new EntityHeaderComposite(this, SWT.NONE);
-        entityHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+        entityHeaderComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 
-        entityFieldsComposite = new EntityFieldsComposite(this, SWT.NONE);
+        label = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
+        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+
+        scrolledComposite = new ScrolledComposite(this, SWT.H_SCROLL |
+                SWT.V_SCROLL);
+        scrolledComposite.setExpandHorizontal(true);
+        scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+                true, true, 1, 1));
+
+        entityFieldsComposite = new EntityFieldsComposite(scrolledComposite, SWT.NONE);
         entityFieldsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        scrolledComposite.setContent(entityFieldsComposite);
 
         entityCommentComposite = new EntityCommentComposite(this, SWT.NONE);
         GridData entityCommentCompositeGridData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
@@ -69,24 +80,18 @@ public class EntityComposite extends Composite {
         update();
     }
 
-    public void setEntityModel(EntityModel entityModel) {
-        this.entityModel = entityModel;
+    public void setEntityModel(EntityModelWrapper entityModelWrapper) {
+        entityHeaderComposite.setEntityModel(entityModelWrapper);
+        entityFieldsComposite.setEntityModel(entityModelWrapper);
 
-        entityHeaderComposite.setEntityModel(entityModel);
-        entityFieldsComposite.setEntityModel(entityModel);
-        
         setCommentsVisible(false);
-        if (GetCommentsJob.hasCommentSupport(Entity.getEntityType(entityModel))) {
-            entityCommentComposite.setEntityModel(entityModel);
-        } 
+        if (GetCommentsJob.hasCommentSupport(entityModelWrapper.getEntityType())) {
+            entityCommentComposite.setEntityModel(entityModelWrapper.getReadOnlyEntityModel());
+        }
         setSize(computeSize(SWT.DEFAULT, SWT.DEFAULT));
         layout(true, true);
         redraw();
         update();
-    }
-
-    public EntityModel getEntityModel() {
-        return entityModel;
     }
 
     public void addSaveSelectionListener(Listener listener) {

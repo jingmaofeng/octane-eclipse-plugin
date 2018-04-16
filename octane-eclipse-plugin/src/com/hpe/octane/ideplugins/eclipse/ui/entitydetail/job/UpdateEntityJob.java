@@ -26,8 +26,7 @@ public class UpdateEntityJob extends Job {
 	
     private EntityModel entityModel;
     private EntityService entityService = Activator.getInstance(EntityService.class);
-    private boolean wasChanged = false;
-    private String errorMessage;
+    private OctaneException octaneException;
 
     public UpdateEntityJob(String name, EntityModel entityModel) {
         super(name);
@@ -39,21 +38,15 @@ public class UpdateEntityJob extends Job {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
         	entityService.updateEntity(entityModel);
-            wasChanged = true;
         } catch (OctaneException ex) {
-            wasChanged = false;
-            errorMessage = ex.getMessage();
+            octaneException = ex;
         }
         monitor.done();
         return Status.OK_STATUS;
     }
 
-    public boolean isPhaseChanged() {
-        return wasChanged;
-    }
-
-    public String getFailedReason() {
-        return errorMessage;
+    public OctaneException getOctaneException() {
+        return octaneException;
     }
 
 }

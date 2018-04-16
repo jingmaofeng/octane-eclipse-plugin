@@ -27,10 +27,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferencePage;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 
 public final class InfoPopup extends PopupDialog {
 
@@ -60,7 +60,7 @@ public final class InfoPopup extends PopupDialog {
     }
 
     public InfoPopup(String headerString, String footerString, String content, boolean autoclose) {
-        super(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+        super(PlatformResourcesManager.getActiveShell(),
                 PopupDialog.HOVER_SHELLSTYLE,
                 false,
                 false,
@@ -75,7 +75,7 @@ public final class InfoPopup extends PopupDialog {
     }
 
     public InfoPopup(String headerString, String content, int width, int height, boolean autoClose, boolean createLink) {
-        super(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+        super(PlatformResourcesManager.getActiveShell(),
                 PopupDialog.HOVER_SHELLSTYLE,
                 false,
                 false,
@@ -159,7 +159,7 @@ public final class InfoPopup extends PopupDialog {
      */
     @Override
     protected void adjustBounds() {
-        Rectangle shellBounds = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getBounds();
+        Rectangle shellBounds = PlatformResourcesManager.getActiveShell().getBounds();
         shellBounds.x = shellBounds.x + shellBounds.width - width - 20;
         shellBounds.y = shellBounds.y + shellBounds.height - height - 20;
         shellBounds.width = width;

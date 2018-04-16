@@ -29,25 +29,30 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
  */
 public enum ImageResources {
     //@formatter:off
-	ACTIVEITEM("activeitem.png"),
-	ADD("add.png"),
-	BROWSER_16X16("browser-16x16.png"),
-	DISMISS("dismiss.gif"),
-	DOWNLOAD("download.png"),
-	FIELDS_OFF("fields-off.png"),
-	FIELDS_ON("fields-on.png"),
-	MICROFOCUS_LOGO("microfocus-logo.png"),
-	OCTANE_LOGO("octane-logo.png"),
-	OCTANE_PRELOADER("octane_preloader.gif"),
-	REFRESH_16X16("refresh-16x16.png"),
-	SEARCH("search.png"),
-	START_TIMER_16X16("startTimer-16x16.png"),
-	STOP_TIMER_16X16("stopTimer-16x16.png"),
-	NO_ITEMS_TO_DISPLAY_ROBOT("s-no-items-to-display.png"),
-	ROCKET("s-rocket.png"),
-	SHOW_COMMENTS("comments-16x16.png"),
-	DROP_DOWN("drop-down.png");
-	//@formatter:on
+    ACTIVEITEM("activeitem.png"),
+    ADD("add.png"),
+    BROWSER_16X16("browser-16x16.png"),
+    COMMENTS_16X16("comments-16x16.png"),
+    DISMISS("dismiss.gif"),
+    DOWNLOAD("download.png"),
+    DROP_DOWN("drop-down.png"),
+    FAVICON("favicon.png"),
+    FIELDS_OFF("fields-off.png"),
+    FIELDS_ON("fields-on.png"),
+    MICROFOCUS_LOGO("microfocus-logo.png"),
+    MYWORK("mywork.png"),
+    OCTANE_ICON_13X13("octane-icon-13x13.png"),
+    OCTANE_ICON_RED_13X13("octane-icon-red-13x13.png"),
+    OCTANE_LOGO("octane-logo.png"),
+    OCTANE_PRELOADER("octane_preloader.gif"),
+    PLACEHOLDER("placeholder.png"),
+    REFRESH_16X16("refresh-16x16.png"),
+    S_NO_ITEMS_TO_DISPLAY("s-no-items-to-display.png"),
+    S_ROCKET("s-rocket.png"),
+    SEARCH("search.png"),
+    START_TIMER_16X16("startTimer-16x16.png"),
+    STOP_TIMER_16X16("stopTimer-16x16.png");
+    //@formatter:on
 
     private static final String PATH_PREFIX = "icons/";
     private String imgName;

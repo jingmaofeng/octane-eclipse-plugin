@@ -22,7 +22,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -39,8 +38,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
@@ -51,11 +48,10 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite.LoadingPosition;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityCommentComposite extends StackLayoutComposite {
-
-    private FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 
     private EntityModel entityModel;
 
@@ -79,31 +75,23 @@ public class EntityCommentComposite extends StackLayoutComposite {
         gl_commentsComposite.marginWidth = 0;
         gl_commentsComposite.horizontalSpacing = 10;
         commentsComposite.setLayout(gl_commentsComposite);
-        formToolkit.adapt(commentsComposite);
-        formToolkit.paintBordersFor(commentsComposite);
 
         separator = new Label(commentsComposite, SWT.SEPARATOR | SWT.VERTICAL);
         GridData sepGridData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 3);
         sepGridData.widthHint = 2;
         separator.setLayoutData(sepGridData);
 
-        formToolkit.adapt(separator, true, true);
-
         Label commentsTitleLabel = new Label(commentsComposite, SWT.NONE);
-        formToolkit.adapt(commentsTitleLabel, true, true);
         commentsTitleLabel.setText("Comments");
         commentsTitleLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 
         Composite inputCommentAndSendButtonComposite = new Composite(commentsComposite, SWT.NONE);
         inputCommentAndSendButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-        formToolkit.adapt(inputCommentAndSendButtonComposite);
-        formToolkit.paintBordersFor(inputCommentAndSendButtonComposite);
         inputCommentAndSendButtonComposite.setLayout(new GridLayout(2, false));
 
         commentText = new Text(inputCommentAndSendButtonComposite, SWT.BORDER);
         commentText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
         commentText.setToolTipText("Add new comment");
-        formToolkit.adapt(commentText, true, true);
         commentText.addListener(SWT.Traverse, (Event event) -> {
             if (event.detail == SWT.TRAVERSE_RETURN && commentText.isEnabled()) {
                 postComment(commentText.getText());
@@ -121,7 +109,6 @@ public class EntityCommentComposite extends StackLayoutComposite {
                 }
             }
         });
-        formToolkit.adapt(postCommentBtn, true, true);
         postCommentBtn.setText("Post");
 
         commentText.setEnabled(false);
@@ -130,8 +117,6 @@ public class EntityCommentComposite extends StackLayoutComposite {
         PropagateScrollBrowserFactory browserFactory = new PropagateScrollBrowserFactory();
         commentsBrowser = browserFactory.createBrowser(commentsComposite, SWT.NONE);
         commentsBrowser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-        formToolkit.adapt(commentsBrowser);
-        formToolkit.paintBordersFor(commentsBrowser);
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
         commentsBrowser.addLocationListener(new LocationAdapter() {
@@ -213,8 +198,10 @@ public class EntityCommentComposite extends StackLayoutComposite {
             public void done(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
                     String html = getCommentHtmlString(getCommentsJob.getComents());
-                    commentsBrowser.setText(html);
-                    showControl(commentsComposite);
+                    if (!commentsBrowser.isDisposed()) {
+                        commentsBrowser.setText(html);
+                        showControl(commentsComposite);
+                    }
                 });
             }
         });
@@ -222,14 +209,14 @@ public class EntityCommentComposite extends StackLayoutComposite {
     }
 
     private static String getCommentHtmlString(Collection<EntityModel> comments) {
-        StringBuilder commentsBuilder = new StringBuilder();
-        Color backgroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
-                .get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
-        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")";
 
-        Color foregroundColor = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry()
-                .get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+        Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
+        Color foregroundColor = PlatformResourcesManager.getPlatformForegroundColor();
+
+        String backgroundColorString = "rgb(" + backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue() + ")";
         String foregroundColorString = "rgb(" + foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")";
+
+        StringBuilder commentsBuilder = new StringBuilder();
         commentsBuilder.append("<html><body bgcolor =" + backgroundColorString + ">");
         commentsBuilder.append("<font color =" + foregroundColorString + ">");
 

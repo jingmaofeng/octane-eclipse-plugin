@@ -18,9 +18,7 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -31,13 +29,14 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
-import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.nga.sdk.exception.OctaneException;
+import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
-import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.UpdateEntityJob;
-import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper.FieldModelChangedHandler;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
@@ -48,9 +47,6 @@ public class EntityModelEditor extends EditorPart {
     public EntityModelEditor() {
     }
 
-    private static final String GO_TO_BROWSER_DIALOG_MESSAGE = "You can try to change the phase using ALM Octane in a browser."
-            + "\nDo you want to do this now?";
-
     private static final EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
 
@@ -60,7 +56,11 @@ public class EntityModelEditor extends EditorPart {
     public static final String ID = "com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditor"; //$NON-NLS-1$
 
     public EntityModelEditorInput input;
-    private EntityModel entityModel;
+    private EntityModelWrapper entityModelWrapper;
+    private EntityComposite entityComposite;
+    private StackLayoutComposite rootComposite;
+    private LoadingComposite loadingComposite;
+    private boolean isDirty = false;
 
     @Override
     public void init(IEditorSite site, IEditorInput input) throws PartInitException {
@@ -79,25 +79,29 @@ public class EntityModelEditor extends EditorPart {
 
     @Override
     public void createPartControl(Composite parent) {
-
-        StackLayoutComposite rootComposite = new StackLayoutComposite(parent, SWT.NONE);
+        rootComposite = new StackLayoutComposite(parent, SWT.NONE);
         rootComposite.setBackgroundMode(SWT.INHERIT_FORCE);
         rootComposite.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
         rootComposite.setBackground(BACKGROUND_COLOR);
 
-        LoadingComposite loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
-
-        ScrolledComposite entityScrolledComposite = new ScrolledComposite(rootComposite, SWT.HORIZONTAL | SWT.VERTICAL);
-        EntityComposite entityComposite = new EntityComposite(entityScrolledComposite, SWT.NONE);
-        entityScrolledComposite.setContent(entityComposite);
-        entityScrolledComposite.setExpandHorizontal(true);
-        entityScrolledComposite.setExpandVertical(true);
-        entityScrolledComposite.setMinSize(new Point(800, 1000));
-
+        loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
         rootComposite.showControl(loadingComposite);
 
-        GetEntityModelJob getEntityDetailsJob = new GetEntityModelJob("Retrieving entity details",
-                input.getEntityType(), input.getId());
+        entityComposite = new EntityComposite(rootComposite, SWT.NONE);
+        entityComposite.addRefreshSelectionListener(event -> loadEntity());
+
+        entityComposite.addSaveSelectionListener(new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                doSave(null);
+            }
+        });
+
+        loadEntity();
+    }
+
+    private void loadEntity() {
+        GetEntityModelJob getEntityDetailsJob = new GetEntityModelJob("Retrieving entity details", input.getEntityType(), input.getId());
 
         getEntityDetailsJob.addJobChangeListener(new JobChangeAdapter() {
 
@@ -111,10 +115,13 @@ public class EntityModelEditor extends EditorPart {
             @Override
             public void done(IJobChangeEvent event) {
                 if (getEntityDetailsJob.wasEntityRetrived()) {
-                    EntityModelEditor.this.entityModel = getEntityDetailsJob.getEntiyData();
+
+                    EntityModelEditor.this.entityModelWrapper = new EntityModelWrapper(getEntityDetailsJob.getEntiyData());
+                    initIsDirtyListener();
+
                     Display.getDefault().asyncExec(() -> {
-                        entityComposite.setEntityModel(entityModel);
-                        rootComposite.showControl(entityScrolledComposite);
+                        entityComposite.setEntityModel(entityModelWrapper);
+                        rootComposite.showControl(entityComposite);
                     });
                 } else {
                     MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error",
@@ -123,35 +130,24 @@ public class EntityModelEditor extends EditorPart {
             }
         });
 
-        entityComposite.addRefreshSelectionListener(event -> getEntityDetailsJob.schedule());
+        getEntityDetailsJob.schedule();
+    }
 
-        entityComposite.addSaveSelectionListener(new Listener() {
+    private void initIsDirtyListener() {
+        setIsDirty(false);
+        entityModelWrapper.addFieldModelChangedHandler(new FieldModelChangedHandler() {
             @Override
-            public void handleEvent(Event event) {
-                UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + Entity.getEntityType(entityModel), entityModel);
-                updateEntityJob.schedule();
-                updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
-                    @Override
-                    public void done(IJobChangeEvent event) {
-                        Display.getDefault().asyncExec(() -> {
-                            if (updateEntityJob.isPhaseChanged()) {
-                                new InfoPopup("Saving entity", "Saved your changes").open();
-                            } else {
-                                boolean shouldGoToBrowser = MessageDialog.openConfirm(Display.getCurrent().getActiveShell(),
-                                        "Business rule violation",
-                                        "Phase change failed \n" + GO_TO_BROWSER_DIALOG_MESSAGE);
-                                if (shouldGoToBrowser) {
-                                    entityService.openInBrowser(entityModel);
-                                }
-                            }
-                            getEntityDetailsJob.schedule();
-                        });
-                    }
-                });
+            public void fieldModelChanged(@SuppressWarnings("rawtypes") FieldModel fieldModel) {
+                setIsDirty(true);
             }
         });
+    }
 
-        getEntityDetailsJob.schedule();
+    private void setIsDirty(boolean isDirty) {
+        Display.getDefault().syncExec(() -> {
+            EntityModelEditor.this.isDirty = isDirty;
+            firePropertyChange(PROP_DIRTY);
+        });
     }
 
     @Override
@@ -160,21 +156,54 @@ public class EntityModelEditor extends EditorPart {
 
     @Override
     public void doSave(IProgressMonitor monitor) {
-        // Not supported
+        UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + entityModelWrapper.getEntityType(), entityModelWrapper.getEntityModel());
+
+        updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                OctaneException octaneException = updateEntityJob.getOctaneException();
+
+                if (octaneException == null) {
+                    loadEntity();
+
+                } else {
+                    Display.getDefault().asyncExec(() -> {
+
+                        EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(rootComposite.getShell());
+
+                        errorDialog.addButton("Back", () -> errorDialog.close());
+
+                        errorDialog.addButton("Refresh", () -> {
+                            loadEntity();
+                            errorDialog.close();
+                        });
+                        errorDialog.addButton("Open in browser", () -> {
+                            entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
+                            errorDialog.close();
+                        });
+
+                        errorDialog.open(octaneException, "Saving entity failed");
+
+                    });
+                }
+            }
+        });
+
+        updateEntityJob.schedule();
     }
 
     @Override
     public void doSaveAs() {
-        // Not supported
+        doSave(null);
     }
 
     @Override
     public boolean isDirty() {
-        return false;
+        return isDirty;
     }
 
     @Override
     public boolean isSaveAsAllowed() {
-        return false;
+        return entityModelWrapper != null && isDirty;
     }
 }
