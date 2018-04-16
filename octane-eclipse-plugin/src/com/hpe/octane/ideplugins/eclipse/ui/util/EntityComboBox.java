@@ -26,17 +26,18 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -49,12 +50,28 @@ import org.eclipse.swt.widgets.Text;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.util.EntityUtil;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class EntityComboBox extends Composite {
 
     private static final int MAX_HEIGHT = 400;
     private static final int MIN_HEIGHT = 200;
     private static final int MIN_WIDTH = 200;
+    
+    private static final MouseTrackAdapter focusMouseTrackAdapter = new MouseTrackAdapter() {
+        @Override
+        public void mouseEnter(MouseEvent mouseEvent) {
+            Control control = (Control) mouseEvent.getSource();
+            control.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION));
+            control.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_SELECTION_TEXT));
+        }
+        @Override
+        public void mouseExit(MouseEvent mouseEvent) {
+            Control control = (Control) mouseEvent.getSource();
+            control.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
+            control.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_FOREGROUND));
+        }
+    };
 
     public interface EntityLoader {
         public List<EntityModel> loadEntities(String searchQuery);
@@ -70,16 +87,27 @@ public class EntityComboBox extends Composite {
 
     private int selectionMode;
 
+    /**
+     * Floating window that appears 
+     */
     private Shell shell;
     private TruncatingStyledText textSelection;
-
-    private Composite btnComposite;
+    
+    /**
+     * Contains the possible entity controls
+     */
+    private Composite optionsComposite;
+    
+    /**
+     * Cosmetic arrow button, to make it look like a combo box 
+     */
+    private Button btnArrow;
     
     /**
      * @param parent composite
      * @param style SWT.SINGLE for single selection SWT.MULTI for multi selection
      * @param labelProvider create a string for each entity model to display in the list
-     * @param entityLoader lamda used by the control to load the data
+     * @param entityLoader lambda used by the control to load the data
      * 
      * @see SWT.SINGLE
      * @see SWT.MULTI
@@ -87,10 +115,10 @@ public class EntityComboBox extends Composite {
     public EntityComboBox(Composite parent, int style, LabelProvider labelProvider, EntityLoader entityLoader) {
         super(parent, SWT.BORDER);
         
-        selectionMode = SWT.SINGLE | style & (SWT.SINGLE | SWT.MULTI);
-
+        selectionMode = (style & SWT.MULTI) != 0 ? SWT.MULTI : SWT.SINGLE; 
         this.entityLoader = entityLoader;
-        this.labelProvider = labelProvider;
+        this.labelProvider = labelProvider == null ? new LabelProvider() : labelProvider;
+        
         GridLayout gridLayout = new GridLayout(2, false);
         gridLayout.horizontalSpacing = 0;
         gridLayout.marginHeight = 0;
@@ -109,7 +137,7 @@ public class EntityComboBox extends Composite {
             }
         });
         
-        Button btnArrow = new Button(this, SWT.FLAT | SWT.ARROW | SWT.DOWN);
+        btnArrow = new Button(this, SWT.FLAT | SWT.ARROW | SWT.DOWN);
         btnArrow.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
         btnArrow.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -121,7 +149,7 @@ public class EntityComboBox extends Composite {
     } 
 
     private void displayEntities(String searchTerm) {  
-        if(btnComposite == null || btnComposite.isDisposed()) {
+        if(optionsComposite == null || optionsComposite.isDisposed()) {
             return;
         }
 
@@ -137,15 +165,15 @@ public class EntityComboBox extends Composite {
             @Override
             public void scheduled(IJobChangeEvent event) {
                 Display.getDefault().syncExec(() -> {
-                    if(btnComposite.isDisposed()) {
+                    if(optionsComposite.isDisposed()) {
                         return;
                     }
-                    Arrays.stream(btnComposite.getChildren()).forEach(Control::dispose);
+                    Arrays.stream(optionsComposite.getChildren()).forEach(Control::dispose);
                     
-                    LoadingComposite loadingComposite = new LoadingComposite(btnComposite, SWT.NONE);
+                    LoadingComposite loadingComposite = new LoadingComposite(optionsComposite, SWT.NONE);
                     loadingComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-                    btnComposite.layout();
-                    btnComposite.setSize(btnComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+                    optionsComposite.setSize(optionsComposite.getParent().getSize());
+                    optionsComposite.layout();
                 });
             }
             @Override
@@ -154,56 +182,94 @@ public class EntityComboBox extends Composite {
                     
                     //The shell might have been close before the result has been fetched from the server
                     //In this case discard the result
-                    if(btnComposite.isDisposed()) {
+                    if(optionsComposite.isDisposed()) {
                         return;
                     }
                     
-                    Arrays.stream(btnComposite.getChildren()).forEach(Control::dispose);
+                    Arrays.stream(optionsComposite.getChildren()).forEach(Control::dispose);
                     
                     if(entityList == null || entityList.isEmpty()) {
-                        Label lblNoResult = new Label(btnComposite, SWT.NONE);
+                        Label lblNoResult = new Label(optionsComposite, SWT.NONE);
                         lblNoResult.setText("No results");
                         lblNoResult.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
-                    } else {
-                        for (EntityModel entityModel : entityList) {
-                            Button button = new Button(btnComposite, SWT.CHECK);
-                            button.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, false));
-                            button.setText(labelProvider.getText(entityModel));
-                            button.setSelection(EntityUtil.containsEntityModel(selectedEntities, entityModel));
-                            
-                            button.addListener(SWT.Selection, e -> {
-                                if(selectionMode == SWT.SINGLE) {
-                                    selectedEntities.clear();
-                                }
-                                
-                                if (button.getSelection()) {
-                                    selectedEntities.add(entityModel);
-                                } else {
-                                    EntityUtil.removeEntityModel(selectedEntities, entityModel);
-                                }
-                                selectionListeners.forEach(l -> l.widgetSelected(new SelectionEvent(e)));
-                                
-                                //Set text to selection
-                                textSelection.setText(getLabelForSelection(selectedEntities));
-                                textSelection.setSize(textSelection.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-                                textSelection.getParent().layout();
-                                
-                                if(selectionMode == SWT.SINGLE) {
-                                    closeAndDisposeShell();
-                                }
-                            });
-                        }
+                    } else if(selectionMode == SWT.SINGLE){
+                        createSingleSelectionUI();
+                    } else if(selectionMode == SWT.MULTI){
+                        createMultiSelectionUI();
                     }
                    
-                    btnComposite.layout();
-                    btnComposite.setSize(btnComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+                    optionsComposite.layout();
+                    optionsComposite.setSize(optionsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
                     resizeShellToContent();
+                    poistionShell();
                 });
             }
         });
 
         getEntitiesJob.schedule();
     }
+    
+    private void clearButtons() {
+        if(!optionsComposite.isDisposed()) {
+            Arrays.stream(optionsComposite.getChildren()).forEach(Control::dispose);
+        }
+    }
+    
+    private void createSingleSelectionUI() {
+        clearButtons();
+        entityList.forEach(entityModel -> {
+            CLabel  lbl = new CLabel (optionsComposite, SWT.NONE);
+            lbl.setText(labelProvider.getText(entityModel));
+            GridData lblGridData = new GridData(SWT.FILL, SWT.FILL, true, false);
+            lblGridData.heightHint = 20;
+            lbl.setLayoutData(lblGridData);
+            
+            lbl.addListener(SWT.MouseDown, e -> {
+                selectedEntities.clear();
+                selectedEntities.add(entityModel);
+                selectionListeners.forEach(l -> l.widgetSelected(new SelectionEvent(e)));
+                adjustTextToSelection();
+                closeAndDisposeShell();
+            });
+            lbl.addMouseTrackListener(focusMouseTrackAdapter);
+        });
+    }
+    
+    private void createMultiSelectionUI() {
+        clearButtons();
+        entityList.forEach(entityModel -> {
+            Button btn = new Button (optionsComposite, SWT.CHECK);
+            btn.setText(labelProvider.getText(entityModel));
+            btn.setSelection(EntityUtil.containsEntityModel(selectedEntities, entityModel));
+            
+            GridData lblGridData = new GridData(SWT.FILL, SWT.FILL, true, false);
+            lblGridData.heightHint = 20;
+            btn.setLayoutData(lblGridData);
+            
+            btn.addListener(SWT.Selection, e -> {
+                
+                //it's being selected
+                if(btn.getSelection() && !EntityUtil.containsEntityModel(selectedEntities, entityModel)) {
+                    selectedEntities.add(entityModel);
+                } 
+                //it's being de-selected
+                else if(!btn.getSelection() && EntityUtil.containsEntityModel(selectedEntities, entityModel)) {
+                    EntityUtil.removeEntityModel(selectedEntities, entityModel);
+                }
+                
+                selectionListeners.forEach(l -> l.widgetSelected(new SelectionEvent(e)));
+                adjustTextToSelection();
+            });
+            btn.addMouseTrackListener(focusMouseTrackAdapter);
+        });
+    }
+    
+    private void adjustTextToSelection() {
+        textSelection.setText(getLabelForSelection(selectedEntities));
+        textSelection.setSize(textSelection.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        textSelection.getParent().layout();
+    }
+    
     
     public void setSelectedEntity(EntityModel entityModel) {
         selectedEntities.clear();
@@ -247,6 +313,9 @@ public class EntityComboBox extends Composite {
     private void createAndShowShell() {
         shell = new Shell(textSelection.getShell(), SWT.BORDER);
         shell.setLayout(new GridLayout());
+        shell.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
+        shell.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_FOREGROUND));
+        shell.setBackgroundMode(SWT.INHERIT_FORCE);
 
         Text textSearch = new Text(shell, SWT.BORDER);
         textSearch.setMessage("Search");
@@ -257,18 +326,18 @@ public class EntityComboBox extends Composite {
                 displayEntities(textSearch.getText());
             }
         }));
-
+        
         ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         scrolledComposite.setExpandHorizontal(true);
-        scrolledComposite.setExpandVertical(true);
-        btnComposite = new Composite(scrolledComposite, SWT.NONE);
-        GridLayout gridLayout = new GridLayout();
-        gridLayout.marginWidth = 0;
-        gridLayout.marginHeight = 5;
-        btnComposite.setLayout(gridLayout);
         
-        scrolledComposite.setContent(btnComposite);     
+        optionsComposite = new Composite(scrolledComposite, SWT.NONE);
+        GridLayout gridLayout = new GridLayout();
+        gridLayout.marginWidth = 5;
+        gridLayout.marginHeight = 0;
+        optionsComposite.setLayout(gridLayout);
+        
+        scrolledComposite.setContent(optionsComposite);     
 
         shell.open();
         shell.addListener(SWT.Deactivate, e -> {
@@ -276,6 +345,7 @@ public class EntityComboBox extends Composite {
                 shell.setVisible(false);
                 shell.dispose();
             }
+            e.doit = true;
         });
 
         resizeShellToContent();
@@ -300,9 +370,12 @@ public class EntityComboBox extends Composite {
     
     private void poistionShell() {
         Point shellSize = shell.getSize();
-        Point parentBounds = textSelection.getParent().toDisplay(textSelection.getLocation());
-        Point size = textSelection.getSize();
-        Rectangle shellRect = new Rectangle(parentBounds.x - shellSize.x + size.x, parentBounds.y + size.y, shellSize.x, shellSize.y);
+        Point btnLocation = this.toDisplay(btnArrow.getLocation());
+        Rectangle shellRect = new Rectangle(
+                btnLocation.x + btnArrow.getSize().x - shellSize.x, 
+                btnLocation.y + btnArrow.getSize().y, 
+                shellSize.x, 
+                shellSize.y);
         shell.setBounds(shellRect);
     }
 
