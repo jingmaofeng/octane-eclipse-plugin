@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
+import org.apache.commons.lang.SystemUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -120,26 +121,33 @@ public class EntityCommentComposite extends StackLayoutComposite {
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
         commentsBrowser.addLocationListener(new LocationAdapter() {
-            // method called when the user clicks a link but before the link is opened
+            // method called when the user clicks a link but before the link is
+            // opened
             @Override
             public void changing(LocationEvent event) {
                 String urlString = event.location;
                 if (urlString == null || "about:blank".equals(urlString)) {
                     return;
                 }
-                
+
                 try {
                     URIBuilder url = new URIBuilder(urlString);
-                    
+
                     if (url.getHost() != null) {
                         String temporaryString = url.toString();
                         URI finalUrl = new URI(temporaryString);
-
-                        Desktop.getDesktop().browse(finalUrl);
+                        if (SystemUtils.IS_OS_LINUX) {
+                            String finalUrlToString = finalUrl.toString();
+                            if (Runtime.getRuntime().exec(new String[] { "which", "xdg-open" }).getInputStream().read() != -1) {
+                                Runtime.getRuntime().exec(new String[] { "xdg-open", finalUrlToString });
+                            }
+                        } else {
+                            Desktop.getDesktop().browse(finalUrl);
+                        }
                         event.doit = false;
                         return;
                     }
-                    
+
                     URI baseURI = new URI(Activator.getConnectionSettings().getBaseUrl());
                     url.setHost(baseURI.getHost());
                     url.setPort(baseURI.getPort());
@@ -147,8 +155,14 @@ public class EntityCommentComposite extends StackLayoutComposite {
 
                     String temporaryString = url.toString();
                     URI finalUrl = new URI(temporaryString);
-
-                    Desktop.getDesktop().browse(finalUrl);
+                    if (SystemUtils.IS_OS_LINUX) {
+                        String finalUrlToString = finalUrl.toString();
+                        if (Runtime.getRuntime().exec(new String[] { "which", "xdg-open" }).getInputStream().read() != -1) {
+                            Runtime.getRuntime().exec(new String[] { "xdg-open", finalUrlToString });
+                        }
+                    } else {
+                        Desktop.getDesktop().browse(finalUrl);
+                    }
                     event.doit = false; // stop propagation
                 } catch (URISyntaxException | IOException e) {
                     // tough luck, continue propagation, it's better than nothing
