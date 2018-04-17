@@ -14,9 +14,11 @@ package com.hpe.octane.ideplugins.eclipse.ui.search;
 
 import static com.hpe.adm.octane.ideplugins.services.util.Util.getUiDataFromModel;
 
+import java.awt.Desktop;
 import java.net.MalformedURLException;
 import java.net.URI;
 
+import org.apache.commons.lang.SystemUtils;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
@@ -33,9 +35,11 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import com.google.inject.Inject;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
+import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettingsProvider;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkService;
 import com.hpe.adm.octane.ideplugins.services.util.UrlParser;
@@ -76,6 +80,38 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
         }
     }
 
+    private void openInBrowser(EntityModel entityModel) {
+        Entity entityType = Entity.getEntityType(entityModel);
+        Integer entityId = Integer.valueOf(getUiDataFromModel(entityModel.getValue("id")));
+        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+
+        try {
+            Entity ownerEntityType = null;
+            Integer ownerEntityId = null;
+            
+            if (entityType == Entity.COMMENT) {
+                ReferenceFieldModel owner = (ReferenceFieldModel) Util.getContainerItemForCommentModel(entityModel);
+                ownerEntityType = Entity.getEntityType(owner.getValue());
+                ownerEntityId = Integer.valueOf(Util.getUiDataFromModel(owner, "id"));
+            }
+            URI uri = UrlParser.createEntityWebURI(
+                    Activator.getConnectionSettings(),
+                    entityType == Entity.COMMENT ? ownerEntityType : entityType,
+                    entityType == Entity.COMMENT ? ownerEntityId : entityId);
+
+            if (!SystemUtils.IS_OS_LINUX) {
+                desktop.browse(uri);
+            } else {
+                String finalUrlToString = uri.toString();
+                if (Runtime.getRuntime().exec(new String[] { "which", "xdg-open" }).getInputStream().read() != -1) {
+                    Runtime.getRuntime().exec(new String[] { "xdg-open", finalUrlToString });
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     @Override
     public Menu createMenu(EntityModel entityModel, Control menuParent) {
 
@@ -88,7 +124,7 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                 menu,
                 "View in browser (System)",
                 ImageResources.BROWSER_16X16.getImage(),
-                () -> entityService.openInBrowser(entityModel));
+                () -> openInBrowser(entityModel));
 
         if (PlatformUI.getWorkbench().getBrowserSupport().isInternalWebBrowserAvailable()) {
             addMenuItem(
