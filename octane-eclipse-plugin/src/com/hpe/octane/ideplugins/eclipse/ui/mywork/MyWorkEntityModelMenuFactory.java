@@ -78,6 +78,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.job.DismissItemJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
+import com.hpe.octane.ideplugins.eclipse.ui.util.OpenInBrowser;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
@@ -120,7 +121,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                 menu,
                 "View in browser (System)",
                 ImageResources.BROWSER_16X16.getImage(),
-                () -> entityService.openInBrowser(entityModel));
+                () -> OpenInBrowser.openEntityInBrowser(entityModel));
 
         if (PlatformUI.getWorkbench().getBrowserSupport().isInternalWebBrowserAvailable()) {
             addMenuItem(
