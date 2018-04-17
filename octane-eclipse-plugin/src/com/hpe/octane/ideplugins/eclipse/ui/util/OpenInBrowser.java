@@ -35,9 +35,6 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class OpenInBrowser {
 
-    public OpenInBrowser() {
-    }
-
     public static void openURI(URI uri) throws IOException {
         if (!SystemUtils.IS_OS_LINUX) {
             Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
@@ -51,9 +48,7 @@ public class OpenInBrowser {
                         "You need xdg-utils in order to open the backlog item. Alternatively, here's the link: " + finalUrlToString,
                         new RuntimeException(
                                 "You need xdg-utils in order to open the backlog item. Alternatively, here's the link: " + finalUrlToString)));
-
             }
-
         }
     }
 
