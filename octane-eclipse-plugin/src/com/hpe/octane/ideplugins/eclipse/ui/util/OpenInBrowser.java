@@ -36,7 +36,7 @@ public class OpenInBrowser {
     
     public OpenInBrowser() {}
 
-    public static void checkHowToOpenInOS(URI uri) throws IOException {
+    public static void openURI(URI uri) throws IOException {
         if (!SystemUtils.IS_OS_LINUX) {
             Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
             desktop.browse(uri);
@@ -44,11 +44,13 @@ public class OpenInBrowser {
             String finalUrlToString = uri.toString();
             if (Runtime.getRuntime().exec(new String[] { "which", "xdg-open" }).getInputStream().read() != -1) {
                 Runtime.getRuntime().exec(new String[] { "xdg-open", finalUrlToString });
+            } else { 
+                
             }
         }
     }
     
-    public static void openInBrowser(EntityModel entityModel) {
+    public static void openEntityInBrowser(EntityModel entityModel) {
         Entity entityType = Entity.getEntityType(entityModel);
         Integer entityId = Integer.valueOf(getUiDataFromModel(entityModel.getValue("id")));
 
@@ -65,7 +67,7 @@ public class OpenInBrowser {
                     Activator.getConnectionSettings(),
                     entityType == Entity.COMMENT ? ownerEntityType : entityType,
                     entityType == Entity.COMMENT ? ownerEntityId : entityId);
-            checkHowToOpenInOS(uri);
+            openURI(uri);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

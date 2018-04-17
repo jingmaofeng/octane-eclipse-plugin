@@ -136,7 +136,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
                     if (url.getHost() != null) {
                         String temporaryString = url.toString();
                         URI finalUrl = new URI(temporaryString);
-                        OpenInBrowser.checkHowToOpenInOS(finalUrl);
+                        OpenInBrowser.openURI(finalUrl);
                         event.doit = false;
                         return;
                     }
@@ -148,7 +148,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
 
                     String temporaryString = url.toString();
                     URI finalUrl = new URI(temporaryString);
-                    OpenInBrowser.checkHowToOpenInOS(finalUrl);
+                    OpenInBrowser.openURI(finalUrl);
                     event.doit = false; // stop propagation
                 } catch (URISyntaxException | IOException e) {
                     // tough luck, continue propagation, it's better than

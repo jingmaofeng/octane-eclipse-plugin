@@ -87,7 +87,7 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                 menu,
                 "View in browser (System)",
                 ImageResources.BROWSER_16X16.getImage(),
-                () -> OpenInBrowser.openInBrowser(entityModel));
+                () -> OpenInBrowser.openEntityInBrowser(entityModel));
 
         if (PlatformUI.getWorkbench().getBrowserSupport().isInternalWebBrowserAvailable()) {
             addMenuItem(
