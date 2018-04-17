@@ -83,8 +83,6 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
     private void openInBrowser(EntityModel entityModel) {
         Entity entityType = Entity.getEntityType(entityModel);
         Integer entityId = Integer.valueOf(getUiDataFromModel(entityModel.getValue("id")));
-        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-
         try {
             Entity ownerEntityType = null;
             Integer ownerEntityId = null;
@@ -100,6 +98,7 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                     entityType == Entity.COMMENT ? ownerEntityId : entityId);
 
             if (!SystemUtils.IS_OS_LINUX) {
+                Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
                 desktop.browse(uri);
             } else {
                 String finalUrlToString = uri.toString();
