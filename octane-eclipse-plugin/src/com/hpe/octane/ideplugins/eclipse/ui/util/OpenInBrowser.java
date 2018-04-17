@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.apache.commons.lang.SystemUtils;
+import org.eclipse.core.runtime.Status;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
@@ -33,8 +34,9 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
  */
 
 public class OpenInBrowser {
-    
-    public OpenInBrowser() {}
+
+    public OpenInBrowser() {
+    }
 
     public static void openURI(URI uri) throws IOException {
         if (!SystemUtils.IS_OS_LINUX) {
@@ -44,12 +46,17 @@ public class OpenInBrowser {
             String finalUrlToString = uri.toString();
             if (Runtime.getRuntime().exec(new String[] { "which", "xdg-open" }).getInputStream().read() != -1) {
                 Runtime.getRuntime().exec(new String[] { "xdg-open", finalUrlToString });
-            } else { 
-                
+            } else {
+                Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID,
+                        "You need xdg-utils in order to open the backlog item. Alternatively, here's the link: " + finalUrlToString,
+                        new RuntimeException(
+                                "You need xdg-utils in order to open the backlog item. Alternatively, here's the link: " + finalUrlToString)));
+
             }
+
         }
     }
-    
+
     public static void openEntityInBrowser(EntityModel entityModel) {
         Entity entityType = Entity.getEntityType(entityModel);
         Integer entityId = Integer.valueOf(getUiDataFromModel(entityModel.getValue("id")));
