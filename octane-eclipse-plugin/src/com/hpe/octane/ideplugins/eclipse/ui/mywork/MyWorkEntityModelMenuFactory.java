@@ -14,7 +14,6 @@ package com.hpe.octane.ideplugins.eclipse.ui.mywork;
 
 import static com.hpe.adm.octane.ideplugins.services.util.Util.getUiDataFromModel;
 
-import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.lang.SystemUtils;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
@@ -63,11 +61,9 @@ import org.eclipse.ui.internal.registry.EditorDescriptor;
 import org.eclipse.ui.internal.registry.EditorRegistry;
 import org.eclipse.ui.internal.registry.FileEditorMapping;
 
-import com.google.inject.Inject;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
-import com.hpe.adm.octane.ideplugins.services.connection.ConnectionSettingsProvider;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkService;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkUtil;
@@ -82,6 +78,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.EntityModelEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.job.DismissItemJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
+import com.hpe.octane.ideplugins.eclipse.ui.util.OpenInBrowser;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
@@ -94,7 +91,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
     private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
     private static DownloadScriptService scriptService = Activator.getInstance(DownloadScriptService.class);
     private EntityListData entityListData;
-    
+
     public MyWorkEntityModelMenuFactory(EntityListData entityListData) {
         this.entityListData = entityListData;
     }
@@ -110,39 +107,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
         } catch (PartInitException ex) {
         }
     }
-    
-    private void openInBrowser(EntityModel entityModel) {
-        Entity entityType = Entity.getEntityType(entityModel);
-        Integer entityId = Integer.valueOf(getUiDataFromModel(entityModel.getValue("id")));
 
-        try {
-            Entity ownerEntityType = null;
-            Integer ownerEntityId = null;
-            
-            if (entityType == Entity.COMMENT) {
-                ReferenceFieldModel owner = (ReferenceFieldModel) Util.getContainerItemForCommentModel(entityModel);
-                ownerEntityType = Entity.getEntityType(owner.getValue());
-                ownerEntityId = Integer.valueOf(Util.getUiDataFromModel(owner, "id"));
-            }
-            URI uri = UrlParser.createEntityWebURI(
-                    Activator.getConnectionSettings(),
-                    entityType == Entity.COMMENT ? ownerEntityType : entityType,
-                    entityType == Entity.COMMENT ? ownerEntityId : entityId);
-
-            if (!SystemUtils.IS_OS_LINUX) {
-                Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-                desktop.browse(uri);
-            } else {
-                String finalUrlToString = uri.toString();
-                if (Runtime.getRuntime().exec(new String[] { "which", "xdg-open" }).getInputStream().read() != -1) {
-                    Runtime.getRuntime().exec(new String[] { "xdg-open", finalUrlToString });
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-    
     @Override
     public Menu createMenu(EntityModel userItem, Control menuParent) {
 
@@ -156,7 +121,7 @@ public class MyWorkEntityModelMenuFactory implements EntityModelMenuFactory {
                 menu,
                 "View in browser (System)",
                 ImageResources.BROWSER_16X16.getImage(),
-                () -> openInBrowser(entityModel));
+                () -> OpenInBrowser.openInBrowser(entityModel));
 
         if (PlatformUI.getWorkbench().getBrowserSupport().isInternalWebBrowserAvailable()) {
             addMenuItem(

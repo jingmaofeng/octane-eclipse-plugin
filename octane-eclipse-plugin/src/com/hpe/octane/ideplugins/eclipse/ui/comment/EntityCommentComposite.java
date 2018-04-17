@@ -12,13 +12,11 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.comment;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
-import org.apache.commons.lang.SystemUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -47,6 +45,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.PostCommentJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite.LoadingPosition;
+import com.hpe.octane.ideplugins.eclipse.ui.util.OpenInBrowser;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
@@ -121,6 +120,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
         commentsBrowser.addLocationListener(new LocationAdapter() {
+
             // method called when the user clicks a link but before the link is
             // opened
             @Override
@@ -136,14 +136,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
                     if (url.getHost() != null) {
                         String temporaryString = url.toString();
                         URI finalUrl = new URI(temporaryString);
-                        if (SystemUtils.IS_OS_LINUX) {
-                            String finalUrlToString = finalUrl.toString();
-                            if (Runtime.getRuntime().exec(new String[] { "which", "xdg-open" }).getInputStream().read() != -1) {
-                                Runtime.getRuntime().exec(new String[] { "xdg-open", finalUrlToString });
-                            }
-                        } else {
-                            Desktop.getDesktop().browse(finalUrl);
-                        }
+                        OpenInBrowser.checkHowToOpenInOS(finalUrl);
                         event.doit = false;
                         return;
                     }
@@ -155,17 +148,11 @@ public class EntityCommentComposite extends StackLayoutComposite {
 
                     String temporaryString = url.toString();
                     URI finalUrl = new URI(temporaryString);
-                    if (SystemUtils.IS_OS_LINUX) {
-                        String finalUrlToString = finalUrl.toString();
-                        if (Runtime.getRuntime().exec(new String[] { "which", "xdg-open" }).getInputStream().read() != -1) {
-                            Runtime.getRuntime().exec(new String[] { "xdg-open", finalUrlToString });
-                        }
-                    } else {
-                        Desktop.getDesktop().browse(finalUrl);
-                    }
+                    OpenInBrowser.checkHowToOpenInOS(finalUrl);
                     event.doit = false; // stop propagation
                 } catch (URISyntaxException | IOException e) {
-                    // tough luck, continue propagation, it's better than nothing
+                    // tough luck, continue propagation, it's better than
+                    // nothing
                     event.doit = true;
                 }
             }
