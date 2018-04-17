@@ -127,6 +127,7 @@ public class EntityHeaderComposite extends Composite {
         btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
         btnSave.setToolTipText(TOOLTIP_PHASE);
         btnSave.setImage(PlatformResourcesManager.getPlatformImage(ISharedImages.IMG_ETOOL_SAVE_EDIT));
+        btnSave.setEnabled(false);
 
         btnRefresh = new Button(this, SWT.NONE);
         btnRefresh.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -216,6 +217,10 @@ public class EntityHeaderComposite extends Composite {
         } else {
             setChildVisibility(phaseComposite, false);
         }
+        
+        //The save button should only be enabled after the entity is dirty
+        btnSave.setEnabled(false);
+        entityModelWrapper.addFieldModelChangedHandler(fieldModel -> btnSave.setEnabled(true));
 
         layout();
         update();
