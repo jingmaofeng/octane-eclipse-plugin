@@ -36,7 +36,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.UpdateEntityJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper.FieldModelChangedHandler;
-import com.hpe.octane.ideplugins.eclipse.ui.util.EntityErrorDialog;
+import com.hpe.octane.ideplugins.eclipse.ui.util.OctaneErrorDialog;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
@@ -125,7 +125,7 @@ public class EntityModelEditor extends EditorPart {
                     });
                 } else {
                     Display.getDefault().asyncExec(() -> {
-                        EntityErrorDialog errorDialog = new EntityErrorDialog(rootComposite.getShell());
+                        OctaneErrorDialog errorDialog = new OctaneErrorDialog(rootComposite.getShell());
     
                         errorDialog.addButton("Try again", () -> {
                             loadEntity();
@@ -181,7 +181,7 @@ public class EntityModelEditor extends EditorPart {
                 } else {
                     Display.getDefault().asyncExec(() -> {
 
-                        EntityErrorDialog errorDialog = new EntityErrorDialog(rootComposite.getShell());
+                        OctaneErrorDialog errorDialog = new OctaneErrorDialog(rootComposite.getShell());
 
                         errorDialog.addButton("Back", () -> errorDialog.close());
 

@@ -30,13 +30,13 @@ import org.eclipse.ui.ISharedImages;
 
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 
-public class EntityErrorDialog extends Dialog {
+public class OctaneErrorDialog extends Dialog {
 
     private Shell shell;
     private Composite compositeBtns;
     private Text exceptionText;
 
-    public EntityErrorDialog(Shell parent) {
+    public OctaneErrorDialog(Shell parent) {
         super(parent);
         shell = new Shell(getParent(), SWT.CLOSE | SWT.RESIZE | SWT.TITLE | SWT.PRIMARY_MODAL);
         shell.setSize(600, 300);
