@@ -28,16 +28,15 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 
-import com.hpe.adm.nga.sdk.exception.OctaneException;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 
-public class EntityDetailErrorDialog extends Dialog {
+public class EntityErrorDialog extends Dialog {
 
     private Shell shell;
     private Composite compositeBtns;
     private Text exceptionText;
 
-    public EntityDetailErrorDialog(Shell parent) {
+    public EntityErrorDialog(Shell parent) {
         super(parent);
         shell = new Shell(getParent(), SWT.CLOSE | SWT.RESIZE | SWT.TITLE | SWT.PRIMARY_MODAL);
         shell.setSize(600, 300);
@@ -63,7 +62,7 @@ public class EntityDetailErrorDialog extends Dialog {
         shell.setLocation(x, y);
     }
 
-    public String open(OctaneException exception, String title) {
+    public String open(Exception exception, String title) {
         positionShell(shell);
         shell.setText(title);
         exceptionText.setText(exception.getMessage());   

@@ -15,7 +15,6 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -124,8 +123,20 @@ public class EntityModelEditor extends EditorPart {
                         rootComposite.showControl(entityComposite);
                     });
                 } else {
-                    MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error",
-                            "Failed to load entity, " + getEntityDetailsJob.getException());
+                    Display.getDefault().asyncExec(() -> {
+                        EntityErrorDialog errorDialog = new EntityErrorDialog(rootComposite.getShell());
+    
+                        errorDialog.addButton("Try again", () -> {
+                            loadEntity();
+                            errorDialog.close();
+                        });
+                        errorDialog.addButton("Close", () -> {
+                            getSite().getPage().closeEditor(EntityModelEditor.this, false);
+                            errorDialog.close();
+                        });
+                        
+                        errorDialog.open(getEntityDetailsJob.getException(), "Failed to load backlog item");
+                    });
                 }
             }
         });
@@ -169,7 +180,7 @@ public class EntityModelEditor extends EditorPart {
                 } else {
                     Display.getDefault().asyncExec(() -> {
 
-                        EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(rootComposite.getShell());
+                        EntityErrorDialog errorDialog = new EntityErrorDialog(rootComposite.getShell());
 
                         errorDialog.addButton("Back", () -> errorDialog.close());
 
@@ -182,7 +193,7 @@ public class EntityModelEditor extends EditorPart {
                             errorDialog.close();
                         });
 
-                        errorDialog.open(octaneException, "Saving entity failed");
+                        errorDialog.open(octaneException, "Saving backlog item failed");
 
                     });
                 }
