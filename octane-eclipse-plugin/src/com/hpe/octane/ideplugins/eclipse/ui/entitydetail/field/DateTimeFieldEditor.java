@@ -44,7 +44,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
     private Label btnNull;
 
     private FieldMessageComposite fieldMessageComposite;
-    private Link lblEmptyText;
+    private Link linkSetDate;
 
     public DateTimeFieldEditor(Composite parent, int style) {
         super(parent, style);
@@ -63,9 +63,9 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         btnNull.setImage(ImageResources.OCTANE_REMOVE.getImage());
         btnNull.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
         
-        lblEmptyText = new Link(this, SWT.NONE);
-        lblEmptyText.setText("<a>set date</a>");
-        lblEmptyText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        linkSetDate = new Link(this, SWT.NONE);
+        linkSetDate.setText("<a>set date</a>");
+        linkSetDate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
         // Init
         setDateTimeVisible(false);
@@ -80,7 +80,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         });
 
         // De-nullify
-        lblEmptyText.addMouseListener(new MouseAdapter() {
+        linkSetDate.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
                 setDateTimeVisible(true);
@@ -113,8 +113,8 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         btnNull.setVisible(isDateTimeVisible);
         ((GridData) btnNull.getLayoutData()).exclude = !isDateTimeVisible;
 
-        lblEmptyText.setVisible(!isDateTimeVisible);
-        ((GridData) lblEmptyText.getLayoutData()).exclude = isDateTimeVisible;
+        linkSetDate.setVisible(!isDateTimeVisible);
+        ((GridData) linkSetDate.getLayoutData()).exclude = isDateTimeVisible;
 
         layout(true);
         getParent().layout();
