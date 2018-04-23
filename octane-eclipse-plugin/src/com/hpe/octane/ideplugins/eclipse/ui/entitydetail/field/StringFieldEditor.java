@@ -56,10 +56,8 @@ public class StringFieldEditor extends Composite implements FieldEditor {
                 } else {
                     entityModelWrapper.setValue(new StringFieldModel(fieldName, text));
                 }
-                textField.setToolTipText(textField.getText());
             }
         };
-
     }
 
     @Override
@@ -68,7 +66,6 @@ public class StringFieldEditor extends Composite implements FieldEditor {
         this.fieldName = fieldName;
         textField.removeModifyListener(modifyListener);
         textField.setText(Util.getUiDataFromModel(entityModel.getValue(fieldName)));
-        textField.setToolTipText(Util.getUiDataFromModel(entityModel.getValue(fieldName)));
         textField.addModifyListener(modifyListener);
     }
 
