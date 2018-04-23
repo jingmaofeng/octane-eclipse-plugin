@@ -41,7 +41,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
 
     private DateTime dtDate;
     private DateTime dtTime;
-    private Label btnNull;
+    private Label btnSetNull;
 
     private FieldMessageComposite fieldMessageComposite;
     private Link linkSetDate;
@@ -58,10 +58,10 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         dtTime = new DateTime(this, SWT.NONE | SWT.TIME);
         dtTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
-        btnNull = new Label(this, SWT.NONE);
-        btnNull.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        btnNull.setImage(ImageResources.OCTANE_REMOVE.getImage());
-        btnNull.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+        btnSetNull = new Label(this, SWT.NONE);
+        btnSetNull.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        btnSetNull.setImage(ImageResources.OCTANE_REMOVE.getImage());
+        btnSetNull.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
         
         linkSetDate = new Link(this, SWT.NONE);
         linkSetDate.setText("<a>set date</a>");
@@ -71,7 +71,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         setDateTimeVisible(false);
 
         // Nullify
-        btnNull.addMouseListener(new MouseAdapter() {
+        btnSetNull.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
                 setDateTimeVisible(false);
@@ -110,8 +110,8 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         dtTime.setVisible(isDateTimeVisible);
         ((GridData) dtTime.getLayoutData()).exclude = !isDateTimeVisible;
 
-        btnNull.setVisible(isDateTimeVisible);
-        ((GridData) btnNull.getLayoutData()).exclude = !isDateTimeVisible;
+        btnSetNull.setVisible(isDateTimeVisible);
+        ((GridData) btnSetNull.getLayoutData()).exclude = !isDateTimeVisible;
 
         linkSetDate.setVisible(!isDateTimeVisible);
         ((GridData) linkSetDate.getLayoutData()).exclude = isDateTimeVisible;
@@ -121,7 +121,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
     }
 
     private boolean isDateTimeVisible() {
-        return dtDate.isVisible() && dtTime.isVisible() && btnNull.isVisible();
+        return dtDate.isVisible() && dtTime.isVisible() && btnSetNull.isVisible();
     }
 
     private void setZonedDateTime(ZonedDateTime zonedDateTime) {
