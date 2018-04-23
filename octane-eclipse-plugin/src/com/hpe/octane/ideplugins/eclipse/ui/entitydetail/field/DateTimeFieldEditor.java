@@ -24,12 +24,15 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 
 import com.hpe.adm.nga.sdk.model.DateFieldModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 
 public class DateTimeFieldEditor extends Composite implements FieldEditor {
 
@@ -41,7 +44,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
     private Label btnNull;
 
     private FieldMessageComposite fieldMessageComposite;
-    private Label lblEmptyText;
+    private Link lblEmptyText;
 
     public DateTimeFieldEditor(Composite parent, int style) {
         super(parent, style);
@@ -57,11 +60,12 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
 
         btnNull = new Label(this, SWT.NONE);
         btnNull.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        btnNull.setText("X");
-
-        lblEmptyText = new Label(this, SWT.NONE);
+        btnNull.setImage(ImageResources.OCTANE_REMOVE.getImage());
+        btnNull.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+        
+        lblEmptyText = new Link(this, SWT.NONE);
+        lblEmptyText.setText("<a>set date</a>");
         lblEmptyText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        lblEmptyText.setText("set date");
 
         // Init
         setDateTimeVisible(false);
