@@ -87,6 +87,7 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
                     e.doit = false;
                     return;
                 }
+               
             }
         });
 
@@ -109,8 +110,10 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
                         } catch (Exception ignored) {
                         }
                     }
-
                 }
+                
+                //update tooltip
+                textField.setToolTipText(textField.getText());
             }
         };
     }
@@ -126,6 +129,7 @@ public class NumericFieldEditor extends Composite implements FieldEditor {
         this.fieldName = fieldName;
         textField.removeModifyListener(modifyListener);
         textField.setText(Util.getUiDataFromModel(entityModel.getValue(fieldName)));
+        textField.setToolTipText(Util.getUiDataFromModel(entityModel.getValue(fieldName)));
         textField.addModifyListener(modifyListener);
     }
 
