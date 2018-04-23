@@ -136,7 +136,7 @@ public class EntityModelEditor extends EditorPart {
                             errorDialog.close();
                         });
                         
-                        errorDialog.open(getEntityDetailsJob.getException(), "Failed to load backlog item");
+                        errorDialog.openException(getEntityDetailsJob.getException(), "Failed to load backlog item");
                     });
                 }
             }
@@ -194,7 +194,7 @@ public class EntityModelEditor extends EditorPart {
                             errorDialog.close();
                         });
 
-                        errorDialog.open(octaneException, "Saving backlog item failed");
+                        errorDialog.openException(octaneException, "Saving backlog item failed");
 
                     });
                 }
