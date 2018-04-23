@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Label;
 
 import com.hpe.adm.nga.sdk.model.DateFieldModel;
+import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 
@@ -112,6 +113,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         ((GridData) lblEmptyText.getLayoutData()).exclude = isDateTimeVisible;
 
         layout(true);
+        getParent().layout();
     }
 
     private boolean isDateTimeVisible() {
@@ -153,12 +155,13 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         this.entityModelWrapper = entityModel;
         this.fieldName = fieldName;
 
-        DateFieldModel fieldModel = (DateFieldModel) entityModel.getValue(fieldName);
-
-        if (fieldModel == null || fieldModel.getValue() == null) {
-            setZonedDateTime(null);
+        @SuppressWarnings("rawtypes")
+        FieldModel fieldModel = entityModel.getValue(fieldName);
+        
+        if (fieldModel != null && fieldModel.getValue() != null && fieldModel instanceof DateFieldModel) {
+            setZonedDateTime((ZonedDateTime) fieldModel.getValue());
         } else {
-            setZonedDateTime(fieldModel.getValue());
+            setZonedDateTime(null);
         }
     }
 
