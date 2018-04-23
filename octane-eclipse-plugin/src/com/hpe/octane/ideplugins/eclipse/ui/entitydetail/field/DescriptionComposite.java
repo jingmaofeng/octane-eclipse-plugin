@@ -12,14 +12,11 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
-import java.util.List;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpCookie;
-import java.util.Optional;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -31,13 +28,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.google.api.client.http.ByteArrayContent;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.util.IOUtils;
 import com.hpe.adm.nga.sdk.authentication.SimpleUserAuthentication;
 import com.hpe.adm.nga.sdk.model.EntityModel;
@@ -98,7 +89,7 @@ public class DescriptionComposite extends Composite {
     private static String getRgbString(Color color) {
         return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
     }
-    
+
     private String downloadPictures(String descriptionField) throws IOException {
         String tmpPath = System.getProperty("java.io.tmpdir");
         String baseUrl = Activator.getConnectionSettings().getBaseUrl();
@@ -112,7 +103,7 @@ public class DescriptionComposite extends Composite {
 
         Document descriptionParser = Jsoup.parse(descriptionField);
         Elements link = descriptionParser.getElementsByTag("img");
-        
+
         for (Element el : link) {
             String pictureLink = el.attr("src");
             if (pictureLink.contains("/api/shared_spaces")) {
@@ -162,6 +153,7 @@ public class DescriptionComposite extends Composite {
     private void loginUser() {
         SimpleUserAuthentication userAuth = new SimpleUserAuthentication(Activator.getConnectionSettings().getUserName(),
                 Activator.getConnectionSettings().getPassword());
+        @SuppressWarnings("unused")
         HttpResponse httpResponse = ClientLoginCookie.loginClient(userAuth);
     }
 

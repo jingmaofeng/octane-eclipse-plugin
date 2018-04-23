@@ -28,7 +28,7 @@ import com.hpe.adm.nga.sdk.authentication.SimpleUserAuthentication;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 
 public class ClientLoginCookie {
-    
+
     private static HttpResponse httpResponse;
     private static HttpCookie lwssoCookie;
 
@@ -41,7 +41,8 @@ public class ClientLoginCookie {
         ByteArrayContent content = ByteArrayContent.fromString("application/json", user.getAuthenticationString());
 
         try {
-            httpRequest = requestFactory.buildPostRequest(new GenericUrl(Activator.getConnectionSettings().getBaseUrl() + "/authentication/sign_in"), content);
+            httpRequest = requestFactory.buildPostRequest(new GenericUrl(Activator.getConnectionSettings().getBaseUrl() + "/authentication/sign_in"),
+                    content);
             httpResponse = httpRequest.execute();
         } catch (IOException e) {
             // bad luck, yo' ass can't login
@@ -56,7 +57,7 @@ public class ClientLoginCookie {
     // boolean isLogged = loginClient(username,password) ? true : false;
     // return isLogged;
     // }
-    
+
     protected static HttpCookie setLwssoCookie() {
         HttpResponse httpResponse = getHttpResponse();
         List<String> strHPSSOCookieCsrf1 = httpResponse.getHeaders().getHeaderStringValues("Set-Cookie");
@@ -73,20 +74,18 @@ public class ClientLoginCookie {
         }
         return lwssoCookie;
     }
-    
-    
-    
+
     public static HttpResponse getHttpResponse() {
         return httpResponse;
     }
-    
+
     public static boolean isUserLoggedIn() {
-        if(getHttpResponse() == null) {
+        if (getHttpResponse() == null) {
             return false;
         }
         return true;
     }
-    
+
     public static HttpResponse getDataForImage(String pictureLink) {
 
         HttpCookie lwssoCookieCopy;
