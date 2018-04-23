@@ -195,23 +195,19 @@ public class EntityFieldsComposite extends Composite {
                 columnComposite = sectionClientRight;
             }
 
-            if (!fieldName.equals(EntityFieldsConstants.FIELD_DESCRIPTION)
-                    && !fieldName.equals(EntityFieldsConstants.FIELD_NAME)
-                    && !fieldName.equals(EntityFieldsConstants.FIELD_PHASE)) {
-                // Add the pair of labels for field and value
-                CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
-                labelFieldName.setText(prettyFieldsMap.get(fieldName));
-                labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
-                GridData labelFieldNameGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-                labelFieldName.setLayoutData(labelFieldNameGridData);
+            // Add the pair of labels for field and value
+            CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
+            labelFieldName.setText(prettyFieldsMap.get(fieldName));
+            labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
+            GridData labelFieldNameGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+            labelFieldName.setLayoutData(labelFieldNameGridData);
 
-                FieldEditor fieldEditor = fieldEditorFactory.createFieldEditor(columnComposite, entityModelWrapper, fieldName);
-                GridData fieldEditorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-                fieldEditorGridData.heightHint = 30;
-                Control fieldEditorControl = (Control) fieldEditor;
-                fieldEditorControl.setLayoutData(fieldEditorGridData);
-                fieldEditorControl.setForeground(foregroundColor);
-            }
+            FieldEditor fieldEditor = fieldEditorFactory.createFieldEditor(columnComposite, entityModelWrapper, fieldName);
+            GridData fieldEditorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+            fieldEditorGridData.heightHint = 30;
+            Control fieldEditorControl = (Control) fieldEditor;
+            fieldEditorControl.setLayoutData(fieldEditorGridData);
+            fieldEditorControl.setForeground(foregroundColor);
         }
 
         // Force redraw
