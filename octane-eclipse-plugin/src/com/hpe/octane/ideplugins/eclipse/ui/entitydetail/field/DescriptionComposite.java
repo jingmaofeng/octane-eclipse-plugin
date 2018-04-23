@@ -44,6 +44,7 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
+import com.hpe.octane.ideplugins.eclipse.ui.util.ClientLoginCookie;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
@@ -136,44 +137,32 @@ public class DescriptionComposite extends Composite {
 
     private void saveImage(String pictureLink, String octanePhotosName) throws IOException {
 
-        SimpleUserAuthentication userAuthentication = new SimpleUserAuthentication(
-                Activator.getConnectionSettings().getUserName(),
-                Activator.getConnectionSettings().getPassword());
+        if (isUserLoggedIn() == true) {
+            HttpResponse httpResponse = ClientLoginCookie.getDataForImage(pictureLink);
+            InputStream is = httpResponse.getContent();
 
-        HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-        HttpRequestFactory requestFactory = HTTP_TRANSPORT.createRequestFactory();
-
-        ByteArrayContent content = ByteArrayContent.fromString("application/json", userAuthentication.getAuthenticationString());
-        HttpRequest httpRequest = requestFactory
-                .buildPostRequest(new GenericUrl(Activator.getConnectionSettings().getBaseUrl() + "/authentication/sign_in"), content);
-
-        HttpResponse httpResponse = httpRequest.execute();
-
-        List<String> strHPSSOCookieCsrf1 = httpResponse.getHeaders().getHeaderStringValues("Set-Cookie");
-
-        HttpCookie lwssoCookie = null;
-
-        for (String strCookie : strHPSSOCookieCsrf1) {
-            List<HttpCookie> cookies = HttpCookie.parse(strCookie);
-            Optional<HttpCookie> lwssoCookieOp = cookies.stream().filter(a -> a.getName().equals("LWSSO_COOKIE_KEY")).findFirst();
-            if (lwssoCookieOp.isPresent()) {
-                lwssoCookie = lwssoCookieOp.get();
-                break;
-            } else {
-                return;
-            }
+            OutputStream os = new FileOutputStream(octanePhotosName);
+            IOUtils.copy(is, os);
+            is.close();
+            os.close();
+        } else {
+            loginUser();
         }
+    }
 
-        httpRequest = requestFactory.buildGetRequest(new GenericUrl(pictureLink));
-        httpRequest.getHeaders().setCookie(lwssoCookie.toString());
-        httpResponse = httpRequest.execute();
+    private boolean isUserLoggedIn() {
+        if (ClientLoginCookie.isUserLoggedIn() == false) {
+            loginUser();
+            return true;
+        } else {
+            return true;
+        }
+    }
 
-        InputStream is = httpResponse.getContent();
-
-        OutputStream os = new FileOutputStream(octanePhotosName);
-        IOUtils.copy(is, os);
-        is.close();
-        os.close();
+    private void loginUser() {
+        SimpleUserAuthentication userAuth = new SimpleUserAuthentication(Activator.getConnectionSettings().getUserName(),
+                Activator.getConnectionSettings().getPassword());
+        HttpResponse httpResponse = ClientLoginCookie.loginClient(userAuth);
     }
 
 }
