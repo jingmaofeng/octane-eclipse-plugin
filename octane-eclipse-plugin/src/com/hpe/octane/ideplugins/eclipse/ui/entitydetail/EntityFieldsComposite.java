@@ -56,7 +56,7 @@ public class EntityFieldsComposite extends Composite {
     private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
     private static FieldEditorFactory fieldEditorFactory = new FieldEditorFactory();
 
-    private Map<String, String> prettyFieldsMap;
+    private Map<String, String> fieldLabelMap;
 
     private EntityModelWrapper entityModel;
 
@@ -140,11 +140,8 @@ public class EntityFieldsComposite extends Composite {
                 .forEach(child -> child.dispose());
 
         // make a map of the field names and labels
-        Collection<FieldMetadata> allFields = metadataService.getVisibleFields(entityModelWrapper.getEntityType());
-        prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
-        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
-        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_PHASE);
-        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_NAME);
+        Collection<FieldMetadata> fieldMetadata = metadataService.getVisibleFields(entityModelWrapper.getEntityType());
+        fieldLabelMap = fieldMetadata.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
 
         fieldsComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
         Composite sectionClientLeft = new Composite(fieldsComposite, SWT.NONE);
@@ -175,7 +172,7 @@ public class EntityFieldsComposite extends Composite {
                     && !fieldName.equals(EntityFieldsConstants.FIELD_PHASE)) {
                 // Add the pair of labels for field and value
                 CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
-                labelFieldName.setText(prettyFieldsMap.get(fieldName));
+                labelFieldName.setText(fieldLabelMap.get(fieldName));
                 labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
                 GridData labelFieldNameGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
                 labelFieldName.setLayoutData(labelFieldNameGridData);
