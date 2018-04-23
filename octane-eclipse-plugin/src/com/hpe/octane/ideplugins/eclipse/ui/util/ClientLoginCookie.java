@@ -45,18 +45,12 @@ public class ClientLoginCookie {
                     content);
             httpResponse = httpRequest.execute();
         } catch (IOException e) {
-            // bad luck, yo' ass can't login
+            //bad luck, you can't login
             return null;
         }
         return httpResponse;
 
     }
-
-    // public boolean isLoggedIn() {
-    //
-    // boolean isLogged = loginClient(username,password) ? true : false;
-    // return isLogged;
-    // }
 
     protected static HttpCookie setLwssoCookie() {
         HttpResponse httpResponse = getHttpResponse();
@@ -101,7 +95,7 @@ public class ClientLoginCookie {
             httpRequest.getHeaders().setCookie(lwssoCookieCopy.toString());
             httpResponse = httpRequest.execute();
         } catch (IOException e) {
-            // again, bad luck
+            // again, bad luck, can't login
             return null;
         }
         return httpResponse;
