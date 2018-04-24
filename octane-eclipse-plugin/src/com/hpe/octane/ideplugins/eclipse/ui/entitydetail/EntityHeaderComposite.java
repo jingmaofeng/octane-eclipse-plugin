@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -33,7 +36,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.ui.ISharedImages;
 
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
@@ -50,7 +52,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field.StringFieldEditor
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetPossiblePhasesJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.MultiSelectComboBox;
-import com.hpe.octane.ideplugins.eclipse.ui.util.TruncatingStyledText;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
@@ -72,10 +73,8 @@ public class EntityHeaderComposite extends Composite {
     private Map<String, String> fieldLabelMap;
     private static final Map<Entity, Set<String>> defaultFields = DefaultEntityFieldsUtil.getDefaultFields();
 
-    private ToolTip truncatedLabelTooltip;
-
     private Label lblEntityIcon;
-    private TruncatingStyledText txtEntityId;
+    private StyledText txtEntityId;
     private StringFieldEditor nameFieldEditor;
 
     private EntityModelWrapper entityModelWrapper;
@@ -101,16 +100,23 @@ public class EntityHeaderComposite extends Composite {
     public EntityHeaderComposite(Composite parent, int style) {
         super(parent, style);
         setLayout(new GridLayout(10, false));
-
+        
         Font boldFont = new Font(getDisplay(), new FontData(JFaceResources.DEFAULT_FONT, 11, SWT.BOLD));
-
-        truncatedLabelTooltip = new ToolTip(parent.getShell(), SWT.ICON_INFORMATION);
 
         lblEntityIcon = new Label(this, SWT.NONE);
         lblEntityIcon.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 
-        txtEntityId = new TruncatingStyledText(this, SWT.NONE, truncatedLabelTooltip);
+        txtEntityId = new StyledText(this, SWT.NONE);
+        txtEntityId.setEditable(false);
         txtEntityId.setFont(boldFont);
+        txtEntityId.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                //clear selection on focus loss
+                txtEntityId.setSelection(0, 0);
+            }
+        });
+        txtEntityId.setCaret(null);
 
         Label lblSeparator = new Label(this, SWT.SEPARATOR | SWT.VERTICAL);
         GridData lblSeparatorGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
