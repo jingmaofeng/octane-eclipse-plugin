@@ -24,11 +24,15 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 
 import com.hpe.adm.nga.sdk.model.DateFieldModel;
+import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 
 public class DateTimeFieldEditor extends Composite implements FieldEditor {
 
@@ -37,10 +41,10 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
 
     private DateTime dtDate;
     private DateTime dtTime;
-    private Label btnNull;
+    private Label btnSetNull;
 
     private FieldMessageComposite fieldMessageComposite;
-    private Label lblEmptyText;
+    private Link linkSetDate;
 
     public DateTimeFieldEditor(Composite parent, int style) {
         super(parent, style);
@@ -54,19 +58,20 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         dtTime = new DateTime(this, SWT.NONE | SWT.TIME);
         dtTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
-        btnNull = new Label(this, SWT.NONE);
-        btnNull.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        btnNull.setText("X");
-
-        lblEmptyText = new Label(this, SWT.NONE);
-        lblEmptyText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        lblEmptyText.setText("set date");
+        btnSetNull = new Label(this, SWT.NONE);
+        btnSetNull.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        btnSetNull.setImage(ImageResources.OCTANE_REMOVE.getImage());
+        btnSetNull.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+        
+        linkSetDate = new Link(this, SWT.NONE);
+        linkSetDate.setText("<a>set date</a>");
+        linkSetDate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
         // Init
         setDateTimeVisible(false);
 
         // Nullify
-        btnNull.addMouseListener(new MouseAdapter() {
+        btnSetNull.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
                 setDateTimeVisible(false);
@@ -75,7 +80,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         });
 
         // De-nullify
-        lblEmptyText.addMouseListener(new MouseAdapter() {
+        linkSetDate.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
                 setDateTimeVisible(true);
@@ -105,17 +110,18 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         dtTime.setVisible(isDateTimeVisible);
         ((GridData) dtTime.getLayoutData()).exclude = !isDateTimeVisible;
 
-        btnNull.setVisible(isDateTimeVisible);
-        ((GridData) btnNull.getLayoutData()).exclude = !isDateTimeVisible;
+        btnSetNull.setVisible(isDateTimeVisible);
+        ((GridData) btnSetNull.getLayoutData()).exclude = !isDateTimeVisible;
 
-        lblEmptyText.setVisible(!isDateTimeVisible);
-        ((GridData) lblEmptyText.getLayoutData()).exclude = isDateTimeVisible;
+        linkSetDate.setVisible(!isDateTimeVisible);
+        ((GridData) linkSetDate.getLayoutData()).exclude = isDateTimeVisible;
 
         layout(true);
+        getParent().layout();
     }
 
     private boolean isDateTimeVisible() {
-        return dtDate.isVisible() && dtTime.isVisible() && btnNull.isVisible();
+        return dtDate.isVisible() && dtTime.isVisible() && btnSetNull.isVisible();
     }
 
     private void setZonedDateTime(ZonedDateTime zonedDateTime) {
@@ -153,12 +159,13 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         this.entityModelWrapper = entityModel;
         this.fieldName = fieldName;
 
-        DateFieldModel fieldModel = (DateFieldModel) entityModel.getValue(fieldName);
-
-        if (fieldModel == null || fieldModel.getValue() == null) {
-            setZonedDateTime(null);
+        @SuppressWarnings("rawtypes")
+        FieldModel fieldModel = entityModel.getValue(fieldName);
+        
+        if (fieldModel != null && fieldModel.getValue() != null && fieldModel instanceof DateFieldModel) {
+            setZonedDateTime((ZonedDateTime) fieldModel.getValue());
         } else {
-            setZonedDateTime(fieldModel.getValue());
+            setZonedDateTime(null);
         }
     }
 
