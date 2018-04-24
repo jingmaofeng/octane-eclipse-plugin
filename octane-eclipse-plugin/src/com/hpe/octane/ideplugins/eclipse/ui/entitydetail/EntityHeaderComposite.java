@@ -66,6 +66,7 @@ public class EntityHeaderComposite extends Composite {
     private static final String TOOLTIP_PHASE = "Save changes";
     private static final String TOOLTIP_FIELDS = "Customize fields to be shown";
     private static final String TOOLTIP_COMMENTS = "Show comments";
+    private static final String TOOLTIP_VIEW_IN_BROWSER = "View in browser (System)";
 
     private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
     private Map<String, String> fieldLabelMap;
@@ -141,7 +142,7 @@ public class EntityHeaderComposite extends Composite {
         btnBrowser = new Button(this, SWT.NONE);
         btnBrowser.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
         btnBrowser.setImage(ImageResources.BROWSER_16X16.getImage());
-        btnBrowser.setToolTipText(TOOLTIP_COMMENTS);
+        btnBrowser.setToolTipText(TOOLTIP_VIEW_IN_BROWSER);
         btnBrowser.addListener(SWT.MouseDown,
                 event -> Activator.getInstance(EntityService.class).openInBrowser(entityModelWrapper.getReadOnlyEntityModel()));
 
