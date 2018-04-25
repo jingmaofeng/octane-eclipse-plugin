@@ -208,6 +208,4 @@ public class EntityModelEditor extends EditorPart {
     public boolean isSaveAsAllowed() {
         return entityModelWrapper != null && isDirty;
     }
-
-
 }
