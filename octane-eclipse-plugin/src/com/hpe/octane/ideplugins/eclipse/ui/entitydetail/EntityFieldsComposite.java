@@ -19,6 +19,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -35,6 +38,7 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.octane.ideplugins.services.MetadataService;
+import com.hpe.adm.octane.ideplugins.services.exception.ServiceRuntimeException;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage;
 import com.hpe.octane.ideplugins.eclipse.preferences.PluginPreferenceStorage.PrefereceChangeHandler;
@@ -45,7 +49,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field.FieldEditorFactor
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
-import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityFieldsComposite extends Composite {
 
@@ -95,7 +98,7 @@ public class EntityFieldsComposite extends Composite {
         formGenerator.createCompositeSeparator(sectionFields);
 
         //Expand listeners
-        
+
         sectionDescription.addExpansionListener(new IExpansionListener() {
             @Override
             public void expansionStateChanging(ExpansionEvent e) {}
@@ -112,7 +115,7 @@ public class EntityFieldsComposite extends Composite {
                 layout(true, true);
             }
         });
-        
+
         sectionFields.addExpansionListener(new IExpansionListener() {
             @Override
             public void expansionStateChanging(ExpansionEvent expansionEvent) {}
@@ -135,9 +138,9 @@ public class EntityFieldsComposite extends Composite {
 
     private void drawEntityFields(Set<String> shownFields, EntityModelWrapper entityModelWrapper) {
         Arrays.stream(fieldsComposite.getChildren())
-                .filter(child -> child != null)
-                .filter(child -> !child.isDisposed())
-                .forEach(child -> child.dispose());
+        .filter(child -> child != null)
+        .filter(child -> !child.isDisposed())
+        .forEach(child -> child.dispose());
 
         // make a map of the field names and labels
         Collection<FieldMetadata> fieldMetadata = metadataService.getVisibleFields(entityModelWrapper.getEntityType());
@@ -159,6 +162,27 @@ public class EntityFieldsComposite extends Composite {
         for (int i = 0; i < shownFields.size(); i++) {
             String fieldName = iterator.next();
 
+            //Check if the field is valid (exists) before trying to show it
+            //If the field name for the given type doesn't return any metadata, we ignore it
+            //Default field might be out-dated, and cause detail tab to crash
+            try {
+                metadataService.getMetadata(entityModelWrapper.getEntityType(), fieldName);
+            } catch (ServiceRuntimeException ex) {
+                ILog log = Activator.getDefault().getLog();
+                StringBuilder sbMessage = new StringBuilder();
+                sbMessage.append("Faied to create fieldEditor for field ")
+                .append(fieldName)
+                .append(" for type ")
+                .append(entityModelWrapper.getEntityType())
+                .append(": ")
+                .append(ex.getMessage());
+
+                log.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, sbMessage.toString()));
+
+                //Do not show field in detail tab
+                continue;
+            }
+
             // Determine if we put the label pair in the left or right container
             Composite columnComposite;
             if (i % 2 == 0) {
@@ -167,24 +191,19 @@ public class EntityFieldsComposite extends Composite {
                 columnComposite = sectionClientRight;
             }
 
-            if (!fieldName.equals(EntityFieldsConstants.FIELD_DESCRIPTION)
-                    && !fieldName.equals(EntityFieldsConstants.FIELD_NAME)
-                    && !fieldName.equals(EntityFieldsConstants.FIELD_PHASE)) {
-                // Add the pair of labels for field and value
-                CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
-                labelFieldName.setText(fieldLabelMap.get(fieldName));
-                labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
-                GridData labelFieldNameGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-                labelFieldName.setLayoutData(labelFieldNameGridData);
+            // Add the pair of labels for field and value
+            CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
+            labelFieldName.setText(fieldLabelMap.get(fieldName));
+            labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
+            GridData labelFieldNameGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+            labelFieldName.setLayoutData(labelFieldNameGridData);
 
-                FieldEditor fieldEditor = fieldEditorFactory.createFieldEditor(columnComposite, entityModelWrapper, fieldName);
-
-                GridData fieldEditorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-                fieldEditorGridData.heightHint = 30;
-                Control fieldEditorControl = (Control) fieldEditor;
-                fieldEditorControl.setLayoutData(fieldEditorGridData);
-                fieldEditorControl.setForeground(foregroundColor);
-            }
+            FieldEditor fieldEditor = fieldEditorFactory.createFieldEditor(columnComposite, entityModelWrapper, fieldName);
+            GridData fieldEditorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+            fieldEditorGridData.heightHint = 30;
+            Control fieldEditorControl = (Control) fieldEditor;
+            fieldEditorControl.setLayoutData(fieldEditorGridData);
+            fieldEditorControl.setForeground(foregroundColor);
         }
 
         // Force redraw
