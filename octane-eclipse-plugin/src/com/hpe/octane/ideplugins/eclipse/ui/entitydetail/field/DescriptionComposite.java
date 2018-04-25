@@ -48,14 +48,14 @@ public class DescriptionComposite extends Composite {
     }
 
     private String getBrowserText(EntityModel entityModel) {
-        String descriptionText = "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
+        String descriptionText = "<html><body style=\"background-color:" + getRgbString(backgroundColor) + ";\">" + "<font color ="
                 + getRgbString(foregroundColor) + ">"
                 + Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION))
                 + "</font></body></html>";
-        if (descriptionText.equals("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
+        if (descriptionText.equals("<html><body style=\"background-color:" + getRgbString(backgroundColor) + ";\">" + "<font color ="
                 + getRgbString(foregroundColor) + ">" + "</font></body></html>")) {
 
-            return "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
+            return "<html><body style=\"background-color:" + getRgbString(backgroundColor) + ";\">" + "<font color ="
                     + getRgbString(foregroundColor) + ">" + "No description" + "</font></body></html>";
         } else {
             return descriptionText;
