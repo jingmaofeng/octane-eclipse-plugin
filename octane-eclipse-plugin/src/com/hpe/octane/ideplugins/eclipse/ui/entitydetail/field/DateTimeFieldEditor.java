@@ -12,6 +12,7 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -56,14 +57,14 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         dtDate = new DateTime(this, SWT.NONE);
         dtDate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
-        dtTime = new DateTime(this, SWT.NONE | SWT.TIME);
+        dtTime = new DateTime(this, SWT.TIME);
         dtTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
         btnSetNull = new Label(this, SWT.NONE);
         btnSetNull.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         btnSetNull.setImage(ImageResources.OCTANE_REMOVE.getImage());
         btnSetNull.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
-        
+
         linkSetDate = new Link(this, SWT.NONE);
         linkSetDate.setText("<a>set date</a>");
         linkSetDate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -93,11 +94,19 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
 
         fieldMessageComposite = new FieldMessageComposite(this, SWT.NONE);
         fieldMessageComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
+        new Label(this, SWT.NONE);
+        new Label(this, SWT.NONE);
+        new Label(this, SWT.NONE);
 
         SelectionAdapter selectionListener = new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                entityModelWrapper.setValue(new DateFieldModel(fieldName, getZonedDateTime()));
+                try {
+                    entityModelWrapper.setValue(new DateFieldModel(fieldName, getZonedDateTime()));
+                } catch (DateTimeException ignored) {
+                    // sometimes you can input an invalid month if you hover
+                    // over the date field and type a number
+                }
             }
         };
         dtDate.addSelectionListener(selectionListener);
@@ -167,7 +176,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
 
         @SuppressWarnings("rawtypes")
         FieldModel fieldModel = entityModel.getValue(fieldName);
-        
+
         if (fieldModel != null && fieldModel.getValue() != null && fieldModel instanceof DateFieldModel) {
             setZonedDateTime((ZonedDateTime) fieldModel.getValue());
         } else {
