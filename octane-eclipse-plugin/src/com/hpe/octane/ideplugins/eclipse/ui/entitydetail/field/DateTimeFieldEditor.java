@@ -12,6 +12,7 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -125,6 +126,10 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
     }
 
     private void setZonedDateTime(ZonedDateTime zonedDateTime) {
+        // Convert to local time for UI
+        Instant timeStamp = zonedDateTime.toInstant();
+        zonedDateTime = timeStamp.atZone(ZoneId.systemDefault());
+
         if (zonedDateTime != null) {
             dtDate.setYear(zonedDateTime.getYear());
             dtDate.setMonth(zonedDateTime.getMonthValue());
@@ -142,6 +147,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         if (!isDateTimeVisible()) {
             return null;
         } else {
+            // Converting to UTC is not necessary, the SDK will do it for you
             return ZonedDateTime.of(
                     dtDate.getYear(),
                     dtDate.getMonth(),
