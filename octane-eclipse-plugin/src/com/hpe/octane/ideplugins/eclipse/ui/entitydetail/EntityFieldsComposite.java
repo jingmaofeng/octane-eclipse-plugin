@@ -49,7 +49,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field.FieldEditorFactor
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
-import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class EntityFieldsComposite extends Composite {
 
@@ -60,7 +59,7 @@ public class EntityFieldsComposite extends Composite {
     private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
     private static FieldEditorFactory fieldEditorFactory = new FieldEditorFactory();
 
-    private Map<String, String> prettyFieldsMap;
+    private Map<String, String> fieldLabelMap;
 
     private EntityModelWrapper entityModel;
 
@@ -99,7 +98,7 @@ public class EntityFieldsComposite extends Composite {
         formGenerator.createCompositeSeparator(sectionFields);
 
         //Expand listeners
-        
+
         sectionDescription.addExpansionListener(new IExpansionListener() {
             @Override
             public void expansionStateChanging(ExpansionEvent e) {}
@@ -116,7 +115,7 @@ public class EntityFieldsComposite extends Composite {
                 layout(true, true);
             }
         });
-        
+
         sectionFields.addExpansionListener(new IExpansionListener() {
             @Override
             public void expansionStateChanging(ExpansionEvent expansionEvent) {}
@@ -139,16 +138,13 @@ public class EntityFieldsComposite extends Composite {
 
     private void drawEntityFields(Set<String> shownFields, EntityModelWrapper entityModelWrapper) {
         Arrays.stream(fieldsComposite.getChildren())
-                .filter(child -> child != null)
-                .filter(child -> !child.isDisposed())
-                .forEach(child -> child.dispose());
+        .filter(child -> child != null)
+        .filter(child -> !child.isDisposed())
+        .forEach(child -> child.dispose());
 
         // make a map of the field names and labels
-        Collection<FieldMetadata> allFields = metadataService.getVisibleFields(entityModelWrapper.getEntityType());
-        prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
-        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
-        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_PHASE);
-        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_NAME);
+        Collection<FieldMetadata> fieldMetadata = metadataService.getVisibleFields(entityModelWrapper.getEntityType());
+        fieldLabelMap = fieldMetadata.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
 
         fieldsComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
         Composite sectionClientLeft = new Composite(fieldsComposite, SWT.NONE);
@@ -165,7 +161,7 @@ public class EntityFieldsComposite extends Composite {
 
         for (int i = 0; i < shownFields.size(); i++) {
             String fieldName = iterator.next();
-            
+
             //Check if the field is valid (exists) before trying to show it
             //If the field name for the given type doesn't return any metadata, we ignore it
             //Default field might be out-dated, and cause detail tab to crash
@@ -175,14 +171,14 @@ public class EntityFieldsComposite extends Composite {
                 ILog log = Activator.getDefault().getLog();
                 StringBuilder sbMessage = new StringBuilder();
                 sbMessage.append("Faied to create fieldEditor for field ")
-                        .append(fieldName)
-                        .append(" for type ")
-                        .append(entityModelWrapper.getEntityType())
-                        .append(": ")
-                        .append(ex.getMessage());
+                .append(fieldName)
+                .append(" for type ")
+                .append(entityModelWrapper.getEntityType())
+                .append(": ")
+                .append(ex.getMessage());
 
                 log.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, sbMessage.toString()));
-                
+
                 //Do not show field in detail tab
                 continue;
             }
@@ -197,7 +193,7 @@ public class EntityFieldsComposite extends Composite {
 
             // Add the pair of labels for field and value
             CLabel labelFieldName = new CLabel(columnComposite, SWT.NONE);
-            labelFieldName.setText(prettyFieldsMap.get(fieldName));
+            labelFieldName.setText(fieldLabelMap.get(fieldName));
             labelFieldName.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
             GridData labelFieldNameGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
             labelFieldName.setLayoutData(labelFieldNameGridData);

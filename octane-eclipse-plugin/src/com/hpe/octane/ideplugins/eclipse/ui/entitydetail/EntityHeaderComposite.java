@@ -66,9 +66,10 @@ public class EntityHeaderComposite extends Composite {
     private static final String TOOLTIP_PHASE = "Save changes";
     private static final String TOOLTIP_FIELDS = "Customize fields to be shown";
     private static final String TOOLTIP_COMMENTS = "Show comments";
+    private static final String TOOLTIP_VIEW_IN_BROWSER = "View in browser (System)";
 
     private static MetadataService metadataService = Activator.getInstance(MetadataService.class);
-    private Map<String, String> prettyFieldsMap;
+    private Map<String, String> fieldLabelMap;
     private static final Map<Entity, Set<String>> defaultFields = DefaultEntityFieldsUtil.getDefaultFields();
 
     private ToolTip truncatedLabelTooltip;
@@ -141,7 +142,7 @@ public class EntityHeaderComposite extends Composite {
         btnBrowser = new Button(this, SWT.NONE);
         btnBrowser.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
         btnBrowser.setImage(ImageResources.BROWSER_16X16.getImage());
-        btnBrowser.setToolTipText(TOOLTIP_COMMENTS);
+        btnBrowser.setToolTipText(TOOLTIP_VIEW_IN_BROWSER);
         btnBrowser.addListener(SWT.MouseDown,
                 event -> Activator.getInstance(EntityService.class).openInBrowser(entityModelWrapper.getReadOnlyEntityModel()));
 
@@ -155,7 +156,7 @@ public class EntityHeaderComposite extends Composite {
         fieldCombo = new MultiSelectComboBox<>(new LabelProvider() {
             @Override
             public String getText(Object fieldName) {
-                return prettyFieldsMap.get(fieldName);
+                return fieldLabelMap.get(fieldName);
             }
         });
 
@@ -250,14 +251,17 @@ public class EntityHeaderComposite extends Composite {
         }
 
         // make a map of the field names and labels
-        Collection<FieldMetadata> allFields = metadataService.getVisibleFields(Entity.getEntityType(entityModel));
-        prettyFieldsMap = allFields.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
-        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
-        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_PHASE);
-        prettyFieldsMap.remove(EntityFieldsConstants.FIELD_NAME);
+        Collection<FieldMetadata> fieldMetadata = metadataService.getVisibleFields(Entity.getEntityType(entityModel));
+        fieldLabelMap = fieldMetadata.stream().collect(Collectors.toMap(FieldMetadata::getName, FieldMetadata::getLabel));
+        
+        //Hidden fields, plugin UI restriction
+        fieldLabelMap.remove(EntityFieldsConstants.FIELD_DESCRIPTION);
+        fieldLabelMap.remove(EntityFieldsConstants.FIELD_PHASE);
+        fieldLabelMap.remove(EntityFieldsConstants.FIELD_NAME);
+        fieldLabelMap.remove(EntityFieldsConstants.FIELD_RANK);
 
         fieldCombo.clear();
-        fieldCombo.addAll(prettyFieldsMap.keySet());
+        fieldCombo.addAll(fieldLabelMap.keySet());
         fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
     }
 

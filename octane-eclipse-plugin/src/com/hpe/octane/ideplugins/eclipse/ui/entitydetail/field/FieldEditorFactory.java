@@ -64,6 +64,7 @@ public class FieldEditorFactory {
             }
 
         }
+        
         try {
             fieldEditor.setField(entityModelWrapper, fieldName);
         } catch (Exception ex) {
@@ -79,6 +80,7 @@ public class FieldEditorFactory {
             log.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, sbMessage.toString()));
 
             fieldEditor = new ReadOnlyFieldEditor(parent, SWT.NONE);
+            fieldEditor.setField(entityModelWrapper, fieldName);
         }
         return fieldEditor;
     }
