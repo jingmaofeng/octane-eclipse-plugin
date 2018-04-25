@@ -259,9 +259,17 @@ public class EntityHeaderComposite extends Composite {
         fieldLabelMap.remove(EntityFieldsConstants.FIELD_PHASE);
         fieldLabelMap.remove(EntityFieldsConstants.FIELD_NAME);
         fieldLabelMap.remove(EntityFieldsConstants.FIELD_RANK);
+        fieldLabelMap.remove(EntityFieldsConstants.FIELD_ID);
 
         fieldCombo.clear();
-        fieldCombo.addAll(fieldLabelMap.keySet());
+        fieldCombo.addAll(
+                fieldLabelMap
+                    .keySet()
+                    .stream()
+                    .sorted()
+                    .collect(Collectors.toList())
+                );
+        
         fieldCombo.setSelection(PluginPreferenceStorage.getShownEntityFields(Entity.getEntityType(entityModel)), false);
     }
 

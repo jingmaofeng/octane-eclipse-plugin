@@ -44,9 +44,6 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class EntityModelEditor extends EditorPart {
 
-    public EntityModelEditor() {
-    }
-
     private static final EntityIconFactory entityIconFactoryForTabInfo = new EntityIconFactory(20, 20, 7);
     private static EntityService entityService = Activator.getInstance(EntityService.class);
 
