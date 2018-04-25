@@ -12,31 +12,17 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.util.IOUtils;
-import com.hpe.adm.nga.sdk.authentication.SimpleUserAuthentication;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.nonentity.ImageService;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
-import com.hpe.octane.ideplugins.eclipse.ui.util.ClientLoginCookie;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
@@ -49,7 +35,6 @@ public class DescriptionComposite extends Composite {
     private Color foregroundColor = PlatformResourcesManager.getPlatformForegroundColor();
     private Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
     private Browser browserDescHtml;
-    private ImageService imageService;
 
     public DescriptionComposite(Composite parent, int style) {
         super(parent, style);
@@ -65,28 +50,25 @@ public class DescriptionComposite extends Composite {
     }
 
     public String getBrowserText(EntityModel entityModel) {
-        String descriptionFromServerRemodeled = Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION)));
-        descriptionFromServerRemodeled = Activator.getInstance(ImageService.class).downloadPictures(
-                Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
+        String descriptionFromServerRemodeled = Activator.getInstance(ImageService.class)
+                .downloadPictures(Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
 
-        String descriptionText = "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-                + getRgbString(foregroundColor) + ">"
-                + descriptionFromServerRemodeled
-                + "</font></body></html>";
-        if (descriptionText.equals("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-                + getRgbString(foregroundColor) + ">" + "</font></body></html>")) {
+        StringBuilder descriptionText = new StringBuilder();
+        descriptionText.append("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color =" + getRgbString(foregroundColor) + ">");
+        descriptionText.append(descriptionFromServerRemodeled);
+        descriptionText.append("</font></body></html>");
 
-            return "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-                    + getRgbString(foregroundColor) + ">" + "No description" + "</font></body></html>";
+        String verifyIfEmpty = "<html>\n <head></head>\n <body></body>\n</html>";
+        if (verifyIfEmpty.equals(descriptionFromServerRemodeled)) {
+            return "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color =" + getRgbString(foregroundColor) + ">"
+                    + "No description" + "</font></body></html>";
         } else {
-            return descriptionText;
+            return descriptionText.toString();
         }
-
     }
 
     private static String getRgbString(Color color) {
         return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
     }
-
 
 }
