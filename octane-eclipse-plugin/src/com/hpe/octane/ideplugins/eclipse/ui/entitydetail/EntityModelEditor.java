@@ -13,7 +13,6 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -31,7 +30,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.nga.sdk.exception.OctaneException;
-import com.hpe.adm.nga.sdk.model.ErrorModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -150,48 +148,45 @@ public class EntityModelEditor extends EditorPart {
     }
 
     @Override
-    public void setFocus() {}
+    public void setFocus() {
+    }
 
     @Override
     public void doSave(IProgressMonitor monitor) {
         UpdateEntityJob updateEntityJob = new UpdateEntityJob("Saving " + entityModelWrapper.getEntityType(), entityModelWrapper.getEntityModel());
-        updateEntityJob.schedule();
-        
-        try {
-            updateEntityJob.join(1000 * 10, monitor);
 
-            OctaneException octaneException = updateEntityJob.getOctaneException();
-            if (octaneException == null) {
-                loadEntity();
-                
-            } else {
-                EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(rootComposite.getShell());
-                errorDialog.addButton("Back", () -> errorDialog.close());
-                errorDialog.addButton("Refresh", () -> {
+        updateEntityJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                OctaneException octaneException = updateEntityJob.getOctaneException();
+
+                if (octaneException == null) {
                     loadEntity();
-                    errorDialog.close();
-                });
-                errorDialog.addButton("Open in browser", () -> {
-                    entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
-                    errorDialog.close();
-                });
-                
-                errorDialog.open(octaneException, "Saving entity failed");
-                
-                //This will stop the window from closing if an error occurs 
-                //when saving from the dialog that appears when you close a dirty tab
-                monitor.setCanceled(true); 
+
+                } else {
+                    Display.getDefault().asyncExec(() -> {
+
+                        EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(rootComposite.getShell());
+
+                        errorDialog.addButton("Back", () -> errorDialog.close());
+
+                        errorDialog.addButton("Refresh", () -> {
+                            loadEntity();
+                            errorDialog.close();
+                        });
+                        errorDialog.addButton("Open in browser", () -> {
+                            entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
+                            errorDialog.close();
+                        });
+
+                        errorDialog.open(octaneException, "Saving entity failed");
+
+                    });
+                }
             }
-            
-        } catch (OperationCanceledException | InterruptedException ignored) {
-            EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(rootComposite.getShell());
-            errorDialog.addButton("Back", () -> errorDialog.close());
-            errorDialog.open(new OctaneException(new ErrorModel("Save timeout")), "Saving entity failed");
-            
-            //This will stop the window from closing if an error occurs 
-            //when saving from the dialog that appears when you close a dirty tab
-            monitor.setCanceled(true); 
-        }
+        });
+
+        updateEntityJob.schedule();
     }
 
     @Override
@@ -208,6 +203,4 @@ public class EntityModelEditor extends EditorPart {
     public boolean isSaveAsAllowed() {
         return entityModelWrapper != null && isDirty;
     }
-
-
 }
