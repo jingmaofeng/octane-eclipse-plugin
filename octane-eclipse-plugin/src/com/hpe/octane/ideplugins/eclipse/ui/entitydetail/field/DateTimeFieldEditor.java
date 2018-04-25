@@ -54,7 +54,7 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
         gridLayout.marginWidth = 0;
         setLayout(gridLayout);
 
-        dtDate = new DateTime(this, SWT.NONE);
+        dtDate = new DateTime(this, SWT.DATE);
         dtDate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
         dtTime = new DateTime(this, SWT.TIME);
@@ -94,9 +94,6 @@ public class DateTimeFieldEditor extends Composite implements FieldEditor {
 
         fieldMessageComposite = new FieldMessageComposite(this, SWT.NONE);
         fieldMessageComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 1, 1));
-        new Label(this, SWT.NONE);
-        new Label(this, SWT.NONE);
-        new Label(this, SWT.NONE);
 
         SelectionAdapter selectionListener = new SelectionAdapter() {
             @Override
