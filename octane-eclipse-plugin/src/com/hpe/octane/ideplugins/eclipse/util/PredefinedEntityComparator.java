@@ -21,16 +21,20 @@ import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 public class PredefinedEntityComparator implements Comparator<Entity> {
 
     private static final List<Entity> predefinedOrder = Arrays.asList(new Entity[] {
+            Entity.EPIC,
+            Entity.FEATURE,
             Entity.USER_STORY,
             Entity.QUALITY_STORY,
             Entity.DEFECT,
             Entity.TASK,
+            Entity.REQUIREMENT,
             Entity.MANUAL_TEST,
             Entity.GHERKIN_TEST,
+            Entity.AUTOMATED_TEST,
+            Entity.TEST_SUITE,
             Entity.TEST_SUITE_RUN,
             Entity.MANUAL_TEST_RUN,
             Entity.COMMENT,
-            Entity.REQUIREMENT
     });
 
     @Override

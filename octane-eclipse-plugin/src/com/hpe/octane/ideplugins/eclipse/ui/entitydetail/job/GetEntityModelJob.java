@@ -50,7 +50,7 @@ public class GetEntityModelJob extends Job {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
             Set<String> fields = metadataService
-                        .getFields(this.entityType)
+                        .getVisibleFields(this.entityType)
                         .stream()
                         .map(fieldMetadata -> fieldMetadata.getName())
                         .collect(Collectors.toSet());

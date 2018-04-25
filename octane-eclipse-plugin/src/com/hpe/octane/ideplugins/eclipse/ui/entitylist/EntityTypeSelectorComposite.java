@@ -13,10 +13,12 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitylist;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -30,6 +32,7 @@ import org.eclipse.swt.widgets.Label;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
+import com.hpe.octane.ideplugins.eclipse.util.PredefinedEntityComparator;
 
 public class EntityTypeSelectorComposite extends Composite {
 
@@ -52,7 +55,12 @@ public class EntityTypeSelectorComposite extends Composite {
         rowLayout.spacing = 7;
         setLayout(rowLayout);
         
-        for (Entity entity : supportedEntityTypes) {
+        List<Entity> sortedEntityTypes = Arrays
+                .stream(supportedEntityTypes)
+                .sorted(new PredefinedEntityComparator())
+                .collect(Collectors.toList());
+        
+        for (Entity entity : sortedEntityTypes) {
             Button btnCheckButton = new Button(this, SWT.CHECK);
             btnCheckButton.setBackground(backgroundColor);
             btnCheckButton.addSelectionListener(new SelectionAdapter() {
