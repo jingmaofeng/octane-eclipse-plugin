@@ -32,6 +32,7 @@ import com.google.api.client.http.HttpResponse;
 import com.google.api.client.util.IOUtils;
 import com.hpe.adm.nga.sdk.authentication.SimpleUserAuthentication;
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.octane.ideplugins.services.nonentity.ImageService;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
@@ -48,7 +49,7 @@ public class DescriptionComposite extends Composite {
     private Color foregroundColor = PlatformResourcesManager.getPlatformForegroundColor();
     private Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
     private Browser browserDescHtml;
-    private File octanePhotosDir;
+    private ImageService imageService;
 
     public DescriptionComposite(Composite parent, int style) {
         super(parent, style);
@@ -65,11 +66,8 @@ public class DescriptionComposite extends Composite {
 
     public String getBrowserText(EntityModel entityModel) {
         String descriptionFromServerRemodeled = Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION)));
-        try {
-            descriptionFromServerRemodeled = downloadPictures(
-                    Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
-        } catch (IOException e) {
-        }
+        descriptionFromServerRemodeled = Activator.getInstance(ImageService.class).downloadPictures(
+                Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
 
         String descriptionText = "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
                 + getRgbString(foregroundColor) + ">"
@@ -90,71 +88,5 @@ public class DescriptionComposite extends Composite {
         return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
     }
 
-    private String downloadPictures(String descriptionField) throws IOException {
-        String tmpPath = System.getProperty("java.io.tmpdir");
-        String baseUrl = Activator.getConnectionSettings().getBaseUrl();
-        File tmpDir = new File(tmpPath);
-        octanePhotosDir = new File(tmpDir, "Octane_pictures");
-
-        if (!new File(tmpDir, "Octane_pictures").exists()) {
-            octanePhotosDir.mkdir();
-        }
-        String octanePhotosPath = octanePhotosDir.getAbsolutePath();
-
-        Document descriptionParser = Jsoup.parse(descriptionField);
-        Elements link = descriptionParser.getElementsByTag("img");
-
-        for (Element el : link) {
-            String pictureLink = el.attr("src");
-            if (pictureLink.contains("/api/shared_spaces")) {
-                el.attr("src", baseUrl + pictureLink);
-                pictureLink = el.attr("src");
-            }
-
-            if (!pictureLink.contains(Activator.getConnectionSettings().getBaseUrl())) {
-                continue;
-            }
-            int index = pictureLink.lastIndexOf("/");
-            String pictureName = pictureLink.substring(index + 1, pictureLink.length());
-            String picturePath = octanePhotosPath + "\\" + pictureName;
-            if (!new File(octanePhotosDir, pictureName).exists()) {
-                saveImage(pictureLink, picturePath);
-            }
-            ;
-            el.attr("src", picturePath);
-        }
-        return descriptionParser.toString();
-    }
-
-    private void saveImage(String pictureLink, String octanePhotosName) throws IOException {
-
-        if (isUserLoggedIn() == true) {
-            HttpResponse httpResponse = ClientLoginCookie.getDataForImage(pictureLink);
-            InputStream is = httpResponse.getContent();
-
-            OutputStream os = new FileOutputStream(octanePhotosName);
-            IOUtils.copy(is, os);
-            is.close();
-            os.close();
-        } else {
-            loginUser();
-        }
-    }
-
-    private boolean isUserLoggedIn() {
-        if (ClientLoginCookie.isUserLoggedIn() == false) {
-            loginUser();
-            return true;
-        } else {
-            return true;
-        }
-    }
-
-    private void loginUser() {
-        SimpleUserAuthentication userAuth = new SimpleUserAuthentication(Activator.getConnectionSettings().getUserName(),
-                Activator.getConnectionSettings().getPassword());
-        @SuppressWarnings("unused")
-        HttpResponse httpResponse = ClientLoginCookie.loginClient(userAuth);
-    }
 
 }
