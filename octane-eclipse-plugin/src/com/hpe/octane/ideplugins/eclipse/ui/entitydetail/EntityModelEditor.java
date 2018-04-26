@@ -181,6 +181,14 @@ public class EntityModelEditor extends EditorPart {
             else if(ex instanceof OctaneException) {
                 errorDialog.open((OctaneException) ex, SAVE_FAILED_DIALOG_TITLE);
             }
+            
+            // This would stop the editor from closing, if the editor was being closed before the save
+            // The monitor can be null because of doSaveAs()
+            // The monitor being null will not affect the editor b4 close, 
+            // because when the platform saves b4 close, it will always use the doSave method, i. e. the monitor won't be null
+            if(monitor != null) {
+                monitor.setCanceled(true);
+            }
         }
     }
 
