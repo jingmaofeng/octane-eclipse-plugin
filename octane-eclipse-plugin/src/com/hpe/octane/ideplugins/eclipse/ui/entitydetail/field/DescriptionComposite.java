@@ -48,18 +48,23 @@ public class DescriptionComposite extends Composite {
     }
 
     private String getBrowserText(EntityModel entityModel) {
-        String descriptionText = "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-                + getRgbString(foregroundColor) + ">"
-                + Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION))
-                + "</font></body></html>";
-        if (descriptionText.equals("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-                + getRgbString(foregroundColor) + ">" + "</font></body></html>")) {
+        String descriptionText = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION));
 
-            return "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color ="
-                    + getRgbString(foregroundColor) + ">" + "No description" + "</font></body></html>";
-        } else {
-            return descriptionText;
+        if (descriptionText.isEmpty()) {
+            descriptionText = "No description";
         }
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<html>");
+        sb.append("<html><body style=\"background-color:" + getRgbString(backgroundColor) + ";\">");
+        sb.append("<font color =" + getRgbString(foregroundColor) + ">");
+        sb.append(descriptionText);
+        sb.append("</font>");
+        sb.append("</body>");
+        sb.append("</html>");
+
+        return sb.toString();
     }
 
     private static String getRgbString(Color color) {
