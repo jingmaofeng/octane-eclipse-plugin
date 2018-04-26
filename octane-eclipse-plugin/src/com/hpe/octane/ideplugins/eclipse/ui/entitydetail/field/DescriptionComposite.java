@@ -58,7 +58,7 @@ public class DescriptionComposite extends Composite {
 
         sb.append("<html>");
         sb.append("<html><body style=\"background-color:" + getRgbString(backgroundColor) + ";\">");
-        sb.append("<font color =" + getRgbString(foregroundColor) + ">");
+        sb.append("<font style=\"color:" + getRgbString(foregroundColor) + "\">");
         sb.append(descriptionText);
         sb.append("</font>");
         sb.append("</body>");
