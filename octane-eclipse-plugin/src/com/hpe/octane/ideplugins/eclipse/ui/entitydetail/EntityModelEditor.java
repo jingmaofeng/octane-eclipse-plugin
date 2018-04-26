@@ -177,20 +177,12 @@ public class EntityModelEditor extends EditorPart {
                 });
                 
                 errorDialog.open(octaneException, "Saving entity failed");
-                
-                //This will stop the window from closing if an error occurs 
-                //when saving from the dialog that appears when you close a dirty tab
-                monitor.setCanceled(true); 
             }
             
         } catch (OperationCanceledException | InterruptedException ignored) {
             EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(rootComposite.getShell());
             errorDialog.addButton("Back", () -> errorDialog.close());
             errorDialog.open(new OctaneException(new ErrorModel("Save timeout")), "Saving entity failed");
-            
-            //This will stop the window from closing if an error occurs 
-            //when saving from the dialog that appears when you close a dirty tab
-            monitor.setCanceled(true); 
         }
     }
 
