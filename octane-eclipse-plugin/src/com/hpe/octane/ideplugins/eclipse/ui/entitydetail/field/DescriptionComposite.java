@@ -12,16 +12,22 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
+import java.nio.file.WatchService;
+
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.nonentity.ImageService;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetImagesFromServerJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
@@ -50,8 +56,8 @@ public class DescriptionComposite extends Composite {
     }
 
     private String getBrowserText(EntityModel entityModel) {
-        String descriptionText = Activator.getInstance(ImageService.class)
-                .downloadPictures(Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
+        String descriptionText = Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION)));
+        descriptionText = downloadPictures(descriptionText, entityModel);
 
         if (descriptionText.isEmpty()) {
             descriptionText = "No description";
@@ -72,5 +78,29 @@ public class DescriptionComposite extends Composite {
 
     private static String getRgbString(Color color) {
         return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
+    }
+    
+    private String downloadPictures(String description, EntityModel entityModel) {
+        GetImagesFromServerJob getImagesFromServerJob = new GetImagesFromServerJob("Retrieving photos for description", entityModel);
+        
+        getImagesFromServerJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override 
+            public void scheduled(IJobChangeEvent event) {
+                Display.getDefault().asyncExec(() -> {
+                    System.out.println("something somewhere");
+                });
+            }
+            
+            @Override
+            public void done(IJobChangeEvent event) {
+                Display.getDefault().asyncExec(() -> {
+                    if(getImagesFromServerJob.wasImageRetrieved()) {
+                        System.out.println("YAY");
+                    }
+                });
+            }
+        });
+        
+        return description;
     }
 }
