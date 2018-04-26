@@ -49,26 +49,28 @@ public class DescriptionComposite extends Composite {
         browserDescHtml.setText(getBrowserText(entityModelWrapper.getReadOnlyEntityModel()));
     }
 
-    public String getBrowserText(EntityModel entityModel) {
-        String descriptionFromServerRemodeled = Activator.getInstance(ImageService.class)
+    private String getBrowserText(EntityModel entityModel) {
+        String descriptionText = Activator.getInstance(ImageService.class)
                 .downloadPictures(Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
 
-        StringBuilder descriptionText = new StringBuilder();
-        descriptionText.append("<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color =" + getRgbString(foregroundColor) + ">");
-        descriptionText.append(descriptionFromServerRemodeled);
-        descriptionText.append("</font></body></html>");
-
-        String verifyIfEmpty = "<html>\n <head></head>\n <body></body>\n</html>";
-        if (verifyIfEmpty.equals(descriptionFromServerRemodeled)) {
-            return "<html><body bgcolor =" + getRgbString(backgroundColor) + ">" + "<font color =" + getRgbString(foregroundColor) + ">"
-                    + "No description" + "</font></body></html>";
-        } else {
-            return descriptionText.toString();
+        if (descriptionText.isEmpty()) {
+            descriptionText = "No description";
         }
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<html>");
+        sb.append("<html><body style=\"background-color:" + getRgbString(backgroundColor) + ";\">");
+        sb.append("<font color =" + getRgbString(foregroundColor) + ">");
+        sb.append(descriptionText);
+        sb.append("</font>");
+        sb.append("</body>");
+        sb.append("</html>");
+
+        return sb.toString();
     }
 
     private static String getRgbString(Color color) {
         return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
     }
-
 }
