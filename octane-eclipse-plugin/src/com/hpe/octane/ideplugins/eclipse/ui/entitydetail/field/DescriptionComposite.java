@@ -88,13 +88,12 @@ public class DescriptionComposite extends Composite {
     }
 
     private String downloadPictures(EntityModel entityModel) {
-        description = null;
-
         Job getImagesFromServerJob = new Job("Retrieving photos for description") {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
-                description = Activator.getInstance(ImageService.class).downloadPictures(Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
+                description = Activator.getInstance(ImageService.class)
+                        .downloadPictures(Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
                 monitor.done();
                 return Status.OK_STATUS;
             }
