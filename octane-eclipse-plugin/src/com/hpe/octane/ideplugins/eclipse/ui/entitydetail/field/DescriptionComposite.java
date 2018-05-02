@@ -44,7 +44,6 @@ public class DescriptionComposite extends Composite {
     private Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
     private Browser browserDescHtml;
     private LoadingComposite loadingComposite;
-    private String downloadedDescription;
 
     private String description;
     private StackLayoutComposite stackLayoutComposite;
@@ -53,7 +52,6 @@ public class DescriptionComposite extends Composite {
         super(parent, style);
         setLayout(new FillLayout(SWT.HORIZONTAL));
         stackLayoutComposite = new StackLayoutComposite(this, SWT.NONE);
-
         loadingComposite = new LoadingComposite(stackLayoutComposite, SWT.NONE);
         stackLayoutComposite.showControl(loadingComposite);
 
@@ -66,20 +64,18 @@ public class DescriptionComposite extends Composite {
     }
 
     private String getBrowserText(EntityModel entityModel) {
-        String descriptionText = Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION)));
-        description = descriptionText;
-        descriptionText = downloadPictures(entityModel);
+        String initialDescription = Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION)));
+        description = downloadPictures(entityModel);
 
-        if (descriptionText.isEmpty() || descriptionText.equals(null)) {
-            descriptionText = "No description";
+        if (initialDescription.isEmpty()) {
+            description = "No description";
         }
-
         StringBuilder sb = new StringBuilder();
 
         sb.append("<html>");
         sb.append("<html><body style=\"background-color:" + getRgbString(backgroundColor) + ";\">");
         sb.append("<font style=\"color:" + getRgbString(foregroundColor) + "\">");
-        sb.append(descriptionText);
+        sb.append(description);
         sb.append("</font>");
         sb.append("</body>");
         sb.append("</html>");
@@ -92,14 +88,13 @@ public class DescriptionComposite extends Composite {
     }
 
     private String downloadPictures(EntityModel entityModel) {
-        downloadedDescription = null;
+        description = null;
 
         Job getImagesFromServerJob = new Job("Retrieving photos for description") {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
-                downloadedDescription = Activator.getInstance(ImageService.class)
-                        .downloadPictures(Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
+                description = Activator.getInstance(ImageService.class).downloadPictures(Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
                 monitor.done();
                 return Status.OK_STATUS;
             }
@@ -116,8 +111,8 @@ public class DescriptionComposite extends Composite {
             @Override
             public void done(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
-                    if (downloadedDescription != null) {
-                        browserDescHtml.setText(downloadedDescription);
+                    if (description != null) {
+                        browserDescHtml.setText(description);
                     }
                     stackLayoutComposite.showControl(browserDescHtml);
                 });
