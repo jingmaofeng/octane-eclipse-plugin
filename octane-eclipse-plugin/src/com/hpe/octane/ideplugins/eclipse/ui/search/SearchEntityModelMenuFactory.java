@@ -35,7 +35,6 @@ import org.eclipse.ui.PlatformUI;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
-import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.mywork.MyWorkService;
 import com.hpe.adm.octane.ideplugins.services.util.UrlParser;
@@ -47,6 +46,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitylist.EntityModelMenuFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.MyWorkView;
 import com.hpe.octane.ideplugins.eclipse.ui.mywork.job.AddToMyWorkJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
+import com.hpe.octane.ideplugins.eclipse.ui.util.OpenInBrowser;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
@@ -55,7 +55,6 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
 
     // private static final ILog logger = Activator.getDefault().getLog();
     private static final EntityIconFactory entityIconFactory = new EntityIconFactory(16, 16, 7);
-    private static EntityService entityService = Activator.getInstance(EntityService.class);
     private static MyWorkService myWorkService = Activator.getInstance(MyWorkService.class);
 
     public SearchEntityModelMenuFactory() {
@@ -71,8 +70,8 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
             page.openEditor(entityModelEditorInput, EntityModelEditor.ID);
         } catch (PartInitException ex) {
             // logger.log(new Status(Status.ERROR, Activator.PLUGIN_ID,
-            // Status.ERROR, "An exception has occured when opening the editor",
-            // ex));
+            // Status.ERROR, "An exception has occurred when opening the
+            // editor", ex));
         }
     }
 
@@ -88,7 +87,7 @@ public class SearchEntityModelMenuFactory implements EntityModelMenuFactory {
                 menu,
                 "View in browser (System)",
                 ImageResources.BROWSER_16X16.getImage(),
-                () -> entityService.openInBrowser(entityModel));
+                () -> OpenInBrowser.openEntityInBrowser(entityModel));
 
         if (PlatformUI.getWorkbench().getBrowserSupport().isInternalWebBrowserAvailable()) {
             addMenuItem(

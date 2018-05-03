@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -37,6 +40,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class MultiSelectComboBox<T> {
@@ -240,6 +244,15 @@ public class MultiSelectComboBox<T> {
 		for (T selectOption : selectOptions) {
 			if (options.contains(selectOption)) {
 				setSelected(selectOption, true, false);
+			} else {
+	            ILog log = Activator.getDefault().getLog();
+	            StringBuilder sbMessage = new StringBuilder();
+	            sbMessage.append("Failed to select: \"")
+	                    .append(selectOption)
+	                    .append("\", ")
+	                    .append(MultiSelectComboBox.class.getName())
+	                    .append(" does not contain that option");
+	            log.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, sbMessage.toString()));
 			}
 		}
 		if(fireSelectionHandlers) {

@@ -45,6 +45,7 @@ public enum ImageResources {
     OCTANE_ICON_RED_13X13("octane-icon-red-13x13.png"),
     OCTANE_LOGO("octane-logo.png"),
     OCTANE_PRELOADER("octane_preloader.gif"),
+    OCTANE_REMOVE("octane_remove.png"),
     PLACEHOLDER("placeholder.png"),
     REFRESH_16X16("refresh-16x16.png"),
     S_NO_ITEMS_TO_DISPLAY("s-no-items-to-display.png"),

@@ -33,6 +33,10 @@ public class TruncatingStyledText extends StyledText {
 
     private String originalText = "";
     private GC gc;
+    
+    public TruncatingStyledText(Composite parent, int style) {
+        this(parent, style, new ToolTip(parent.getShell(), SWT.NONE));
+    }
 
     public TruncatingStyledText(Composite parent, int style, ToolTip tip) {
         super(parent, style);
@@ -134,4 +138,5 @@ public class TruncatingStyledText extends StyledText {
         super.setFont(font);
         gc.setFont(font);
     }
+    
 }

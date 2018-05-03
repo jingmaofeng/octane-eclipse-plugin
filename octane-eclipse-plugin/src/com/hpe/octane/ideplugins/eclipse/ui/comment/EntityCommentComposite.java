@@ -12,7 +12,6 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.comment;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -46,6 +45,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.PostCommentJob;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite.LoadingPosition;
+import com.hpe.octane.ideplugins.eclipse.ui.util.OpenInBrowser;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
@@ -120,26 +120,27 @@ public class EntityCommentComposite extends StackLayoutComposite {
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
         commentsBrowser.addLocationListener(new LocationAdapter() {
-            // method called when the user clicks a link but before the link is opened
+
+            // method called when the user clicks a link but before the link is
+            // opened
             @Override
             public void changing(LocationEvent event) {
                 String urlString = event.location;
                 if (urlString == null || "about:blank".equals(urlString)) {
                     return;
                 }
-                
+
                 try {
                     URIBuilder url = new URIBuilder(urlString);
-                    
+
                     if (url.getHost() != null) {
                         String temporaryString = url.toString();
                         URI finalUrl = new URI(temporaryString);
-
-                        Desktop.getDesktop().browse(finalUrl);
+                        OpenInBrowser.openURI(finalUrl);
                         event.doit = false;
                         return;
                     }
-                    
+
                     URI baseURI = new URI(Activator.getConnectionSettings().getBaseUrl());
                     url.setHost(baseURI.getHost());
                     url.setPort(baseURI.getPort());
@@ -147,11 +148,11 @@ public class EntityCommentComposite extends StackLayoutComposite {
 
                     String temporaryString = url.toString();
                     URI finalUrl = new URI(temporaryString);
-
-                    Desktop.getDesktop().browse(finalUrl);
+                    OpenInBrowser.openURI(finalUrl);
                     event.doit = false; // stop propagation
                 } catch (URISyntaxException | IOException e) {
-                    // tough luck, continue propagation, it's better than nothing
+                    // tough luck, continue propagation, it's better than
+                    // nothing
                     event.doit = true;
                 }
             }
