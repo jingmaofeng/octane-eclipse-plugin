@@ -12,6 +12,11 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -20,6 +25,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.LocationAdapter;
+import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -32,6 +39,7 @@ import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.OpenInBrowser;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
@@ -56,7 +64,44 @@ public class DescriptionComposite extends Composite {
         stackLayoutComposite.showControl(loadingComposite);
 
         browserDescHtml = factory.createBrowser(stackLayoutComposite, SWT.NONE);
-        browserDescHtml.addLocationListener(new LinkInterceptListener());
+        browserDescHtml.addLocationListener(new LocationAdapter() {
+
+            // method called when the user clicks a link but before the link is
+            // opened
+            @Override
+            public void changing(LocationEvent event) {
+                String urlString = event.location;
+                if (urlString == null || "about:blank".equals(urlString)) {
+                    return;
+                }
+
+                try {
+                    URIBuilder url = new URIBuilder(urlString);
+
+                    if (url.getHost() != null) {
+                        String temporaryString = url.toString();
+                        URI finalUrl = new URI(temporaryString);
+                        OpenInBrowser.openURI(finalUrl);
+                        event.doit = false;
+                        return;
+                    }
+
+                    URI baseURI = new URI(Activator.getConnectionSettings().getBaseUrl());
+                    url.setHost(baseURI.getHost());
+                    url.setPort(baseURI.getPort());
+                    url.setScheme(baseURI.getScheme());
+
+                    String temporaryString = url.toString();
+                    URI finalUrl = new URI(temporaryString);
+                    OpenInBrowser.openURI(finalUrl);
+                    event.doit = false; // stop propagation
+                } catch (URISyntaxException | IOException e) {
+                    // tough luck, continue propagation, it's better than
+                    // nothing
+                    event.doit = true;
+                }
+            }
+        });
     }
 
     public void setEntityModel(EntityModelWrapper entityModelWrapper) {
