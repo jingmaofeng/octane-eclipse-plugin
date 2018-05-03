@@ -64,44 +64,7 @@ public class DescriptionComposite extends Composite {
         stackLayoutComposite.showControl(loadingComposite);
 
         browserDescHtml = factory.createBrowser(stackLayoutComposite, SWT.NONE);
-        browserDescHtml.addLocationListener(new LocationAdapter() {
-
-            // method called when the user clicks a link but before the link is
-            // opened
-            @Override
-            public void changing(LocationEvent event) {
-                String urlString = event.location;
-                if (urlString == null || "about:blank".equals(urlString)) {
-                    return;
-                }
-
-                try {
-                    URIBuilder url = new URIBuilder(urlString);
-
-                    if (url.getHost() != null) {
-                        String temporaryString = url.toString();
-                        URI finalUrl = new URI(temporaryString);
-                        OpenInBrowser.openURI(finalUrl);
-                        event.doit = false;
-                        return;
-                    }
-
-                    URI baseURI = new URI(Activator.getConnectionSettings().getBaseUrl());
-                    url.setHost(baseURI.getHost());
-                    url.setPort(baseURI.getPort());
-                    url.setScheme(baseURI.getScheme());
-
-                    String temporaryString = url.toString();
-                    URI finalUrl = new URI(temporaryString);
-                    OpenInBrowser.openURI(finalUrl);
-                    event.doit = false; // stop propagation
-                } catch (URISyntaxException | IOException e) {
-                    // tough luck, continue propagation, it's better than
-                    // nothing
-                    event.doit = true;
-                }
-            }
-        });
+        browserDescHtml.addLocationListener(new LinkInterceptListener() {});
     }
 
     public void setEntityModel(EntityModelWrapper entityModelWrapper) {

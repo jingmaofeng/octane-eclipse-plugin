@@ -12,15 +12,16 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.util;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
+
+import com.hpe.octane.ideplugins.eclipse.Activator;
 
 /**
  * Intercept location events on swt {@link Browser} control
@@ -32,18 +33,36 @@ public class LinkInterceptListener implements LocationListener {
      */
     @Override
     public void changing(LocationEvent event) {
-        URI externalUrl = null;
-        try {
-            new URL(event.location); // make sure it's a valid URL, which is a
-                                     // subset of a URI
-            externalUrl = new URI(event.location);
-            Desktop.getDesktop().browse(externalUrl);
-            event.doit = false; // stop propagation
-        } catch (URISyntaxException | IOException e) {
-            // tough luck, continue propagation, it's better than nothing
-            event.doit = true;
+        String urlString = event.location;
+        if (urlString == null || "about:blank".equals(urlString)) {
+            return;
         }
 
+        try {
+            URIBuilder url = new URIBuilder(urlString);
+
+            if (url.getHost() != null) {
+                String temporaryString = url.toString();
+                URI finalUrl = new URI(temporaryString);
+                OpenInBrowser.openURI(finalUrl);
+                event.doit = false;
+                return;
+            }
+
+            URI baseURI = new URI(Activator.getConnectionSettings().getBaseUrl());
+            url.setHost(baseURI.getHost());
+            url.setPort(baseURI.getPort());
+            url.setScheme(baseURI.getScheme());
+
+            String temporaryString = url.toString();
+            URI finalUrl = new URI(temporaryString);
+            OpenInBrowser.openURI(finalUrl);
+            event.doit = false; // stop propagation
+        } catch (URISyntaxException | IOException e) {
+            // tough luck, continue propagation, it's better than
+            // nothing
+            event.doit = true;
+        }
     }
 
     // method called after the link has been opened in place.

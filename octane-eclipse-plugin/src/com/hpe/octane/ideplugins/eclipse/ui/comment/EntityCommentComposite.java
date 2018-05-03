@@ -43,6 +43,7 @@ import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.PostCommentJob;
+import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite.LoadingPosition;
 import com.hpe.octane.ideplugins.eclipse.ui.util.OpenInBrowser;
@@ -119,44 +120,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
         commentsBrowser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         showControl(commentsComposite);
         commentsBrowser.setText("<html></html>");
-        commentsBrowser.addLocationListener(new LocationAdapter() {
-
-            // method called when the user clicks a link but before the link is
-            // opened
-            @Override
-            public void changing(LocationEvent event) {
-                String urlString = event.location;
-                if (urlString == null || "about:blank".equals(urlString)) {
-                    return;
-                }
-
-                try {
-                    URIBuilder url = new URIBuilder(urlString);
-
-                    if (url.getHost() != null) {
-                        String temporaryString = url.toString();
-                        URI finalUrl = new URI(temporaryString);
-                        OpenInBrowser.openURI(finalUrl);
-                        event.doit = false;
-                        return;
-                    }
-
-                    URI baseURI = new URI(Activator.getConnectionSettings().getBaseUrl());
-                    url.setHost(baseURI.getHost());
-                    url.setPort(baseURI.getPort());
-                    url.setScheme(baseURI.getScheme());
-
-                    String temporaryString = url.toString();
-                    URI finalUrl = new URI(temporaryString);
-                    OpenInBrowser.openURI(finalUrl);
-                    event.doit = false; // stop propagation
-                } catch (URISyntaxException | IOException e) {
-                    // tough luck, continue propagation, it's better than
-                    // nothing
-                    event.doit = true;
-                }
-            }
-        });
+        commentsBrowser.addLocationListener(new LinkInterceptListener());
     }
 
     public void setEntityModel(EntityModel entityModel) {
