@@ -12,16 +12,26 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.octane.ideplugins.services.nonentity.ImageService;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
+import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LinkInterceptListener;
+import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
@@ -33,14 +43,20 @@ public class DescriptionComposite extends Composite {
     private Color foregroundColor = PlatformResourcesManager.getPlatformForegroundColor();
     private Color backgroundColor = PlatformResourcesManager.getPlatformBackgroundColor();
     private Browser browserDescHtml;
+    private LoadingComposite loadingComposite;
+
+    private String description;
+    private StackLayoutComposite stackLayoutComposite;
 
     public DescriptionComposite(Composite parent, int style) {
         super(parent, style);
         setLayout(new FillLayout(SWT.HORIZONTAL));
-        StackLayoutComposite stackLayoutComposite = new StackLayoutComposite(this, SWT.NONE);
+        stackLayoutComposite = new StackLayoutComposite(this, SWT.NONE);
+        loadingComposite = new LoadingComposite(stackLayoutComposite, SWT.NONE);
+        stackLayoutComposite.showControl(loadingComposite);
+
         browserDescHtml = factory.createBrowser(stackLayoutComposite, SWT.NONE);
         browserDescHtml.addLocationListener(new LinkInterceptListener());
-        stackLayoutComposite.showControl(browserDescHtml);
     }
 
     public void setEntityModel(EntityModelWrapper entityModelWrapper) {
@@ -48,18 +64,18 @@ public class DescriptionComposite extends Composite {
     }
 
     private String getBrowserText(EntityModel entityModel) {
-        String descriptionText = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_DESCRIPTION));
+        String initialDescription = Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION)));
+        description = downloadPictures(entityModel);
 
-        if (descriptionText.isEmpty()) {
-            descriptionText = "No description";
+        if (initialDescription.isEmpty()) {
+            description = "No description";
         }
-
         StringBuilder sb = new StringBuilder();
 
         sb.append("<html>");
         sb.append("<html><body style=\"background-color:" + getRgbString(backgroundColor) + ";\">");
         sb.append("<font style=\"color:" + getRgbString(foregroundColor) + "\">");
-        sb.append(descriptionText);
+        sb.append(description);
         sb.append("</font>");
         sb.append("</body>");
         sb.append("</html>");
@@ -71,4 +87,38 @@ public class DescriptionComposite extends Composite {
         return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
     }
 
+    private String downloadPictures(EntityModel entityModel) {
+        Job getImagesFromServerJob = new Job("Retrieving photos for description") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
+                description = Activator.getInstance(ImageService.class)
+                        .downloadPictures(Util.getUiDataFromModel(entityModel.getValue((EntityFieldsConstants.FIELD_DESCRIPTION))));
+                monitor.done();
+                return Status.OK_STATUS;
+            }
+        };
+
+        getImagesFromServerJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void scheduled(IJobChangeEvent event) {
+                Display.getDefault().asyncExec(() -> {
+                    stackLayoutComposite.showControl(loadingComposite);
+                });
+            }
+
+            @Override
+            public void done(IJobChangeEvent event) {
+                Display.getDefault().asyncExec(() -> {
+                    if (description != null) {
+                        browserDescHtml.setText(description);
+                    }
+                    stackLayoutComposite.showControl(browserDescHtml);
+                });
+            }
+        });
+
+        getImagesFromServerJob.schedule();
+        return description;
+    }
 }
