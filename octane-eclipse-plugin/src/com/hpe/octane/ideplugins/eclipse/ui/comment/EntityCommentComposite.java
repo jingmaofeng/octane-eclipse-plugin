@@ -218,8 +218,8 @@ public class EntityCommentComposite extends StackLayoutComposite {
         String foregroundColorString = "rgb(" + foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")";
 
         StringBuilder commentsBuilder = new StringBuilder();
-        commentsBuilder.append("<html><body bgcolor =" + backgroundColorString + ">");
-        commentsBuilder.append("<font color =" + foregroundColorString + ">");
+        commentsBuilder.append("<html><body style=\"background-color:" + backgroundColorString + ";\">");
+        commentsBuilder.append("<font style=\"color:" + foregroundColorString + "\">"); 
 
         if (!comments.isEmpty()) {
             for (EntityModel comment : comments) {

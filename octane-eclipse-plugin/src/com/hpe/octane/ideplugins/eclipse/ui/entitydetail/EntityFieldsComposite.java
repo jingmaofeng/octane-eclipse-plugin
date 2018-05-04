@@ -137,10 +137,7 @@ public class EntityFieldsComposite extends Composite {
     }
 
     private void drawEntityFields(Set<String> shownFields, EntityModelWrapper entityModelWrapper) {
-        Arrays.stream(fieldsComposite.getChildren())
-        .filter(child -> child != null)
-        .filter(child -> !child.isDisposed())
-        .forEach(child -> child.dispose());
+        Arrays.stream(fieldsComposite.getChildren()).forEach(child -> child.dispose());
 
         // make a map of the field names and labels
         Collection<FieldMetadata> fieldMetadata = metadataService.getVisibleFields(entityModelWrapper.getEntityType());
