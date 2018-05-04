@@ -24,7 +24,6 @@ import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.StringFieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.adm.octane.ideplugins.services.MetadataService;
-import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
@@ -62,7 +61,7 @@ public class GetEntityModelJob extends Job {
             }
             
             exception = null;
-        } catch (ServiceException exception) {
+        } catch (Exception exception) {
         	this.exception = exception;
         }
         monitor.done();

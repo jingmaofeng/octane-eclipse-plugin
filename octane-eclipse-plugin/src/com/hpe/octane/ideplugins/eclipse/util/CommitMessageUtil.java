@@ -29,7 +29,6 @@ import com.google.common.collect.Sets;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
-import com.hpe.adm.octane.ideplugins.services.exception.ServiceException;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.nonentity.CommitMessageService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -58,7 +57,7 @@ public class CommitMessageUtil {
                     EntityService entityService = Activator.getInstance(EntityService.class);
                     try {
                         activeEntityModel = entityService.findEntity(Entity.TASK, activeItem.getId(), Sets.newHashSet("story", "name"));
-                    } catch (ServiceException e) {
+                    } catch (Exception e) {
                         logger.log(new Status(
                                 Status.ERROR,
                                 Activator.PLUGIN_ID,
