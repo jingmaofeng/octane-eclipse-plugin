@@ -103,10 +103,14 @@ public class ErrorComposite extends Composite {
         }
     }
     
-    private void displayGenericException(Exception ex) {
+    private void displayGenericException(Exception ex) {        
         compositeExceptionData.setLayout(new GridLayout(1, false));
-        Label lblError = new Label(compositeExceptionData, SWT.NONE);
-        lblError.setText(ex.getMessage());
+        
+        TruncatingStyledText txtErrorField = new TruncatingStyledText(compositeExceptionData, SWT.MULTI);
+        txtErrorField.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
+        txtErrorField.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+        
+        txtErrorField.setText(ex.getMessage());
     }
     
     private void displayOctaneException(OctaneException ex) {
