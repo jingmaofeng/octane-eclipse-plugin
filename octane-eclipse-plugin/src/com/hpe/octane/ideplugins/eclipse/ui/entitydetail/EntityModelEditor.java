@@ -36,9 +36,9 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.GetEntityModelJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.job.UpdateEntityJob;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper.FieldModelChangedHandler;
-import com.hpe.octane.ideplugins.eclipse.ui.util.OctaneErrorDialog;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.error.ErrorDialog;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
@@ -122,8 +122,7 @@ public class EntityModelEditor extends EditorPart {
                     });
                 } else {
                     Display.getDefault().asyncExec(() -> {
-                        OctaneErrorDialog errorDialog = new OctaneErrorDialog(rootComposite.getShell());
-    
+                        ErrorDialog errorDialog = new ErrorDialog(rootComposite.getShell());
                         errorDialog.addButton("Try again", () -> {
                             loadEntity();
                             errorDialog.close();
@@ -132,8 +131,7 @@ public class EntityModelEditor extends EditorPart {
                             getSite().getPage().closeEditor(EntityModelEditor.this, false);
                             errorDialog.close();
                         });
-                        
-                        errorDialog.openException(getEntityDetailsJob.getException(), "Failed to load backlog item");
+                        errorDialog.displayException(getEntityDetailsJob.getException(), "Failed to load backlog item");
                     });
                 }
             }
@@ -177,11 +175,8 @@ public class EntityModelEditor extends EditorPart {
 
                 } else {
                     Display.getDefault().asyncExec(() -> {
-
-                        OctaneErrorDialog errorDialog = new OctaneErrorDialog(rootComposite.getShell());
-
+                        ErrorDialog errorDialog = new ErrorDialog(rootComposite.getShell());
                         errorDialog.addButton("Back", () -> errorDialog.close());
-
                         errorDialog.addButton("Refresh", () -> {
                             loadEntity();
                             errorDialog.close();
@@ -190,8 +185,7 @@ public class EntityModelEditor extends EditorPart {
                             entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
                             errorDialog.close();
                         });
-
-                        errorDialog.openException(octaneException, "Saving backlog item failed");
+                        errorDialog.displayException(octaneException, "Saving backlog item failed");
 
                     });
                 }
