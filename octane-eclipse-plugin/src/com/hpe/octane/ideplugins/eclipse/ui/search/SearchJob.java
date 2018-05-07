@@ -44,7 +44,9 @@ public class SearchJob extends Job {
         isCancelled = false;
 
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
-
+        if (query.isEmpty()) {
+            return Status.OK_STATUS;
+        }
         Collection<EntityModel> searchResults = searchService.searchGlobal(
                 query,
                 20,
