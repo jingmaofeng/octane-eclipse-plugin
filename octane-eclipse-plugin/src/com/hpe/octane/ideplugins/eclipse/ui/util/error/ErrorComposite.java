@@ -174,7 +174,4 @@ public class ErrorComposite extends Composite {
         return fieldname;
     }
     
-    
-    
-
 }
