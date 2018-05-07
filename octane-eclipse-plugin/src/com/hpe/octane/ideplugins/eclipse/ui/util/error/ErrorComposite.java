@@ -62,10 +62,10 @@ public class ErrorComposite extends Composite {
         
         compositeExceptionData = new Composite(this, SWT.NONE);
         compositeExceptionData.setLayout(new GridLayout(1, false));
-        compositeExceptionData.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1)); 
+        compositeExceptionData.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
         
         lblSeparator = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
-        lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1)); 
+        lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, true, 1, 1)); 
         lblSeparator.setVisible(false);
         
         compositeBtns = new Composite(this, SWT.NONE);
@@ -73,7 +73,7 @@ public class ErrorComposite extends Composite {
         fl_compositeBtns.spacing = 10;
         compositeBtns.setLayout(fl_compositeBtns);
         compositeBtns.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-    }
+    } 
     
     public void addButton(String btnText, Runnable clickedRunnable) {
         lblSeparator.setVisible(true);
