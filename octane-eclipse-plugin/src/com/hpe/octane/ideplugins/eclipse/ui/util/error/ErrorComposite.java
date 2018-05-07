@@ -45,7 +45,7 @@ public class ErrorComposite extends Composite {
     
     private Composite compositeExceptionData;
     private Composite compositeBtns;
-    private Label btnSeparator;
+    private Label lblSeparator;
 
     /**
      * Create the composite.
@@ -64,9 +64,9 @@ public class ErrorComposite extends Composite {
         compositeExceptionData.setLayout(new GridLayout(1, false));
         compositeExceptionData.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1)); 
         
-        btnSeparator = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
-        btnSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1)); 
-        btnSeparator.setVisible(false);
+        lblSeparator = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
+        lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1)); 
+        lblSeparator.setVisible(false);
         
         compositeBtns = new Composite(this, SWT.NONE);
         FillLayout fl_compositeBtns = new FillLayout(SWT.HORIZONTAL);
@@ -76,7 +76,7 @@ public class ErrorComposite extends Composite {
     }
     
     public void addButton(String btnText, Runnable clickedRunnable) {
-        btnSeparator.setVisible(true);
+        lblSeparator.setVisible(true);
         Button btn = new Button(compositeBtns, SWT.NONE);
         btn.setText(btnText);
         btn.addSelectionListener(new SelectionAdapter() {
@@ -91,7 +91,7 @@ public class ErrorComposite extends Composite {
     }
     
     public void clearButtons() {
-        btnSeparator.setVisible(false);
+        lblSeparator.setVisible(false);
         Arrays.stream(compositeBtns.getChildren()).forEach(Control::dispose);
     }
     
