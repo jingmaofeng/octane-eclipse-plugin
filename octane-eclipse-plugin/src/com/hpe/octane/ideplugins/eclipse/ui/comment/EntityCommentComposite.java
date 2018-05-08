@@ -17,7 +17,6 @@ import java.util.Collection;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -65,7 +64,6 @@ public class EntityCommentComposite extends StackLayoutComposite {
 
         loadingComposite = new LoadingComposite(this, SWT.NONE);
         loadingComposite.setLoadingVerticalPosition(LoadingPosition.TOP);
-        
 
         commentsComposite = new Composite(this, SWT.NONE);
         GridLayout gl_commentsComposite = new GridLayout(2, false);
@@ -138,7 +136,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
                 Display.getDefault().asyncExec(() -> {
                     try {
                         OctaneException octaneException = sendCommentJob.getException();
-                        if(octaneException != null) {
+                        if (octaneException != null) {
                             throw octaneException;
                         } else {
                             displayComments();
@@ -146,17 +144,13 @@ public class EntityCommentComposite extends StackLayoutComposite {
                             commentText.setEnabled(true);
                         }
                     } catch (OperationCanceledException | OctaneException e) {
-//                        MessageDialog.openError(Display.getCurrent().getActiveShell(), "ERROR",
-//                                "Comments could not be posted \n ");
                         ErrorComposite errorComposite = new ErrorComposite(commentsComposite.getParent(), SWT.NONE);
-                        errorComposite.addButton("Refresh comments",() -> displayComments());
+                        errorComposite.addButton("Refresh comments", () -> displayComments());
                         errorComposite.displayException(e);
                         commentText.setText("");
                         commentText.setEnabled(true);
                         showControl(errorComposite);
                     }
-//                    errorComposite.addButton("My button",() -> displayComments());
-//                    errorComposite.displayException(ex);
                 });
             }
         });
@@ -173,8 +167,23 @@ public class EntityCommentComposite extends StackLayoutComposite {
                 Display.getDefault().asyncExec(() -> {
                     String html = getCommentHtmlString(getCommentsJob.getComents());
                     if (!commentsBrowser.isDisposed()) {
-                        commentsBrowser.setText(html);
-                        showControl(commentsComposite);
+                        try {
+                            OctaneException octaneException = getCommentsJob.getException();
+                            if (octaneException != null) {
+                                throw octaneException;
+                            } else {
+                                commentsBrowser.setText(html);
+                                showControl(commentsComposite);
+                            }
+                        } catch (OperationCanceledException | OctaneException e) {
+                            ErrorComposite errorComposite = new ErrorComposite(commentsComposite.getParent(), SWT.NONE);
+                            errorComposite.addButton("Refresh comments", () -> displayComments());
+                            errorComposite.displayException(e);
+                            commentText.setText("");
+                            commentText.setEnabled(true);
+                            showControl(errorComposite);
+                        }
+
                     }
                 });
             }

@@ -27,7 +27,6 @@ public class PostCommentJob extends Job {
     private String commentText;
     private CommentService commentService = Activator.getInstance(CommentService.class);
     private boolean isCommentSaved = false;
-    
     private OctaneException octaneException;
 
     public PostCommentJob(String name, EntityModel entityModel, String commentText) {
@@ -53,7 +52,7 @@ public class PostCommentJob extends Job {
     public boolean isCommentsSaved() {
         return isCommentSaved;
     }
-    
+
     public OctaneException getException() {
         return octaneException;
     }
