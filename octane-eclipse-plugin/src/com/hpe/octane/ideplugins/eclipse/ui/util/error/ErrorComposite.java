@@ -108,7 +108,7 @@ public class ErrorComposite extends Composite {
         
         TruncatingStyledText txtErrorField = new TruncatingStyledText(compositeExceptionData, SWT.MULTI);
         txtErrorField.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
-        txtErrorField.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+        txtErrorField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
         
         txtErrorField.setText(ex.getMessage());
     }
@@ -128,7 +128,7 @@ public class ErrorComposite extends Composite {
         if(description != null) {
             TruncatingStyledText txtErrorField = new TruncatingStyledText(compositeExceptionData, SWT.NONE);
             txtErrorField.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
-            txtErrorField.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
+            txtErrorField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
             txtErrorField.setText(description);
             
             errorModel.removeValue(ERORR_MODEL_FIELD_DESCRIPTION);
@@ -148,7 +148,7 @@ public class ErrorComposite extends Composite {
             lblErrorField.setText(convertFieldNameToLabel(fieldModel.getName()));
             
             TruncatingStyledText txtErrorFieldValue = new TruncatingStyledText(compositeExceptionData, SWT.NONE);
-            txtErrorFieldValue.setLayoutData( new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+            txtErrorFieldValue.setLayoutData( new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
             txtErrorFieldValue.setText(fieldValueTxt);
         });
     }
