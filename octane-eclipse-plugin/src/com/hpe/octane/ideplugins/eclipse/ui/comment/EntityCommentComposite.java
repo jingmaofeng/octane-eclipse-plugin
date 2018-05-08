@@ -14,6 +14,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.comment;
 
 import java.util.Collection;
 
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -32,6 +33,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.hpe.adm.nga.sdk.exception.OctaneException;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.ui.comment.job.GetCommentsJob;
@@ -41,6 +43,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite.LoadingPosition;
 import com.hpe.octane.ideplugins.eclipse.ui.util.PropagateScrollBrowserFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.error.ErrorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
@@ -62,6 +65,7 @@ public class EntityCommentComposite extends StackLayoutComposite {
 
         loadingComposite = new LoadingComposite(this, SWT.NONE);
         loadingComposite.setLoadingVerticalPosition(LoadingPosition.TOP);
+        
 
         commentsComposite = new Composite(this, SWT.NONE);
         GridLayout gl_commentsComposite = new GridLayout(2, false);
@@ -132,14 +136,27 @@ public class EntityCommentComposite extends StackLayoutComposite {
             @Override
             public void done(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
-                    if (sendCommentJob.isCommentsSaved()) {
-                        displayComments();
+                    try {
+                        OctaneException octaneException = sendCommentJob.getException();
+                        if(octaneException != null) {
+                            throw octaneException;
+                        } else {
+                            displayComments();
+                            commentText.setText("");
+                            commentText.setEnabled(true);
+                        }
+                    } catch (OperationCanceledException | OctaneException e) {
+//                        MessageDialog.openError(Display.getCurrent().getActiveShell(), "ERROR",
+//                                "Comments could not be posted \n ");
+                        ErrorComposite errorComposite = new ErrorComposite(commentsComposite.getParent(), SWT.NONE);
+                        errorComposite.addButton("Refresh comments",() -> displayComments());
+                        errorComposite.displayException(e);
                         commentText.setText("");
                         commentText.setEnabled(true);
-                    } else {
-                        MessageDialog.openError(Display.getCurrent().getActiveShell(), "ERROR",
-                                "Comments could not be posted \n ");
+                        showControl(errorComposite);
                     }
+//                    errorComposite.addButton("My button",() -> displayComments());
+//                    errorComposite.displayException(ex);
                 });
             }
         });
