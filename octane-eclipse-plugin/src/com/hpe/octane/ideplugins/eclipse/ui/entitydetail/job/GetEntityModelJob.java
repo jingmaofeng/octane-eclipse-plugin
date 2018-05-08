@@ -55,7 +55,7 @@ public class GetEntityModelJob extends Job {
                         .collect(Collectors.toSet());
             
             //Explicitly ask for client lock stamp
-            if(metadataService.hasClientLockStampSupport()) {
+            if(metadataService.hasClientLockStampSupport(this.entityType)) {
                 fields.add(MetadataService.FIELD_CLIENT_LOCK_STAMP);
             }
             
