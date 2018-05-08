@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -29,7 +28,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
 import com.hpe.adm.nga.sdk.exception.OctaneException;
-import com.hpe.adm.nga.sdk.model.ErrorModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -39,6 +37,7 @@ import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrappe
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper.FieldModelChangedHandler;
 import com.hpe.octane.ideplugins.eclipse.ui.util.LoadingComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.StackLayoutComposite;
+import com.hpe.octane.ideplugins.eclipse.ui.util.error.ErrorDialog;
 import com.hpe.octane.ideplugins.eclipse.ui.util.icon.EntityIconFactory;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.PlatformResourcesManager;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
@@ -120,8 +119,18 @@ public class EntityModelEditor extends EditorPart {
                         rootComposite.showControl(entityComposite);
                     });
                 } else {
-                    MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error",
-                            "Failed to load entity, " + getEntityDetailsJob.getException());
+                    Display.getDefault().asyncExec(() -> {
+                        ErrorDialog errorDialog = new ErrorDialog(rootComposite.getShell());
+                        errorDialog.addButton("Try again", () -> {
+                            loadEntity();
+                            errorDialog.close();
+                        });
+                        errorDialog.addButton("Close", () -> {
+                            getSite().getPage().closeEditor(EntityModelEditor.this, false);
+                            errorDialog.close();
+                        });
+                        errorDialog.displayException(getEntityDetailsJob.getException(), "Failed to load backlog item");
+                    });
                 }
             }
         });
@@ -162,9 +171,8 @@ public class EntityModelEditor extends EditorPart {
             } else {
                 loadEntity(); //reload entity from server if save was successful
             }
-
         } catch (OperationCanceledException | InterruptedException | OctaneException ex) {
-            EntityDetailErrorDialog errorDialog = new EntityDetailErrorDialog(rootComposite.getShell());
+            ErrorDialog errorDialog = new ErrorDialog(rootComposite.getShell());
             errorDialog.addButton("Back", () -> errorDialog.close());
             errorDialog.addButton("Refresh", () -> {
                 loadEntity();
@@ -174,13 +182,7 @@ public class EntityModelEditor extends EditorPart {
                 entityService.openInBrowser(entityModelWrapper.getReadOnlyEntityModel());
                 errorDialog.close();
             });
-            
-            if(ex instanceof OperationCanceledException || ex instanceof InterruptedException) {
-                errorDialog.open(new OctaneException(new ErrorModel("Save timeout")), SAVE_FAILED_DIALOG_TITLE);
-            }
-            else if(ex instanceof OctaneException) {
-                errorDialog.open((OctaneException) ex, SAVE_FAILED_DIALOG_TITLE);
-            }
+            errorDialog.displayException(ex, SAVE_FAILED_DIALOG_TITLE);
             
             // This would stop the editor from closing, if the editor was being closed before the save
             // The monitor can be null because of doSaveAs()
