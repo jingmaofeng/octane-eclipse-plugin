@@ -12,15 +12,13 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata.Target;
@@ -38,9 +36,26 @@ import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class FieldEditorFactory {
 
-    private static final long COMBO_BOX_ENTITY_LIMIT = 100;
-    
+    private static final int COMBO_BOX_ENTITY_LIMIT = 100;
+
+    private static final LabelProvider DEFAULT_ENTITY_LABEL_PROVIDER = new LabelProvider() {
+        @Override
+        public String getText(Object element) {
+
+            EntityModel entityModel = (EntityModel) element;
+
+            if (Entity.getEntityType(entityModel) == Entity.WORKSPACE_USER) {
+                return Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_FULL_NAME));
+
+            } else {
+                return Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME));
+
+            }
+        }
+    };
+
     private MetadataService metadataService = Activator.getInstance(MetadataService.class);
+    private EntityService entityService = Activator.getInstance(EntityService.class);
 
     public FieldEditor createFieldEditor(Composite parent, EntityModelWrapper entityModelWrapper, String fieldName) {
 
@@ -72,7 +87,11 @@ public class FieldEditorFactory {
                     fieldEditor = new DateTimeFieldEditor(parent, SWT.NONE);
                     break;
                 case Reference:
-                    fieldEditor = createReferenceFieldEditor(parent, entityModelWrapper, fieldMetadata);
+                    try {
+                        fieldEditor = createReferenceFieldEditor(parent, entityModelWrapper, fieldMetadata);
+                    } catch (Exception e) {
+                        fieldEditor = new ReadOnlyFieldEditor(parent, SWT.NONE);
+                    }
                     break;
                 default:
                     fieldEditor = new ReadOnlyFieldEditor(parent, SWT.NONE);
@@ -80,13 +99,14 @@ public class FieldEditorFactory {
             }
 
         }
-        
+
         try {
             fieldEditor.setField(entityModelWrapper, fieldName);
+
         } catch (Exception ex) {
             ILog log = Activator.getDefault().getLog();
             StringBuilder sbMessage = new StringBuilder();
-            sbMessage.append("Faied to set field ")
+            sbMessage.append("Faied to set field value ")
                     .append(fieldName)
                     .append(" in detail tab for entity ")
                     .append(entityModel.getId())
@@ -100,36 +120,46 @@ public class FieldEditorFactory {
         }
         return fieldEditor;
     }
-    
-    private FieldEditor createReferenceFieldEditor(Composite parent, EntityModelWrapper entityModelWrapper, FieldMetadata fieldMetadata) {
-        ReferenceFieldEditor fieldEditor = new ReferenceFieldEditor(parent, SWT.NONE);
-        
-        if(!fieldMetadata.getFieldTypedata().isMultiple()) {
-            Target target = fieldMetadata.getFieldTypedata().getTargets()[0];
-            if("list_node".equals(target.getType())) {
-                String logicalName = target.logicalName();
 
-                fieldEditor.setEntityLoader((searchQuery) -> {
-                    EntityService entityService = Activator.getInstance(EntityService.class);
-                    QueryBuilder qb = Query.statement("list_root", QueryMethod.EqualTo, Query.statement("logical_name", QueryMethod.EqualTo, logicalName));
-                    Collection<EntityModel> entities= entityService.findEntities(Entity.LIST_NODE, qb, null);
-                    return new ArrayList<>(entities);
-                });
-            }
+    private static void disposeFieldEditor(FieldEditor fieldEditor) {
+        if (fieldEditor != null && fieldEditor instanceof Control) {
+            ((Control) fieldEditor).dispose();
+        }
+    }
+
+    private FieldEditor createReferenceFieldEditor(Composite parent, EntityModelWrapper entityModelWrapper, FieldMetadata fieldMetadata) {
+
+        Target[] targets = fieldMetadata.getFieldTypedata().getTargets();
+        if (targets.length != 1) {
+            throw new RuntimeException("Multiple target refrence fields not supported");
         }
 
-        fieldEditor.setLabelProvider(new LabelProvider() {
-            @Override
-            public String getText(Object element) {
-                EntityModel entityModel = (EntityModel) element;
-                if(Entity.getEntityType(entityModel) == Entity.WORKSPACE_USER) {
-                    return Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_FULL_NAME));
-                } else {
-                    return Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME));
-                }
-            }
-        });
+        ReferenceFieldEditor fieldEditor = new ReferenceFieldEditor(parent, SWT.NONE);
 
+        if (fieldMetadata.getFieldTypedata().isMultiple()) {
+            fieldEditor.setSelectionMode(SWT.MULTI);
+        } else {
+            fieldEditor.setSelectionMode(SWT.SINGLE);
+        }
+
+        Target traget = targets[0];
+        String logicalName = traget.logicalName();
+
+        // List node loader
+        if (Entity.LIST_NODE.getEntityName().equals(traget.getType())) {
+            fieldEditor.setEntityLoader((searchQuery) -> {
+
+                QueryBuilder qb = Query.statement("list_root", QueryMethod.EqualTo,
+                        Query.statement("logical_name", QueryMethod.EqualTo, logicalName));
+
+                return entityService.findEntities(Entity.LIST_NODE, qb, null, null, null, COMBO_BOX_ENTITY_LIMIT);
+            });
+        } else {
+            disposeFieldEditor(fieldEditor);
+            throw new RuntimeException("Refrence entity type not supported: " + traget.getType());
+        }
+
+        fieldEditor.setLabelProvider(DEFAULT_ENTITY_LABEL_PROVIDER);
         return fieldEditor;
     }
 
