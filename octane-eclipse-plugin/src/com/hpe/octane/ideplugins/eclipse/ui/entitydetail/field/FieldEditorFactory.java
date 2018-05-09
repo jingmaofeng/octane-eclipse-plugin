@@ -59,6 +59,8 @@ public class FieldEditorFactory {
 
     public FieldEditor createFieldEditor(Composite parent, EntityModelWrapper entityModelWrapper, String fieldName) {
 
+        ILog log = Activator.getDefault().getLog();
+
         EntityModel entityModel = entityModelWrapper.getReadOnlyEntityModel();
         Entity entityType = Entity.getEntityType(entityModel);
         FieldMetadata fieldMetadata = metadataService.getMetadata(entityType, fieldName);
@@ -90,6 +92,7 @@ public class FieldEditorFactory {
                     try {
                         fieldEditor = createReferenceFieldEditor(parent, entityModelWrapper, fieldMetadata);
                     } catch (Exception e) {
+                        log.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Failed to create reference field editor: " + e));
                         fieldEditor = new ReadOnlyFieldEditor(parent, SWT.NONE);
                     }
                     break;
@@ -97,16 +100,15 @@ public class FieldEditorFactory {
                     fieldEditor = new ReadOnlyFieldEditor(parent, SWT.NONE);
                     break;
             }
-
         }
 
         try {
+
             fieldEditor.setField(entityModelWrapper, fieldName);
 
         } catch (Exception ex) {
-            ILog log = Activator.getDefault().getLog();
             StringBuilder sbMessage = new StringBuilder();
-            sbMessage.append("Faied to set field value ")
+            sbMessage.append("Faied to set field  ")
                     .append(fieldName)
                     .append(" in detail tab for entity ")
                     .append(entityModel.getId())
