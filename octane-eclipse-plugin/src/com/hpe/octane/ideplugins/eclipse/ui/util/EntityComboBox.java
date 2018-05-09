@@ -194,6 +194,8 @@ public class EntityComboBox extends Composite {
                     entities = entityLoader.loadEntities(searchTerm);
                     return Status.OK_STATUS;
                 } catch (Exception e) {
+                    // Using Status.WARNING instead of Status.ERROR because then
+                    // the JobChangeAdapter won't get to the done method
                     return new Status(Status.WARNING, Activator.PLUGIN_ID, "", e);
                 }
             }
