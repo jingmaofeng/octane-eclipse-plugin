@@ -50,6 +50,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.util.EntityUtil;
+import com.hpe.octane.ideplugins.eclipse.Activator;
+import com.hpe.octane.ideplugins.eclipse.ui.util.error.ErrorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 
 public class EntityComboBox extends Composite {
@@ -97,7 +99,7 @@ public class EntityComboBox extends Composite {
     /**
      * Contains the possible entity controls
      */
-    private Composite optionsComposite;
+    private Composite rootComposite;
 
     /**
      * Cosmetic arrow button, to make it look like a combo box
@@ -181,59 +183,62 @@ public class EntityComboBox extends Composite {
     }
 
     private void displayEntities(String searchTerm) {
-        if (optionsComposite == null || optionsComposite.isDisposed()) {
+        if (rootComposite == null || rootComposite.isDisposed()) {
             return;
         }
 
         Job getEntitiesJob = new Job(searchTerm) {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                entities = entityLoader.loadEntities(searchTerm);
-                return Status.OK_STATUS;
+                try {
+                    entities = entityLoader.loadEntities(searchTerm);
+                    return Status.OK_STATUS;
+                } catch (Exception e) {
+                    return new Status(Status.WARNING, Activator.PLUGIN_ID, "", e);
+                }
             }
         };
 
         getEntitiesJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
             public void scheduled(IJobChangeEvent event) {
-                Display.getDefault().syncExec(() -> {
-                    if (optionsComposite.isDisposed()) {
-                        return;
-                    }
-                    Arrays.stream(optionsComposite.getChildren()).forEach(Control::dispose);
-
-                    LoadingComposite loadingComposite = new LoadingComposite(optionsComposite, SWT.NONE);
-                    loadingComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-                    optionsComposite.setSize(optionsComposite.getParent().getSize());
-                    optionsComposite.layout();
-                });
+                if (!rootComposite.isDisposed()) {
+                    showLoading();
+                }
             }
 
             @Override
             public void done(IJobChangeEvent event) {
+                IStatus status = event.getResult();
+
                 Display.getDefault().syncExec(() -> {
 
                     // The shell might have been close before the result has
                     // been fetched from the server
                     // In this case discard the result
-                    if (optionsComposite.isDisposed()) {
+                    if (rootComposite.isDisposed()) {
                         return;
                     }
 
-                    Arrays.stream(optionsComposite.getChildren()).forEach(Control::dispose);
+                    if (Status.OK_STATUS == status) {
+                        Arrays.stream(rootComposite.getChildren()).forEach(Control::dispose);
 
-                    if (entities == null || entities.isEmpty()) {
-                        Label lblNoResult = new Label(optionsComposite, SWT.NONE);
-                        lblNoResult.setText("No results");
-                        lblNoResult.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
-                    } else if (selectionMode == SWT.SINGLE) {
-                        createSingleSelectionUI();
-                    } else if (selectionMode == SWT.MULTI) {
-                        createMultiSelectionUI();
+                        if (entities == null || entities.isEmpty()) {
+                            Label lblNoResult = new Label(rootComposite, SWT.NONE);
+                            lblNoResult.setText("No results");
+                            lblNoResult.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
+                        } else if (selectionMode == SWT.SINGLE) {
+                            showSingleSelectionUI();
+                        } else if (selectionMode == SWT.MULTI) {
+                            showMultiSelectionUI();
+                        }
+
+                    } else if (Status.WARNING == status.getSeverity()) {
+                        showError((Exception) status.getException());
                     }
 
-                    optionsComposite.layout();
-                    optionsComposite.setSize(optionsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+                    rootComposite.layout();
+                    rootComposite.setSize(rootComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
                     resizeShellToContent();
                     poistionShell();
                 });
@@ -244,15 +249,30 @@ public class EntityComboBox extends Composite {
     }
 
     private void clearButtons() {
-        if (!optionsComposite.isDisposed()) {
-            Arrays.stream(optionsComposite.getChildren()).forEach(Control::dispose);
+        if (!rootComposite.isDisposed()) {
+            Arrays.stream(rootComposite.getChildren()).forEach(Control::dispose);
         }
     }
 
-    private void createSingleSelectionUI() {
+    private void showLoading() {
+        Arrays.stream(rootComposite.getChildren()).forEach(Control::dispose);
+        LoadingComposite loadingComposite = new LoadingComposite(rootComposite, SWT.NONE);
+        loadingComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
+        rootComposite.setSize(rootComposite.getParent().getSize());
+        rootComposite.layout();
+    }
+
+    private void showError(Exception exception) {
+        Arrays.stream(rootComposite.getChildren()).forEach(Control::dispose);
+        ErrorComposite errorComposite = new ErrorComposite(rootComposite, SWT.NONE);
+        errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+        errorComposite.displayException(exception);
+    }
+
+    private void showSingleSelectionUI() {
         clearButtons();
         entities.forEach(entityModel -> {
-            CLabel lbl = new CLabel(optionsComposite, SWT.NONE);
+            CLabel lbl = new CLabel(rootComposite, SWT.NONE);
             lbl.setText(labelProvider.getText(entityModel));
             GridData lblGridData = new GridData(SWT.FILL, SWT.FILL, true, false);
             lblGridData.heightHint = 20;
@@ -269,10 +289,10 @@ public class EntityComboBox extends Composite {
         });
     }
 
-    private void createMultiSelectionUI() {
+    private void showMultiSelectionUI() {
         clearButtons();
         entities.forEach(entityModel -> {
-            Button btn = new Button(optionsComposite, SWT.CHECK);
+            Button btn = new Button(rootComposite, SWT.CHECK);
             btn.setText(labelProvider.getText(entityModel));
             btn.setSelection(EntityUtil.containsEntityModel(selectedEntities, entityModel));
 
@@ -371,13 +391,13 @@ public class EntityComboBox extends Composite {
         scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         scrolledComposite.setExpandHorizontal(true);
 
-        optionsComposite = new Composite(scrolledComposite, SWT.NONE);
+        rootComposite = new Composite(scrolledComposite, SWT.NONE);
         GridLayout gridLayout = new GridLayout();
         gridLayout.marginWidth = 5;
         gridLayout.marginHeight = 0;
-        optionsComposite.setLayout(gridLayout);
+        rootComposite.setLayout(gridLayout);
 
-        scrolledComposite.setContent(optionsComposite);
+        scrolledComposite.setContent(rootComposite);
 
         shell.open();
         shell.addListener(SWT.Deactivate, e -> {
