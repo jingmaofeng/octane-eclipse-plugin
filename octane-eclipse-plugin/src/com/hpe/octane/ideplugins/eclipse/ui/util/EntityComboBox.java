@@ -106,18 +106,12 @@ public class EntityComboBox extends Composite {
     /**
      * @param parent composite
      * @param style SWT.SINGLE for single selection SWT.MULTI for multi selection
-     * @param labelProvider create a string for each entity model to display in the list
-     * @param entityLoader lambda used by the control to load the data
-     * 
      * @see SWT.SINGLE
      * @see SWT.MULTI
      */
-    public EntityComboBox(Composite parent, int style, LabelProvider labelProvider, EntityLoader entityLoader) {
+    public EntityComboBox(Composite parent, int style) {
         super(parent, SWT.BORDER);
-        
         selectionMode = (style & SWT.MULTI) != 0 ? SWT.MULTI : SWT.SINGLE; 
-        this.entityLoader = entityLoader;
-        this.labelProvider = labelProvider == null ? new LabelProvider() : labelProvider;
         
         GridLayout gridLayout = new GridLayout(2, false);
         gridLayout.horizontalSpacing = 0;
@@ -146,7 +140,38 @@ public class EntityComboBox extends Composite {
                 displayEntities(textSelection.getText());
             }
         });
-    } 
+    }
+    
+    /**
+     * @param parent composite
+     * @param style SWT.SINGLE for single selection SWT.MULTI for multi selection
+     * @param labelProvider create a string for each entity model to display in the list
+     * @param entityLoader lambda used by the control to load the data
+     * 
+     * @see SWT.SINGLE
+     * @see SWT.MULTI
+     */
+    public EntityComboBox(Composite parent, int style, LabelProvider labelProvider, EntityLoader entityLoader) {
+        this(parent, SWT.BORDER);
+        this.entityLoader = entityLoader;
+        this.labelProvider = labelProvider == null ? new LabelProvider() : labelProvider;
+    }
+    
+    public LabelProvider getLabelProvider() {
+        return labelProvider;
+    }
+
+    public void setLabelProvider(LabelProvider labelProvider) {
+        this.labelProvider = labelProvider;
+    }
+
+    public EntityLoader getEntityLoader() {
+        return entityLoader;
+    }
+
+    public void setEntityLoader(EntityLoader entityLoader) {
+        this.entityLoader = entityLoader;
+    }
 
     private void displayEntities(String searchTerm) {  
         if(optionsComposite == null || optionsComposite.isDisposed()) {
@@ -270,15 +295,21 @@ public class EntityComboBox extends Composite {
         textSelection.getParent().layout();
     }
     
+    public void clearSelection() {
+        selectedEntities.clear();
+        adjustTextToSelection();
+    }
     
     public void setSelectedEntity(EntityModel entityModel) {
         selectedEntities.clear();
         selectedEntities.add(entityModel);
+        adjustTextToSelection();
     }
     
     public void setSelectedEntities(Collection<EntityModel> entityModel) {
         selectedEntities.clear();
         selectedEntities.addAll(entityModel);
+        adjustTextToSelection();
     }
     
     public int getSelectionMode() {
@@ -397,4 +428,13 @@ public class EntityComboBox extends Composite {
     public boolean isVisible() {
         return shell != null && !shell.isDisposed() && shell.isVisible();
     }
+    
+    public boolean addSelectionListener(SelectionListener selectionListener) {
+        return selectionListeners.add(selectionListener);
+    }
+    
+    public boolean removeSelectionListener(SelectionListener selectionListener) {
+        return selectionListeners.remove(selectionListener);
+    }
+    
 }
