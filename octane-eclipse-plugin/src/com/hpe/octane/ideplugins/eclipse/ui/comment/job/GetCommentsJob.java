@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.hpe.adm.nga.sdk.exception.OctaneException;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.CommentService;
 import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
@@ -35,7 +34,7 @@ public class GetCommentsJob extends Job {
     private CommentService commentService = Activator.getInstance(CommentService.class);
     private Collection<EntityModel> comments = new ArrayList<>();
     private EntityModel parentEntity;
-    private OctaneException octaneException;
+    private Exception exception;
 
     public GetCommentsJob(String name, EntityModel parentEntiy) {
         super(name);
@@ -47,8 +46,8 @@ public class GetCommentsJob extends Job {
         monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
         try {
             comments = commentService.getComments(parentEntity);
-        } catch (OctaneException octaneException) {
-            this.octaneException = octaneException;
+        } catch (Exception exception) {
+            this.exception = exception;
         }
         monitor.done();
         return Status.OK_STATUS;
@@ -62,7 +61,7 @@ public class GetCommentsJob extends Job {
         return !noCommentsEntites.contains(entity);
     }
 
-    public OctaneException getException() {
-        return octaneException;
+    public Exception getException() {
+        return exception;
     }
 }

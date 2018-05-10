@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
@@ -169,9 +168,9 @@ public class EntityPhaseComposite extends Composite {
                 public void done(IJobChangeEvent event) {
                     Display.getDefault().asyncExec(() -> {
                         try {
-                            OctaneException octaneException = getPossiblePhasesJob.getException();
-                            if (octaneException != null) {
-                                throw octaneException;
+                            Exception exception = getPossiblePhasesJob.getException();
+                            if (exception != null) {
+                                throw exception;
                             } else {
                                 Collection<EntityModel> possibleTransitions = getPossiblePhasesJob.getPossibleTransitions();
 
@@ -213,7 +212,7 @@ public class EntityPhaseComposite extends Composite {
                                     }
                                 }
                             }
-                        } catch (OperationCanceledException | OctaneException e) {
+                        } catch (Exception e) {
                             ErrorDialog errorDialog = new ErrorDialog(getParent().getShell());
                             errorDialog.addButton("Back", () -> errorDialog.close());
                             errorDialog.addButton("Open in browser", () -> {

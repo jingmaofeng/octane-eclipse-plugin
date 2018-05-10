@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.hpe.adm.nga.sdk.exception.OctaneException;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.octane.ideplugins.services.CommentService;
 import com.hpe.octane.ideplugins.eclipse.Activator;
@@ -27,7 +26,7 @@ public class PostCommentJob extends Job {
     private String commentText;
     private CommentService commentService = Activator.getInstance(CommentService.class);
     private boolean isCommentSaved = false;
-    private OctaneException octaneException;
+    private Exception exception;
 
     public PostCommentJob(String name, EntityModel entityModel, String commentText) {
         super(name);
@@ -41,9 +40,9 @@ public class PostCommentJob extends Job {
         try {
             commentService.postComment(commentParentEntity, commentText);
             isCommentSaved = true;
-        } catch (OctaneException octaneException) {
+        } catch (Exception exception) {
             isCommentSaved = false;
-            this.octaneException = octaneException;
+            this.exception = exception;
         }
         monitor.done();
         return Status.OK_STATUS;
@@ -53,7 +52,7 @@ public class PostCommentJob extends Job {
         return isCommentSaved;
     }
 
-    public OctaneException getException() {
-        return octaneException;
+    public Exception getException() {
+        return exception;
     }
 }

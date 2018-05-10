@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.hpe.adm.nga.sdk.exception.OctaneException;
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
 import com.hpe.adm.octane.ideplugins.services.EntityService;
@@ -38,7 +37,7 @@ public class GetPossiblePhasesJob extends Job {
     private EntityModel entityModel;
     private Collection<EntityModel> possibleTransitions;
     
-    private OctaneException octaneException;
+    private Exception exception;
 
     public GetPossiblePhasesJob(String name, EntityModel entityModel) {
         super(name);
@@ -53,8 +52,8 @@ public class GetPossiblePhasesJob extends Job {
             FieldModel currentPhase = entityModel.getValue(EntityFieldsConstants.FIELD_PHASE);
             String currentPhaseId = Util.getUiDataFromModel(currentPhase, EntityFieldsConstants.FIELD_ID);
             possibleTransitions = entityService.findPossibleTransitionFromCurrentPhase(Entity.getEntityType(entityModel), currentPhaseId);
-        } catch (OctaneException octaneException) {
-            this.octaneException = octaneException;
+        } catch (Exception octaneException) {
+            this.exception = octaneException;
         }
         monitor.done();
         return Status.OK_STATUS;
@@ -76,8 +75,8 @@ public class GetPossiblePhasesJob extends Job {
 		return !noPhaseEntites.contains(entity);
 	}
 	
-	public OctaneException getException() {
-	    return octaneException;
+	public Exception getException() {
+	    return exception;
 	}
 
 }

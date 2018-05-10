@@ -14,7 +14,6 @@ package com.hpe.octane.ideplugins.eclipse.ui.comment;
 
 import java.util.Collection;
 
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.resource.JFaceResources;
@@ -135,15 +134,15 @@ public class EntityCommentComposite extends StackLayoutComposite {
             public void done(IJobChangeEvent event) {
                 Display.getDefault().asyncExec(() -> {
                     try {
-                        OctaneException octaneException = sendCommentJob.getException();
-                        if (octaneException != null) {
-                            throw octaneException;
+                        Exception exception = sendCommentJob.getException();
+                        if (exception != null) {
+                            throw exception;
                         } else {
                             displayComments();
                             commentText.setText("");
                             commentText.setEnabled(true);
                         }
-                    } catch (OperationCanceledException | OctaneException e) {
+                    } catch (Exception e) {
                         ErrorComposite errorComposite = new ErrorComposite(commentsComposite.getParent(), SWT.NONE);
                         errorComposite.addButton("Refresh comments", () -> displayComments());
                         errorComposite.displayException(e);
@@ -168,14 +167,14 @@ public class EntityCommentComposite extends StackLayoutComposite {
                     String html = getCommentHtmlString(getCommentsJob.getComents());
                     if (!commentsBrowser.isDisposed()) {
                         try {
-                            OctaneException octaneException = getCommentsJob.getException();
-                            if (octaneException != null) {
-                                throw octaneException;
+                            Exception exception = getCommentsJob.getException();
+                            if (exception != null) {
+                                throw exception;
                             } else {
                                 commentsBrowser.setText(html);
                                 showControl(commentsComposite);
                             }
-                        } catch (OperationCanceledException | OctaneException e) {
+                        } catch (Exception e) {
                             ErrorComposite errorComposite = new ErrorComposite(commentsComposite.getParent(), SWT.NONE);
                             errorComposite.addButton("Refresh comments", () -> displayComments());
                             errorComposite.displayException(e);
