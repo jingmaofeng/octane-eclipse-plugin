@@ -13,6 +13,8 @@
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
@@ -108,7 +110,6 @@ public class FieldEditorFactory {
         }
 
         try {
-
             fieldEditor.setField(entityModelWrapper, fieldName);
 
         } catch (Exception ex) {
@@ -155,11 +156,21 @@ public class FieldEditorFactory {
         // List node loader
         if (Entity.LIST_NODE.getEntityName().equals(traget.getType())) {
             fieldEditor.setEntityLoader((searchQuery) -> {
-
                 QueryBuilder qb = Query.statement("list_root", QueryMethod.EqualTo,
                         Query.statement("logical_name", QueryMethod.EqualTo, logicalName));
-
-                return entityService.findEntities(Entity.LIST_NODE, qb, null, null, null, COMBO_BOX_ENTITY_LIMIT);
+                                
+                Collection<EntityModel> entities = entityService.findEntities(Entity.LIST_NODE, qb, null);
+                
+                //for some reason list nodes are not server side filterable, so you have to do it client side   
+                if(!searchQuery.isEmpty()) {
+                    entities =
+                        entities
+                        .stream()
+                        .filter(entityModel -> stringLike(Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME)), searchQuery))
+                        .collect(Collectors.toList());
+                }
+                
+                return entities;
             });    
         }
         else if(getEntityType(traget.getType())!=null) {
@@ -190,6 +201,17 @@ public class FieldEditorFactory {
             .filter(entity -> entity.getEntityName().equals(type))
             .findAny()
             .orElse(null);
+    }
+    
+    private static boolean stringLike(String str, String expr) {
+        if(str == null || expr == null) {
+            return false;
+        }
+        str = str.trim();
+        str = str.toLowerCase();
+        expr = expr.trim();
+        expr = expr.toLowerCase();
+        return str.contains(expr) || expr.contains(str);
     }
 
 }
