@@ -14,6 +14,7 @@ package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.ILog;
@@ -27,6 +28,7 @@ import org.eclipse.swt.widgets.Control;
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata.Target;
 import com.hpe.adm.nga.sdk.model.EntityModel;
+import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.adm.nga.sdk.query.Query;
 import com.hpe.adm.nga.sdk.query.Query.QueryBuilder;
 import com.hpe.adm.nga.sdk.query.QueryMethod;
@@ -179,11 +181,30 @@ public class FieldEditorFactory {
             fieldEditor.setEntityLoader((searchQuery) -> {
                 
                 QueryBuilder qb = null;
+                
                 if(!searchQuery.isEmpty()) {    
                     qb = Query.statement(DEFAULT_ENTITY_LABEL_PROVIDER.getLabelFieldName(entity), 
                          QueryMethod.EqualTo, 
                          "*" + searchQuery + "*");
                 }
+               
+                //Restrict sprint dropdown to current release, if there's no current release, display no
+                if(Entity.SPRINT == entity) {
+                    if(entityModelWrapper.hasValue(EntityFieldsConstants.FIELD_RELEASE)) {
+                        ReferenceFieldModel releaseFieldModel = (ReferenceFieldModel) entityModelWrapper.getValue(EntityFieldsConstants.FIELD_RELEASE);
+                        String releaseId = releaseFieldModel.getValue().getId();
+                        
+                        QueryBuilder releaseQb = 
+                                Query.statement(EntityFieldsConstants.FIELD_RELEASE, QueryMethod.EqualTo, 
+                                        Query.statement(EntityFieldsConstants.FIELD_ID, QueryMethod.EqualTo, releaseId));
+                        
+                        //join the two query builders
+                        qb = qb != null ? qb.and(releaseQb) : releaseQb;
+                    } else {
+                        return Collections.emptyList();
+                    }
+                }
+                
                 return entityService.findEntities(entity, qb, null, null, null, COMBO_BOX_ENTITY_LIMIT);
             });  
         }
