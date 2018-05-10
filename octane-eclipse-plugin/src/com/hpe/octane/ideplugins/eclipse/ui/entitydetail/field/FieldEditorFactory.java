@@ -12,6 +12,8 @@
  ******************************************************************************/
 package com.hpe.octane.ideplugins.eclipse.ui.entitydetail.field;
 
+import java.util.Arrays;
+
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -38,21 +40,24 @@ public class FieldEditorFactory {
 
     private static final int COMBO_BOX_ENTITY_LIMIT = 100;
 
-    private static final LabelProvider DEFAULT_ENTITY_LABEL_PROVIDER = new LabelProvider() {
+    private static final class DefaultEntityLabelProvider extends LabelProvider{
         @Override
         public String getText(Object element) {
-
             EntityModel entityModel = (EntityModel) element;
-
-            if (Entity.getEntityType(entityModel) == Entity.WORKSPACE_USER) {
-                return Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_FULL_NAME));
-
+            String fieldName = getLabelFieldName(Entity.getEntityType(entityModel));
+            return Util.getUiDataFromModel(entityModel.getValue(fieldName));
+        }
+        
+        public String getLabelFieldName(Entity entity) {
+            if (entity == Entity.WORKSPACE_USER) {
+                return EntityFieldsConstants.FIELD_FULL_NAME; 
             } else {
-                return Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME));
-
+                return EntityFieldsConstants.FIELD_NAME;
             }
         }
     };
+    
+    private static final DefaultEntityLabelProvider DEFAULT_ENTITY_LABEL_PROVIDER = new DefaultEntityLabelProvider();
 
     private MetadataService metadataService = Activator.getInstance(MetadataService.class);
     private EntityService entityService = Activator.getInstance(EntityService.class);
@@ -155,14 +160,36 @@ public class FieldEditorFactory {
                         Query.statement("logical_name", QueryMethod.EqualTo, logicalName));
 
                 return entityService.findEntities(Entity.LIST_NODE, qb, null, null, null, COMBO_BOX_ENTITY_LIMIT);
-            });
-        } else {
+            });    
+        }
+        else if(getEntityType(traget.getType())!=null) {
+            Entity entity = getEntityType(traget.getType());
+            
+            fieldEditor.setEntityLoader((searchQuery) -> {
+                
+                QueryBuilder qb = null;
+                if(!searchQuery.isEmpty()) {    
+                    qb = Query.statement(DEFAULT_ENTITY_LABEL_PROVIDER.getLabelFieldName(entity), 
+                         QueryMethod.EqualTo, 
+                         "*" + searchQuery + "*");
+                }
+                return entityService.findEntities(entity, qb, null, null, null, COMBO_BOX_ENTITY_LIMIT);
+            });  
+        }
+        else {
             disposeFieldEditor(fieldEditor);
             throw new RuntimeException("Refrence entity type not supported: " + traget.getType());
         }
 
         fieldEditor.setLabelProvider(DEFAULT_ENTITY_LABEL_PROVIDER);
         return fieldEditor;
+    }
+    
+    private Entity getEntityType(String type) {
+        return Arrays.stream(Entity.values())
+            .filter(entity -> entity.getEntityName().equals(type))
+            .findAny()
+            .orElse(null);
     }
 
 }
