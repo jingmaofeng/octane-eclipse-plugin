@@ -16,11 +16,15 @@ import java.util.Collection;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 
 import com.hpe.adm.nga.sdk.model.EntityModel;
 import com.hpe.adm.nga.sdk.model.FieldModel;
@@ -29,16 +33,18 @@ import com.hpe.adm.nga.sdk.model.ReferenceFieldModel;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
 import com.hpe.octane.ideplugins.eclipse.ui.util.EntityComboBox;
 import com.hpe.octane.ideplugins.eclipse.ui.util.EntityComboBox.EntityLoader;
+import com.hpe.octane.ideplugins.eclipse.ui.util.resource.ImageResources;
 
 public class ReferenceFieldEditor extends Composite implements FieldEditor {
 
     protected EntityModelWrapper entityModelWrapper;
     protected String fieldName;
     private EntityComboBox entityComboBox;
+    private Label btnSetNull;
 
     public ReferenceFieldEditor(Composite parent, int style) {
         super(parent, style);
-        GridLayout gridLayout = new GridLayout(1, false);
+        GridLayout gridLayout = new GridLayout(2, false);
         gridLayout.marginWidth = 0;
         setLayout(gridLayout);
 
@@ -50,9 +56,34 @@ public class ReferenceFieldEditor extends Composite implements FieldEditor {
             public void widgetSelected(SelectionEvent e) {
                 if (entityComboBox.getSelectionMode() == SWT.MULTI) {
                     entityModelWrapper.setValue(new MultiReferenceFieldModel(fieldName, entityComboBox.getSelectedEntities()));
+                    if(entityComboBox.getSelectedEntities().size() == 0) {
+                        btnSetNull.setEnabled(false);
+                    } else {
+                        btnSetNull.setEnabled(true);
+                    }
                 } else {
                     entityModelWrapper.setValue(new ReferenceFieldModel(fieldName, entityComboBox.getSelectedEntity()));
+                    btnSetNull.setEnabled(true);
                 }
+            }
+        });
+        
+        btnSetNull = new Label(this, SWT.NONE);
+        btnSetNull.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        btnSetNull.setImage(ImageResources.OCTANE_REMOVE.getImage());
+        btnSetNull.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+        
+        // Nullify
+        btnSetNull.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(MouseEvent e) {
+                if (entityComboBox.getSelectionMode() == SWT.MULTI) {
+                    entityModelWrapper.setValue(new MultiReferenceFieldModel(fieldName, null));
+                } else {
+                    entityModelWrapper.setValue(new ReferenceFieldModel(fieldName, null));
+                }
+                entityComboBox.clearSelection();
+                btnSetNull.setEnabled(false);
             }
         });
     }
@@ -79,7 +110,9 @@ public class ReferenceFieldEditor extends Composite implements FieldEditor {
                 throw new RuntimeException("Failed to set value of the Reference field model, field value and metadata not compatible");
             }
 
+            btnSetNull.setEnabled(true);
         } else {
+            btnSetNull.setEnabled(false);
             entityComboBox.clearSelection();
         }
     }
