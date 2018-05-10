@@ -105,6 +105,7 @@ public class EntityComboBox extends Composite {
      * Cosmetic arrow button, to make it look like a combo box
      */
     private Button btnArrow;
+    private Text textSearch;
 
     /**
      * @param parent
@@ -132,7 +133,7 @@ public class EntityComboBox extends Composite {
             @Override
             public void mouseDown(MouseEvent e) {
                 createAndShowShell();
-                displayEntities(textSelection.getText());
+                displayEntities(textSearch.getText());
             }
         });
 
@@ -142,7 +143,7 @@ public class EntityComboBox extends Composite {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 createAndShowShell();
-                displayEntities(textSelection.getText());
+                displayEntities(textSearch.getText());
             }
         });
     }
@@ -379,7 +380,7 @@ public class EntityComboBox extends Composite {
         shell.setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_FOREGROUND));
         shell.setBackgroundMode(SWT.INHERIT_FORCE);
 
-        Text textSearch = new Text(shell, SWT.BORDER);
+        textSearch = new Text(shell, SWT.BORDER);
         textSearch.setMessage("Search");
         textSearch.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         textSearch.addModifyListener(new DelayedModifyListener(new ModifyListener() {
