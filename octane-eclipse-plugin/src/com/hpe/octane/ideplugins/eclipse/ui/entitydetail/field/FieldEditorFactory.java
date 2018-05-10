@@ -138,8 +138,8 @@ public class FieldEditorFactory {
     private FieldEditor createReferenceFieldEditor(Composite parent, EntityModelWrapper entityModelWrapper, FieldMetadata fieldMetadata) {
 
         Target[] targets = fieldMetadata.getFieldTypedata().getTargets();
-        if (targets.length != 1) {
-            throw new RuntimeException("Multiple target refrence fields not supported");
+        if (targets.length != 1) {        
+            throw new RuntimeException("Multiple target refrence fields not supported, fieldname: " + fieldMetadata.getName());
         }
 
         ReferenceFieldEditor fieldEditor = new ReferenceFieldEditor(parent, SWT.NONE);
@@ -189,7 +189,7 @@ public class FieldEditorFactory {
         }
         else {
             disposeFieldEditor(fieldEditor);
-            throw new RuntimeException("Refrence entity type not supported: " + traget.getType());
+            throw new RuntimeException("Refrence entity type not supported: " + traget.getType() + ", fieldname: "  + fieldMetadata.getName());
         }
 
         fieldEditor.setLabelProvider(DEFAULT_ENTITY_LABEL_PROVIDER);
