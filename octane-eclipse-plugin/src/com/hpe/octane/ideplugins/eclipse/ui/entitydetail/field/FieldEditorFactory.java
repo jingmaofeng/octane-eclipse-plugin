@@ -111,7 +111,7 @@ public class FieldEditorFactory {
 
         } catch (Exception ex) {
             StringBuilder sbMessage = new StringBuilder();
-            sbMessage.append("Faied to set field  ")
+            sbMessage.append("Faied to set field ")
                     .append(fieldName)
                     .append(" in detail tab for entity ")
                     .append(entityModel.getId())
