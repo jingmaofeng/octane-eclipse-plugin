@@ -148,10 +148,17 @@ public class FieldEditorFactory {
                 
                 //for some reason list nodes are not server side filterable, so you have to do it client side   
                 if(!searchQuery.isEmpty()) {
+                    String sanitizedSearchQuery = searchQuery.trim().toLowerCase();
+                    
                     entities =
                         entities
                         .stream()
-                        .filter(entityModel -> stringLike(Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME)), searchQuery))
+                        .filter(entityModel -> {
+                            String listNodeName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME));
+                            listNodeName = listNodeName.trim();
+                            listNodeName = listNodeName.toLowerCase();
+                            return stringLike(listNodeName, sanitizedSearchQuery);
+                        })
                         .collect(Collectors.toList());
                 }
                 
@@ -178,10 +185,6 @@ public class FieldEditorFactory {
         if(str == null || expr == null) {
             return false;
         }
-        str = str.trim();
-        str = str.toLowerCase();
-        expr = expr.trim();
-        expr = expr.toLowerCase();
         return str.contains(expr) || expr.contains(str);
     }
 
