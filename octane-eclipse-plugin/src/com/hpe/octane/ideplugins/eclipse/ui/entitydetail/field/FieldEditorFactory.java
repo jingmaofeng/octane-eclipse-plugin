@@ -147,11 +147,11 @@ public class FieldEditorFactory {
             fieldEditor.setSelectionMode(SWT.SINGLE);
         }
 
-        Target traget = targets[0];
-        String logicalName = traget.logicalName();
+        Target target = targets[0];
+        String logicalName = target.logicalName();
 
         // List node loader
-        if (Entity.LIST_NODE.getEntityName().equals(traget.getType())) {
+        if (Entity.LIST_NODE.getEntityName().equals(target.getType())) {
             fieldEditor.setEntityLoader((searchQuery) -> {
                 QueryBuilder qb = Query.statement("list_root", QueryMethod.EqualTo,
                         Query.statement("logical_name", QueryMethod.EqualTo, logicalName));
@@ -171,7 +171,7 @@ public class FieldEditorFactory {
             });
         } else {
             disposeFieldEditor(fieldEditor);
-            throw new RuntimeException("Refrence entity type not supported: " + traget.getType());
+            throw new RuntimeException("Refrence entity type not supported: " + target.getType());
         }
 
         fieldEditor.setLabelProvider(DEFAULT_ENTITY_LABEL_PROVIDER);
