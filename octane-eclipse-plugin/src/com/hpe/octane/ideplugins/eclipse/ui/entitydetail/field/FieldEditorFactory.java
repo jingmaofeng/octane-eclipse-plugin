@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata.Target;
@@ -35,6 +34,7 @@ import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
+import com.hpe.octane.ideplugins.eclipse.ui.util.EntityComboBox.EntityLoader;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class FieldEditorFactory {
@@ -126,12 +126,6 @@ public class FieldEditorFactory {
         return fieldEditor;
     }
 
-    private static void disposeFieldEditor(FieldEditor fieldEditor) {
-        if (fieldEditor != null && fieldEditor instanceof Control) {
-            ((Control) fieldEditor).dispose();
-        }
-    }
-
     private FieldEditor createReferenceFieldEditor(Composite parent, EntityModelWrapper entityModelWrapper, FieldMetadata fieldMetadata) {
 
         Target[] targets = fieldMetadata.getFieldTypedata().getTargets();
@@ -139,20 +133,14 @@ public class FieldEditorFactory {
             throw new RuntimeException("Multiple target refrence fields not supported");
         }
 
-        ReferenceFieldEditor fieldEditor = new ReferenceFieldEditor(parent, SWT.NONE);
-
-        if (fieldMetadata.getFieldTypedata().isMultiple()) {
-            fieldEditor.setSelectionMode(SWT.MULTI);
-        } else {
-            fieldEditor.setSelectionMode(SWT.SINGLE);
-        }
-
         Target target = targets[0];
         String logicalName = target.logicalName();
 
         // List node loader
+        EntityLoader entityLoader;
+        
         if (Entity.LIST_NODE.getEntityName().equals(target.getType())) {
-            fieldEditor.setEntityLoader((searchQuery) -> {
+            entityLoader = (searchQuery) -> {
                 QueryBuilder qb = Query.statement("list_root", QueryMethod.EqualTo,
                         Query.statement("logical_name", QueryMethod.EqualTo, logicalName));
                                 
@@ -168,12 +156,20 @@ public class FieldEditorFactory {
                 }
                 
                 return entities;
-            });
+            };
         } else {
-            disposeFieldEditor(fieldEditor);
             throw new RuntimeException("Refrence entity type not supported: " + target.getType());
         }
-
+        
+        ReferenceFieldEditor fieldEditor = new ReferenceFieldEditor(parent, SWT.NONE);
+        
+        if (fieldMetadata.getFieldTypedata().isMultiple()) {
+            fieldEditor.setSelectionMode(SWT.MULTI);
+        } else {
+            fieldEditor.setSelectionMode(SWT.SINGLE);
+        }
+        
+        fieldEditor.setEntityLoader(entityLoader);
         fieldEditor.setLabelProvider(DEFAULT_ENTITY_LABEL_PROVIDER);
         return fieldEditor;
     }
