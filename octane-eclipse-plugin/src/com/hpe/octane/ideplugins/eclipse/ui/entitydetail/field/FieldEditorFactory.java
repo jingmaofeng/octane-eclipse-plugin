@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata;
 import com.hpe.adm.nga.sdk.metadata.FieldMetadata.Target;
@@ -38,6 +37,7 @@ import com.hpe.adm.octane.ideplugins.services.filtering.Entity;
 import com.hpe.adm.octane.ideplugins.services.util.Util;
 import com.hpe.octane.ideplugins.eclipse.Activator;
 import com.hpe.octane.ideplugins.eclipse.ui.entitydetail.model.EntityModelWrapper;
+import com.hpe.octane.ideplugins.eclipse.ui.util.EntityComboBox.EntityLoader;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
 
 public class FieldEditorFactory {
@@ -116,7 +116,7 @@ public class FieldEditorFactory {
 
         } catch (Exception ex) {
             StringBuilder sbMessage = new StringBuilder();
-            sbMessage.append("Faied to set field  ")
+            sbMessage.append("Faied to set field ")
                     .append(fieldName)
                     .append(" in detail tab for entity ")
                     .append(entityModel.getId())
@@ -131,12 +131,6 @@ public class FieldEditorFactory {
         return fieldEditor;
     }
 
-    private static void disposeFieldEditor(FieldEditor fieldEditor) {
-        if (fieldEditor != null && fieldEditor instanceof Control) {
-            ((Control) fieldEditor).dispose();
-        }
-    }
-
     private FieldEditor createReferenceFieldEditor(Composite parent, EntityModelWrapper entityModelWrapper, FieldMetadata fieldMetadata) {
 
         Target[] targets = fieldMetadata.getFieldTypedata().getTargets();
@@ -144,20 +138,14 @@ public class FieldEditorFactory {
             throw new RuntimeException("Multiple target refrence fields not supported, fieldname: " + fieldMetadata.getName());
         }
 
-        ReferenceFieldEditor fieldEditor = new ReferenceFieldEditor(parent, SWT.NONE);
-
-        if (fieldMetadata.getFieldTypedata().isMultiple()) {
-            fieldEditor.setSelectionMode(SWT.MULTI);
-        } else {
-            fieldEditor.setSelectionMode(SWT.SINGLE);
-        }
-
-        Target traget = targets[0];
-        String logicalName = traget.logicalName();
+        Target target = targets[0];
+        String logicalName = target.logicalName();
 
         // List node loader
-        if (Entity.LIST_NODE.getEntityName().equals(traget.getType())) {
-            fieldEditor.setEntityLoader((searchQuery) -> {
+        EntityLoader entityLoader;
+        
+        if (Entity.LIST_NODE.getEntityName().equals(target.getType())) {
+            entityLoader = (searchQuery) -> {
                 QueryBuilder qb = Query.statement("list_root", QueryMethod.EqualTo,
                         Query.statement("logical_name", QueryMethod.EqualTo, logicalName));
                                 
@@ -165,21 +153,27 @@ public class FieldEditorFactory {
                 
                 //for some reason list nodes are not server side filterable, so you have to do it client side   
                 if(!searchQuery.isEmpty()) {
+                    String sanitizedSearchQuery = searchQuery.trim().toLowerCase();
+                    
                     entities =
                         entities
                         .stream()
-                        .filter(entityModel -> stringLike(Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME)), searchQuery))
+                        .filter(entityModel -> {
+                            String listNodeName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME));
+                            listNodeName = listNodeName.trim();
+                            listNodeName = listNodeName.toLowerCase();
+                            return stringLike(listNodeName, sanitizedSearchQuery);
+                        })
                         .collect(Collectors.toList());
                 }
                 
                 return entities;
-            });    
+            };
         }
-        else if(getEntityType(traget.getType())!=null) {
-            Entity entity = getEntityType(traget.getType());
+        else if(getEntityType(target.getType())!=null) {
+            Entity entity = getEntityType(target.getType());
             
-            fieldEditor.setEntityLoader((searchQuery) -> {
-                
+            entityLoader = (searchQuery) -> {
                 QueryBuilder qb = null;
                 
                 if(!searchQuery.isEmpty()) {    
@@ -206,13 +200,21 @@ public class FieldEditorFactory {
                 }
                 
                 return entityService.findEntities(entity, qb, null, null, null, COMBO_BOX_ENTITY_LIMIT);
-            });  
+            };  
         }
         else {
-            disposeFieldEditor(fieldEditor);
-            throw new RuntimeException("Refrence entity type not supported: " + traget.getType() + ", fieldname: "  + fieldMetadata.getName());
+            throw new RuntimeException("Refrence entity type not supported: " + target.getType() + ", fieldname: "  + fieldMetadata.getName());
         }
-
+        
+        ReferenceFieldEditor fieldEditor = new ReferenceFieldEditor(parent, SWT.NONE);
+        
+        if (fieldMetadata.getFieldTypedata().isMultiple()) {
+            fieldEditor.setSelectionMode(SWT.MULTI);
+        } else {
+            fieldEditor.setSelectionMode(SWT.SINGLE);
+        }
+        
+        fieldEditor.setEntityLoader(entityLoader);
         fieldEditor.setLabelProvider(DEFAULT_ENTITY_LABEL_PROVIDER);
         return fieldEditor;
     }
@@ -228,10 +230,6 @@ public class FieldEditorFactory {
         if(str == null || expr == null) {
             return false;
         }
-        str = str.trim();
-        str = str.toLowerCase();
-        expr = expr.trim();
-        expr = expr.toLowerCase();
         return str.contains(expr) || expr.contains(str);
     }
 
