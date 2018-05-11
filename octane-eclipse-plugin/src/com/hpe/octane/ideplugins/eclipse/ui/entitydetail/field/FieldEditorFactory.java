@@ -140,67 +140,16 @@ public class FieldEditorFactory {
 
         Target target = targets[0];
         String logicalName = target.logicalName();
+        Entity targetEntity = getEntityType(target.getType());
 
         // List node loader
         EntityLoader entityLoader;
         
-        if (Entity.LIST_NODE.getEntityName().equals(target.getType())) {
-            entityLoader = (searchQuery) -> {
-                QueryBuilder qb = Query.statement("list_root", QueryMethod.EqualTo,
-                        Query.statement("logical_name", QueryMethod.EqualTo, logicalName));
-                                
-                Collection<EntityModel> entities = entityService.findEntities(Entity.LIST_NODE, qb, null);
-                
-                //for some reason list nodes are not server side filterable, so you have to do it client side   
-                if(!searchQuery.isEmpty()) {
-                    String sanitizedSearchQuery = searchQuery.trim().toLowerCase();
-                    
-                    entities =
-                        entities
-                        .stream()
-                        .filter(entityModel -> {
-                            String listNodeName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME));
-                            listNodeName = listNodeName.trim();
-                            listNodeName = listNodeName.toLowerCase();
-                            return stringLike(listNodeName, sanitizedSearchQuery);
-                        })
-                        .collect(Collectors.toList());
-                }
-                
-                return entities;
-            };
+        if (Entity.LIST_NODE == targetEntity) {
+            entityLoader = createListNodeEntityLoader(logicalName);
         }
-        else if(getEntityType(target.getType())!=null) {
-            Entity entity = getEntityType(target.getType());
-            
-            entityLoader = (searchQuery) -> {
-                QueryBuilder qb = null;
-                
-                if(!searchQuery.isEmpty()) {    
-                    qb = Query.statement(DEFAULT_ENTITY_LABEL_PROVIDER.getLabelFieldName(entity), 
-                         QueryMethod.EqualTo, 
-                         "*" + searchQuery + "*");
-                }
-               
-                //Restrict sprint dropdown to current release, if there's no current release, display no
-                if(Entity.SPRINT == entity) {
-                    if(entityModelWrapper.hasValue(EntityFieldsConstants.FIELD_RELEASE)) {
-                        ReferenceFieldModel releaseFieldModel = (ReferenceFieldModel) entityModelWrapper.getValue(EntityFieldsConstants.FIELD_RELEASE);
-                        String releaseId = releaseFieldModel.getValue().getId();
-                        
-                        QueryBuilder releaseQb = 
-                                Query.statement(EntityFieldsConstants.FIELD_RELEASE, QueryMethod.EqualTo, 
-                                        Query.statement(EntityFieldsConstants.FIELD_ID, QueryMethod.EqualTo, releaseId));
-                        
-                        //join the two query builders
-                        qb = qb != null ? qb.and(releaseQb) : releaseQb;
-                    } else {
-                        return Collections.emptyList();
-                    }
-                }
-                
-                return entityService.findEntities(entity, qb, null, null, null, COMBO_BOX_ENTITY_LIMIT);
-            };  
+        else if(targetEntity != null) { //known entity, other than LIST_NODE
+            entityLoader = createGenericEntityLoader(getEntityType(target.getType()), entityModelWrapper);
         }
         else {
             throw new RuntimeException("Refrence entity type not supported: " + target.getType() + ", fieldname: "  + fieldMetadata.getName());
@@ -217,6 +166,64 @@ public class FieldEditorFactory {
         fieldEditor.setEntityLoader(entityLoader);
         fieldEditor.setLabelProvider(DEFAULT_ENTITY_LABEL_PROVIDER);
         return fieldEditor;
+    }
+    
+    private EntityLoader createListNodeEntityLoader(String targetLogicalName) {
+        return (searchQuery) -> {
+            QueryBuilder qb = Query.statement("list_root", QueryMethod.EqualTo,
+                    Query.statement("logical_name", QueryMethod.EqualTo, targetLogicalName));
+                            
+            Collection<EntityModel> entities = entityService.findEntities(Entity.LIST_NODE, qb, null);
+            
+            //for some reason list nodes are not server side filterable, so you have to do it client side   
+            if(!searchQuery.isEmpty()) {
+                String sanitizedSearchQuery = searchQuery.trim().toLowerCase();
+                
+                entities =
+                    entities
+                    .stream()
+                    .filter(entityModel -> {
+                        String listNodeName = Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME));
+                        listNodeName = listNodeName.trim();
+                        listNodeName = listNodeName.toLowerCase();
+                        return stringLike(listNodeName, sanitizedSearchQuery);
+                    })
+                    .collect(Collectors.toList());
+            }
+            
+            return entities;
+        };
+    }
+    
+    private EntityLoader createGenericEntityLoader(Entity entity, EntityModelWrapper entityModelWrapper) {        
+        return (searchQuery) -> {
+            QueryBuilder qb = null;
+            
+            if(!searchQuery.isEmpty()) {    
+                qb = Query.statement(DEFAULT_ENTITY_LABEL_PROVIDER.getLabelFieldName(entity), 
+                     QueryMethod.EqualTo, 
+                     "*" + searchQuery + "*");
+            }
+           
+            //Restrict sprint dropdown to current release, if there's no current release, display no
+            if(Entity.SPRINT == entity) {
+                if(entityModelWrapper.hasValue(EntityFieldsConstants.FIELD_RELEASE)) {
+                    ReferenceFieldModel releaseFieldModel = (ReferenceFieldModel) entityModelWrapper.getValue(EntityFieldsConstants.FIELD_RELEASE);
+                    String releaseId = releaseFieldModel.getValue().getId();
+                    
+                    QueryBuilder releaseQb = 
+                            Query.statement(EntityFieldsConstants.FIELD_RELEASE, QueryMethod.EqualTo, 
+                                    Query.statement(EntityFieldsConstants.FIELD_ID, QueryMethod.EqualTo, releaseId));
+                    
+                    //join the two query builders
+                    qb = qb != null ? qb.and(releaseQb) : releaseQb;
+                } else {
+                    return Collections.emptyList();
+                }
+            }
+            
+            return entityService.findEntities(entity, qb, null, null, null, COMBO_BOX_ENTITY_LIMIT);
+        };  
     }
     
     private Entity getEntityType(String type) {
