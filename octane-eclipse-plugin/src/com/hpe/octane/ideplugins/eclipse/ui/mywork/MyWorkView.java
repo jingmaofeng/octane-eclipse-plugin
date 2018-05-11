@@ -51,11 +51,11 @@ import com.hpe.octane.ideplugins.eclipse.ui.mywork.rowrenderer.MyWorkEntityModel
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditor;
 import com.hpe.octane.ideplugins.eclipse.ui.search.SearchEditorInput;
 import com.hpe.octane.ideplugins.eclipse.ui.snake.SnakeEditor;
-import com.hpe.octane.ideplugins.eclipse.ui.util.ErrorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.InfoPopup;
 import com.hpe.octane.ideplugins.eclipse.ui.util.OpenDetailTabEntityMouseListener;
 import com.hpe.octane.ideplugins.eclipse.ui.util.SeparatorControlContribution;
 import com.hpe.octane.ideplugins.eclipse.ui.util.TextContributionItem;
+import com.hpe.octane.ideplugins.eclipse.ui.util.error.ErrorComposite;
 import com.hpe.octane.ideplugins.eclipse.ui.util.resource.SWTResourceManager;
 import com.hpe.octane.ideplugins.eclipse.util.CommitMessageUtil;
 import com.hpe.octane.ideplugins.eclipse.util.EntityFieldsConstants;
@@ -110,11 +110,7 @@ public class MyWorkView extends OctaneViewPart {
                     });
                 } catch (Exception e) {
                     Display.getDefault().asyncExec(() -> {
-                        if (e.getMessage().equals("null")) {
-                            errorComposite.setErrorMessage("Error while loading \"My Work\"");
-                        } else {
-                            errorComposite.setErrorMessage("Error while loading \"My Work\": " + e.getMessage());
-                        }
+                        errorComposite.displayException(e);
                         showControl(errorComposite);
                         entityData.setEntityList(Collections.emptyList());
 
@@ -208,7 +204,7 @@ public class MyWorkView extends OctaneViewPart {
                 }
             }
         });
-        errorComposite = new ErrorComposite(parent, SWT.NONE);
+        errorComposite = new ErrorComposite(parent, SWT.BORDER);
 
         IActionBars viewToolbar = getViewSite().getActionBars();
 
