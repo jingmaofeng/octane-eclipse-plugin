@@ -44,16 +44,16 @@ public class FieldEditorFactory {
     private static final LabelProvider DEFAULT_ENTITY_LABEL_PROVIDER = new LabelProvider() {
         @Override
         public String getText(Object element) {
-
             EntityModel entityModel = (EntityModel) element;
-
+            String fieldName;
+            
             if (Entity.getEntityType(entityModel) == Entity.WORKSPACE_USER) {
-                return Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_FULL_NAME));
-
+                fieldName =  EntityFieldsConstants.FIELD_FULL_NAME;
             } else {
-                return Util.getUiDataFromModel(entityModel.getValue(EntityFieldsConstants.FIELD_NAME));
-
+                fieldName = EntityFieldsConstants.FIELD_NAME;
             }
+            
+            return Util.getUiDataFromModel(entityModel.getValue(fieldName));
         }
     };
 
